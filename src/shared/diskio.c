@@ -106,6 +106,8 @@ uint8_t diskio_detail_code;
 
 /* Wait until the TF card is finished */
 /* Returns resp on success, 0xFF on failure */
+static uint8_t nile_tf_wait_ready(uint8_t resp);
+#if 0
 static uint8_t nile_tf_wait_ready(uint8_t resp) {
 	uint32_t timeout = 1500000;
 	uint8_t resp_busy[1];
@@ -121,7 +123,10 @@ static uint8_t nile_tf_wait_ready(uint8_t resp) {
 		return 0xFF;
 	return resp;
 }
+#endif
 
+static bool nile_tf_cs_high(void);
+#if 0
 static bool nile_tf_cs_high(void) {
 	if (!nile_spi_wait_busy())
 		return false;
@@ -130,7 +135,10 @@ static bool nile_tf_cs_high(void) {
 		return false;
 	return true;
 }
+#endif
 
+static bool nile_tf_cs_low(void);
+#if 0
 static bool nile_tf_cs_low(void) {
 	if (!nile_spi_wait_busy())
 		return false;
@@ -141,6 +149,7 @@ static bool nile_tf_cs_low(void) {
 		return false;
 	return true;
 }
+#endif
 
 static uint8_t nile_tf_read_response_r1b(void) {
 	uint8_t resp = 0xFF;
