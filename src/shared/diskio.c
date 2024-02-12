@@ -320,6 +320,8 @@ card_init_complete_hc:
 	return 0;
 }
 
+bool nile_disk_read_inner(BYTE __far* buff, uint16_t count);
+
 DRESULT disk_read (BYTE pdrv, BYTE __far* buff, LBA_t sector, UINT count) {
 	uint8_t result = RES_ERROR;
 	uint8_t resp[8];
@@ -334,6 +336,10 @@ DRESULT disk_read (BYTE pdrv, BYTE __far* buff, LBA_t sector, UINT count) {
 		goto disk_read_end;
 	}
 
+#if 1
+	if (!nile_disk_read_inner(buff, count)) 
+		goto disk_read_stop;
+#else
 	while (count) {
 		if (!nile_spi_rx_copy(resp, 1, NILE_SPI_MODE_WAIT_READ)) {
 			set_detail_code(0x11);
@@ -354,6 +360,8 @@ DRESULT disk_read (BYTE pdrv, BYTE __far* buff, LBA_t sector, UINT count) {
 		buff += 512;
 		count--;
 	}
+#endif
+	result = RES_OK;
 
 disk_read_stop:
 	if (multi_transfer) {
@@ -362,10 +370,12 @@ disk_read_stop:
 		resp[6] = 0xFF; // skip one byte
 		if (!nile_spi_tx(resp, 7)) {
 			set_detail_code(0x15);
+			result = RES_ERROR;
 			goto disk_read_end;
 		}
 		if (nile_tf_read_response_r1b()) {
 			set_detail_code(0x16);
+			result = RES_ERROR;
 			goto disk_read_end;
 		}
 	}
