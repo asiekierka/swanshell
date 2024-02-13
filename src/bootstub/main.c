@@ -86,8 +86,11 @@ int main(void) {
 		bank++;
 	}
     
+	outportb(IO_CART_FLASH, 0);
+	outportw(IO_NILE_SPI_CNT, 0);
 	outportw(IO_NILE_SEG_MASK, (total_banks - 1) | (0x7 << 12));
 	clear_registers(true);
+	outportb(IO_NILE_POW_CNT, 0);
 	launch_ram_asm(MK_FP(0xFFFF, 0x0000));
 
 error:
