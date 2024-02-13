@@ -29,45 +29,45 @@
     .section .fartext.s.launch_ram_asm, "a"
     .align 2
 launch_ram_asm:
-    cli
-    cld
-
     mov bx, ax
-    mov bp, cx
+
+    // Write bank values
+    mov ax, 0xFFFF
+    out IO_BANK_2003_RAM, ax
+    out IO_BANK_2003_ROM0, ax
+    out IO_BANK_2003_ROM1, ax
+    out IO_BANK_ROM_LINEAR, al
 
     // Clear DS/ES for memory I/O
-    xor ax, ax
+    cld
+    inc ax
     mov ds, ax
     mov es, ax
 
-    // Clear "mono" mode memory, except the register restore area
-    mov di, 0
-    mov cx, 0x20
-    rep stosw
-
-    mov di, 0x58
-    mov cx, 0x1fd4
-    rep stosw
-
     // Copy stub to RAM
-    .reloc  .+1, R_386_SEG16, "launch_ram_asm_relocated!"
-    mov ax, 0
-    mov ds, ax
     mov si, offset "launch_ram_asm_relocated"
     mov di, 0x2004
-    mov cx, (launch_ram_asm_relocated_end - launch_ram_asm_relocated)
-    rep movsb
-    push es
-    pop ds
+    mov cx, (launch_ram_asm_relocated_end + 1 - launch_ram_asm_relocated)
+    shr cx, 1
+    rep movsw
 
     // Populate immediate values in jump stub
     mov [0x2005 + launch_ram_asm_relocated_stub - launch_ram_asm_relocated], bx
     mov [0x2007 + launch_ram_asm_relocated_stub - launch_ram_asm_relocated], dx
-    mov [0x2005], bp
     mov ax, [0x40]
     mov [0x2000], ax
     mov ax, [0x50]
     mov [0x2002], ax
+
+    // Jump to relocated stub
+    xor ax, ax
+    mov di, ax
+    mov cx, 0x1000
+    jmp 0x2004
+
+launch_ram_asm_relocated:
+    // Clear unused memory
+    rep stosw
 
     // Restore (most) register state
     mov cx, [0x56]
@@ -98,21 +98,6 @@ launch_ram_asm:
     mov [0x52], ax
     mov [0x54], ax
     mov [0x56], ax
-
-    // Jump to relocated stub
-    jmp 0x0000,0x2004
-
-launch_ram_asm_relocated:
-    // Write bank mask
-    mov ax, 0x0000
-    out IO_NILE_SEG_MASK, ax
-
-    // Write bank values
-    mov ax, 0xFFFF
-    out IO_BANK_2003_RAM, ax
-    out IO_BANK_2003_ROM0, ax
-    out IO_BANK_2003_ROM1, ax
-    out IO_BANK_ROM_LINEAR, al
 
     // Restore final registers
     mov ax, [0x2002]

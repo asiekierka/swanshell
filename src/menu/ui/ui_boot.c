@@ -22,6 +22,8 @@
 #include <ws.h>
 #include <ws/hardware.h>
 #include <ws/system.h>
+#include "bootstub.h"
+#include "../../build/menu/build/bootstub_bin.h"
 #include "fatfs/ff.h"
 #include "bitmap.h"
 #include "ui.h"
@@ -31,48 +33,7 @@
 __attribute__((section(".iramx_0040")))
 uint16_t ipl0_initial_regs[16];
 
-static inline uint32_t round2(uint32_t v) {
-    v--;
-    v |= v >> 1;
-    v |= v >> 2;
-    v |= v >> 4;
-    v |= v >> 8;
-    v |= v >> 16;
-    v++;
-    return v;
-}
-
-static void clear_registers(bool disable_color_mode) {
-    // wait for vblank, disable display, reset some registers
-    wait_for_vblank();
-    cpu_irq_disable();
-
-    if (ws_system_color_active()) {
-        _nmemset((void*) 0x4000, 0x00, 0xC000);
-        uint8_t ctrl2 = disable_color_mode ? 0x0A : 0x8A;
-        outportb(IO_SYSTEM_CTRL2, ctrl2);
-    }
-
-    outportw(IO_DISPLAY_CTRL, 0);
-    outportb(IO_LCD_SEG, 0);
-    outportb(IO_SPR_BASE, 0);
-    outportb(IO_SPR_FIRST, 0);
-    outportb(IO_SPR_COUNT, 0);
-    outportb(IO_SCR1_SCRL_X, 0);
-    outportb(IO_SCR1_SCRL_Y, 0);
-    outportb(IO_SCR2_SCRL_X, 0);
-    outportb(IO_SCR2_SCRL_Y, 0);
-    outportb(IO_HWINT_VECTOR, 0);
-    outportb(IO_HWINT_ENABLE, 0);
-    outportb(IO_INT_NMI_CTRL, 0);
-    outportb(IO_KEY_SCAN, 0x40);
-    outportb(IO_SCR_BASE, 0x26);
-
-    outportb(IO_HWINT_ACK, 0xFF);
-}
-
-extern void launch_ram_asm(const void __far *ptr, uint16_t bank_mask);
-
+/*
 void ui_boot(const char *path) {
     FIL fp;
     
@@ -115,5 +76,36 @@ void ui_boot(const char *path) {
 	}
     
     clear_registers(true);
-    launch_ram_asm(MK_FP(0xFFFF, 0x0000), (total_banks - 1) | (0x7 << 12));
+    launch_ram_asm(MK_FP(0xFFFF, 0x0000), );
+} */
+
+extern FATFS fs;
+
+void ui_boot(const char *path) {
+    FILINFO fp;
+    
+	uint8_t result = f_stat(path, &fp);
+	if (result != FR_OK) {
+        // TODO
+        return;
+	}
+
+    outportw(IO_DISPLAY_CTRL, 0);
+
+    // Disable IRQs - avoid other code interfering/overwriting memory
+    cpu_irq_disable();
+
+    // Populate bootstub data
+    bootstub_data->data_base = fs.database;
+    bootstub_data->cluster_table_base = fs.fatbase;
+    bootstub_data->cluster_size = fs.csize;
+    bootstub_data->fat_entry_count = fs.n_fatent;
+    bootstub_data->fs_type = fs.fs_type;
+    
+    bootstub_data->prog_cluster = fp.fclust;
+    bootstub_data->prog_size = fp.fsize;
+
+    // Jump to bootstub
+    memcpy((void*) 0x00c0, bootstub, bootstub_size);
+    asm volatile("ljmp $0x0000,$0x00c0\n");
 }

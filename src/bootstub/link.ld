@@ -2,7 +2,7 @@ OUTPUT_FORMAT("elf32-i386")
 ENTRY(_start)
 SECTIONS
 {
-	. = SEGMENT_START ("text-segment", 0x0400);
+	. = SEGMENT_START ("text-segment", 0x00C0);
 
 	.text : {
 		__stext = .;

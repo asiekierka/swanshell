@@ -17,7 +17,7 @@
 
 #include <string.h>
 #include "bitmap.h"
-#include "../util/utf8.h"
+#include "util/utf8.h"
 #include "../../../build/menu/assets/menu/fonts.h"
 
 #define BITMAP_AT(bitmap, x, y) (((uint8_t*) (bitmap)->start) + ((y) * (bitmap)->bpp) + (((x) >> 3) * (bitmap)->pitch))
