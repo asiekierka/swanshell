@@ -41,14 +41,14 @@ void __far vblank_int_handler(void) {
 
 FATFS fs;
 
-/* static uint8_t disk_read_error;
+static uint8_t disk_read_error;
 static uint16_t bench_disk_read(uint16_t sectors) {
 	outportw(IO_HBLANK_TIMER, 65535);
 	outportb(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE | HBLANK_TIMER_ONESHOT);
 	disk_read_error = disk_read(0, MK_FP(0x1000, 0x0000), 0, sectors);
 	outportb(IO_TIMER_CTRL, 0);
 	return inportw(IO_HBLANK_COUNTER) ^ 0xFFFF;
-} */
+}
 
 void main(void) {
 	outportb(IO_INT_NMI_CTRL, 0);
@@ -60,18 +60,13 @@ void main(void) {
 
 	// TODO: PCv2 detect
 
-	ui_init();
-
 	uint8_t result;
 	result = f_mount(&fs, "", 1);
 	if (result != FR_OK) {
 		while(1);
 	}
 
-	if (ws_system_color_active()) {
-		outportb(IO_SYSTEM_CTRL2, inportb(IO_SYSTEM_CTRL2) & ~(SYSTEM_CTRL2_SRAM_WAIT | SYSTEM_CTRL2_CART_IO_WAIT));
-	}
-
+	ui_init();
 	ui_file_selector();
 /*	char text[60];
 	for (int i = 1; i <= 14; i++) {

@@ -22,7 +22,6 @@
 #include <ws.h>
 #include <ws/hardware.h>
 #include "fatfs/ff.h"
-#include "bitmap.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../util/util.h"

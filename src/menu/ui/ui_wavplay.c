@@ -23,7 +23,6 @@
 #include <ws/hardware.h>
 #include <ws/system.h>
 #include "fatfs/ff.h"
-#include "bitmap.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../util/util.h"

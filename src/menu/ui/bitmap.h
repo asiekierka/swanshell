@@ -15,8 +15,8 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __BITMAP_H__
-#define __BITMAP_H__
+#ifndef __OLD_BITMAP_H__
+#define __OLD_BITMAP_H__
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -30,20 +30,38 @@
 // CG ; bpp = 2 
 // DH ; pitch = 64
 typedef struct {
-    uint16_t pitch; // Pitch, in bytes
-    void __wf_iram* start; // Starting address
+    // Arguments
+    uint16_t current_pitch;
+
+    // Bitmap configuration
+    uint16_t x_pitch; // Bytes
+    uint8_t y_pitch; // Bytes (2 for 1/2 bpp, 4 for 4bpp)
+    uint8_t x_shift; // 3 for 2/4bpp, 4 for 1bpp
+    uint8_t bpp; // Bits per pixel (1, 2, 4)
     uint8_t width; // Width, in tiles
     uint8_t height; // Height, in tiles
-    uint8_t bpp; // Bits per pixel
+    void __wf_iram* start; // Starting address
 } bitmap_t;
 
 #define BITMAP(start, width, height, bpp) ((bitmap_t) { \
-        ((height) * (bpp) * 8), \
-        (start), (width), (height), (bpp) \
+        0, \
+        ((height) * ((bpp) == 4 ? 4 : 2) * 8), \
+        (bpp) == 4 ? 4 : 2, \
+        (bpp) == 1 ? 4 : 3, \
+        (bpp), (width), (height), (start) \
     })
 
+#define BITMAP_COLOR_MODE_STORE    0x000
+#define BITMAP_COLOR_MODE_XOR      0x100
+#define BITMAP_COLOR(value, mask, mode) ((value) | ((mask) << 4) | (mode)) 
+
+uint32_t bitmap_c2p_4bpp_pixel(uint32_t pixel);
+
 void bitmap_clear(const bitmap_t *bitmap);
-void bitmap_rect_clear(const bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
+static inline void bitmap_rect_clear(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+    bitmap_rect_fill(bitmap, x, y, width, height, BITMAP_COLOR(0, 15, BITMAP_COLOR_MODE_STORE));
+}
 uint16_t bitmapfont_get_char_width(uint32_t ch);
 uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch);
 uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width);

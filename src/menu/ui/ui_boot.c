@@ -20,12 +20,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
+#include <wsx/lzsa.h>
 #include "bootstub.h"
 #include "../../build/menu/build/bootstub_bin.h"
+#include "../../build/menu/assets/menu/bootstub_tiles.h"
 #include "fatfs/ff.h"
-#include "bitmap.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../util/util.h"
@@ -94,6 +93,9 @@ void ui_boot(const char *path) {
 
     // Disable IRQs - avoid other code interfering/overwriting memory
     cpu_irq_disable();
+
+    // Initialize bootstub graphics
+    wsx_lzsa2_decompress((void*) 0x3200, gfx_bootstub_tiles);
 
     // Populate bootstub data
     bootstub_data->data_base = fs.database;

@@ -24,7 +24,6 @@
 #include <ws/hardware.h>
 #include <ws/system.h>
 #include "fatfs/ff.h"
-#include "bitmap.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../util/util.h"
@@ -97,7 +96,7 @@ void ui_bmpview(const char *path) {
             palette++;
             MEM_COLOR_PALETTE(0)[i] = RGB(r >> 4, g >> 4, b >> 4);
         }
-        MEM_COLOR_PALETTE(1)[0] = RGB(0, 0, 0);
+        MEM_COLOR_PALETTE(1)[0] = MEM_COLOR_PALETTE(0)[0];
     } else {
         outportw(IO_SCR_PAL_0, 0x7654);
         uint16_t shades = 0;

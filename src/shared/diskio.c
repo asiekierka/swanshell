@@ -314,9 +314,13 @@ card_init_complete:
 
 card_init_complete_hc:
 	nile_spi_timeout_ms = 100;
-	nile_tf_cs_high();
+	// nile_tf_cs_high(); but also changes clocks
+	if (!nile_spi_wait_busy())
+		return false;
 	outportb(IO_NILE_POW_CNT, powcnt | NILE_POW_CLOCK);
 	outportw(IO_NILE_SPI_CNT, NILE_SPI_DEV_TF | NILE_SPI_25MHZ | NILE_SPI_CS_HIGH);
+	if (!nile_spi_rx(1, NILE_SPI_MODE_READ))
+		return false;
 	return 0;
 }
 

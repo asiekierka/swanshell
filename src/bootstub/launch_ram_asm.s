@@ -32,11 +32,12 @@ launch_ram_asm:
     mov bx, ax
 
     // Write bank values
+    mov al, 0x0F
+    out IO_BANK_ROM_LINEAR, al
     mov ax, 0xFFFF
     out IO_BANK_2003_RAM, ax
     out IO_BANK_2003_ROM0, ax
     out IO_BANK_2003_ROM1, ax
-    out IO_BANK_ROM_LINEAR, al
 
     // Clear DS/ES for memory I/O
     cld

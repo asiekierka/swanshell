@@ -19,6 +19,8 @@
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
+#include <ws/display.h>
+#include <ws/hardware.h>
 #include <ws/system.h>
 #include "cluster_read.h"
 #include "fatfs/ff.h"
@@ -26,6 +28,48 @@
 #include "bootstub.h"
 #include "nileswan/nileswan.h"
 #include "util/math.h"
+
+#define SCREEN ((uint16_t *) 0x2800)
+
+/* === Visual flair === */
+
+static uint16_t bank_count;
+static uint16_t bank_count_max;
+static uint16_t progress_pos;
+
+static void progress_init(uint16_t graphic, uint16_t max_value) {
+	if (ws_system_color_active()) {
+		MEM_COLOR_PALETTE(0)[0] = 0xFFF;
+		MEM_COLOR_PALETTE(0)[1] = 0x000;
+		MEM_COLOR_PALETTE(0)[2] = 0x555;
+		MEM_COLOR_PALETTE(0)[3] = 0xAAA;
+	} else {
+		ws_display_set_shade_lut(SHADE_LUT_DEFAULT);
+		outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(0, 7, 5, 2));
+	}
+
+    outportw(IO_SCR1_SCRL_X, 0);
+	outportb(IO_SCR_BASE, SCR1_BASE(SCREEN));
+	ws_screen_fill_tiles(SCREEN, 0x120, 0, 0, 28, 18);
+	for (int i = 0; i < 12; i++) {
+		ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i, (i & 3) + 12, (i >> 2) + 7);
+	}
+	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE);
+
+	bank_count = 0;
+	bank_count_max = max_value;
+	progress_pos = 0;
+}
+
+static void progress_tick(void) {
+	uint16_t progress_end = ((++bank_count) << 4) / bank_count_max;
+	if (progress_end > 16) progress_end = 16;
+	for (; progress_pos < progress_end; progress_pos++) {
+		ws_screen_put_tile(SCREEN, ((uint8_t) '-') | 0x100, 6 + progress_pos, 13);
+	}
+}
+
+/* === Hardware configuration === */
 
 static inline void clear_registers(bool disable_color_mode) {
     // wait for vblank, disable display, reset some registers
@@ -43,10 +87,8 @@ static inline void clear_registers(bool disable_color_mode) {
     outportb(IO_SPR_BASE, 0);
     outportb(IO_SPR_FIRST, 0);
     outportb(IO_SPR_COUNT, 0);
-    outportb(IO_SCR1_SCRL_X, 0);
-    outportb(IO_SCR1_SCRL_Y, 0);
-    outportb(IO_SCR2_SCRL_X, 0);
-    outportb(IO_SCR2_SCRL_Y, 0);
+    // outportw(IO_SCR1_SCRL_X, 0); Already done in progress_init
+    outportw(IO_SCR2_SCRL_X, 0);
     outportb(IO_HWINT_VECTOR, 0);
     outportb(IO_HWINT_ENABLE, 0);
     outportb(IO_INT_NMI_CTRL, 0);
@@ -55,6 +97,8 @@ static inline void clear_registers(bool disable_color_mode) {
 
     outportb(IO_HWINT_ACK, 0xFF);
 }
+
+/* === Main boot code === */
 
 __attribute__((noreturn))
 extern void launch_ram_asm(const void __far *ptr);
@@ -68,17 +112,20 @@ int main(void) {
     uint16_t bank = (real_size - size) >> 16;
     uint16_t total_banks = real_size >> 16;
 
+	progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 2 : 1));
 	cluster_open(bootstub_data->prog_cluster);
 	outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
 
 	while (bank < total_banks) {
 		outportw(IO_BANK_2003_RAM, bank);
 		if (offset < 0x8000) {
+			progress_tick();
 			if ((result = cluster_read(MK_FP(0x1000, offset), 0x8000 - offset)) != FR_OK) {
                  goto error;
 			}
 			offset = 0x8000;
 		}
+		progress_tick();
 		if ((result = cluster_read(MK_FP(0x1000, offset), -offset)) != FR_OK) {
 			goto error;
 		}
