@@ -26,7 +26,7 @@
 #include "bitmap.h"
 #include "ui.h"
 #include "../util/input.h"
-#include "../util/util.h"
+#include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
 
 __attribute__((section(".iramx_1800")))
@@ -254,6 +254,7 @@ rescan_directory:
                     }
                     // memcpy(MEM_TILE(i + 1), gfx_icons_tiles + (icon_idx * 16), 16);
                 }
+                prev_file_offset = file_offset + 1;
             }
             if ((prev_file_offset % 10) != (file_offset % 10)) {
                 // Draw highlights

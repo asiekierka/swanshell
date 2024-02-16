@@ -142,7 +142,7 @@ nile_tf_cs_low_ret:
     .section .fartext.s.nile_disk_read_inner, "ax"
     .align 2
 __read256:
-#ifdef __OPTIMIZE_SIZE__
+#if 0
     push cx
     mov cx, 0x80
     rep movsw
@@ -154,13 +154,13 @@ __read256:
 #endif
     ret
 
-__waitread1:
+.macro __waitread1
     // nile_spi_rx(1, NILE_SPI_MODE_WAIT_READ)
     in ax, IO_NILE_SPI_CNT
     and ax, 0x7800
     or ah, ((NILE_SPI_START | NILE_SPI_MODE_WAIT_READ) >> 8)
     out IO_NILE_SPI_CNT, ax
-    ret
+.endm
 
     .global nile_disk_read_inner
 nile_disk_read_inner:
@@ -171,6 +171,7 @@ nile_disk_read_inner:
     push ds
     push si
 
+    mov bx, cx
     mov di, ax  // write to ES:DI
     mov es, dx
 
@@ -180,11 +181,11 @@ nile_disk_read_inner:
     mov ax, NILE_SEG_ROM_RX
     out IO_BANK_2003_ROM1, ax
 
+    __waitread1
+
     push 0x3000 // read from 0x3000:0x0000 
-    pop ds      
-    call __waitread1
+    pop ds
 nile_disk_read_inner_loop:
-    push cx
     xor si, si
 
     // wait for read(1) to end
@@ -229,10 +230,9 @@ nile_disk_read_inner_loop_s2:
     out IO_NILE_SPI_CNT, ax
 
     // read 256 bytes
-    pop cx
-    dec cx
+    dec bx
     jz nile_disk_read_inner_success
-    call __waitread1
+    __waitread1
     call __read256
     jmp nile_disk_read_inner_loop
 

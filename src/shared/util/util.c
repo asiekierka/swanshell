@@ -14,16 +14,5 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
-
-#include <ws.h>
-
-// it's an uint16_t but we only want the low byte
-extern volatile uint8_t vbl_ticks;
-
-void wait_for_vblank(void) {
-        uint8_t vbl_ticks_last = vbl_ticks;
-
-        while (vbl_ticks == vbl_ticks_last) {
-                cpu_halt();
-        }
-}
+ 
+ #include "util.h"

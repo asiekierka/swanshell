@@ -17,7 +17,7 @@
 
 #include <ws.h>
 #include "input.h"
-#include "util.h"
+#include "../main.h"
 
 // it's an uint16_t but we only want the low byte
 extern volatile uint8_t vbl_ticks;

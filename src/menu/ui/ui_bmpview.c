@@ -26,7 +26,7 @@
 #include "fatfs/ff.h"
 #include "ui.h"
 #include "../util/input.h"
-#include "../util/util.h"
+#include "../main.h"
 
 typedef struct {
     uint16_t magic;

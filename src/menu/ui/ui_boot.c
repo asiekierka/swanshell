@@ -27,7 +27,7 @@
 #include "fatfs/ff.h"
 #include "ui.h"
 #include "../util/input.h"
-#include "../util/util.h"
+#include "../main.h"
 
 __attribute__((section(".iramx_0040")))
 uint16_t ipl0_initial_regs[16];

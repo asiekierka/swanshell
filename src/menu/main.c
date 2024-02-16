@@ -39,6 +39,14 @@ void __far vblank_int_handler(void) {
 	vblank_input_update();
 }
 
+void wait_for_vblank(void) {
+	uint16_t vbl_ticks_last = vbl_ticks;
+
+	while (vbl_ticks == vbl_ticks_last) {
+		cpu_halt();
+	}
+}
+
 FATFS fs;
 
 static uint8_t disk_read_error;

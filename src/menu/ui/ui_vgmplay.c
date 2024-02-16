@@ -24,7 +24,7 @@
 #include "fatfs/ff.h"
 #include "ui.h"
 #include "../util/input.h"
-#include "../util/util.h"
+#include "../main.h"
 #include "../util/vgm.h"
 
 static vgmswan_state_t *vgm_state;

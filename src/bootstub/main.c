@@ -28,8 +28,43 @@
 #include "bootstub.h"
 #include "nileswan/nileswan.h"
 #include "util/math.h"
+#include "util/util.h"
 
 #define SCREEN ((uint16_t *) 0x2800)
+
+/* === Error reporting === */
+
+static const char fatfs_error_header[] = "TF card read failed (  )";
+static const uint8_t hexchars[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+extern uint8_t diskio_detail_code;
+
+__attribute__((noreturn))
+static void report_fatfs_error(uint8_t result) {
+	// deinitialize hardware
+	outportw(IO_NILE_SPI_CNT, NILE_SPI_390KHZ);
+	outportb(IO_NILE_POW_CNT, 0);
+
+	outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(7, 0, 2, 5));
+	outportw(IO_SCR_PAL_3, MONO_PAL_COLORS(7, 7, 7, 7));
+	memcpy_expand_8_16(SCREEN + (2 * 32) + 2, fatfs_error_header, sizeof(fatfs_error_header) - 1, 0x0100);
+	ws_screen_put_tile(SCREEN, 23, 2, hexchars[result >> 4] | 0x0100);
+	ws_screen_put_tile(SCREEN, 24, 2, hexchars[result & 0xF] | 0x0100);
+
+	const char *error_detail = NULL;
+	switch (result) {
+		case FR_DISK_ERR: error_detail = "Disk I/O error"; break;
+		case FR_INT_ERR: case FR_INVALID_PARAMETER: error_detail = "Internal error"; break;
+		case FR_NOT_READY: error_detail = "Drive not ready"; break;
+		case FR_NO_FILE: case FR_NO_PATH: error_detail = "File not found"; break;
+		case FR_NO_FILESYSTEM: error_detail = "FAT filesystem not found"; break;
+	}
+	if (error_detail != NULL) {
+		memcpy_expand_8_16(SCREEN + ((17 - 2) * 32) + ((28 - strlen(error_detail)) >> 1), error_detail, strlen(error_detail), 0x0100);
+	}
+
+	while(1);
+}
 
 /* === Visual flair === */
 
@@ -134,12 +169,12 @@ int main(void) {
 	}
     
 	outportb(IO_CART_FLASH, 0);
-	outportw(IO_NILE_SPI_CNT, 0);
+	outportw(IO_NILE_SPI_CNT, NILE_SPI_390KHZ);
 	outportw(IO_NILE_SEG_MASK, (total_banks - 1) | (0x7 << 12));
 	clear_registers(true);
 	outportb(IO_NILE_POW_CNT, 0);
 	launch_ram_asm(MK_FP(0xFFFF, 0x0000));
 
 error:
-	while(1);
+	report_fatfs_error(result);
 }
