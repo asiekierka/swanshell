@@ -105,7 +105,7 @@ __bitmap_bitop_fill_c:
     rep stosw
     pop di
     pop es
-    ASM_PLATFORM_RET
+    WF_PLATFORM_RET
 
     // __bitmap_bitop_row_c(uint16_t _and, uint16_t _xor, uint16_t _rows, uint16_t _mask, bitmap_t *bitmap, void *dest)
     .global __bitmap_bitop_row_c
@@ -118,15 +118,15 @@ __bitmap_bitop_row_c:
     push di
     push bp
     mov bp, sp
-    mov si, [bp + ASM_PLATFORM_CALL_STACK_OFFSET(12)]
-    mov di, [bp + ASM_PLATFORM_CALL_STACK_OFFSET(10)]
-    mov bp, [bp + ASM_PLATFORM_CALL_STACK_OFFSET(8)]
+    mov si, [bp + WF_PLATFORM_CALL_STACK_OFFSET(12)]
+    mov di, [bp + WF_PLATFORM_CALL_STACK_OFFSET(10)]
+    mov bp, [bp + WF_PLATFORM_CALL_STACK_OFFSET(8)]
     call __bitmap_bitop_row
     pop bp
     pop di
     pop si
     pop ds
-    ASM_PLATFORM_RET 0x6
+    WF_PLATFORM_RET 0x6
 
 __bitmap_c2p_4bpp_table:
 #include "c2p_table.inc"
@@ -167,4 +167,4 @@ __bitmap_c2p_4bpp_done:
     pop ds
     pop bp
     mov dx, cx
-    ASM_PLATFORM_RET
+    WF_PLATFORM_RET

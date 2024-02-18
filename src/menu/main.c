@@ -31,7 +31,7 @@
 volatile uint16_t vbl_ticks;
 bool is_pcv2; // TODO
 
-__attribute__((interrupt))
+__attribute__((assume_ss_data, interrupt))
 void __far vblank_int_handler(void) {
 	ws_hwint_ack(HWINT_VBLANK);
 	cpu_irq_enable();
