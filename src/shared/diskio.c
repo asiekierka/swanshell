@@ -446,9 +446,13 @@ DRESULT disk_write (BYTE pdrv, const BYTE __far* buff, LBA_t sector, UINT count)
 			set_detail_code(0x22);
 			goto disk_read_stop;
 		}
-		if (!nile_spi_rx_copy(resp, 3, NILE_SPI_MODE_WAIT_READ)) {
+		if (!nile_spi_rx_copy(resp, 2, NILE_SPI_MODE_WAIT_READ)) {
 			set_detail_code(0x23);
 			goto disk_read_stop;
+		}
+		if ((resp[0] & 0x1F) != 0x05) {
+			set_detail_code(0x25);
+			goto disk_read_end;
 		}
 		// TODO: error handling?
 		buff += 512;
@@ -483,11 +487,14 @@ disk_read_stop:
 			set_detail_code(0x22);
 			goto disk_read_end;
 		}
-		if (!nile_spi_rx_copy(resp, 3, NILE_SPI_MODE_WAIT_READ)) {
+		if (!nile_spi_rx_copy(resp, 2, NILE_SPI_MODE_WAIT_READ)) {
 			set_detail_code(0x23);
 			goto disk_read_end;
 		}
-		// TODO: error handling?
+		if ((resp[0] & 0x1F) != 0x05) {
+			set_detail_code(0x25);
+			goto disk_read_end;
+		}
 		buff += 512;
 		sector += (nile_ipl_data->card_state & NILE_CARD_BLOCK_ADDRESSING) ? 1 : 512;
 		count--;
