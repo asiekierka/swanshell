@@ -208,8 +208,8 @@ rescan_directory:
 		while(1);
 	}
 	while (true) {
-        outportw(IO_BANK_2003_RAM, file_count >> 7);
-        FILINFO __far* fno = MK_FP(0x1000, file_count << 9);
+        outportw(IO_BANK_2003_RAM, file_count >> 8);
+        FILINFO __far* fno = MK_FP(0x1000, file_count << 8);
 		result = f_readdir(&dir, fno);
 		if (result != FR_OK) {
             // TODO: error handling
@@ -241,8 +241,8 @@ rescan_directory:
                     uint16_t offset = ((file_offset / 10) * 10) + i;
                     if (offset >= file_count) break;
 
-                    outportw(IO_BANK_2003_RAM, offset >> 7);
-                    FILINFO __far* fno = MK_FP(0x1000, offset << 9);
+                    outportw(IO_BANK_2003_RAM, offset >> 8);
+                    FILINFO __far* fno = MK_FP(0x1000, offset << 8);
 
                     uint16_t x = 9 + bitmapfont_draw_string(&ui_bitmap, 9, (i + 2) * 12, fno->fname, 224 - 10);
                     uint8_t icon_idx = 1;
@@ -336,8 +336,8 @@ rescan_directory:
         if (file_count > 0 && file_offset >= file_count)
             file_offset = file_count - 1;
         if (keys_pressed & KEY_A) {
-            outportw(IO_BANK_2003_RAM, file_offset >> 7);
-            FILINFO __far* fno = MK_FP(0x1000, file_offset << 9);
+            outportw(IO_BANK_2003_RAM, file_offset >> 8);
+            FILINFO __far* fno = MK_FP(0x1000, file_offset << 8);
             strncpy(path, fno->fname, sizeof(fno->fname));
             if (fno->fattrib & AM_DIR) {
                 f_chdir(path);

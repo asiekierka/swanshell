@@ -29,12 +29,13 @@
 #include "../../build/menu/assets/menu/bootstub_tiles.h"
 #include "fatfs/ff.h"
 #include "ui/ui.h"
+#include "util/file.h"
 #include "util/ini.h"
 
 __attribute__((section(".iramx_0040")))
 uint16_t ipl0_initial_regs[16];
 __attribute__((section(".iramC.launch.sector_buffer")))
-static uint8_t sector_buffer[1024];
+uint8_t sector_buffer[1024];
 
 extern FATFS fs;
 
@@ -236,20 +237,7 @@ uint8_t launch_backup_save_data(void) {
     char buffer[FF_LFN_BUF + 4];
     char *key, *value;
     ini_next_result_t ini_result;
-    uint8_t result, result2;
-    uint16_t bw;
-
-    uint8_t stack_buffer[128];
-    uint8_t *data_buffer;
-    uint16_t data_buffer_size;
-
-    if (ws_system_color_active()) {
-        data_buffer = sector_buffer;
-        data_buffer_size = sizeof(sector_buffer);
-    } else {
-        data_buffer = stack_buffer;
-        data_buffer_size = sizeof(stack_buffer);
-    }
+    uint8_t result;
 
     memcpy(buffer, save_ini_location, sizeof(save_ini_location));
     result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
@@ -286,58 +274,21 @@ uint8_t launch_backup_save_data(void) {
                 }
 
                 if (file_type == 1) {
-                    // SRAM restore
-                    // Reading directly from SRAM would conflict with the SPI buffer.
                     outportb(IO_CART_FLASH, 0);
-                    for (uint32_t i = 0; i < f_size(&save_fp); i += data_buffer_size) {
-                        outportw(IO_BANK_2003_RAM, i >> 16);
-                        uint16_t to_read = data_buffer_size;
-                        if ((f_size(&save_fp) - i) < to_read)
-                            to_read = f_size(&save_fp) - i;
-                        memcpy(data_buffer, MK_FP(0x1000, (uint16_t) i), to_read);
-                        result = f_write(&save_fp, data_buffer, to_read, &bw);
-                        if (result != FR_OK) {
-                            f_close(&save_fp);
-                            f_close(&fp);
-                            return result;
-                        }
-                    }
+                    result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), NULL);
                 } else if (file_type == 2) {
-                    // TODO: EEPROM restore                    
+                    // TODO: EEPROM restore          
+                    result = FR_OK;          
                 } else if (file_type == 3) {
                     // Flash restore
-                    uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
-
-                    // result2 used as bank value
-                    result2 = 0;
-                    for (uint32_t i = 0; i < f_size(&save_fp); i += 0x10000, result2++) {
-                        outportw(IO_BANK_2003_ROM0, result2);
-                        uint32_t to_read = f_size(&save_fp) - i;
-                        uint16_t to_read_part;
-                        to_read_part = to_read >= 0x8000 ? 0x8000 : to_read;
-                        to_read -= to_read_part;
-                        result = f_write(&save_fp, MK_FP(0x2000, 0x0000), to_read_part, &bw);
-                        if (result != FR_OK) {
-                            f_close(&save_fp);
-                            f_close(&fp);
-                            return result;
-                        }
-
-                        to_read_part = to_read >= 0x8000 ? 0x8000 : to_read;
-                        to_read -= to_read_part;
-                        if (to_read_part) {
-                            result = f_write(&save_fp, MK_FP(0x2000, 0x8000), to_read_part, &bw);
-                            if (result != FR_OK) {
-                                f_close(&save_fp);
-                                f_close(&fp);
-                                return result;
-                            }
-                        }
-                    }
-                    outportw(IO_BANK_2003_ROM0, prev_bank);
+                    result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp), NULL);
                 }
 
                 f_close(&save_fp);
+                if (result != FR_OK) {
+                    f_close(&fp);
+                    return result;
+                }
             }
         }
     }
@@ -373,29 +324,11 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             return result;
 
         // copy data to SRAM
-        // result2 used as bank value
-        result2 = 0;
-        for (uint32_t i = 0; i < f_size(&fp); i += 0x10000, result2++) {
-            outportw(IO_BANK_2003_RAM, result2);
-            uint32_t to_read = f_size(&fp) - i;
-            uint16_t to_read_part;
-            to_read_part = to_read >= 0x8000 ? 0x8000 : to_read;
-            to_read -= to_read_part;
-            result = f_read(&fp, MK_FP(0x1000, 0x0000), to_read_part, (void*) tmp_buf);
-            if (result != FR_OK) {
-                f_close(&fp);
-                return result;
-            }
-
-            to_read_part = to_read >= 0x8000 ? 0x8000 : to_read;
-            to_read -= to_read_part;
-            if (to_read_part) {
-                result = f_read(&fp, MK_FP(0x1000, 0x8000), to_read_part, (void*) tmp_buf);
-                if (result != FR_OK) {
-                    f_close(&fp);
-                    return result;
-                }
-            }
+        outportb(IO_CART_FLASH, 0);
+        result = f_read_sram_banked(&fp, 0, f_size(&fp), NULL);
+        if (result != FR_OK) {
+            f_close(&fp);
+            return result;
         }
 
         result = f_close(&fp);
