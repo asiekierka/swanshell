@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
+#include <ws/hardware.h>
 #include <ws/system.h>
 #include <wsx/lzsa.h>
 #include "launch.h"
@@ -27,6 +28,8 @@
 #include "../../build/menu/build/bootstub_bin.h"
 #include "../../build/menu/assets/menu/bootstub_tiles.h"
 #include "fatfs/ff.h"
+#include "ui/ui.h"
+#include "util/ini.h"
 
 __attribute__((section(".iramx_0040")))
 uint16_t ipl0_initial_regs[16];
@@ -226,9 +229,127 @@ static const char __far save_ini_start[] = "[save]\n";
 static const char __far save_ini_sram[] = "sram";
 static const char __far save_ini_eeprom[] = "eeprom";
 static const char __far save_ini_flash[] = "flash";
-static const char __far save_ini_entry[] = "%s=%ld|%s\n";
+static const char __far save_ini_entry[] = "%s=%ld|%s%s\n";
+
+uint8_t launch_backup_save_data(void) {
+    FIL fp, save_fp;
+    char buffer[FF_LFN_BUF + 4];
+    char *key, *value;
+    ini_next_result_t ini_result;
+    uint8_t result, result2;
+    uint16_t bw;
+
+    uint8_t stack_buffer[128];
+    uint8_t *data_buffer;
+    uint16_t data_buffer_size;
+
+    if (ws_system_color_active()) {
+        data_buffer = sector_buffer;
+        data_buffer_size = sizeof(sector_buffer);
+    } else {
+        data_buffer = stack_buffer;
+        data_buffer_size = sizeof(stack_buffer);
+    }
+
+    memcpy(buffer, save_ini_location, sizeof(save_ini_location));
+    result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
+    // If the .ini file doesn't exist, skip.
+    if (result == FR_NO_FILE)
+        return FR_OK;
+    if (result != FR_OK)
+        return result;
+
+    while (true) {
+        ini_result = ini_next(&fp, buffer, sizeof(buffer), &key, &value);
+        if (ini_result == INI_NEXT_ERROR) {
+            result = FR_INT_ERR;
+            f_close(&fp);
+            return result;
+        } else if (ini_result == INI_NEXT_FINISHED) {
+            break;
+        } else if (ini_result == INI_NEXT_CATEGORY) {
+            // TODO: Pay attention to this.
+        } else if (ini_result == INI_NEXT_KEY_VALUE) {
+            uint8_t file_type = 0;
+            if (!strcasecmp(key, save_ini_sram)) file_type = 1;
+            else if (!strcasecmp(key, save_ini_eeprom)) file_type = 2;
+            else if (!strcasecmp(key, save_ini_flash)) file_type = 3;
+            if (file_type != 0) {
+                key = (char*) strchr(value, '|');
+                if (key != NULL) value = key + 1;
+
+                result = f_open(&save_fp, value, FA_OPEN_EXISTING | FA_WRITE);
+                if (result != FR_OK) {
+                    // TODO: Handle FR_NO_FILE by preallocating a new file.
+                    f_close(&fp);
+                    return result;
+                }
+
+                if (file_type == 1) {
+                    // SRAM restore
+                    // Reading directly from SRAM would conflict with the SPI buffer.
+                    outportb(IO_CART_FLASH, 0);
+                    for (uint32_t i = 0; i < f_size(&save_fp); i += data_buffer_size) {
+                        outportw(IO_BANK_2003_RAM, i >> 16);
+                        uint16_t to_read = data_buffer_size;
+                        if ((f_size(&save_fp) - i) < to_read)
+                            to_read = f_size(&save_fp) - i;
+                        memcpy(data_buffer, MK_FP(0x1000, (uint16_t) i), to_read);
+                        result = f_write(&save_fp, data_buffer, to_read, &bw);
+                        if (result != FR_OK) {
+                            f_close(&save_fp);
+                            f_close(&fp);
+                            return result;
+                        }
+                    }
+                } else if (file_type == 2) {
+                    // TODO: EEPROM restore                    
+                } else if (file_type == 3) {
+                    // Flash restore
+                    uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
+
+                    // result2 used as bank value
+                    result2 = 0;
+                    for (uint32_t i = 0; i < f_size(&save_fp); i += 0x10000, result2++) {
+                        outportw(IO_BANK_2003_ROM0, result2);
+                        uint32_t to_read = f_size(&save_fp) - i;
+                        uint16_t to_read_part;
+                        to_read_part = to_read >= 0x8000 ? 0x8000 : to_read;
+                        to_read -= to_read_part;
+                        result = f_write(&save_fp, MK_FP(0x2000, 0x0000), to_read_part, &bw);
+                        if (result != FR_OK) {
+                            f_close(&save_fp);
+                            f_close(&fp);
+                            return result;
+                        }
+
+                        to_read_part = to_read >= 0x8000 ? 0x8000 : to_read;
+                        to_read -= to_read_part;
+                        if (to_read_part) {
+                            result = f_write(&save_fp, MK_FP(0x2000, 0x8000), to_read_part, &bw);
+                            if (result != FR_OK) {
+                                f_close(&save_fp);
+                                f_close(&fp);
+                                return result;
+                            }
+                        }
+                    }
+                    outportw(IO_BANK_2003_ROM0, prev_bank);
+                }
+
+                f_close(&save_fp);
+            }
+        }
+    }
+
+    f_close(&fp);
+    memcpy(buffer, save_ini_location, sizeof(save_ini_location));
+    f_unlink(buffer);
+    return result;
+}
 
 uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) {
+    char dst_cwd[FF_LFN_BUF + 4];
     char dst_path[FF_LFN_BUF + 4];
     char tmp_buf[20];
     FIL fp;
@@ -260,7 +381,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             uint16_t to_read_part;
             to_read_part = to_read >= 0x8000 ? 0x8000 : to_read;
             to_read -= to_read_part;
-            result = f_read(&fp, MK_FP(0x1000, 0x8000), to_read_part, (void*) tmp_buf);
+            result = f_read(&fp, MK_FP(0x1000, 0x0000), to_read_part, (void*) tmp_buf);
             if (result != FR_OK) {
                 f_close(&fp);
                 return result;
@@ -306,6 +427,16 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         strcpy(path + (ext_loc - dst_path), ext_flash);
     }
 
+    result = f_getcwd(dst_cwd, sizeof(dst_cwd) - 1);
+    if (result != FR_OK)
+        goto launch_restore_save_data_ini_end;
+    
+    char *dst_cwd_end = dst_cwd + strlen(dst_cwd) - 1;
+    if (*dst_cwd_end != '/') {
+        *(++dst_cwd_end) = '/';
+        *(++dst_cwd_end) = 0;
+    }
+
     // generate .INI file
     memcpy(tmp_buf, save_ini_location, sizeof(save_ini_location));
     result = f_open(&fp, tmp_buf, FA_CREATE_ALWAYS | FA_WRITE);
@@ -321,6 +452,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         result = f_printf(&fp, save_ini_entry,
             (const char __far*) save_ini_sram,
             (uint32_t) meta->sram_size,
+            (const char __far*) dst_cwd,
             (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
         if (result != FR_OK)
             goto launch_restore_save_data_ini_end;
@@ -331,6 +463,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         result = f_printf(&fp, save_ini_entry,
             (const char __far*) save_ini_eeprom,
             (uint32_t) meta->eeprom_size,
+            (const char __far*) dst_cwd,
             (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
         if (result != FR_OK)
             goto launch_restore_save_data_ini_end;
@@ -341,6 +474,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         result = f_printf(&fp, save_ini_entry,
             (const char __far*) save_ini_flash,
             (uint32_t) meta->flash_size,
+            (const char __far*) dst_cwd,
             (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
         if (result != FR_OK)
             goto launch_restore_save_data_ini_end;

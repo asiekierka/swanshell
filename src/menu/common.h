@@ -14,13 +14,11 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
-
-#ifndef _MAIN_H_
-#define _MAIN_H_
+ 
+#ifndef _COMMON_H_
+#define _COMMON_H_
 
 #include <stdbool.h>
 #include <stdint.h>
 
-void wait_for_vblank(void);
-
-#endif /* _MAIN_H_ */
+#endif /* _COMMON_H_ */

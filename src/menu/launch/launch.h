@@ -45,6 +45,7 @@ typedef struct {
 } launch_rom_metadata_t;
 
 uint8_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta);
+uint8_t launch_backup_save_data(void);
 uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta);
 uint8_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta);
 

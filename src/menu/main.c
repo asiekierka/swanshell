@@ -21,11 +21,13 @@
 #include <ws.h>
 #include <ws/hardware.h>
 #include <ws/system.h>
+#include <ws/util.h>
 #include <wsx/planar_unpack.h>
 #include "ui/bitmap.h"
 #include "ui/ui.h"
 #include "fatfs/ff.h"
 #include "fatfs/diskio.h"
+#include "launch/launch.h"
 #include "util/input.h"
 
 volatile uint16_t vbl_ticks;
@@ -74,6 +76,12 @@ void main(void) {
 	}
 
 	ui_init();
+	if ((result = launch_backup_save_data()) != FR_OK) {
+		char text[20];
+		sprintf(text, "Save restore error %d!", result);
+		bitmapfont_draw_string(&ui_bitmap, 5, 5, text, 222);
+		for(int i = 0; i < 30; i++) ws_busywait(60000);
+	}
 	ui_file_selector();
 /*	char text[60];
 	for (int i = 1; i <= 14; i++) {

@@ -350,7 +350,7 @@ rescan_directory:
                         if (result == FR_OK) {
                             result = launch_restore_save_data(path, &meta);
                             if (result == FR_OK) {
-                                result = launch_rom_via_bootstub(path, NULL);
+                                result = launch_rom_via_bootstub(path, &meta);
                             }
                         }
                     } else if (!strcasecmp(ext, ext_bmp)) {
