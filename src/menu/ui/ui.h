@@ -26,9 +26,9 @@
 extern bitmap_t ui_bitmap;
 
 void ui_init(void);
+void ui_redraw_titlebar(const char *text);
 void ui_file_selector(void);
 void ui_bmpview(const char *path);
-void ui_boot(const char *path);
 void ui_vgmplay(const char *path);
 void ui_wavplay(const char *path);
 

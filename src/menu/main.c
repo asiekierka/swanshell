@@ -29,7 +29,6 @@
 #include "util/input.h"
 
 volatile uint16_t vbl_ticks;
-bool is_pcv2; // TODO
 
 __attribute__((assume_ss_data, interrupt))
 void __far vblank_int_handler(void) {

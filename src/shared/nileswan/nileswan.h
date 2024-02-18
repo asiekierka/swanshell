@@ -72,6 +72,7 @@ typedef struct {
         uint16_t ds, es, ss, flags;
     } regs;
     uint8_t card_state;
+    uint8_t console_type;
     uint8_t pad[7];
 } nile_ipl_data_t;
 
@@ -81,6 +82,9 @@ typedef struct {
 #define NILE_CARD_TYPE_TF2         0x03
 #define NILE_CARD_TYPE_MASK        0x03
 #define NILE_CARD_BLOCK_ADDRESSING 0x04
+
+#define NILE_CONSOLE_TYPE_WS       0x00
+#define NILE_CONSOLE_TYPE_PCV2     0x01
 
 #define nile_ipl_data ((volatile nile_ipl_data_t*) 0x0040)
 

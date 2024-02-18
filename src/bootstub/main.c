@@ -170,7 +170,7 @@ int main(void) {
     
 	outportb(IO_CART_FLASH, 0);
 	outportw(IO_NILE_SPI_CNT, NILE_SPI_390KHZ);
-	outportw(IO_NILE_SEG_MASK, (total_banks - 1) | (0x7 << 12));
+	outportw(IO_NILE_SEG_MASK, (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
 	clear_registers(true);
 	outportb(IO_NILE_POW_CNT, 0);
 	launch_ram_asm(MK_FP(0xFFFF, 0x0000));

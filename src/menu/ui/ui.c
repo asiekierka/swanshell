@@ -24,12 +24,13 @@
 #include <ws/system.h>
 #include "fatfs/ff.h"
 #include "bitmap.h"
+#include "launch/launch.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
 
-__attribute__((section(".iramx_1800")))
+__attribute__((section(".iramx_1b80")))
 uint16_t bitmap_screen2[32 * 18 - 4];
 
 __attribute__((section(".iramx_2000")))
@@ -114,6 +115,18 @@ static void ui_load_wallpaper(void) {
     }
 }
 
+void ui_draw_titlebar(void) {
+    bitmap_rect_fill(&ui_bitmap, 3, 2+1, 224 - 6, 16, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 2, 3+1, 1, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 223 - 2, 3+1, 1, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+}
+
+void ui_redraw_titlebar(const char *text) {
+    bitmap_rect_fill(&ui_bitmap, 3, 2+1, 224 - 6, 16, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    if (text != NULL)
+        bitmapfont_draw_string(&ui_bitmap, 6, 4+1, text, 224 - 12);
+}
+
 void ui_init(void) {
     outportw(IO_DISPLAY_CTRL, 0);
 
@@ -123,21 +136,19 @@ void ui_init(void) {
         for (int iy = 0; iy < 18; iy++) {
             uint16_t pal = 0;
             if (iy <= 2) pal = SCR_ATTR_PALETTE(2);
-            // ws_screen_put_tile((ws_screen_cell_t*) 0x3800, SCR_ATTR_PALETTE(15) | SCR_ENTRY_BANK(1) | (ip), ix, iy);
-            ws_screen_put_tile(bitmap_screen2, pal | (ip++), ix, iy);   
+           ws_screen_put_tile(bitmap_screen2, pal | (ip++), ix, iy);   
         }
     }
 
     // initialize palettes
     if (ws_system_is_color()) {
-#if 0
+#if 1
         ws_system_mode_set(WS_MODE_COLOR_4BPP);
         ui_bitmap = BITMAP(MEM_TILE_4BPP(0), 28, 18, 4);
 #else
         ws_system_mode_set(WS_MODE_COLOR);
         ui_bitmap = BITMAP(MEM_TILE(0), 28, 18, 2);
 #endif
-        bitmap_rect_clear(&ui_bitmap, 0, 0, 224, 144);
 
         MEM_COLOR_PALETTE(0)[0] = 0x0FFF;
         MEM_COLOR_PALETTE(0)[1] = 0x0000;
@@ -158,16 +169,18 @@ void ui_init(void) {
     } else {
         ui_bitmap = BITMAP(MEM_TILE(0), 28, 18, 2);
 
-        memset(MEM_TILE(0), 0, 28 * 18 * sizeof(ws_tile_t));
-
         ws_display_set_shade_lut(SHADE_LUT_DEFAULT);
         outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(0, 7, 5, 2));
         outportw(IO_SCR_PAL_1, MONO_PAL_COLORS(2, 7, 6, 4));
         outportw(IO_SCR_PAL_2, MONO_PAL_COLORS(0, 7, 3, 0));
     }
+    
+    bitmap_rect_clear(&ui_bitmap, 0, 0, 224, 144);
+
+    ui_draw_titlebar();
 
     outportb(IO_SCR_BASE, SCR1_BASE(0x3800) | SCR2_BASE(bitmap_screen2));
-    outportw(IO_SCR2_SCRL_X, 0);
+    outportw(IO_SCR2_SCRL_X, (14*8) << 8);
     outportw(IO_DISPLAY_CTRL, inportw(IO_DISPLAY_CTRL) | DISPLAY_SCR2_ENABLE);
 }
 
@@ -189,7 +202,7 @@ rescan_directory:
     file_count = 0;
     file_offset = 0;
     // Read files
-    bitmap_rect_fill(&ui_bitmap, 0, 17 * 8, 28 * 8, 24, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
+    ui_redraw_titlebar(NULL);
 	uint8_t result = f_opendir(&dir, ".");
 	if (result != FR_OK) {
 		while(1);
@@ -213,12 +226,8 @@ rescan_directory:
 	f_closedir(&dir);
 
     // Clear screen
-    bitmap_rect_fill(&ui_bitmap, 0, 0, 28 * 8, 24, BITMAP_COLOR(0, 15, BITMAP_COLOR_MODE_STORE));
-    bitmap_rect_fill(&ui_bitmap, 2, 3+1, 1, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
-    bitmap_rect_fill(&ui_bitmap, 3, 2+1, 224 - 6, 16, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
-    bitmap_rect_fill(&ui_bitmap, 223 - 2, 3+1, 1, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
     f_getcwd(path, sizeof(path) - 1);
-    bitmapfont_draw_string(&ui_bitmap, 6, 4+1, path, 224 - 2);
+    ui_redraw_titlebar(path);
 
     bool full_redraw = true;
     uint16_t prev_file_offset = 0xFFFF;
@@ -336,7 +345,14 @@ rescan_directory:
                 const char __far* ext = strrchr(fno->altname, '.');
                 if (ext != NULL) {
                     if (!strcasecmp(ext, ext_ws) || !strcasecmp(ext, ext_wsc)) {
-                        ui_boot(path);
+                        launch_rom_metadata_t meta;
+                        uint8_t result = launch_get_rom_metadata(path, &meta);
+                        if (result == FR_OK) {
+                            result = launch_restore_save_data(path, &meta);
+                            if (result == FR_OK) {
+                                result = launch_rom_via_bootstub(path, NULL);
+                            }
+                        }
                     } else if (!strcasecmp(ext, ext_bmp)) {
                         ui_bmpview(path);
                     } else if (!strcasecmp(ext, ext_wav)) {

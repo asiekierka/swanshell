@@ -18,10 +18,10 @@
 #include <ws.h>
 #include "input.h"
 #include "../main.h"
+#include "nileswan/nileswan.h"
 
 // it's an uint16_t but we only want the low byte
 extern volatile uint8_t vbl_ticks;
-extern bool is_pcv2;
 
 uint16_t input_keys = 0;
 uint16_t input_keys_repressed = 0;
@@ -30,7 +30,7 @@ uint16_t input_pressed, input_held;
 
 void vblank_input_update(void) {
 	uint16_t keys = ws_keypad_scan();
-	if (is_pcv2) {
+	if (nile_ipl_data->console_type == NILE_CONSOLE_TYPE_PCV2) {
 		// WS:   ....yyyyxxxxbas.
 		// PCv2: ....pc1Cre1vud1l
 		// remapped:

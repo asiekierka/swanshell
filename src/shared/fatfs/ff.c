@@ -6934,7 +6934,7 @@ int f_putc (
 /*-----------------------------------------------------------------------*/
 
 int f_puts (
-	const TCHAR* str,	/* Pointer to the string to be output */
+	const TCHAR __far* str,	/* Pointer to the string to be output */
 	FIL* fp				/* Pointer to the file object */
 )
 {
@@ -7078,7 +7078,7 @@ static void ftoa (
 
 int f_printf (
 	FIL* fp,			/* Pointer to the file object */
-	const TCHAR* fmt,	/* Pointer to the format string */
+	const TCHAR __far* fmt,	/* Pointer to the format string */
 	...					/* Optional arguments... */
 )
 {
@@ -7091,7 +7091,7 @@ int f_printf (
 #else
 	DWORD v;
 #endif
-	TCHAR *tp;
+	TCHAR __far* tp;
 	TCHAR tc, pad;
 	TCHAR nul = 0;
 	char d, str[SZ_NUM_BUF];
@@ -7166,7 +7166,7 @@ int f_printf (
 			continue;
 
 		case 's':					/* String */
-			tp = va_arg(arp, TCHAR*);	/* Get a pointer argument */
+			tp = va_arg(arp, TCHAR __far*);	/* Get a pointer argument */
 			if (!tp) tp = &nul;		/* Null ptr generates a null string */
 			for (j = 0; tp[j]; j++) ;	/* j = tcslen(tp) */
 			if (prec >= 0 && j > (UINT)prec) j = prec;	/* Limited length of string body */
