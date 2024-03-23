@@ -38,9 +38,9 @@
 #define RIFF_CHUNK_fmt  0x20746D66
 #define RIFF_CHUNK_data 0x61746164
 
-#define POSITION_COUNTER *((volatile uint16_t*) 0x1A)
-#define POSITION_COUNTER_START *((volatile uint16_t*) 0x1C)
-#define POSITION_COUNTER_MAX *((volatile uint16_t*) 0x1E)
+#define POSITION_COUNTER_INCR *((volatile uint32_t*) 0x18)
+#define POSITION_COUNTER *((volatile uint32_t*) 0x1C)
+#define POSITION_COUNTER_HIGH *((volatile uint16_t*) 0x1E)
 
 typedef struct {
     uint16_t format;
@@ -62,10 +62,6 @@ void ui_wavplay(const char *path) {
         // TODO
         return;
     }
-
-    POSITION_COUNTER = WAV_BUFFER_LINEAR0;
-    POSITION_COUNTER_START = WAV_BUFFER_LINEAR0;
-    POSITION_COUNTER_MAX = WAV_BUFFER_LINEAR0 + WAV_BUFFER_SIZE * 2;
 
     memset(WAV_BUFFER0, 0, WAV_BUFFER_SIZE * 2);
     fmt.channels = 0;
@@ -112,11 +108,15 @@ void ui_wavplay(const char *path) {
     }
 
     uint16_t timer_step = 0;
-    if (fmt.sample_rate > 12000 || fmt.sample_rate < 1 || (12000 % fmt.sample_rate) != 0) {
+    if (fmt.sample_rate > 12000 || fmt.sample_rate < 1) {
         // TODO
         goto ui_wavplay_end;
     }
     timer_step = 12000 / fmt.sample_rate;
+    uint16_t timer_sample_rate = 12000 / timer_step;
+
+    POSITION_COUNTER = 0;
+    POSITION_COUNTER_INCR = ((uint32_t) fmt.sample_rate << 18) / timer_sample_rate;
 
     if ((result = f_read(&fp, WAV_BUFFER0, WAV_BUFFER_SIZE * 2, NULL)) != FR_OK) {
         // TODO
@@ -145,7 +145,7 @@ void ui_wavplay(const char *path) {
     while (true) {
         unsigned int bytes_read;
         if (next_buffer == 1) {
-            if (POSITION_COUNTER < (WAV_BUFFER_LINEAR1 & 0xFFFF)) {
+            if (!(POSITION_COUNTER_HIGH & 0x8000)) {
                 if ((result = f_read(&fp, WAV_BUFFER1, WAV_BUFFER_SIZE, &bytes_read)) != FR_OK || bytes_read < WAV_BUFFER_SIZE) {
                     // TODO
                     break;
@@ -153,7 +153,7 @@ void ui_wavplay(const char *path) {
                 next_buffer = 0;
             }
         } else {
-            if (POSITION_COUNTER >= (WAV_BUFFER_LINEAR1 & 0xFFFF)) {
+            if (POSITION_COUNTER_HIGH & 0x8000) {
                 if ((result = f_read(&fp, WAV_BUFFER0, WAV_BUFFER_SIZE, &bytes_read)) != FR_OK || bytes_read < WAV_BUFFER_SIZE) {
                     // TODO
                     break;

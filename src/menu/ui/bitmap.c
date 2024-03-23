@@ -18,9 +18,12 @@
 #include <string.h>
 #include "bitmap.h"
 #include "util/utf8.h"
-#include "../../../build/menu/assets/menu/fonts.h"
 
 #define BITMAP_AT(bitmap, x, y) (((uint8_t*) (bitmap)->start) + ((y) * (bitmap)->y_pitch) + (((x) >> (bitmap)->x_shift) * (bitmap)->x_pitch))
+
+#define FONT_BITMAP_SHIFT 8
+#define FONT_BITMAP_SIZE 256
+extern const uint16_t __far font_bitmap[];
 
 static const uint16_t __far count_width_mask[17] = {
     0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF,
@@ -109,39 +112,34 @@ void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
     }
 }
 
-// font header format:
-// - word 0: character (0-65535)
-// - word 1: ROM offset (0-65535)
-// - word 2:
-//   - bits 0-3: x
-//   - bits 4-7: y
-//   - bits 8-11: width
-//   - bits 12-15: height
-
 #define PER_CHAR_GAP 1
 
 static const uint16_t __far* bitmapfont_find_char(uint32_t ch) {
-    if (ch >= 0x10000)
+    if (ch > 0xFFFFFF)
+        return NULL;
+    uint16_t ch_high = ch >> 8;
+    if (ch_high >= FONT_BITMAP_SIZE)
         return NULL;
 
-    const uint16_t __far* base = (const uint16_t __far*) font_table;
-    size_t size = 6;
-    uint16_t nmemb = font_table_size / size;
+    uint8_t ch_low = ch & 0xFF;
+    const uint8_t __far* base = MK_FP(font_bitmap[ch_high], 2);
+    size_t size = 5;
+    uint16_t nmemb = *((const uint16_t __far*) MK_FP(font_bitmap[ch_high], 0));
 
-    const uint16_t __far* pivot;
+    const uint8_t __far* pivot;
     size_t corr;
 
     while (nmemb) {
         /* algorithm needs -1 correction if remaining elements are an even number. */
         corr = nmemb & 1;
         nmemb >>= 1;
-        pivot = (const uint16_t __far*) ((( const char __far* )base) + ( nmemb * size ));
-        if (*pivot < ch) {
-            base = (const uint16_t __far*) ((( const char __far* )pivot) + size);
+        pivot = (const uint8_t __far*) ((( const char __far* )base) + ( nmemb * size ));
+        if (*pivot < ch_low) {
+            base = (const uint8_t __far*) ((( const char __far* )pivot) + size);
             /* applying correction */
             nmemb -= ( 1 - corr );
-        } else if (*pivot == ch) {
-            return pivot;
+        } else if (*pivot == ch_low) {
+            return (const uint16_t __far*) (pivot + 1);
         }
     }
 
@@ -151,21 +149,20 @@ static const uint16_t __far* bitmapfont_find_char(uint32_t ch) {
 uint16_t bitmapfont_get_char_width(uint32_t ch) {
     const uint8_t __far* data = (const uint8_t __far*) bitmapfont_find_char(ch);
     if (data == NULL) return 0;
-    return (data[4] & 0xF) + (data[5] & 0xF);
+    return (data[2] & 0xF) + (data[3] & 0xF);
 }
 
 uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch) {
     const uint16_t __far* data = bitmapfont_find_char(ch);
     if (data == NULL) return 0;
 
-    uint16_t x = data[2] & 0xF;
-    uint16_t y = (data[2] >>  4) & 0xF;
-    uint16_t w = (data[2] >>  8) & 0xF;
-    uint16_t h = (data[2] >> 12) & 0xF;
-    // rom_offset not shifted
-    // const uint8_t __far* font_data = ((const uint8_t __far*) font_bitmap) + data[1];
-    // rom_offset shifted
-    const uint8_t __far* font_data = MK_FP(FP_SEG(font_bitmap) + ((data[1] >> 3) & 0x1FFF), FP_OFF(font_bitmap) + ((data[1] << 1) & 0x000E));
+    uint16_t x = data[1] & 0xF;
+    uint16_t y = (data[1] >>  4) & 0xF;
+    uint16_t w = (data[1] >>  8) & 0xF;
+    uint16_t h = (data[1] >> 12) & 0xF;
+    if (!h) return x + w;
+
+    const uint8_t __far* font_data = ((const uint8_t __far*) data) + data[0];
     xofs += x;
     yofs += y;
     uint8_t *tile = BITMAP_AT(bitmap, xofs, yofs);

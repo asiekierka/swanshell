@@ -1,21 +1,20 @@
 local MAX_WIDTH = 15
 local MAX_HEIGHT = 15
--- local Y_OFFSET = -2
-local Y_OFFSET = 0
-local GLYPH_TABLE_SHIFT = 16
-local GLYPH_TABLE_PER = (1 << GLYPH_TABLE_SHIFT)
+local Y_OFFSET = -1
+-- local Y_OFFSET = 0
+local ROM_OFFSET_SHIFT = 0
 
 local bdf = dofile("lib/bdf.lua")
 local nnpack = require("wf.api.v1.process.tools.nnpack")
 local process = require("wf.api.v1.process")
 local tablex = require("pl.tablex")
 
-local llimit = bdf.parse("fonts/misaki_gothic_2nd.bdf")
+local llimit = bdf.parse("fonts/font.bdf")
 local fonts = {llimit}
 
 local function is_allowed_char(ch, font)
     -- BMP only
-    if ch >= 0x10000 then return false end
+    -- if ch >= 0x10000 then return false end
     -- control codes
     if (ch < 0x20) or (ch >= 0x80 and ch < 0xA0) then return false end 
     -- Braille
@@ -32,8 +31,24 @@ local max_glyph_id = 0
 for _, font in pairs(fonts) do
     for id, char in pairs(font.chars) do
         if chars[id] == nil and is_allowed_char(id, font) then
-            if id == 0x20 then char.width = 2 end
+            if id == 0x20 then
+                char.x = 0
+                char.width = 2
+                char.y = 0
+                char.height = 0
+            end
             local bitmap = char.bitmap
+            local bitmap_empty = true
+            for i=1,#char.bitmap do
+                if char.bitmap[i] ~= 0 then
+                    bitmap_empty = false
+                    break
+                end
+            end
+            if bitmap_empty then
+                char.y = 0
+                char.height = 0
+            end
             if char.height > MAX_HEIGHT then
                 -- remove empty rows
                 bitmap = {}
@@ -81,7 +96,7 @@ for _, font in pairs(fonts) do
                 table.insert(res.bitmap, x)
             end
             -- pad to 2 bytes
-            if (#res.bitmap & 1) ~= 0 then
+            while (#res.bitmap & ((1 << ROM_OFFSET_SHIFT) - 1)) ~= 0 do
                 table.insert(res.bitmap, 0)
             end
             res.x = char.x
@@ -103,14 +118,24 @@ for _, font in pairs(fonts) do
 end
 
 -- build ROM data
-local rom_header = {}
+local GLYPH_TABLE_SHIFT = 8
+local GLYPH_TABLE_PER = (1 << GLYPH_TABLE_SHIFT)
+local GLYPH_ENTRY_SIZE = 5
+
+local rom_datas = {}
 for i=0,max_glyph_id+1,GLYPH_TABLE_PER do
-    rom_header[i // GLYPH_TABLE_PER] = {}
+    rom_datas[i // GLYPH_TABLE_PER] = {0, 0}
 end
-local rom_data = {}
 local glyph_id_mask = GLYPH_TABLE_PER - 1
+for id, char in pairs(chars) do
+    local rom_data = rom_datas[id >> GLYPH_TABLE_SHIFT]
+    -- preallocate room
+    for i=1,GLYPH_ENTRY_SIZE do
+        table.insert(rom_data,0)
+    end
+end
 for id, char in tablex.sort(chars) do
-    -- add rom data
+    local rom_data = rom_datas[id >> GLYPH_TABLE_SHIFT]
     local rom_offset = nil
     --[[ for i=1,#rom_data-#char.bitmap+1 do
         rom_offset = i
@@ -128,27 +153,24 @@ for id, char in tablex.sort(chars) do
         end
     end
 
-    -- add rom header
-    local header = rom_header[id >> GLYPH_TABLE_SHIFT]
-    local v1 = ((rom_offset >> 1) << GLYPH_TABLE_SHIFT) | (id & glyph_id_mask)
-    table.insert(header, v1 & 0xFF)
-    table.insert(header, (v1 >> 8) & 0xFF)
-    table.insert(header, (v1 >> 16) & 0xFF)
-    table.insert(header, (v1 >> 24) & 0xFF)
-    table.insert(header, char.x | (char.y << 4))
-    table.insert(header, char.width | (char.height << 4))
+    local font_count = rom_data[1] + (rom_data[2] << 8)
+    local header_pos = 3 + (font_count * GLYPH_ENTRY_SIZE)
+    font_count = font_count + 1
+    rom_data[1] = font_count & 0xFF
+    rom_data[2] = font_count >> 8
+
+    local v1 = (((rom_offset - header_pos) >> ROM_OFFSET_SHIFT) << GLYPH_TABLE_SHIFT) | (id & glyph_id_mask)
+    rom_data[header_pos] = v1 & 0xFF
+    rom_data[header_pos + 1] = (v1 >> 8) & 0xFF
+    rom_data[header_pos + 2] = (v1 >> 16) & 0xFF
+    rom_data[header_pos + 3] = char.x | (char.y << 4)
+    rom_data[header_pos + 4] = char.width | (char.height << 4)
 end
-print(((65536 >> GLYPH_TABLE_SHIFT) * 4))
-local sum = 0
-for i=0,max_glyph_id+1,GLYPH_TABLE_PER do
-    sum = sum + #rom_header[i // GLYPH_TABLE_PER]
-end
-print(sum)
-print(#rom_data)
 
 local function table_to_string(n)
     return string.char(table.unpack(n))
 end
 
-process.emit_symbol("font_table", table_to_string(rom_header[0]))
-process.emit_symbol("font_bitmap", table_to_string(rom_data))
+for k,v in pairs(rom_datas) do
+    process.emit_symbol("font_bitmap_" .. k, table_to_string(v), {align=16})
+end
