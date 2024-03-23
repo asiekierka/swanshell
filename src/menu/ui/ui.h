@@ -26,6 +26,11 @@
 extern bitmap_t ui_bitmap;
 
 void ui_init(void);
+void ui_hide(void);
+void ui_show(void);
+void ui_layout_clear(uint16_t pal);
+void ui_layout_titlebar(void);
+void ui_draw_centered_status(const char *text);
 void ui_redraw_titlebar(const char *text);
 void ui_file_selector(void);
 void ui_bmpview(const char *path);

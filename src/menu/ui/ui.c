@@ -116,29 +116,34 @@ static void ui_load_wallpaper(void) {
 }
 
 void ui_draw_titlebar(void) {
-    bitmap_rect_fill(&ui_bitmap, 3, 2+1, 224 - 6, 16, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
-    bitmap_rect_fill(&ui_bitmap, 2, 3+1, 1, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
-    bitmap_rect_fill(&ui_bitmap, 223 - 2, 3+1, 1, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 2, 0, 220, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 3, 14, 218, 1, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
 }
 
 void ui_redraw_titlebar(const char *text) {
-    bitmap_rect_fill(&ui_bitmap, 3, 2+1, 224 - 6, 16, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 2, 0, 220, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
     if (text != NULL)
-        bitmapfont_draw_string(&ui_bitmap, 6, 4+1, text, 224 - 12);
+        bitmapfont_draw_string(&ui_bitmap, 6, 1, text, 224 - 12);
 }
 
-void ui_init(void) {
-    outportw(IO_DISPLAY_CTRL, 0);
+void ui_draw_centered_status(const char *text) {
+    int16_t width = bitmapfont_get_string_width(text, 224);
+    bitmap_rect_clear(&ui_bitmap, 0, (144 - 12) >> 1, 224, 11);
+    bitmapfont_draw_string(&ui_bitmap, (224 - width) >> 1, (144 - 12) >> 1, text, 224);
+}
 
-    // initialize screen pattern
-    int ip = 0;
-    for (int ix = 0; ix < 28; ix++) {
-        for (int iy = 0; iy < 18; iy++) {
-            uint16_t pal = 0;
-            if (iy <= 2) pal = SCR_ATTR_PALETTE(2);
-           ws_screen_put_tile(bitmap_screen2, pal | (ip++), ix, iy);   
-        }
+#define INIT_SCREEN_PATTERN(screen_loc, pal) \
+    { \
+        int ip = 0; \
+        for (int ix = 0; ix < 28; ix++) { \
+            for (int iy = 0; iy < 18; iy++) { \
+                ws_screen_put_tile(screen_loc, (pal) | (ip++), ix, iy); \
+            } \
+        } \
     }
+
+void ui_init(void) {
+    ui_hide();
 
     // initialize palettes
     if (ws_system_is_color()) {
@@ -165,6 +170,8 @@ void ui_init(void) {
         MEM_COLOR_PALETTE(2)[2] = 0x04A7;
         MEM_COLOR_PALETTE(2)[3] = 0x0FFF;
 
+        // TODO: wallpaper support
+        // INIT_SCREEN_PATTERN((void*) 0x3800, SCR_ENTRY_PALETTE(15) | SCR_ENTRY_BANK(1));
         // ui_load_wallpaper();
     } else {
         ui_bitmap = BITMAP(MEM_TILE(0), 28, 18, 2);
@@ -174,14 +181,29 @@ void ui_init(void) {
         outportw(IO_SCR_PAL_1, MONO_PAL_COLORS(2, 7, 6, 4));
         outportw(IO_SCR_PAL_2, MONO_PAL_COLORS(0, 7, 3, 0));
     }
-    
-    bitmap_rect_clear(&ui_bitmap, 0, 0, 224, 144);
-
-    ui_draw_titlebar();
 
     outportb(IO_SCR_BASE, SCR1_BASE(0x3800) | SCR2_BASE(bitmap_screen2));
     outportw(IO_SCR2_SCRL_X, (14*8) << 8);
+}
+
+void ui_hide(void) {
+    outportw(IO_DISPLAY_CTRL, 0);
+}
+
+void ui_show(void) {
+    // TODO: wallpaper support
     outportw(IO_DISPLAY_CTRL, inportw(IO_DISPLAY_CTRL) | DISPLAY_SCR2_ENABLE);
+}
+
+void ui_layout_clear(uint16_t pal) {
+    bitmap_rect_clear(&ui_bitmap, 0, 0, 224, 144);
+    INIT_SCREEN_PATTERN(bitmap_screen2, pal);
+}
+
+void ui_layout_titlebar(void) {
+    bitmap_rect_clear(&ui_bitmap, 0, 0, 224, 144);
+    INIT_SCREEN_PATTERN(bitmap_screen2, (iy < 2) ? SCR_ENTRY_PALETTE(2) : 0);
+    ui_draw_titlebar();
 }
 
 #define MAX_FILE_COUNT 1024
@@ -197,8 +219,13 @@ void ui_file_selector(void) {
     DIR dir;
     uint16_t file_count;
     uint16_t file_offset;
+    bool reinit_ui = true;
     
 rescan_directory:
+    if (reinit_ui) {
+        ui_layout_titlebar();
+        ui_show();
+    }
     file_count = 0;
     file_offset = 0;
     // Read files
@@ -235,7 +262,7 @@ rescan_directory:
     while (true) {
         if (prev_file_offset != file_offset) {
             if ((prev_file_offset / 10) != (file_offset / 10)) {
-                bitmap_rect_clear(&ui_bitmap, 0, 24, 28 * 8, 120);
+                bitmap_rect_clear(&ui_bitmap, 0, 18, 28 * 8, 120);
                 // Draw filenames
                 for (int i = 0; i < 10; i++) {
                     uint16_t offset = ((file_offset / 10) * 10) + i;
@@ -244,11 +271,11 @@ rescan_directory:
                     outportw(IO_BANK_2003_RAM, offset >> 8);
                     FILINFO __far* fno = MK_FP(0x1000, offset << 8);
 
-                    uint16_t x = 9 + bitmapfont_draw_string(&ui_bitmap, 9, (i + 2) * 12, fno->fname, 224 - 10);
+                    uint16_t x = 9 + bitmapfont_draw_string(&ui_bitmap, 9, i * 12 + 18, fno->fname, 224 - 10);
                     uint8_t icon_idx = 1;
                     if (fno->fattrib & AM_DIR) {
                         icon_idx = 0;
-                        bitmapfont_draw_string(&ui_bitmap, x, (i + 2) * 12, "/", 255);
+                        bitmapfont_draw_string(&ui_bitmap, x, i * 12 + 18, "/", 255);
                     } else {
                         const char __far* ext = strrchr(fno->altname, '.');
                         if (ext != NULL) {
@@ -272,13 +299,13 @@ rescan_directory:
                     for (int iy = 0; iy < 10; iy++) {
                         uint16_t pal = 0;
                         if (iy == (file_offset % 10)) pal = 2;
-                        bitmap_rect_fill(&ui_bitmap, 0, (iy + 2) * 12, 224, 12, BITMAP_COLOR(pal, 2, BITMAP_COLOR_MODE_STORE));
+                        bitmap_rect_fill(&ui_bitmap, 0, iy * 12 + 18, 224, 12, BITMAP_COLOR(pal, 2, BITMAP_COLOR_MODE_STORE));
                     }
                 } else {
                     int iy1 = (prev_file_offset % 10);
                     int iy2 = (file_offset % 10);
-                    bitmap_rect_fill(&ui_bitmap, 0, (iy1 + 2) * 12, 224, 12, BITMAP_COLOR(0, 2, BITMAP_COLOR_MODE_STORE));
-                    bitmap_rect_fill(&ui_bitmap, 0, (iy2 + 2) * 12, 224, 12, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
+                    bitmap_rect_fill(&ui_bitmap, 0, iy1 * 12 + 18, 224, 12, BITMAP_COLOR(0, 2, BITMAP_COLOR_MODE_STORE));
+                    bitmap_rect_fill(&ui_bitmap, 0, iy2 * 12 + 18, 224, 12, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
                 }
 #else
                 if (full_redraw) {
@@ -355,10 +382,13 @@ rescan_directory:
                         }
                     } else if (!strcasecmp(ext, ext_bmp)) {
                         ui_bmpview(path);
+                        reinit_ui = true;
                     } else if (!strcasecmp(ext, ext_wav)) {
                         ui_wavplay(path);
+                        reinit_ui = true;
                     } else if (!strcasecmp(ext, ext_vgm)) {
                         ui_vgmplay(path);
+                        reinit_ui = true;
                     }
                 }
             }

@@ -133,10 +133,10 @@ void ui_bmpview(const char *path) {
     }
 
     uint8_t xo = (224 - bmp->width) >> 1;
-    uint8_t yo = (144 - bmp->height) >> 1;
+    uint8_t yo = ((144 - bmp->height) >> 1);
 
     outportb(IO_SCR2_SCRL_X, -xo);
-    outportb(IO_SCR2_SCRL_Y, -yo);
+    outportb(IO_SCR2_SCRL_Y, -yo + inportb(IO_SCR2_SCRL_Y));
     outportb(IO_SCR2_WIN_X1, xo);
     outportb(IO_SCR2_WIN_Y1, yo);
     outportb(IO_SCR2_WIN_X2, xo + bmp->width - 1);

@@ -20,8 +20,7 @@
 #include "../main.h"
 #include "nileswan/nileswan.h"
 
-// it's an uint16_t but we only want the low byte
-extern volatile uint8_t vbl_ticks;
+extern volatile uint16_t vbl_ticks;
 
 uint16_t input_keys = 0;
 uint16_t input_keys_repressed = 0;
@@ -43,7 +42,7 @@ void vblank_input_update(void) {
 			| ((keys & 0x0040) >>  5) /*e*/
 			| ((keys & 0x0008) <<  4) /*u*/
 			| ((keys & 0x0004) <<  2) /*d*/
-			| ((keys & 0x0001) <<  5); /*l*/
+			| ((keys & 0x0001) <<  5);/*l*/
 	}
 	input_keys |= keys;
 	input_keys_repressed |= (keys & input_keys_released);

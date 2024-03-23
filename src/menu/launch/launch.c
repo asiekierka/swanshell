@@ -247,6 +247,10 @@ uint8_t launch_backup_save_data(void) {
     if (result != FR_OK)
         return result;
 
+    ui_layout_clear(0);
+    ui_show();
+    ui_draw_centered_status("Save -> Card");
+
     while (true) {
         ini_result = ini_next(&fp, buffer, sizeof(buffer), &key, &value);
         if (ini_result == INI_NEXT_ERROR) {
@@ -309,6 +313,10 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     bool has_save_data = meta->sram_size || meta->eeprom_size || meta->flash_size;
     if (!has_save_data)
         return FR_OK;
+
+    ui_layout_clear(0);
+    ui_show();
+    ui_draw_centered_status("Card -> Save");
 
     // extension-editable version of "path"
     strcpy(dst_path, path);
