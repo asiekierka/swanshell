@@ -102,50 +102,93 @@ void ui_wavplay(const char *path) {
         }
     }
 
-    if (fmt.format != 1 || fmt.channels != 1 || fmt.bits_per_sample != 8) {
+    if (fmt.format != 1) {
         // TODO
         goto ui_wavplay_end;
     }
-
-    uint16_t timer_step = 0;
-    if (fmt.sample_rate >= 65536 || fmt.sample_rate < 1) {
-        // TODO
-        goto ui_wavplay_end;
-    }
-    timer_step = fmt.sample_rate > 12000 ? 1 : 12000 / fmt.sample_rate;
-    uint16_t timer_sample_rate = 12000 / timer_step;
-
-    POSITION_COUNTER = 0;
-    POSITION_COUNTER_INCR = (((uint32_t) fmt.sample_rate << 16) / timer_sample_rate) << 2;
 
     if ((result = f_read(&fp, WAV_BUFFER0, WAV_BUFFER_SIZE * 2, NULL)) != FR_OK) {
         // TODO
         goto ui_wavplay_end;
     }
 
-    outportw(IO_DISPLAY_CTRL, 0);
+    ui_hide();
+    outportb(IO_SND_CH_CTRL, 0);
+    outportb(IO_SND_OUT_CTRL, 0);
 
     input_wait_clear();
 
-    outportb(IO_SND_CH_CTRL, 0);
-    outportb(IO_SND_OUT_CTRL, 0);
-    outportb(IO_SND_VOL_CH2, 0x80);
-    outportb(IO_SND_CH_CTRL, SND_CH2_ENABLE | SND_CH2_VOICE);
-    outportb(IO_SND_VOL_CH2_VOICE, SND_VOL_CH2_FULL);
-    outportb(IO_SND_OUT_CTRL, SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE | SND_OUT_DIVIDER_2);
+    if (fmt.sample_rate >= 65536 || fmt.sample_rate < 1) {
+        // TODO
+        goto ui_wavplay_end;
+    }
+    
+    bool use_irq = true;
+    if (ws_system_color_active()) {
+        if (fmt.channels == 1 && fmt.bits_per_sample == 8)
+            if (fmt.sample_rate == 24000 || fmt.sample_rate == 12000 || fmt.sample_rate == 6000 || fmt.sample_rate == 4000)
+                use_irq = false;
+    }
 
-    cpu_irq_disable();
-    ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, ui_wavplay_irq_8_mono);
-    outportw(IO_HBLANK_TIMER, timer_step);
-    outportw(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE | HBLANK_TIMER_REPEAT);
-    ws_hwint_enable(HWINT_HBLANK_TIMER);
-    cpu_irq_enable();
+    if (use_irq) {
+        if (fmt.channels != 1 || fmt.bits_per_sample != 8) {
+            // TODO
+            goto ui_wavplay_end;
+        }
 
+        uint16_t timer_step = 0;
+        timer_step = fmt.sample_rate > 12000 ? 1 : 12000 / fmt.sample_rate;
+        uint16_t timer_sample_rate = 12000 / timer_step;
+
+        POSITION_COUNTER = 0;
+        POSITION_COUNTER_INCR = (((uint32_t) fmt.sample_rate << 16) / timer_sample_rate) << 2;
+
+        outportb(IO_SND_VOL_CH2, 0x80);
+        outportb(IO_SND_CH_CTRL, SND_CH2_ENABLE | SND_CH2_VOICE);
+        outportb(IO_SND_VOL_CH2_VOICE, SND_VOL_CH2_FULL);
+        outportb(IO_SND_OUT_CTRL, SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE | SND_OUT_DIVIDER_2);
+
+        cpu_irq_disable();
+        ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, ui_wavplay_irq_8_mono);
+        outportw(IO_HBLANK_TIMER, timer_step);
+        outportw(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE | HBLANK_TIMER_REPEAT);
+        ws_hwint_enable(HWINT_HBLANK_TIMER);
+        cpu_irq_enable();
+    } else {
+        outportb(IO_SND_VOL_CH2, 0x80);
+        outportb(IO_SND_CH_CTRL, SND_CH2_ENABLE | SND_CH2_VOICE);
+        outportb(IO_SND_VOL_CH2_VOICE, SND_VOL_CH2_FULL);
+        outportb(IO_SND_OUT_CTRL, SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE | SND_OUT_DIVIDER_2);
+
+        outportw(IO_SDMA_SOURCE_L, WAV_BUFFER_LINEAR0);
+        outportb(IO_SDMA_SOURCE_H, 0);
+        outportw(IO_SDMA_LENGTH_L, WAV_BUFFER_SIZE * 2);
+        outportb(IO_SDMA_LENGTH_H, 0);
+
+        uint8_t rate;
+        if (fmt.sample_rate == 24000)
+            rate = 3;
+        else if (fmt.sample_rate == 12000)
+            rate = 2;
+        else if (fmt.sample_rate == 6000)
+            rate = 1;
+        else
+            rate = 0;
+
+        outportb(IO_SDMA_CTRL, DMA_TRANSFER_ENABLE | rate | SDMA_REPEAT | SDMA_TARGET_CH2);
+    }
+    
     uint8_t next_buffer = 0;
     while (true) {
         unsigned int bytes_read;
+        bool read_next = false;
         if (next_buffer == 1) {
-            if (!(POSITION_COUNTER_HIGH & 0x8000)) {
+            if (use_irq) {
+                read_next = !(POSITION_COUNTER_HIGH & 0x8000);
+            } else {
+                read_next = inportw(IO_SDMA_SOURCE_L) < WAV_BUFFER_LINEAR1;
+            }
+            if (read_next) {
                 if ((result = f_read(&fp, WAV_BUFFER1, WAV_BUFFER_SIZE, &bytes_read)) != FR_OK || bytes_read < WAV_BUFFER_SIZE) {
                     // TODO
                     break;
@@ -153,7 +196,12 @@ void ui_wavplay(const char *path) {
                 next_buffer = 0;
             }
         } else {
-            if (POSITION_COUNTER_HIGH & 0x8000) {
+            if (use_irq) {
+                read_next = (POSITION_COUNTER_HIGH & 0x8000);
+            } else {
+                read_next = inportw(IO_SDMA_SOURCE_L) >= WAV_BUFFER_LINEAR1;
+            }
+            if (read_next) {
                 if ((result = f_read(&fp, WAV_BUFFER0, WAV_BUFFER_SIZE, &bytes_read)) != FR_OK || bytes_read < WAV_BUFFER_SIZE) {
                     // TODO
                     break;
@@ -168,8 +216,12 @@ void ui_wavplay(const char *path) {
         }
     }
 
-    ws_hwint_disable(HWINT_HBLANK_TIMER);
-    outportw(IO_TIMER_CTRL, 0);
+    if (use_irq) {
+        ws_hwint_disable(HWINT_HBLANK_TIMER);
+        outportw(IO_TIMER_CTRL, 0);
+    } else {
+        outportb(IO_SDMA_CTRL, 0);
+    }
     outportb(IO_SND_OUT_CTRL, 0);
     outportb(IO_SND_CH_CTRL, 0);
     
