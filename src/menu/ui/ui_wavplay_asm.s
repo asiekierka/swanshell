@@ -29,8 +29,8 @@
 #define POSITION_COUNTER_HIGH 0x1E
 
     .section .fartext.s.ui_wavplay_asm, "ax"
-    .global ui_wavplay_irq
-ui_wavplay_irq:
+    .global ui_wavplay_irq_8_mono
+ui_wavplay_irq_8_mono:
 	// read next audio byte
 	push ax
 	push bx

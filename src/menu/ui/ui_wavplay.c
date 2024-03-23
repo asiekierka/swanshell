@@ -52,7 +52,7 @@ typedef struct {
 } wave_fmt_t;
 
 __attribute__((interrupt))
-void ui_wavplay_irq(void);
+void ui_wavplay_irq_8_mono(void);
 
 void ui_wavplay(const char *path) {
     FIL fp;
@@ -108,15 +108,15 @@ void ui_wavplay(const char *path) {
     }
 
     uint16_t timer_step = 0;
-    if (fmt.sample_rate > 12000 || fmt.sample_rate < 1) {
+    if (fmt.sample_rate >= 65536 || fmt.sample_rate < 1) {
         // TODO
         goto ui_wavplay_end;
     }
-    timer_step = 12000 / fmt.sample_rate;
+    timer_step = fmt.sample_rate > 12000 ? 1 : 12000 / fmt.sample_rate;
     uint16_t timer_sample_rate = 12000 / timer_step;
 
     POSITION_COUNTER = 0;
-    POSITION_COUNTER_INCR = ((uint32_t) fmt.sample_rate << 18) / timer_sample_rate;
+    POSITION_COUNTER_INCR = (((uint32_t) fmt.sample_rate << 16) / timer_sample_rate) << 2;
 
     if ((result = f_read(&fp, WAV_BUFFER0, WAV_BUFFER_SIZE * 2, NULL)) != FR_OK) {
         // TODO
@@ -135,7 +135,7 @@ void ui_wavplay(const char *path) {
     outportb(IO_SND_OUT_CTRL, SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE | SND_OUT_DIVIDER_2);
 
     cpu_irq_disable();
-    ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, ui_wavplay_irq);
+    ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, ui_wavplay_irq_8_mono);
     outportw(IO_HBLANK_TIMER, timer_step);
     outportw(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE | HBLANK_TIMER_REPEAT);
     ws_hwint_enable(HWINT_HBLANK_TIMER);
