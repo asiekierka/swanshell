@@ -73,10 +73,10 @@ INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
 
 LIBDIRSFLAGS	:= $(foreach path,$(LIBDIRS),-L$(path)/lib)
 
-ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(WF_ARCH_CFLAGS) \
+ASFLAGS		:= -x assembler-with-cpp $(DEFINES) $(WF_ARCH_CFLAGS) \
 		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections -fno-common
 
-CFLAGS		+= -std=gnu11 $(WARNFLAGS) $(DEFINES) $(WF_ARCH_CFLAGS) \
+CFLAGS		:= -std=gnu11 $(WARNFLAGS) $(DEFINES) $(WF_ARCH_CFLAGS) \
 		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections -fno-common -O2
 
 LDFLAGS		:= -T$(WF_LDSCRIPT) $(LIBDIRSFLAGS) \

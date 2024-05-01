@@ -71,10 +71,10 @@ INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
 
 LIBDIRSFLAGS	:= $(foreach path,$(LIBDIRS),-L$(path)/lib)
 
-ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(WF_ARCH_CFLAGS) \
+ASFLAGS		:= -x assembler-with-cpp $(DEFINES) $(WF_ARCH_CFLAGS) \
 		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections -Os
 
-CFLAGS		+= -std=gnu11 $(WARNFLAGS) $(DEFINES) $(WF_ARCH_CFLAGS) \
+CFLAGS		:= -std=gnu11 $(WARNFLAGS) $(DEFINES) $(WF_ARCH_CFLAGS) \
 		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections -Os
 
 LDFLAGS		:= -Tsrc/bootstub/link.ld -Wl,-Map,$(MAP) -Wl,--gc-sections $(LIBDIRSFLAGS) \
