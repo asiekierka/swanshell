@@ -98,7 +98,7 @@ nile_tf_cs_high:
 
     in ax, IO_NILE_SPI_CNT
     and ax, 0x7800
-    or ah, ((NILE_SPI_CS_DEV_TF_DESEL | NILE_SPI_START | NILE_SPI_MODE_READ) >> 8) // pull CS high
+    or ah, ((NILE_SPI_DEV_NONE | NILE_SPI_START | NILE_SPI_MODE_READ) >> 8) // pull CS high
     out IO_NILE_SPI_CNT, ax
 
 nile_tf_cs_high2:
@@ -121,7 +121,7 @@ nile_tf_cs_low:
 
     in ax, IO_NILE_SPI_CNT
     and ax, 0x7800
-    or ah, ((NILE_SPI_CS_DEV_TF_SEL | NILE_SPI_START | NILE_SPI_MODE_READ) >> 8) // pull CS low
+    or ah, ((NILE_SPI_DEV_TF | NILE_SPI_START | NILE_SPI_MODE_READ) >> 8) // pull CS low
     out IO_NILE_SPI_CNT, ax
 
 nile_tf_cs_low2:

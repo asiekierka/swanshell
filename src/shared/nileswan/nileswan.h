@@ -27,11 +27,11 @@
 #define NILE_SPI_MODE_MASK          0x0600
 #define NILE_SPI_390KHZ             0x0800
 #define NILE_SPI_25MHZ              0x0000
-#define NILE_SPI_CS_DEV             0x3000
-#define NILE_SPI_CS_DEV_TF_DESEL    0x0000
-#define NILE_SPI_CS_DEV_TF_SEL      0x1000
-#define NILE_SPI_CS_DEV_FLASH_SEL   0x2000
-#define NILE_SPI_CS_DEV_MCU_SEL     0x3000
+#define NILE_SPI_DEV_NONE           0x0000
+#define NILE_SPI_DEV_TF             0x1000
+#define NILE_SPI_DEV_FLASH          0x2000
+#define NILE_SPI_DEV_MCU            0x3000
+#define NILE_SPI_DEV_MASK           0x3000
 #define NILE_SPI_BUFFER_IDX         0x4000
 #define NILE_SPI_START              0x8000
 #define NILE_SPI_BUSY               0x8000
