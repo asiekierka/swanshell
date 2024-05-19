@@ -15,29 +15,25 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __UI_H__
-#define __UI_H__
+#ifndef _STRINGS_H_
+#define _STRINGS_H_
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include "bitmap.h"
+#ifdef STRINGS_H_IMPLEMENTATION
+#define DEFINE_STRING(name, value) const char __far name[] = value
+#else
+#define DEFINE_STRING(name, value) extern const char __far name[]
+#endif
 
-extern bitmap_t ui_bitmap;
+DEFINE_STRING(s_file_ext_bmp, ".bmp");
+DEFINE_STRING(s_file_ext_vgm, ".vgm");
+DEFINE_STRING(s_file_ext_wav, ".wav");
+DEFINE_STRING(s_file_ext_ws, ".ws");
+DEFINE_STRING(s_file_ext_wsc, ".wsc");
 
-void ui_init(void);
-void ui_hide(void);
-void ui_show(void);
-void ui_layout_clear(uint16_t pal);
-void ui_layout_titlebar(void);
-void ui_draw_centered_status(const char __far* text);
-void ui_draw_titlebar(const char __far* text);
-void ui_draw_statusbar(const char __far* text);
-void ui_file_selector(void);
-void ui_bmpview(const char *path);
-void ui_vgmplay(const char *path);
-void ui_wavplay(const char *path);
+// Follow ares convention on save filenames.
+DEFINE_STRING(s_file_ext_sram, ".ram");
+DEFINE_STRING(s_file_ext_eeprom, ".eeprom");
+DEFINE_STRING(s_file_ext_flash, ".flash");
+DEFINE_STRING(s_file_ext_rtc, ".rtc");
 
-extern uint16_t bitmap_screen2[];
-
-#endif /* __UI_H__ */
+#endif /* _STRINGS_H_ */

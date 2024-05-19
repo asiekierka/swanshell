@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE kbits PUBLIC "-//Kreative//DTD BitsNPicasBitmap 1.0//EN" "http://www.kreativekorp.com/dtd/kbitx.dtd">
+<kbits>
+<prop id="emAscent" value="7"/>
+<prop id="emDescent" value="1"/>
+<prop id="lineAscent" value="7"/>
+<prop id="lineDescent" value="1"/>
+<prop id="lineGap" value="0"/>
+<prop id="xHeight" value="0"/>
+<prop id="capHeight" value="0"/>
+<name id="1" value="Untitled"/>
+<name id="2" value="Regular"/>
+<name id="3" value="BitsNPicas: Untitled: 2024"/>
+<name id="4" value="Untitled"/>
+<name id="5" value="Version 1.0"/>
+<name id="6" value="Untitled"/>
+<name id="8" value="Made with Bits&#39;n&#39;Picas by Kreative Software"/>
+<name id="11" value="http://www.kreativekorp.com/software/bitsnpicas/"/>
+<g u="33" x="-1" y="6" w="0" d="BgFEwgD/"/>
+<g u="34" x="-2" y="6" w="0" d="AgPC/wBCwgD/"/>
+<g u="35" x="-3" y="6" w="0" d="BgXFAP8A/wBFxAD/AP8CxP8A/wBFxQD/AP8A"/>
+<g u="36" x="-3" y="6" w="0" d="BwUCQQNFwgD/A0MDwv8ARQNBAg"/>
+<g u="37" x="-2" y="5" w="0" d="BQRBAkECQQJCAkECQQJB"/>
+<g u="38" x="-2" y="6" w="0" d="BgTCAP8Cx/8A/wD/AP8Cwv8AQsIA/wLD/wD/"/>
+<g u="39" x="0" y="6" w="0" d="AgFC"/>
+<g u="40" x="-1" y="6" w="0" d="BgIBQsYA/wD/AP8CQQ"/>
+<g u="41" x="-1" y="6" w="0" d="BgJBAsb/AP8A/wBCAQ"/>
+<g u="42" x="-3" y="5" w="0" d="BQUCQQLG/wD/AP8AQ8YA/wD/AP8CQQI"/>
+<g u="43" x="-3" y="5" w="0" d="BQUCQQRBAkUCQQRBAg"/>
+<g u="44" x="-1" y="1" w="0" d="AgIBQgE"/>
+<g u="45" x="-2" y="3" w="0" d="AQRE"/>
+<g u="46" x="0" y="1" w="0" d="AQFB"/>
+<g u="47" x="-2" y="6" w="0" d="BgMCQQLD/wD/AsP/AP8CQQI"/>
+<g u="48" x="-2" y="6" w="0" d="BgQBQsIA/wJCAUQBQgLC/wBCAQ"/>
+<g u="49" x="-2" y="6" w="0" d="BgPDAP8AQgJBAkECwv8AQw"/>
+<g u="50" x="-2" y="6" w="0" d="BgQBQsIA/wJBA0ECQQJBAkQ"/>
+<g u="51" x="-2" y="6" w="0" d="BgQBQsIA/wJBAkEEQgLC/wBCAQ"/>
+<g u="52" x="-2" y="6" w="0" d="BgQCQscA/wD/AP8AQgJFA0E"/>
+<g u="53" x="-2" y="6" w="0" d="BgRFA0MEQQNEAQ"/>
+<g u="54" x="-2" y="6" w="0" d="BgQBQsIA/wNDwgD/AkICwv8AQgE"/>
+<g u="55" x="-2" y="6" w="0" d="BgREA0EDQQJBA0EDwv8A"/>
+<g u="56" x="-2" y="6" w="0" d="BgQBQsIA/wLC/wBCwgD/AkICwv8AQgE"/>
+<g u="57" x="-2" y="6" w="0" d="BgQBQsIA/wJCAsL/AEMDwv8AQgE"/>
+<g u="58" x="0" y="5" w="0" d="BAFBAkE"/>
+<g u="59" x="-1" y="5" w="0" d="BQLCAP8FQgE"/>
+<g u="60" x="-2" y="5" w="0" d="BQMCxf8A/wD/A0EDQQ"/>
+<g u="61" x="-2" y="4" w="0" d="AwNDA0M"/>
+<g u="62" x="-2" y="5" w="0" d="BQNBA0EDxf8A/wD/Ag"/>
+<g u="63" x="-2" y="6" w="0" d="BgQBQsIA/wJBAkECQQdBAg"/>
+<g u="64" x="-3" y="6" w="0" d="BwUBQ8IA/wNCAkPDAP8AQgFEBUQ"/>
+<g u="65" x="-2" y="6" w="0" d="BgQBQsIA/wJCAkYCQgJB"/>
+<g u="66" x="-2" y="6" w="0" d="BgRDwgD/AkTCAP8CQgJEAQ"/>
+<g u="67" x="-2" y="6" w="0" d="BgQBQsIA/wJCA0EDQQLC/wBCAQ"/>
+<g u="68" x="-2" y="6" w="0" d="BgRDwgD/AkICQgJCAkQB"/>
+<g u="69" x="-2" y="6" w="0" d="BgRFA0PCAP8DQQNE"/>
+<g u="70" x="-2" y="6" w="0" d="BgRFA0PCAP8DQQNBAw"/>
+<g u="71" x="-2" y="6" w="0" d="BgQBQsIA/wJCA8L/AEMCwv8AQw"/>
+<g u="72" x="-2" y="6" w="0" d="BgRBAkICRgJCAkICQQ"/>
+<g u="73" x="-2" y="6" w="0" d="BgNDwgD/AkECQQLC/wBD"/>
+<g u="74" x="-2" y="6" w="0" d="BgQDQQNBA0EDQgLC/wBCAQ"/>
+<g u="75" x="-2" y="6" w="0" d="BgRBAkLDAP8AQgLF/wD/AP8CQgJB"/>
+<g u="76" x="-2" y="6" w="0" d="BgRBA0EDQQNBA0EDRA"/>
+<g u="77" x="-3" y="6" w="0" d="BgVBA0MBQ8MA/wBCwwD/AEIDQgNB"/>
+<g u="78" x="-2" y="6" w="0" d="BgRBAkMBQgFDAkICQgJB"/>
+<g u="79" x="-2" y="6" w="0" d="BgQBQsIA/wJCAkICQgLC/wBCAQ"/>
+<g u="80" x="-2" y="6" w="0" d="BgRDwgD/AkICRMIA/wNBAw"/>
+<g u="81" x="-2" y="6" w="0" d="BgQBQsIA/wJCAkICQsIA/wLD/wD/"/>
+<g u="82" x="-2" y="6" w="0" d="BgRDwgD/AkICRMYA/wD/AP8CQQ"/>
+<g u="83" x="-2" y="6" w="0" d="BgQBQsIA/wLD/wD/BMP/AP8Cwv8AQgE"/>
+<g u="84" x="-2" y="6" w="0" d="BgNDwgD/AkECQQJBAsL/AA"/>
+<g u="85" x="-2" y="6" w="0" d="BgRBAkICQgJCAkICwv8AQgE"/>
+<g u="86" x="-3" y="6" w="0" d="BgVBA0IDxf8A/wD/AsP/AP8DQQRBAg"/>
+<g u="87" x="-3" y="6" w="0" d="BgVBA0IDQsMA/wBCyAD/AP8A/wD/AsT/AP8A"/>
+<g u="88" x="-3" y="6" w="0" d="BgVBA8X/AP8A/wNBBEEDxf8A/wD/A0E"/>
+<g u="89" x="-3" y="6" w="0" d="BgVBA0IDxf8A/wD/A0EEQQRBAg"/>
+<g u="90" x="-2" y="6" w="0" d="BgREA0ECQQJBAkEDRA"/>
+<g u="91" x="-2" y="6" w="0" d="BgNEAkECQQJBAkM"/>
+<g u="92" x="-2" y="6" w="0" d="BgNBAkEDQQJBA0ECQQ"/>
+<g u="93" x="-2" y="6" w="0" d="BgNDAkECQQJBAkQ"/>
+<g u="94" x="-2" y="6" w="0" d="AgPGAP8A/wD/"/>
+<g u="95" x="-2" y="1" w="0" d="AQND"/>
+<g u="96" x="-1" y="6" w="0" d="AgJBAkE"/>
+<g u="97" x="-2" y="5" w="0" d="BQQBQgTC/wBEAsL/AEM"/>
+<g u="98" x="-2" y="6" w="0" d="BgRBA0EDQ8IA/wJCAkQB"/>
+<g u="99" x="-2" y="5" w="0" d="BQQBQsIA/wJCA0ECwv8AQgE"/>
+<g u="100" x="-2" y="6" w="0" d="BgQDQQPC/wBEAkICwv8AQw"/>
+<g u="101" x="-2" y="5" w="0" d="BQQBQsIA/wJGBEIB"/>
+<g u="102" x="-2" y="6" w="0" d="BgMCxP8A/wBDwgD/AkECwv8A"/>
+<g u="103" x="-2" y="5" w="0" d="BgQBRAJCAsL/AEMDwv8AQgE"/>
+<g u="104" x="-2" y="6" w="0" d="BgRBA0EDQ8IA/wJCAkICQQ"/>
+<g u="105" x="-2" y="6" w="0" d="BgPCAP8EQgJBAsL/AEM"/>
+<g u="106" x="-2" y="6" w="0" d="BwPCAP8EQwJBAkECQwE"/>
+<g u="107" x="-2" y="6" w="0" d="BgNBAkECwv8AQ8MA/wBCwgD/"/>
+<g u="108" x="-2" y="6" w="0" d="BgNCAkECQQJBAkECQg"/>
+<g u="109" x="-3" y="5" w="0" d="BQVCxwD/AP8A/wBCwwD/AELDAP8AQsQA/wD/"/>
+<g u="110" x="-2" y="5" w="0" d="BQRDwgD/AkICQgJCAkE"/>
+<g u="111" x="-2" y="5" w="0" d="BQQBQsIA/wJCAkICwv8AQgE"/>
+<g u="112" x="-2" y="5" w="0" d="BgRDwgD/AkICRMIA/wNBAw"/>
+<g u="113" x="-2" y="5" w="0" d="BgQBRAJCAsL/AEMDQQNB"/>
+<g u="114" x="-2" y="5" w="0" d="BQPC/wBDwgD/AkECQQI"/>
+<g u="115" x="-2" y="5" w="0" d="BQMBQwNBA0MB"/>
+<g u="116" x="-2" y="6" w="0" d="BgPDAP8AQ8IA/wJBAkEDQQ"/>
+<g u="117" x="-2" y="5" w="0" d="BQRBAkICQgJCAsL/AEM"/>
+<g u="118" x="-3" y="5" w="0" d="BQVBA0IDxf8A/wD/AsP/AP8DQQI"/>
+<g u="119" x="-3" y="5" w="0" d="BQXE/wD/AELDAP8AQsgA/wD/AP8A/wLE/wD/AA"/>
+<g u="120" x="-3" y="5" w="0" d="BQVBA8X/AP8A/wNBA8X/AP8A/wNB"/>
+<g u="121" x="-3" y="5" w="0" d="BgVBA0IDxf8A/wD/AsP/AP8DQQJCAw"/>
+<g u="122" x="-2" y="5" w="0" d="BQREAkECQQJBA0Q"/>
+<g u="123" x="-2" y="6" w="0" d="BgMCw/8A/wLC/wBCAkEDQQ"/>
+<g u="124" x="-1" y="6" w="0" d="BgFG"/>
+<g u="125" x="-2" y="6" w="0" d="BgNBA0ECQQJCxAD/AP8C"/>
+<g u="126" x="-3" y="4" w="0" d="AwXCAP8Dxf8A/wD/A8L/AA"/>
+</kbits>

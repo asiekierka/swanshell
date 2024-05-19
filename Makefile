@@ -6,6 +6,8 @@ WONDERFUL_TOOLCHAIN ?= /opt/wonderful
 TARGET = wswan/medium
 include $(WONDERFUL_TOOLCHAIN)/target/$(TARGET)/makedefs.mk
 
+PYTHON3		?= python3
+
 # Metadata
 # --------
 
@@ -88,7 +90,8 @@ BUILDROMFLAGS	:= -c src/menu/wfconfig.toml --trim
 # ------------------------
 
 OBJS_ASSETS	:= $(addsuffix .o,$(addprefix $(BUILDDIR)/,$(SOURCES_CBIN))) \
-		   $(addsuffix .o,$(addprefix $(BUILDDIR)/,$(SOURCES_WFPROCESS)))
+		   $(addsuffix .o,$(addprefix $(BUILDDIR)/,$(SOURCES_WFPROCESS))) \
+		   $(BUILDDIR)/assets/menu/lang.o
 
 OBJS_SOURCES	:= $(addsuffix .o,$(addprefix $(BUILDDIR)/,$(SOURCES_S))) \
 		   $(addsuffix .o,$(addprefix $(BUILDDIR)/,$(SOURCES_C)))
@@ -144,6 +147,12 @@ $(BUILDDIR)/%.bin.o $(BUILDDIR)/%_bin.h : %.bin
 	@$(MKDIR) -p $(@D)
 	$(_V)$(WF)/bin/wf-bin2c -a 2 --address-space __far $(@D) $<
 	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/$*.bin.o $(BUILDDIR)/$*_bin.c
+
+$(BUILDDIR)/assets/menu/lang.o $(BUILDDIR)/assets/menu/lang.h :
+	@echo "  LANG"
+	@$(MKDIR) -p $(@D)
+	$(_V)$(PYTHON3) tools/gen_strings.py lang $(BUILDDIR)/assets/menu/lang.c $(BUILDDIR)/assets/menu/lang.h
+	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/assets/menu/lang.o $(BUILDDIR)/assets/menu/lang.c
 
 $(BUILDDIR)/%.lua.o : %.lua
 	@echo "  PROCESS $<"

@@ -25,10 +25,12 @@
 #include "fatfs/ff.h"
 #include "bitmap.h"
 #include "launch/launch.h"
+#include "strings.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
+#include "../../../build/menu/assets/menu/lang.h"
 
 __attribute__((section(".iramx_1b80")))
 uint16_t bitmap_screen2[32 * 18 - 4];
@@ -58,75 +60,23 @@ typedef struct {
     uint32_t important_color_count;
 } bmp_header_t;
 
-static const char __far wallpaper_path[] = "/wallpaper.bmp";
-static void ui_load_wallpaper(void) {
-    FIL fp;
-    char path[20];
-    strcpy(path, wallpaper_path);
-
-    uint8_t result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
-    if (result != FR_OK) {
-        return;
-    }
-
-    if (f_size(&fp) > 65535) {
-        f_close(&fp);
-        return;
-    }
-
-    result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), NULL);
-    f_close(&fp);
-    if (result != FR_OK) {
-        return;
-    }
-
-    bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
-    if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
-        bmp->width != 224 || bmp->height != 144 ||
-        bmp->compression != 0 || bmp->color_count > 16 || bmp->bpp != 4) {
-        return;
-    }
-
-    // configure palette
-    uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
-    for (int i = 0; i < bmp->color_count; i++) {
-        uint8_t b = *(palette++) >> 4;
-        uint8_t g = *(palette++) >> 4;
-        uint8_t r = *(palette++) >> 4;
-        b = (b>>1) + 8; if (b > 15) b = 15;
-        g = (g>>1) + 8; if (g > 15) g = 15;
-        r = (r>>1) + 8; if (r > 15) r = 15;
-        palette++;
-        MEM_COLOR_PALETTE(15)[i] = RGB(r, g, b);
-    }
-    MEM_COLOR_PALETTE(0)[0] = MEM_COLOR_PALETTE(15)[0];
-
-    outportw(IO_DISPLAY_CTRL, inportw(IO_DISPLAY_CTRL) | DISPLAY_SCR1_ENABLE);
-
-    // copy data
-    uint8_t __far *data = MK_FP(0x1000, bmp->data_start);
-    uint16_t pitch = (((bmp->width * bmp->bpp) + 31) / 32) << 2;
-    for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
-        uint32_t __far *line_src = (uint32_t __far*) data;
-        uint32_t *line_dst = (uint32_t*) (0x8000 + (((uint16_t)bmp->height - 1 - y) * 4));
-        for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += 18 * 8) {
-            *line_dst = bitmap_c2p_4bpp_pixel(*line_src);
-        }
+void ui_draw_titlebar(const char __far* text) {
+    bitmap_rect_fill(&ui_bitmap, 0, 0, 244, 8, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    if (text != NULL) {
+        bitmapfont_set_active_font(font8_bitmap);
+        bitmapfont_draw_string(&ui_bitmap, 2, 0, text, 224 - 4);
     }
 }
 
-void ui_draw_titlebar(void) {
-    bitmap_rect_fill(&ui_bitmap, 2, 0, 220, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
-    bitmap_rect_fill(&ui_bitmap, 3, 14, 218, 1, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+void ui_draw_statusbar(const char __far* text) {
+    bitmap_rect_fill(&ui_bitmap, 0, 144-8, 244, 8, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    if (text != NULL) {
+        bitmapfont_set_active_font(font8_bitmap);
+        bitmapfont_draw_string(&ui_bitmap, 2, 144-8, text, 224 - 4);
+    }
 }
 
-void ui_redraw_titlebar(const char *text) {
-    bitmap_rect_fill(&ui_bitmap, 2, 0, 220, 14, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
-    if (text != NULL)
-        bitmapfont_draw_string(&ui_bitmap, 6, 1, text, 224 - 12);
-}
-
-void ui_draw_centered_status(const char *text) {
+void ui_draw_centered_status(const char __far* text) {
     int16_t width = bitmapfont_get_string_width(text, 224);
     bitmap_rect_clear(&ui_bitmap, 0, (144 - 12) >> 1, 224, 11);
     bitmapfont_draw_string(&ui_bitmap, (224 - width) >> 1, (144 - 12) >> 1, text, 224);
@@ -147,38 +97,32 @@ void ui_init(void) {
 
     // initialize palettes
     if (ws_system_is_color()) {
-#if 1
         ws_system_mode_set(WS_MODE_COLOR_4BPP);
         ui_bitmap = BITMAP(MEM_TILE_4BPP(0), 28, 18, 4);
-#else
-        ws_system_mode_set(WS_MODE_COLOR);
-        ui_bitmap = BITMAP(MEM_TILE(0), 28, 18, 2);
-#endif
 
-        MEM_COLOR_PALETTE(0)[0] = 0x0FFF;
-        MEM_COLOR_PALETTE(0)[1] = 0x0000;
-        MEM_COLOR_PALETTE(0)[2] = 0x0000;
-        MEM_COLOR_PALETTE(0)[3] = 0x0FFF;
+        // palette 0 - icon palette
+        MEM_COLOR_PALETTE(0)[0] = 0xFFF;
+        memcpy(MEM_COLOR_PALETTE(0) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
 
-        MEM_COLOR_PALETTE(1)[0] = 0x0AAA;
-        MEM_COLOR_PALETTE(1)[1] = 0x0000;
-        MEM_COLOR_PALETTE(1)[2] = 0x0222;
-        MEM_COLOR_PALETTE(1)[3] = 0x0777;
+        // palette 1 - icon palette (selected)
+        memcpy(MEM_COLOR_PALETTE(1) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
+        MEM_COLOR_PALETTE(1)[2] ^= 0xFFF;
+        MEM_COLOR_PALETTE(1)[3] ^= 0xFFF;
 
+        // palette 2 - titlebar palette
         MEM_COLOR_PALETTE(2)[0] = 0x0FFF;
         MEM_COLOR_PALETTE(2)[1] = 0x0000;
         MEM_COLOR_PALETTE(2)[2] = 0x04A7;
         MEM_COLOR_PALETTE(2)[3] = 0x0FFF;
-
-        // TODO: wallpaper support
-        // INIT_SCREEN_PATTERN((void*) 0x3800, SCR_ENTRY_PALETTE(15) | SCR_ENTRY_BANK(1));
-        // ui_load_wallpaper();
     } else {
         ui_bitmap = BITMAP(MEM_TILE(0), 28, 18, 2);
 
         ws_display_set_shade_lut(SHADE_LUT_DEFAULT);
-        outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(0, 7, 5, 2));
-        outportw(IO_SCR_PAL_1, MONO_PAL_COLORS(2, 7, 6, 4));
+        // palette 0 - icon palette
+        outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(2, 5, 0, 7));
+        // palette 1 - icon palette (selected)
+        outportw(IO_SCR_PAL_1, MONO_PAL_COLORS(2, 5, 7, 0));
+        // palette 2 - titlebar palette
         outportw(IO_SCR_PAL_2, MONO_PAL_COLORS(0, 7, 3, 0));
     }
 
@@ -200,136 +144,183 @@ void ui_layout_clear(uint16_t pal) {
     INIT_SCREEN_PATTERN(bitmap_screen2, pal);
 }
 
-void ui_layout_titlebar(void) {
+void ui_layout_bars(uint16_t icon_limit) {
     bitmap_rect_clear(&ui_bitmap, 0, 0, 224, 144);
-    INIT_SCREEN_PATTERN(bitmap_screen2, (iy < 2) ? SCR_ENTRY_PALETTE(2) : 0);
-    ui_draw_titlebar();
+    INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? SCR_ENTRY_PALETTE(2) : 0);
 }
 
-#define MAX_FILE_COUNT 1024
+#define FILE_SELECTOR_ENTRY_SHIFT 8
+#define FILE_SELECTOR_MAX_FILES 1536
 
-static const char __far ext_bmp[] = ".bmp";
-static const char __far ext_vgm[] = ".vgm";
-static const char __far ext_wav[] = ".wav";
-static const char __far ext_ws[] = ".ws";
-static const char __far ext_wsc[] = ".wsc";
+#define FILE_SELECTOR_ROW_HEIGHT 16
+#define FILE_SELECTOR_ROW_COUNT 8
+#define FILE_SELECTOR_Y_OFFSET 8
+#define FILE_SELECTOR_ROW_OFFSET 3
 
-void ui_file_selector(void) {
-    char path[FF_LFN_BUF + 1];
+typedef struct {
+    FILINFO fno;
+    uint8_t extension_loc;
+} file_selector_entry_t;
+
+static uint16_t ui_file_selector_scan_directory(void) {
     DIR dir;
-    uint16_t file_count;
-    uint16_t file_offset;
-    bool reinit_ui = true;
-    
-rescan_directory:
-    if (reinit_ui) {
-        ui_layout_titlebar();
-        ui_show();
-    }
-    file_count = 0;
-    file_offset = 0;
-    // Read files
-    ui_redraw_titlebar(NULL);
-	uint8_t result = f_opendir(&dir, ".");
+    uint16_t file_count = 0;
+
+    uint8_t result = f_opendir(&dir, ".");
 	if (result != FR_OK) {
 		while(1);
 	}
 	while (true) {
-        outportw(IO_BANK_2003_RAM, file_count >> 8);
-        FILINFO __far* fno = MK_FP(0x1000, file_count << 8);
-		result = f_readdir(&dir, fno);
+        outportw(IO_BANK_2003_RAM, file_count >> FILE_SELECTOR_ENTRY_SHIFT);
+        file_selector_entry_t __far* fno = MK_FP(0x1000, file_count << FILE_SELECTOR_ENTRY_SHIFT);
+		result = f_readdir(&dir, &fno->fno);
 		if (result != FR_OK) {
             // TODO: error handling
 			break;
 		}
-		if (fno->fname[0] == 0) {
+		if (fno->fno.fname[0] == 0) {
 			break;
 		}
+
+        const char __far* ext_loc = strrchr(fno->fno.fname, '.');
+        fno->extension_loc = ext_loc == NULL ? 255 : ext_loc - fno->fno.fname;
+
         file_count++;
-        if (file_count >= MAX_FILE_COUNT) {
+        if (file_count >= FILE_SELECTOR_MAX_FILES) {
             break;
         }
 	}
 	f_closedir(&dir);
 
+    return file_count;
+}
+
+void ui_file_selector(void) {
+    char path[FF_LFN_BUF + 1];
+    uint16_t file_offset;
+    uint16_t file_count;
+    bool reinit_ui = true;
+    
+rescan_directory:
+    if (reinit_ui) {
+        ui_layout_bars(2);
+        ui_show();
+    }
+    file_offset = 0;
+    // Read files
+    ui_draw_titlebar(NULL);
+    ui_draw_statusbar(lang_keys_en[LK_UI_STATUS_LOADING]);
+    file_count = ui_file_selector_scan_directory();
+
     // Clear screen
     f_getcwd(path, sizeof(path) - 1);
-    ui_redraw_titlebar(path);
+    ui_draw_titlebar(path);
 
     bool full_redraw = true;
     uint16_t prev_file_offset = 0xFFFF;
 
     while (true) {
         if (prev_file_offset != file_offset) {
-            if ((prev_file_offset / 10) != (file_offset / 10)) {
-                bitmap_rect_clear(&ui_bitmap, 0, 18, 28 * 8, 120);
+            if ((prev_file_offset / FILE_SELECTOR_ROW_COUNT) != (file_offset / FILE_SELECTOR_ROW_COUNT)) {
+                bitmap_rect_fill(&ui_bitmap, 0, FILE_SELECTOR_Y_OFFSET, 28 * 8, FILE_SELECTOR_ROW_HEIGHT * FILE_SELECTOR_ROW_COUNT, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
                 // Draw filenames
-                for (int i = 0; i < 10; i++) {
-                    uint16_t offset = ((file_offset / 10) * 10) + i;
+                bitmapfont_set_active_font(font16_bitmap);
+                for (int i = 0; i < FILE_SELECTOR_ROW_COUNT; i++) {
+                    uint16_t offset = ((file_offset / FILE_SELECTOR_ROW_COUNT) * FILE_SELECTOR_ROW_COUNT) + i;
                     if (offset >= file_count) break;
 
-                    outportw(IO_BANK_2003_RAM, offset >> 8);
-                    FILINFO __far* fno = MK_FP(0x1000, offset << 8);
+                    outportw(IO_BANK_2003_RAM, offset >> FILE_SELECTOR_ENTRY_SHIFT);
+                    file_selector_entry_t __far* fno = MK_FP(0x1000, offset << FILE_SELECTOR_ENTRY_SHIFT);
 
-                    uint16_t x = 9 + bitmapfont_draw_string(&ui_bitmap, 9, i * 12 + 18, fno->fname, 224 - 10);
+                    uint16_t x = 16 + bitmapfont_draw_string(&ui_bitmap, 16, i * FILE_SELECTOR_ROW_HEIGHT + FILE_SELECTOR_Y_OFFSET + FILE_SELECTOR_ROW_OFFSET, fno->fno.fname, 224 - 16);
                     uint8_t icon_idx = 1;
-                    if (fno->fattrib & AM_DIR) {
+                    if (fno->fno.fattrib & AM_DIR) {
                         icon_idx = 0;
-                        bitmapfont_draw_string(&ui_bitmap, x, i * 12 + 18, "/", 255);
+                        bitmapfont_draw_string(&ui_bitmap, x, i * FILE_SELECTOR_ROW_HEIGHT + FILE_SELECTOR_Y_OFFSET + FILE_SELECTOR_ROW_OFFSET, "/", 255);
                     } else {
-                        const char __far* ext = strrchr(fno->altname, '.');
+                        const char __far* ext = fno->fno.fname + fno->extension_loc;
                         if (ext != NULL) {
-                            if (!strcasecmp(ext, ext_ws) || !strcasecmp(ext, ext_wsc)) {
+                            if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc)) {
                                 icon_idx = 2;
-                            } else if (!strcasecmp(ext, ext_bmp)) {
+                            } else if (!strcasecmp(ext, s_file_ext_bmp)) {
                                 icon_idx = 3;
-                            } else if (!strcasecmp(ext, ext_wav) || !strcasecmp(ext, ext_vgm)) {
+                            } else if (!strcasecmp(ext, s_file_ext_wav) || !strcasecmp(ext, s_file_ext_vgm)) {
                                 icon_idx = 4;
                             }
                         }
                     }
-                    // memcpy(MEM_TILE(i + 1), gfx_icons_tiles + (icon_idx * 16), 16);
+                    if (FILE_SELECTOR_ROW_HEIGHT > 8) {
+                        // TODO: swap rows and colums in 16-high icons
+                        if (ws_system_color_active()) {
+                            memcpy(MEM_TILE_4BPP(i*2 + 1), gfx_icons_16color + (icon_idx * 128), 32);
+                            memcpy(MEM_TILE_4BPP(i*2 + 2), gfx_icons_16color + (icon_idx * 128) + 64, 32);
+                            memcpy(MEM_TILE_4BPP(i*2 + 19), gfx_icons_16color + (icon_idx * 128) + 32, 32);
+                            memcpy(MEM_TILE_4BPP(i*2 + 20), gfx_icons_16color + (icon_idx * 128) + 96, 32);
+                        } else {
+                            memcpy(MEM_TILE(i*2 + 1), gfx_icons_16mono + (icon_idx * 64), 16);
+                            memcpy(MEM_TILE(i*2 + 2), gfx_icons_16mono + (icon_idx * 64) + 32, 16);
+                            memcpy(MEM_TILE(i*2 + 19), gfx_icons_16mono + (icon_idx * 64) + 16, 16);
+                            memcpy(MEM_TILE(i*2 + 20), gfx_icons_16mono + (icon_idx * 64) + 48, 16);
+                        }
+                    } else {
+                        if (ws_system_color_active()) {
+                            memcpy(MEM_TILE_4BPP(i + 1), gfx_icons_8color + (icon_idx * 32), 32);
+                        } else {
+                            memcpy(MEM_TILE(i + 1), gfx_icons_8mono + (icon_idx * 16), 16);
+                        }
+                    }
                 }
                 prev_file_offset = file_offset + 1;
+
+                sprintf(path, lang_keys_en[LK_UI_FILE_SELECTOR_PAGE_FORMAT], (file_offset / FILE_SELECTOR_ROW_COUNT) + 1, ((file_count + FILE_SELECTOR_ROW_COUNT - 1) / FILE_SELECTOR_ROW_COUNT));
+                ui_draw_statusbar(path);
+
+                full_redraw = true; // FIXME
             }
-            if ((prev_file_offset % 10) != (file_offset % 10)) {
+            if ((prev_file_offset % FILE_SELECTOR_ROW_COUNT) != (file_offset % FILE_SELECTOR_ROW_COUNT)) {
                 // Draw highlights
-#if 1
+#if 0
                 if (full_redraw) {
-                    for (int iy = 0; iy < 10; iy++) {
+                    for (int iy = 0; iy < FILE_SELECTOR_ROW_COUNT; iy++) {
                         uint16_t pal = 0;
-                        if (iy == (file_offset % 10)) pal = 2;
-                        bitmap_rect_fill(&ui_bitmap, 0, iy * 12 + 18, 224, 12, BITMAP_COLOR(pal, 2, BITMAP_COLOR_MODE_STORE));
+                        if (iy == (file_offset % FILE_SELECTOR_ROW_COUNT)) pal = 2;
+                        bitmap_rect_fill(&ui_bitmap, 0, iy * FILE_SELECTOR_ROW_HEIGHT + FILE_SELECTOR_Y_OFFSET, 224, FILE_SELECTOR_ROW_HEIGHT, BITMAP_COLOR(pal, 2, BITMAP_COLOR_MODE_STORE));
                     }
                 } else {
-                    int iy1 = (prev_file_offset % 10);
-                    int iy2 = (file_offset % 10);
-                    bitmap_rect_fill(&ui_bitmap, 0, iy1 * 12 + 18, 224, 12, BITMAP_COLOR(0, 2, BITMAP_COLOR_MODE_STORE));
-                    bitmap_rect_fill(&ui_bitmap, 0, iy2 * 12 + 18, 224, 12, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
+                    int iy1 = (prev_file_offset % FILE_SELECTOR_ROW_COUNT);
+                    int iy2 = (file_offset % FILE_SELECTOR_ROW_COUNT);
+                    bitmap_rect_fill(&ui_bitmap, 0, iy1 * FILE_SELECTOR_ROW_HEIGHT + FILE_SELECTOR_Y_OFFSET, 224, FILE_SELECTOR_ROW_HEIGHT, BITMAP_COLOR(0, 2, BITMAP_COLOR_MODE_STORE));
+                    bitmap_rect_fill(&ui_bitmap, 0, iy2 * FILE_SELECTOR_ROW_HEIGHT + FILE_SELECTOR_Y_OFFSET, 224, FILE_SELECTOR_ROW_HEIGHT, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
                 }
 #else
+                uint16_t sel = (file_offset % FILE_SELECTOR_ROW_COUNT);
                 if (full_redraw) {
                     for (int ix = 0; ix < 28; ix++) {
                         for (int iy = 0; iy < 16; iy++) {
                             uint16_t pal = 0;
-                            if (iy == (file_offset & 0xF)) pal = SCR_ATTR_PALETTE(1);
+                            if ((iy >> (FILE_SELECTOR_ROW_HEIGHT > 8 ? 1 : 0)) == sel) pal = SCR_ATTR_PALETTE(1);
                             ws_screen_put_tile(bitmap_screen2, pal | ((iy + 1) + (ix * 18)), ix, iy + 1);
                         }
                     }
                 } else {
-                    int iy1 = (prev_file_offset & 0xF);
-                    int iy2 = (file_offset & 0xF);
+                    uint16_t prev_sel = (prev_file_offset % FILE_SELECTOR_ROW_COUNT);
+                    if (FILE_SELECTOR_ROW_HEIGHT > 8) {
+                        prev_sel <<= 1;
+                        sel <<= 1;
+                    }
                     for (int ix = 0; ix < 28; ix++) {
-                        ws_screen_put_tile(bitmap_screen2, ((iy1 + 1) + (ix * 18)), ix, iy1 + 1);
-                        ws_screen_put_tile(bitmap_screen2, SCR_ATTR_PALETTE(1) | ((iy2 + 1) + (ix * 18)), ix, iy2 + 1);
+                        ws_screen_put_tile(bitmap_screen2, ((prev_sel + 1) + (ix * 18)), ix, prev_sel + 1);
+                        ws_screen_put_tile(bitmap_screen2, SCR_ATTR_PALETTE(1) | ((sel + 1) + (ix * 18)), ix, sel + 1);
+                        
+                        if (FILE_SELECTOR_ROW_HEIGHT > 8) {
+                            ws_screen_put_tile(bitmap_screen2, ((prev_sel + 2) + (ix * 18)), ix, prev_sel + 2);
+                            ws_screen_put_tile(bitmap_screen2, SCR_ATTR_PALETTE(1) | ((sel + 2) + (ix * 18)), ix, sel + 2);
+                        }
                     }
                 }
 #endif
             }
-            
-            // bitmap_rect_fill(&ui_bitmap, 0, 17 * 8, 28 * 8, 8, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
-            // sprintf(path, "Page %d/%d", (file_offset >> 4) + 1, ((file_count + 15) >> 4));
-            // bitmapfont_draw_string(&ui_bitmap, 2, 17 * 8, path, 224 - 2);
+
             prev_file_offset = file_offset;
             full_redraw = false;
         }
@@ -339,26 +330,26 @@ rescan_directory:
         uint16_t keys_pressed = input_pressed;
 
         if (keys_pressed & KEY_X1) {
-            if (file_offset == 0 || ((file_offset - 1) % 10) == 9)
-                file_offset = file_offset + 9;
+            if (file_offset == 0 || ((file_offset - 1) % FILE_SELECTOR_ROW_COUNT) == (FILE_SELECTOR_ROW_COUNT - 1))
+                file_offset = file_offset + (FILE_SELECTOR_ROW_COUNT - 1);
             else
                 file_offset = file_offset - 1;
         }
         if (keys_pressed & KEY_X3) {
             if ((file_offset + 1) == file_count)
-                file_offset = file_offset - (file_offset % 10);
-            else if (((file_offset + 1) % 10) == 0)
-                file_offset = file_offset - 9;
+                file_offset = file_offset - (file_offset % FILE_SELECTOR_ROW_COUNT);
+            else if (((file_offset + 1) % FILE_SELECTOR_ROW_COUNT) == 0)
+                file_offset = file_offset - (FILE_SELECTOR_ROW_COUNT - 1);
             else
                 file_offset = file_offset + 1;
         }
         if (keys_pressed & KEY_X2) {
-            if ((file_offset - (file_offset % 10) + 10) < file_count)
-                file_offset += 10;
+            if ((file_offset - (file_offset % FILE_SELECTOR_ROW_COUNT) + FILE_SELECTOR_ROW_COUNT) < file_count)
+                file_offset += FILE_SELECTOR_ROW_COUNT;
         }
         if (keys_pressed & KEY_X4) {
-            if (file_offset >= 10)
-                file_offset -= 10;
+            if (file_offset >= FILE_SELECTOR_ROW_COUNT)
+                file_offset -= FILE_SELECTOR_ROW_COUNT;
         }
         if (file_count > 0 && file_offset >= file_count)
             file_offset = file_count - 1;
@@ -371,7 +362,7 @@ rescan_directory:
             } else {
                 const char __far* ext = strrchr(fno->altname, '.');
                 if (ext != NULL) {
-                    if (!strcasecmp(ext, ext_ws) || !strcasecmp(ext, ext_wsc)) {
+                    if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc)) {
                         launch_rom_metadata_t meta;
                         uint8_t result = launch_get_rom_metadata(path, &meta);
                         if (result == FR_OK) {
@@ -380,13 +371,13 @@ rescan_directory:
                                 result = launch_rom_via_bootstub(path, &meta);
                             }
                         }
-                    } else if (!strcasecmp(ext, ext_bmp)) {
+                    } else if (!strcasecmp(ext, s_file_ext_bmp)) {
                         ui_bmpview(path);
                         reinit_ui = true;
-                    } else if (!strcasecmp(ext, ext_wav)) {
+                    } else if (!strcasecmp(ext, s_file_ext_wav)) {
                         ui_wavplay(path);
                         reinit_ui = true;
-                    } else if (!strcasecmp(ext, ext_vgm)) {
+                    } else if (!strcasecmp(ext, s_file_ext_vgm)) {
                         ui_vgmplay(path);
                         reinit_ui = true;
                     }

@@ -25,6 +25,7 @@
 #include "launch.h"
 #include "nileswan/nileswan.h"
 #include "bootstub.h"
+#include "strings.h"
 #include "../../build/menu/build/bootstub_bin.h"
 #include "../../build/menu/assets/menu/bootstub_tiles.h"
 #include "fatfs/ff.h"
@@ -143,11 +144,6 @@ uint8_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
 
 static const char __far save_ini_location[] = "/NILESWAN/SAVE.INI";
 
-// Follow ares convention on save filenames.
-static const char __far ext_sram[] = ".ram";
-static const char __far ext_eeprom[] = ".eeprom";
-static const char __far ext_flash[] = ".flash";
-static const char __far ext_rtc[] = ".rtc";
 
 static uint8_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path) {
     uint8_t stack_buffer[16];
@@ -326,7 +322,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
     // restore or create data
     if (meta->sram_size != 0) {
-        strcpy(ext_loc, ext_sram);
+        strcpy(ext_loc, s_file_ext_sram);
         result = preallocate_file(dst_path, &fp, 0xFF, meta->sram_size, NULL);
         if (result != FR_OK)
             return result;
@@ -344,7 +340,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             return result;
     }
     if (meta->eeprom_size != 0) {
-        strcpy(ext_loc, ext_eeprom);
+        strcpy(ext_loc, s_file_ext_eeprom);
         result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL);
         if (result != FR_OK)
             return result;
@@ -355,7 +351,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             return result;
     }
     if (meta->flash_size != 0) {
-        strcpy(ext_loc, ext_flash);
+        strcpy(ext_loc, s_file_ext_flash);
         result = preallocate_file(dst_path, &fp, 0xFF, meta->flash_size, path);
         if (result != FR_OK)
             return result;
@@ -365,7 +361,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             return result;
 
         // Use .flash instead of .ws/.wsc to boot on this platform.
-        strcpy(path + (ext_loc - dst_path), ext_flash);
+        strcpy(path + (ext_loc - dst_path), s_file_ext_flash);
     }
 
     result = f_getcwd(dst_cwd, sizeof(dst_cwd) - 1);
@@ -389,7 +385,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         goto launch_restore_save_data_ini_end;
 
     if (meta->sram_size != 0) {
-        strcpy(ext_loc, ext_sram);
+        strcpy(ext_loc, s_file_ext_sram);
         result = f_printf(&fp, save_ini_entry,
             (const char __far*) save_ini_sram,
             (uint32_t) meta->sram_size,
@@ -400,7 +396,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     }
 
     if (meta->eeprom_size != 0) {
-        strcpy(ext_loc, ext_eeprom);
+        strcpy(ext_loc, s_file_ext_eeprom);
         result = f_printf(&fp, save_ini_entry,
             (const char __far*) save_ini_eeprom,
             (uint32_t) meta->eeprom_size,
@@ -411,7 +407,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     }
 
     if (meta->flash_size != 0) {
-        strcpy(ext_loc, ext_flash);
+        strcpy(ext_loc, s_file_ext_flash);
         result = f_printf(&fp, save_ini_entry,
             (const char __far*) save_ini_flash,
             (uint32_t) meta->flash_size,

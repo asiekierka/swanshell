@@ -23,7 +23,9 @@
 
 #define FONT_BITMAP_SHIFT 8
 #define FONT_BITMAP_SIZE 256
-extern const uint16_t __far font_bitmap[];
+extern const uint16_t __far font8_bitmap[];
+extern const uint16_t __far font16_bitmap[];
+const uint16_t __far *font_bitmap = font16_bitmap;
 
 static const uint16_t __far count_width_mask[17] = {
     0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF,
@@ -43,6 +45,36 @@ void bitmap_clear(const bitmap_t *bitmap) {
 
 extern void __bitmap_bitop_row_c(uint16_t _and, uint16_t _xor, uint16_t _rows, uint16_t _mask, bitmap_t *bitmap, void *dest);
 extern void __bitmap_bitop_fill_c(uint16_t value, void *dest, uint16_t _rows);
+
+void bitmap_vline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uint16_t color) {
+    if (bitmap->bpp == 1) {
+        color = BITMAP_COLOR(color ? 3 : 0, 3, BITMAP_COLOR_MODE_STORE);
+    }
+
+    uint8_t *tile = BITMAP_AT(bitmap, x, y);
+    uint16_t color0 = color_mask[color & 3];
+    uint16_t cmask0 = color_mask[(color >> 4) & 3];
+    uint16_t color1 = color_mask[(color >> 2) & 3];
+    uint16_t cmask1 = color_mask[(color >> 6) & 3];
+    uint16_t cxor = (color & 0x100) ? 0xFFFF : 0x0000;
+
+    uint16_t mask = (bitmap->bpp == 1 ? 0x1 : 0x101) << (x & 7);
+    __bitmap_bitop_row_c(cxor, color0, length, cmask0 & mask, bitmap, tile);
+    if (bitmap->bpp == 4 && cmask1)
+        __bitmap_bitop_row_c(cxor, color1, length, cmask1 & mask, bitmap, tile + 2);
+}
+
+void bitmap_rect_draw(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color, bool rounded) {
+    if (rounded) {
+        bitmap_hline(bitmap, x + 1, y, width - 2, color);
+        bitmap_hline(bitmap, x + 1, y + height - 1, width - 2, color);
+    } else {
+        bitmap_hline(bitmap, x, y, width, color);
+        bitmap_hline(bitmap, x, y + height - 1, width, color);
+    }
+    bitmap_vline(bitmap, x, y + 1, height - 2, color);
+    bitmap_vline(bitmap, x + width - 1, y + 1, height - 2, color);
+}
 
 void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) {
     if (bitmap->bpp == 1) {
@@ -114,6 +146,10 @@ void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
 
 #define PER_CHAR_GAP 1
 
+void bitmapfont_set_active_font(const uint16_t __far *font) {
+    font_bitmap = font;
+}
+
 static const uint16_t __far* bitmapfont_find_char(uint32_t ch) {
     if (ch > 0xFFFFFF)
         return NULL;
@@ -125,6 +161,9 @@ static const uint16_t __far* bitmapfont_find_char(uint32_t ch) {
     const uint8_t __far* base = MK_FP(font_bitmap[ch_high], 2);
     size_t size = 5;
     uint16_t nmemb = *((const uint16_t __far*) MK_FP(font_bitmap[ch_high], 0));
+    if (nmemb == 0xFFFF) {
+        return (const uint16_t __far*) (base + (ch_low << 2));
+    }
 
     const uint8_t __far* pivot;
     size_t corr;
@@ -168,34 +207,46 @@ uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yo
     uint8_t *tile = BITMAP_AT(bitmap, xofs, yofs);
     xofs &= 7;
 
-    uint16_t pixels = *((const uint16_t __far*) font_data);
-    uint16_t pixels_left = 16;
+    uint16_t pixel_fifo = *((const uint16_t __far*) font_data);
+    uint16_t pixel_fifo_left = 16;
     font_data += 2;
 
     for (uint16_t iy = 0; iy < h; iy++, tile += bitmap->bpp) {
-        uint8_t *todrawtile = tile;
-        int16_t todraw = w;
-        uint16_t candraw = 8 - xofs;
-        uint16_t drawofs = w >= candraw ? 0 : (candraw - w);
-        while (todraw > 0) {
-            uint8_t bw = (candraw > w ? w : candraw);
-            uint16_t row = (pixels >> (todraw - bw));
-            uint8_t mask = count_width_mask[bw] << drawofs;
-            uint8_t rowe = (row << drawofs) & mask;
-            *todrawtile = (*todrawtile & (~mask)) | rowe;
-
-            todraw -= candraw;
-            todrawtile += bitmap->x_pitch;
-
-            candraw = todraw;
-            drawofs = 8 - candraw;
+        uint16_t local_fifo = pixel_fifo;
+        if (pixel_fifo_left < w) {
+            local_fifo |= (*font_data << pixel_fifo_left);
         }
 
-        pixels >>= w;
-        pixels_left -= w;
-        if (pixels_left <= 8) {
-            pixels |= (*(font_data++) << pixels_left);
-            pixels_left += 8;
+        uint8_t *dst = tile;
+        int16_t px_total_left = w;
+        uint16_t px_row_left = 8 - xofs;
+        uint16_t px_row_offset = w >= px_row_left ? 0 : (px_row_left - w);
+        if (px_row_left > px_total_left) px_row_left = px_total_left;
+        
+        while (px_total_left > 0) {
+            uint16_t row = (local_fifo >> (px_total_left - px_row_left));
+            uint8_t mask = count_width_mask[px_row_left] << px_row_offset;
+            uint8_t src = (row << px_row_offset) & mask;
+            *dst = (*dst & (~mask)) | src;
+
+            px_total_left -= px_row_left;
+            dst += bitmap->x_pitch;
+
+            px_row_left = 8;
+            if (px_row_left > px_total_left) px_row_left = px_total_left;
+            px_row_offset = 8 - px_row_left;
+        }
+
+        if (pixel_fifo_left >= w) {
+            pixel_fifo >>= w;
+            pixel_fifo_left -= w;
+        } else {
+            pixel_fifo = (*(font_data++) >> (w - pixel_fifo_left));
+            pixel_fifo_left = 8 - (w - pixel_fifo_left);
+        }
+        while (pixel_fifo_left <= 8) {
+            pixel_fifo |= (*(font_data++) << pixel_fifo_left);
+            pixel_fifo_left += 8;
         }
     }
 

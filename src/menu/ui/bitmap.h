@@ -58,10 +58,20 @@ typedef struct {
 uint32_t bitmap_c2p_4bpp_pixel(uint32_t pixel);
 
 void bitmap_clear(const bitmap_t *bitmap);
+void bitmap_rect_draw(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color, bool rounded);
 void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
 static inline void bitmap_rect_clear(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
     bitmap_rect_fill(bitmap, x, y, width, height, BITMAP_COLOR(0, 15, BITMAP_COLOR_MODE_STORE));
 }
+static inline void bitmap_hline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uint16_t color) {
+    bitmap_rect_fill(bitmap, x, y, length, 1, color);
+}
+void bitmap_vline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uint16_t color);
+
+extern const uint16_t __far font8_bitmap[];
+extern const uint16_t __far font16_bitmap[];
+
+void bitmapfont_set_active_font(const uint16_t __far *font);
 uint16_t bitmapfont_get_char_width(uint32_t ch);
 uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch);
 uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width);
