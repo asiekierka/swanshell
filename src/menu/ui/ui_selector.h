@@ -15,28 +15,22 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __UI_H__
-#define __UI_H__
+#ifndef __UI_SELECTOR_H__
+#define __UI_SELECTOR_H__
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include "bitmap.h"
+#include "ui.h"
 
-extern bitmap_t ui_bitmap;
+#define UI_SELECTOR_STYLE_16 0
+#define UI_SELECTOR_STYLE_8  0
 
-void ui_init(void);
-void ui_hide(void);
-void ui_show(void);
-void ui_layout_clear(uint16_t pal);
-void ui_layout_bars(void);
-void ui_draw_centered_status(const char __far* text);
-void ui_draw_titlebar(const char __far* text);
-void ui_draw_statusbar(const char __far* text);
-void ui_bmpview(const char *path);
-void ui_vgmplay(const char *path);
-void ui_wavplay(const char *path);
+typedef struct ui_selector_config {
+    uint16_t offset, count;
+    uint16_t key_mask;
+    uint8_t style;
 
-extern uint16_t bitmap_screen2[];
+    void (*draw)(struct ui_selector_config *config, uint16_t idx, uint16_t y);
+} ui_selector_config_t;
 
-#endif /* __UI_H__ */
+uint16_t ui_selector(ui_selector_config_t *config);
+
+#endif /* __UI_SELECTOR_H__ */
