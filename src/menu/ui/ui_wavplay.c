@@ -43,7 +43,10 @@
 #define POSITION_COUNTER_INCR *((volatile uint32_t*) 0x18)
 #define POSITION_COUNTER *((volatile uint32_t*) 0x1C)
 #define POSITION_COUNTER_HIGH *((volatile uint16_t*) 0x1E)
-#define POSITION_COUNTER_START *((volatile uint16_t*) 0x16)
+#define POSITION_COUNTER_MASK_XOR *((volatile uint8_t*) 0x14)
+#define POSITION_COUNTER_START *((volatile uint8_t*) 0x15)
+#define POSITION_COUNTER_MASK_AND *((volatile uint8_t*) 0x16)
+#define POSITION_COUNTER_MASK_OR *((volatile uint8_t*) 0x17)
 
 typedef struct {
     uint16_t format;
@@ -148,18 +151,23 @@ void ui_wavplay(const char *path) {
     }
 
     if (use_irq) {
-        if (fmt.channels != 1 || fmt.bits_per_sample != 8) {
+        if ((fmt.channels != 1 && fmt.channels != 2) || (fmt.bits_per_sample != 8 && fmt.bits_per_sample != 16)) {
             // TODO
             goto ui_wavplay_end;
         }
+
+        uint8_t bytes_per_sample = (fmt.channels * (fmt.bits_per_sample >> 3));
+        POSITION_COUNTER_MASK_AND = 0xFF ^ (bytes_per_sample - 1);
+        POSITION_COUNTER_MASK_OR = (fmt.bits_per_sample >> 3) - 1;
+        POSITION_COUNTER_MASK_XOR = fmt.bits_per_sample == 16 ? 0x80 : 0x00;
 
         uint16_t timer_step = 0;
         timer_step = fmt.sample_rate > 12000 ? 1 : 12000 / fmt.sample_rate;
         uint16_t timer_sample_rate = 12000 / timer_step;
 
         POSITION_COUNTER = 0;
-        POSITION_COUNTER_INCR = (((uint32_t) fmt.sample_rate << 16) / timer_sample_rate) << (15 - WAV_BUFFER_SHIFT);
-        POSITION_COUNTER_START = WAV_BUFFER_LINEAR0;
+        POSITION_COUNTER_INCR = ((((uint32_t) fmt.sample_rate << 16) / timer_sample_rate) << (15 - WAV_BUFFER_SHIFT)) * bytes_per_sample;
+        POSITION_COUNTER_START = WAV_BUFFER_LINEAR0 >> 8;
 
         outportb(IO_SND_VOL_CH2, 0x80);
         outportb(IO_SND_CH_CTRL, SND_CH2_ENABLE | SND_CH2_VOICE);
