@@ -97,7 +97,11 @@ void ui_init(void) {
     ui_hide();
 
     // initialize palettes
+#if 0
+    if (0) {
+#else
     if (ws_system_is_color()) {
+#endif
         ws_system_mode_set(WS_MODE_COLOR_4BPP);
         ui_bitmap = BITMAP(MEM_TILE_4BPP(0), 28, 18, 4);
 

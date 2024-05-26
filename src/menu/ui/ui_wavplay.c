@@ -28,8 +28,9 @@
 #include "../util/input.h"
 #include "../main.h"
 
-#define WAV_BUFFER_SIZE 8192
-#define WAV_BUFFER_LINEAR0 0x0A000
+#define WAV_BUFFER_SIZE 4096
+#define WAV_BUFFER_SHIFT 12
+#define WAV_BUFFER_LINEAR0 (!ws_system_color_active() ? 0x2000 : 0xA000)
 #define WAV_BUFFER_LINEAR1 (WAV_BUFFER_LINEAR0 + WAV_BUFFER_SIZE)
 #define WAV_BUFFER0 MK_FP(WAV_BUFFER_LINEAR0 >> 16, WAV_BUFFER_LINEAR0 & 0xFFFF)
 #define WAV_BUFFER1 MK_FP(WAV_BUFFER_LINEAR1 >> 16, WAV_BUFFER_LINEAR1 & 0xFFFF)
@@ -42,6 +43,7 @@
 #define POSITION_COUNTER_INCR *((volatile uint32_t*) 0x18)
 #define POSITION_COUNTER *((volatile uint32_t*) 0x1C)
 #define POSITION_COUNTER_HIGH *((volatile uint16_t*) 0x1E)
+#define POSITION_COUNTER_START *((volatile uint16_t*) 0x16)
 
 typedef struct {
     uint16_t format;
@@ -58,10 +60,6 @@ void ui_wavplay_irq_8_mono(void);
 void ui_wavplay(const char *path) {
     FIL fp;
     wave_fmt_t fmt;
-
-    if (!ws_system_color_active()) {
-        return;
-    }
 
     ui_layout_bars();
 
@@ -118,13 +116,19 @@ void ui_wavplay(const char *path) {
         goto ui_wavplay_end;
     }
 
+    if (!ws_system_color_active()) {
+        ui_hide();
+    }
+
     if ((result = f_read(&fp, WAV_BUFFER0, WAV_BUFFER_SIZE * 2, NULL)) != FR_OK) {
         // TODO
         goto ui_wavplay_end;
     }
 
-    ui_draw_statusbar(NULL);
-    ui_draw_titlebar(path);
+    if (ws_system_color_active()) {
+        ui_draw_statusbar(NULL);
+        ui_draw_titlebar(path);
+    }
 
     outportb(IO_SND_CH_CTRL, 0);
     outportb(IO_SND_OUT_CTRL, 0);
@@ -154,7 +158,8 @@ void ui_wavplay(const char *path) {
         uint16_t timer_sample_rate = 12000 / timer_step;
 
         POSITION_COUNTER = 0;
-        POSITION_COUNTER_INCR = (((uint32_t) fmt.sample_rate << 16) / timer_sample_rate) << 2;
+        POSITION_COUNTER_INCR = (((uint32_t) fmt.sample_rate << 16) / timer_sample_rate) << (15 - WAV_BUFFER_SHIFT);
+        POSITION_COUNTER_START = WAV_BUFFER_LINEAR0;
 
         outportb(IO_SND_VOL_CH2, 0x80);
         outportb(IO_SND_CH_CTRL, SND_CH2_ENABLE | SND_CH2_VOICE);
@@ -197,7 +202,7 @@ void ui_wavplay(const char *path) {
         bool read_next = false;
         if (next_buffer == 1) {
             if (use_irq) {
-                read_next = POSITION_COUNTER_HIGH < WAV_BUFFER_LINEAR1;
+                read_next = !(POSITION_COUNTER_HIGH & 0x8000);
             } else {
                 read_next = inportw(IO_SDMA_SOURCE_L) < WAV_BUFFER_LINEAR1;
             }
@@ -210,7 +215,7 @@ void ui_wavplay(const char *path) {
             }
         } else {
             if (use_irq) {
-                read_next = POSITION_COUNTER_HIGH >= WAV_BUFFER_LINEAR1;
+                read_next = (POSITION_COUNTER_HIGH & 0x8000);
             } else {
                 read_next = inportw(IO_SDMA_SOURCE_L) >= WAV_BUFFER_LINEAR1;
             }

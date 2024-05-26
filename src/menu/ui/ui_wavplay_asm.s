@@ -27,6 +27,7 @@
 #define POSITION_COUNTER_INCR_HIGH 0x1A
 #define POSITION_COUNTER_LOW 0x1C
 #define POSITION_COUNTER_HIGH 0x1E
+#define POSITION_COUNTER_START 0x16
 
     .section .fartext.s.ui_wavplay_asm, "ax"
     .global ui_wavplay_irq_8_mono
@@ -39,16 +40,15 @@ ui_wavplay_irq_8_mono:
 	mov bx, 0x0000
 	mov ds, bx
 	
-	mov ax, word ptr [POSITION_COUNTER_LOW]
-	add ax, word ptr [POSITION_COUNTER_INCR_LOW]
-	mov word ptr [POSITION_COUNTER_LOW], ax
+	mov ax, word ptr [POSITION_COUNTER_INCR_LOW]
+	add word ptr [POSITION_COUNTER_LOW], ax
 
 	mov ax, word ptr [POSITION_COUNTER_HIGH]
 	mov bx, ax
 	adc ax, word ptr [POSITION_COUNTER_INCR_HIGH]
 	mov word ptr [POSITION_COUNTER_HIGH], ax
-	shr bx, 2
-	add bx, WAV_BUFFER_LINEAR0
+	shr bx, 3
+	add bx, word ptr [POSITION_COUNTER_START]
 	mov al, byte ptr [bx]
 	out 0x89, al
 
