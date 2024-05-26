@@ -24,9 +24,11 @@
 #include <ws/system.h>
 #include "fatfs/ff.h"
 #include "../../../build/menu/assets/menu/lang.h"
+#include "strings.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../main.h"
+#include "ui/bitmap.h"
 
 #define WAV_BUFFER_SIZE 4096
 #define WAV_BUFFER_SHIFT 12
@@ -60,7 +62,26 @@ typedef struct {
 __attribute__((interrupt))
 void ui_wavplay_irq_8_mono(void);
 
+// 5 + 5 + 2 + 5 + 5 = 22
+// 22 + 4 + 22 = 48
+#define UI_WAV_DURATION_TEXT0_X 4
+#define UI_WAV_DURATION_TEXT1_X (UI_WAV_DURATION_TEXT0_X + 22)
+#define UI_WAV_DURATION_TEXT2_X (UI_WAV_DURATION_TEXT1_X + 4)
+#define UI_WAV_DURATION_BAR_X 55
+#define UI_WAV_DURATION_BAR_Y 126
+#define UI_WAV_DURATION_BAR_WIDTH 165
+#define UI_WAV_DURATION_BAR_HEIGHT 6
+#define UI_WAV_DURATION_TEXT_Y (UI_WAV_DURATION_BAR_Y - 1)
+
+static void seconds_to_buffer(uint16_t seconds, char *seconds_buffer) {
+    seconds_buffer[4] = (seconds % 10) + '0';
+    seconds_buffer[3] = ((seconds / 10) % 6) + '0';
+    seconds_buffer[1] = ((seconds / 60) % 10) + '0';
+    seconds_buffer[0] = (seconds / 600) + '0';
+}
+
 void ui_wavplay(const char *path) {
+    char seconds_buffer[6];
     FIL fp;
     wave_fmt_t fmt;
 
@@ -87,7 +108,7 @@ void ui_wavplay(const char *path) {
         // TODO
         goto ui_wavplay_end;
     }
-    
+
     while (true) {
         if ((result = f_read(&fp, chunk_info, 8, NULL)) != FR_OK) {
             // TODO
@@ -119,6 +140,11 @@ void ui_wavplay(const char *path) {
         goto ui_wavplay_end;
     }
 
+    if (fmt.sample_rate >= 65536 || fmt.sample_rate < 1) {
+        // TODO
+        goto ui_wavplay_end;
+    }
+    
     if (!ws_system_color_active()) {
         ui_hide();
     }
@@ -128,9 +154,47 @@ void ui_wavplay(const char *path) {
         goto ui_wavplay_end;
     }
 
+    uint8_t bytes_per_sample = (fmt.channels * (fmt.bits_per_sample >> 3));
+    uint32_t bytes_per_second = (uint32_t) bytes_per_sample * fmt.sample_rate;
+    uint32_t bytes_read_subsecond = WAV_BUFFER_SIZE * 2;
+    uint32_t seconds_current = 0;
+    uint32_t seconds_in_song = chunk_info[1] / bytes_per_second;
+
     if (ws_system_color_active()) {
         ui_draw_statusbar(NULL);
         ui_draw_titlebar(path);
+
+        bitmap_rect_fill(&ui_bitmap,
+            UI_WAV_DURATION_TEXT0_X, UI_WAV_DURATION_TEXT_Y,
+            UI_WAV_DURATION_BAR_X - UI_WAV_DURATION_TEXT0_X, 8,
+            BITMAP_COLOR(MAINPAL_COLOR_WHITE, 3, BITMAP_COLOR_MODE_STORE));
+
+        bitmapfont_set_active_font(font8_bitmap);
+        seconds_buffer[0] = '/';
+        seconds_buffer[1] = 0;
+        bitmapfont_draw_string(&ui_bitmap,
+            UI_WAV_DURATION_TEXT1_X, UI_WAV_DURATION_TEXT_Y,
+            seconds_buffer, 65535);
+
+        seconds_buffer[0] = '0';
+        seconds_buffer[1] = '0';
+        seconds_buffer[2] = ':';
+        seconds_buffer[3] = '0';
+        seconds_buffer[4] = '0';
+        seconds_buffer[5] = 0;
+        bitmapfont_draw_string(&ui_bitmap,
+            UI_WAV_DURATION_TEXT0_X, UI_WAV_DURATION_TEXT_Y,
+            seconds_buffer, 65535);
+
+        seconds_to_buffer(seconds_in_song, seconds_buffer);
+        bitmapfont_draw_string(&ui_bitmap,
+            UI_WAV_DURATION_TEXT2_X, UI_WAV_DURATION_TEXT_Y,
+            seconds_buffer, 65535);
+
+        bitmap_rect_draw(&ui_bitmap,
+            UI_WAV_DURATION_BAR_X, UI_WAV_DURATION_BAR_Y,
+            UI_WAV_DURATION_BAR_WIDTH, UI_WAV_DURATION_BAR_HEIGHT,
+            BITMAP_COLOR(MAINPAL_COLOR_BLACK, 3, BITMAP_COLOR_MODE_STORE), false);
     }
 
     outportb(IO_SND_CH_CTRL, 0);
@@ -138,11 +202,6 @@ void ui_wavplay(const char *path) {
 
     input_wait_clear();
 
-    if (fmt.sample_rate >= 65536 || fmt.sample_rate < 1) {
-        // TODO
-        goto ui_wavplay_end;
-    }
-    
     bool use_irq = true;
     if (ws_system_color_active()) {
         if (fmt.channels == 1 && fmt.bits_per_sample == 8)
@@ -156,7 +215,6 @@ void ui_wavplay(const char *path) {
             goto ui_wavplay_end;
         }
 
-        uint8_t bytes_per_sample = (fmt.channels * (fmt.bits_per_sample >> 3));
         POSITION_COUNTER_MASK_AND = 0xFF ^ (bytes_per_sample - 1);
         POSITION_COUNTER_MASK_OR = (fmt.bits_per_sample >> 3) - 1;
         POSITION_COUNTER_MASK_XOR = fmt.bits_per_sample == 16 ? 0x80 : 0x00;
@@ -206,7 +264,7 @@ void ui_wavplay(const char *path) {
     
     uint8_t next_buffer = 0;
     while (true) {
-        unsigned int bytes_read;
+        unsigned int bytes_read = 0;
         bool read_next = false;
         if (next_buffer == 1) {
             if (use_irq) {
@@ -233,6 +291,37 @@ void ui_wavplay(const char *path) {
                     break;
                 }
                 next_buffer = 1;
+            }
+        }
+
+        if (ws_system_color_active()) {
+            bool update_seconds = false;
+            bytes_read_subsecond += bytes_read;
+            while (bytes_read_subsecond > bytes_per_second) {
+                seconds_current++;
+                bytes_read_subsecond -= bytes_per_second;
+                update_seconds = true;
+            }
+
+            if (update_seconds) {
+                wait_for_vblank();
+
+                bitmap_rect_fill(&ui_bitmap,
+                    UI_WAV_DURATION_TEXT0_X, UI_WAV_DURATION_TEXT_Y,
+                    UI_WAV_DURATION_TEXT1_X - UI_WAV_DURATION_TEXT0_X, 8,
+                    BITMAP_COLOR(MAINPAL_COLOR_WHITE, 3, BITMAP_COLOR_MODE_STORE));
+
+                uint16_t seconds_to_draw = seconds_current >= 5940 ? 5940 : seconds_current;
+                seconds_to_buffer(seconds_to_draw, seconds_buffer);
+                bitmapfont_draw_string(&ui_bitmap,
+                    UI_WAV_DURATION_TEXT0_X, UI_WAV_DURATION_TEXT_Y,
+                    seconds_buffer, 65535);
+
+                uint16_t bar_width = (((uint32_t) seconds_current) * (UI_WAV_DURATION_BAR_WIDTH - 2)) / seconds_in_song;
+                bitmap_rect_fill(&ui_bitmap,
+                    UI_WAV_DURATION_BAR_X + 1, UI_WAV_DURATION_BAR_Y + 1,
+                    bar_width, UI_WAV_DURATION_BAR_HEIGHT - 2,
+                    BITMAP_COLOR(MAINPAL_COLOR_RED, 15, BITMAP_COLOR_MODE_STORE));
             }
         }
 

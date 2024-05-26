@@ -39,4 +39,14 @@ void ui_wavplay(const char *path);
 
 extern uint16_t bitmap_screen2[];
 
+#define MAINPAL_COLOR_WHITE 2
+#define MAINPAL_COLOR_BLACK 3
+#define MAINPAL_COLOR_RED 4
+#define MAINPAL_COLOR_ORANGE 5
+#define MAINPAL_COLOR_YELLOW 6
+#define MAINPAL_COLOR_LIME 7
+#define MAINPAL_COLOR_GREEN 8
+#define MAINPAL_COLOR_LIGHT_GREY 14
+#define MAINPAL_COLOR_DARK_GREY 15
+
 #endif /* __UI_H__ */

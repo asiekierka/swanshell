@@ -58,7 +58,7 @@ void bitmap_vline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uin
     uint16_t cmask1 = color_mask[(color >> 6) & 3];
     uint16_t cxor = (color & 0x100) ? 0xFFFF : 0x0000;
 
-    uint16_t mask = (bitmap->bpp == 1 ? 0x1 : 0x101) << (x & 7);
+    uint16_t mask = (bitmap->bpp == 1 ? 0x1 : 0x101) << ((x & 7) ^ 7);
     __bitmap_bitop_row_c(cxor, color0, length, cmask0 & mask, bitmap, tile);
     if (bitmap->bpp == 4 && cmask1)
         __bitmap_bitop_row_c(cxor, color1, length, cmask1 & mask, bitmap, tile + 2);
