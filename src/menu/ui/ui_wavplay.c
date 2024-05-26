@@ -23,12 +23,13 @@
 #include <ws/hardware.h>
 #include <ws/system.h>
 #include "fatfs/ff.h"
+#include "../../../build/menu/assets/menu/lang.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../main.h"
 
 #define WAV_BUFFER_SIZE 8192
-#define WAV_BUFFER_LINEAR0 0x06000
+#define WAV_BUFFER_LINEAR0 0x0A000
 #define WAV_BUFFER_LINEAR1 (WAV_BUFFER_LINEAR0 + WAV_BUFFER_SIZE)
 #define WAV_BUFFER0 MK_FP(WAV_BUFFER_LINEAR0 >> 16, WAV_BUFFER_LINEAR0 & 0xFFFF)
 #define WAV_BUFFER1 MK_FP(WAV_BUFFER_LINEAR1 >> 16, WAV_BUFFER_LINEAR1 & 0xFFFF)
@@ -57,11 +58,21 @@ void ui_wavplay_irq_8_mono(void);
 void ui_wavplay(const char *path) {
     FIL fp;
     wave_fmt_t fmt;
+
+    if (!ws_system_color_active()) {
+        return;
+    }
+
+    ui_layout_bars();
+
     uint8_t result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
     if (result != FR_OK) {
         // TODO
         return;
     }
+
+    ui_draw_titlebar(NULL);
+    ui_draw_statusbar(lang_keys_en[LK_UI_STATUS_LOADING]);
 
     memset(WAV_BUFFER0, 0, WAV_BUFFER_SIZE * 2);
     fmt.channels = 0;
@@ -112,7 +123,9 @@ void ui_wavplay(const char *path) {
         goto ui_wavplay_end;
     }
 
-    ui_hide();
+    ui_draw_statusbar(NULL);
+    ui_draw_titlebar(path);
+
     outportb(IO_SND_CH_CTRL, 0);
     outportb(IO_SND_OUT_CTRL, 0);
 
@@ -184,7 +197,7 @@ void ui_wavplay(const char *path) {
         bool read_next = false;
         if (next_buffer == 1) {
             if (use_irq) {
-                read_next = !(POSITION_COUNTER_HIGH & 0x8000);
+                read_next = POSITION_COUNTER_HIGH < WAV_BUFFER_LINEAR1;
             } else {
                 read_next = inportw(IO_SDMA_SOURCE_L) < WAV_BUFFER_LINEAR1;
             }
@@ -197,7 +210,7 @@ void ui_wavplay(const char *path) {
             }
         } else {
             if (use_irq) {
-                read_next = (POSITION_COUNTER_HIGH & 0x8000);
+                read_next = POSITION_COUNTER_HIGH >= WAV_BUFFER_LINEAR1;
             } else {
                 read_next = inportw(IO_SDMA_SOURCE_L) >= WAV_BUFFER_LINEAR1;
             }

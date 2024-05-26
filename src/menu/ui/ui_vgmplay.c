@@ -22,6 +22,7 @@
 #include <ws.h>
 #include <ws/hardware.h>
 #include "fatfs/ff.h"
+#include "lang.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../main.h"
@@ -49,14 +50,18 @@ void  __attribute__((interrupt)) vgm_interrupt_handler(void) {
 void ui_vgmplay(const char *path) {
     vgmswan_state_t local_vgm_state;
     FIL fp;
-    
+
+    ui_layout_bars();
+
 	uint8_t result = f_open(&fp, path, FA_READ);
 	if (result != FR_OK) {
         // TODO
         return;
 	}
 
-    outportw(IO_DISPLAY_CTRL, 0);
+    ui_draw_titlebar(NULL);
+    ui_draw_statusbar(lang_keys_en[LK_UI_STATUS_LOADING]);
+
 	outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
 
     uint32_t size = f_size(&fp);
@@ -86,6 +91,9 @@ void ui_vgmplay(const char *path) {
     if (*((const uint32_t __far*) MK_FP(0x2000, 0x0000)) != 0x206d6756) {
         goto ui_vgmplay_end;
     }
+
+    ui_draw_statusbar(NULL);
+    ui_draw_titlebar(path);
 
     vgm_state = &local_vgm_state;
     vgmswan_init(&local_vgm_state, 0, 0);

@@ -114,9 +114,9 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
         }
     } else {
         if (ws_system_color_active()) {
-            memcpy(MEM_TILE_4BPP(i + 1), gfx_icons_8color + (icon_idx * 32), 32);
+            memcpy(MEM_TILE_4BPP(i), gfx_icons_8color + (icon_idx * 32), 32);
         } else {
-            memcpy(MEM_TILE(i + 1), gfx_icons_8mono + (icon_idx * 16), 16);
+            memcpy(MEM_TILE(i), gfx_icons_8mono + (icon_idx * 16), 16);
         }
     }
 }
@@ -128,6 +128,7 @@ void ui_file_selector(void) {
     bool reinit_ui = true;
     bool reinit_dirs = true;
 
+    config.style = UI_SELECTOR_STYLE_16;
     config.draw = ui_file_selector_draw;
     config.key_mask = KEY_A | KEY_B;
 

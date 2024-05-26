@@ -21,7 +21,7 @@
 #include "ui.h"
 
 #define UI_SELECTOR_STYLE_16 0
-#define UI_SELECTOR_STYLE_8  0
+#define UI_SELECTOR_STYLE_8  1
 
 typedef struct ui_selector_config {
     uint16_t offset, count;

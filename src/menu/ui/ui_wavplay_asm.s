@@ -22,7 +22,7 @@
     .code16
     .intel_syntax noprefix
 
-#define WAV_BUFFER_LINEAR0 0x06000
+#define WAV_BUFFER_LINEAR0 0x0A000
 #define POSITION_COUNTER_INCR_LOW 0x18
 #define POSITION_COUNTER_INCR_HIGH 0x1A
 #define POSITION_COUNTER_LOW 0x1C

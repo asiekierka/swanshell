@@ -47,6 +47,7 @@ typedef struct {
     uint8_t pcm_data_block_count;
     uint16_t pcm_data_block_location;
     uint16_t pcm_data_block_offset[VGMSWAN_MAX_DATA_BLOCKS + 1];
+    uint16_t pcm_data_block_length[VGMSWAN_MAX_DATA_BLOCKS + 1];
 
     /* uint8_t pcm_stream_ctrl_a[VGMSWAN_MAX_STREAMS];
     uint8_t pcm_stream_ctrl_d[VGMSWAN_MAX_STREAMS]; */
