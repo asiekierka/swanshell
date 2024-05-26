@@ -97,7 +97,7 @@ void ui_vgmplay(const char *path) {
 
     vgm_state = &local_vgm_state;
     vgmswan_init(&local_vgm_state, 0, 0);
-    outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x2000));
+    outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x3FC0));
     outportb(IO_SND_OUT_CTRL, 0x0F);
 
     outportw(IO_HBLANK_TIMER, 2);

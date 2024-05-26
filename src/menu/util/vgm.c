@@ -97,7 +97,7 @@ void vgmswan_init(vgmswan_state_t *state, uint8_t bank, uint16_t pos) {
     vgmswan_jump_to_start_point(state);
 
 #ifdef VGMSWAN_USE_PCM
-    state->pcm_data_block_location = ws_system_color_active() ? 0x8000 : 0x1800; // TODO: make configurable
+    state->pcm_data_block_location = 0x8000;
 #endif
 }
 
@@ -128,11 +128,11 @@ uint16_t vgmswan_play(vgmswan_state_t *state) {
             ptr++; // 0x66
             ptr++; // type - TODO: handle that?
             uint32_t len = *((uint32_t __far*) ptr); ptr += 4;
-            if (state->pcm_data_block_count >= VGMSWAN_MAX_DATA_BLOCKS) {
-                result = VGMSWAN_PLAYBACK_FINISHED; break;
-            }
 try_copy_pcm:
-            if (1) {
+            if (ws_system_color_active()) {
+                if (state->pcm_data_block_count >= VGMSWAN_MAX_DATA_BLOCKS) {
+                    result = VGMSWAN_PLAYBACK_FINISHED; break;
+                }
                 // copy data
                 uint16_t ofs = state->pcm_data_block_location;
                 uint16_t max_ofs;
@@ -177,6 +177,8 @@ try_copy_pcm:
         case 0x92: { /* Set Stream Frequency */
             uint8_t stream_id = *(ptr++);
             uint16_t frequency = *((uint16_t __far*) ptr); ptr += 4;
+            
+            if (!ws_system_color_active()) break;
             state->pcm_stream_flags[stream_id] &= 0xFC;
             if (frequency >= 16000) {
                 state->pcm_stream_flags[stream_id] |= VGMSWAN_DAC_FREQ_24000;
@@ -198,6 +200,8 @@ try_copy_pcm:
             uint32_t offset = *((uint32_t __far*) ptr); ptr += 4;
             uint8_t flags = *(ptr++);
             uint32_t length = *((uint32_t __far*) ptr); ptr += 4;
+
+            if (!ws_system_color_active()) break;
 
             uint32_t location = 0x8000;
             if (offset != 0xFFFFFFFF) location += offset;
@@ -225,14 +229,17 @@ try_copy_pcm:
             // outportb(state->pcm_stream_ctrl_a[stream_id], state->pcm_stream_ctrl_d[stream_id]);
         } break;
         case 0x94: { /* Stop Stream */
-            outportb(IO_SDMA_CTRL, 0);
             ptr++;
+            
+            if (!ws_system_color_active()) break;
+            outportb(IO_SDMA_CTRL, 0);
         } break;
         case 0x95: { /* Start Stream Fast */
             uint8_t stream_id = *(ptr++);
             uint8_t block_id = *(ptr); ptr += 2;
             uint8_t flags = *(ptr++);
             
+            if (!ws_system_color_active()) break;
             outportb(IO_SDMA_CTRL, 0);
             outportw(IO_SDMA_SOURCE_L, state->pcm_data_block_offset[block_id]);
             outportb(IO_SDMA_SOURCE_H, 0);
