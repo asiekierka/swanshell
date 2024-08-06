@@ -17,7 +17,6 @@
 
 #include <string.h>
 #include "ini.h"
-#include "fatfs/ff.h"
 
 ini_next_result_t ini_next(FIL *file, char *buffer, uint16_t buffer_size, char **key, char **value) {
     while (f_gets(buffer, buffer_size, file) != NULL) {

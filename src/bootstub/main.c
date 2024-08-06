@@ -19,14 +19,10 @@
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
-#include <ws/display.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
+#include <nile.h>
+#include <nilefs.h>
 #include "cluster_read.h"
-#include "fatfs/ff.h"
-#include "fatfs/diskio.h"
 #include "bootstub.h"
-#include "nileswan/nileswan.h"
 #include "util/math.h"
 #include "util/util.h"
 
@@ -42,7 +38,7 @@ extern uint8_t diskio_detail_code;
 __attribute__((noreturn))
 static void report_fatfs_error(uint8_t result) {
 	// deinitialize hardware
-	outportw(IO_NILE_SPI_CNT, NILE_SPI_390KHZ);
+	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART);
 	outportb(IO_NILE_POW_CNT, 0);
 
 	outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(7, 0, 2, 5));
@@ -142,10 +138,10 @@ int main(void) {
 	// Read ROM, sector by sector
 	uint8_t result;
 	uint32_t size = bootstub_data->prog_size;
-    uint32_t real_size = size < 0x10000 ? 0x10000 : math_next_power_of_two(size);
-    uint16_t offset = (real_size - size);
-    uint16_t bank = (real_size - size) >> 16;
-    uint16_t total_banks = real_size >> 16;
+        uint32_t real_size = size < 0x10000 ? 0x10000 : math_next_power_of_two(size);
+        uint16_t offset = (real_size - size);
+        uint16_t bank = (real_size - size) >> 16;
+        uint16_t total_banks = real_size >> 16;
 
 	progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 2 : 1));
 	cluster_open(bootstub_data->prog_cluster);
@@ -169,7 +165,7 @@ int main(void) {
 	}
     
 	outportb(IO_CART_FLASH, 0);
-	outportw(IO_NILE_SPI_CNT, NILE_SPI_390KHZ);
+	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART);
 	outportw(IO_NILE_SEG_MASK, (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
 	clear_registers(true);
 	outportb(IO_NILE_POW_CNT, 0);

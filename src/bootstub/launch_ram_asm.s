@@ -17,7 +17,7 @@
  
 #include <wonderful.h>
 #include <ws.h>
-#include "nileswan/nileswan.h"
+#include <nile.h>
 
     .arch   i186
     .code16

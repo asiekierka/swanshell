@@ -21,7 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <wonderful.h>
-#include "fatfs/ff.h"
+#include <nilefs.h>
 
 // currently defined in launch.c
 extern uint8_t sector_buffer[1024];

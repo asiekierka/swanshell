@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <wonderful.h>
-#include "fatfs/ff.h"
+#include <nilefs.h>
 
 /**
  * @brief INI file parsing result.

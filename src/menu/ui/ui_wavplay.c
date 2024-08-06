@@ -20,9 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
-#include "fatfs/ff.h"
+#include <nilefs.h>
 #include "../../../build/menu/assets/menu/lang.h"
 #include "strings.h"
 #include "ui.h"

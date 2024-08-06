@@ -29,8 +29,9 @@ DEFINES		:=
 # Libraries
 # ---------
 
-LIBS		:= -lwsx -lws
-LIBDIRS		:= $(WF_ARCH_LIBDIRS)
+LIBS		:= -lnilefs -lnile -lwsx -lws
+LIBDIRS		:= $(WF_ARCH_LIBDIRS) \
+		   libnile/dist/$(TARGET)
 
 # Build artifacts
 # ---------------
@@ -103,9 +104,13 @@ DEPS		:= $(OBJS:.o=.d)
 # Targets
 # -------
 
-.PHONY: all clean
+.PHONY: all clean libnile
 
 all: $(ROM) compile_commands.json
+
+libnile:
+	cd libnile && $(MAKE) TARGET=wswan/bootfriend install
+	cd libnile && $(MAKE) TARGET=wswan/medium install
 
 build/bootstub.bin:
 	$(_V)$(MAKE) -f Makefile.bootstub --no-print-directory
@@ -124,6 +129,8 @@ clean:
 	@echo "  CLEAN"
 	$(V)$(MAKE) -f Makefile.bootstub clean --no-print-directory
 	$(_V)$(RM) $(ELF_STAGE1) $(ELF) $(ROM) $(BUILDDIR) compile_commands.json
+	cd libnile && $(MAKE) TARGET=wswan/bootfriend clean
+	cd libnile && $(MAKE) TARGET=wswan/medium clean
 
 compile_commands.json: $(OBJS) | Makefile
 	@echo "  MERGE   compile_commands.json"

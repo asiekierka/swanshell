@@ -19,14 +19,10 @@
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
-#include <ws/util.h>
 #include <wsx/planar_unpack.h>
+#include <nilefs.h>
 #include "ui/bitmap.h"
 #include "ui/ui.h"
-#include "fatfs/ff.h"
-#include "fatfs/diskio.h"
 #include "launch/launch.h"
 #include "util/input.h"
 

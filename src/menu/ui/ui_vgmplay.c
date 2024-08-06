@@ -20,12 +20,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/hardware.h>
-#include "fatfs/ff.h"
+#include <nilefs.h>
 #include "lang.h"
 #include "ui.h"
 #include "../util/input.h"
-#include "../main.h"
 #include "../util/vgm.h"
 
 static vgmswan_state_t *vgm_state;

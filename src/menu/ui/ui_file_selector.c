@@ -19,10 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/display.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
-#include "fatfs/ff.h"
+#include <nilefs.h>
 #include "bitmap.h"
 #include "launch/launch.h"
 #include "strings.h"

@@ -20,10 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/display.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
-#include "fatfs/ff.h"
+#include <nilefs.h>
 #include "ui.h"
 #include "../util/input.h"
 #include "../main.h"

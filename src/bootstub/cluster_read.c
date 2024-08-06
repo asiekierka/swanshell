@@ -22,8 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <wonderful.h>
-#include "fatfs/ff.h"
-#include "fatfs/diskio.h"
+#include <nilefs.h>
 #include "bootstub.h"
 #include "cluster_read.h"
 

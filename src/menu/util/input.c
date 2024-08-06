@@ -18,7 +18,6 @@
 #include <ws.h>
 #include "input.h"
 #include "../main.h"
-#include "nileswan/nileswan.h"
 
 extern volatile uint16_t vbl_ticks;
 
@@ -29,7 +28,7 @@ uint16_t input_pressed, input_held;
 
 void vblank_input_update(void) {
 	uint16_t keys = ws_keypad_scan();
-	if (nile_ipl_data->console_type == NILE_CONSOLE_TYPE_PCV2) {
+	if (keys && ws_system_get_model() == WS_MODEL_PCV2) {
 		// WS:   ....yyyyxxxxbas.
 		// PCv2: ....pc1Cre1vud1l
 		// remapped:
