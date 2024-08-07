@@ -31,7 +31,7 @@
 uint16_t ui_selector(ui_selector_config_t *config) {
     char sbuf[33];
     bool full_redraw = true;
-    uint16_t prev_file_offset = 0xFFFF;
+    uint16_t prev_offset = 0xFFFF;
 
     uint16_t row_count, row_height, row_offset;
     if (config->style == UI_SELECTOR_STYLE_16) {
@@ -45,8 +45,8 @@ uint16_t ui_selector(ui_selector_config_t *config) {
     }
 
     while (true) {
-        if (prev_file_offset != config->offset) {
-            if ((prev_file_offset / row_count) != (config->offset / row_count)) {
+        if (prev_offset != config->offset) {
+            if ((prev_offset / row_count) != (config->offset / row_count)) {
                 bitmap_rect_fill(&ui_bitmap, 0, SELECTOR_Y_OFFSET, 28 * 8, row_height * row_count, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
                 // Draw filenames
                 bitmapfont_set_active_font(config->style == UI_SELECTOR_STYLE_16 ? font16_bitmap : font8_bitmap);
@@ -56,14 +56,11 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
                     config->draw(config, offset, i * row_height + SELECTOR_Y_OFFSET + row_offset);
                 }
-                prev_file_offset = config->offset + 1;
 
                 snprintf(sbuf, sizeof(sbuf), lang_keys_en[LK_UI_FILE_SELECTOR_PAGE_FORMAT], (config->offset / row_count) + 1, ((config->count + row_count - 1) / row_count));
                 ui_draw_statusbar(sbuf);
-
-                full_redraw = true; // FIXME
             }
-            if ((prev_file_offset % row_count) != (config->offset % row_count)) {
+            if ((prev_offset % row_count) != (config->offset % row_count)) {
                 // Draw highlights
 #if 0
                 if (full_redraw) {
@@ -89,7 +86,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                         }
                     }
                 } else {
-                    uint16_t prev_sel = (prev_file_offset % row_count);
+                    uint16_t prev_sel = (prev_offset % row_count);
                     if (row_height > 8) {
                         prev_sel <<= 1;
                         sel <<= 1;
@@ -107,7 +104,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 #endif
             }
 
-            prev_file_offset = config->offset;
+            prev_offset = config->offset;
             full_redraw = false;
         }
 
