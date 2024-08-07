@@ -86,7 +86,7 @@ void ui_boot(const char *path) {
 
 static const uint8_t __far elisa_font_string[] = {'E', 'L', 'I', 'S', 'A'};
 static const uint16_t __far sram_sizes[] = {
-    0, 8, 32, 128, 256, 512, 0, 0,
+    0, 32, 32, 128, 256, 512, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0
 };
 static const uint16_t __far eeprom_sizes[] = {

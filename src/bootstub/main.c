@@ -135,6 +135,8 @@ __attribute__((noreturn))
 extern void launch_ram_asm(const void __far *ptr);
 
 int main(void) {
+	nile_tf_load_state_from_ipc();
+
 	// Read ROM, sector by sector
 	uint8_t result;
 	uint32_t size = bootstub_data->prog_size;
