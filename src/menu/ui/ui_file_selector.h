@@ -18,9 +18,36 @@
 #ifndef __UI_FILE_SELECTOR_H__
 #define __UI_FILE_SELECTOR_H__
 
+#include <ws.h>
+#include <nilefs.h>
 #include "ui.h"
 #include "ui_selector.h"
 
+#define FILE_SELECTOR_ENTRY_SHIFT 8
+#define FILE_SELECTOR_MAX_FILES 1500
+#define FILE_SELECTOR_RAM_BANK_OFFSET 1
+#define FILE_SELECTOR_INDEX_BANK 6
+#define FILE_SELECTOR_INDEXES ((uint16_t __far*) MK_FP(0x1000, 0xDC00))
+
+typedef struct {
+    FILINFO fno;
+    uint8_t extension_loc;
+} file_selector_entry_t;
+
+__attribute__((always_inline))
+static inline file_selector_entry_t __far *ui_file_selector_open_fno_direct(uint16_t offset) {
+    outportw(IO_BANK_2003_RAM, FILE_SELECTOR_RAM_BANK_OFFSET + (offset >> FILE_SELECTOR_ENTRY_SHIFT));
+    return MK_FP(0x1000, offset << FILE_SELECTOR_ENTRY_SHIFT);
+}
+
+__attribute__((always_inline))
+static inline file_selector_entry_t __far *ui_file_selector_open_fno(uint16_t offset) {
+    outportw(IO_BANK_2003_RAM, FILE_SELECTOR_INDEX_BANK);
+    return ui_file_selector_open_fno_direct(FILE_SELECTOR_INDEXES[offset]);
+}
+
+
 void ui_file_selector(void);
+void ui_file_selector_qsort(size_t nmemb, int (*compar)(const file_selector_entry_t __far*, const file_selector_entry_t __far*, void*), void *userdata);
 
 #endif /* __UI_FILE_SELECTOR_H__ */

@@ -21,6 +21,7 @@
 #include <string.h>
 #include <ws.h>
 #include <nilefs.h>
+#include <ws/system.h>
 #include "lang.h"
 #include "ui.h"
 #include "../util/input.h"
@@ -28,7 +29,7 @@
 
 static vgmswan_state_t *vgm_state;
 
-void  __attribute__((interrupt)) vgm_interrupt_handler(void) {
+void  __attribute__((interrupt, assume_ss_data)) vgm_interrupt_handler(void) {
     while (true) {
         uint16_t result = vgmswan_play(vgm_state);
         if (result > 1) {
@@ -101,7 +102,7 @@ void ui_vgmplay(const char *path) {
     outportw(IO_HBLANK_TIMER, 2);
     outportw(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE);
 
-    ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, vgm_interrupt_handler);
+    ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, (ws_int_handler_t) vgm_interrupt_handler);
     ws_hwint_enable(HWINT_HBLANK_TIMER);
 
     while (vgm_state->bank != 0xFF) {

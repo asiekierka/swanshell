@@ -34,8 +34,6 @@ extern uint16_t input_pressed, input_held;
 #define KEY_ALEFT KEY_Y4
 #define KEY_ARIGHT KEY_Y2
 
-#define KEY_PCV2_PASS (1 << 12)
-
 void vblank_input_update(void);
 void input_reset(void);
 void input_update(void);

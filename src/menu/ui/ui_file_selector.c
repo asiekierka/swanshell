@@ -15,11 +15,15 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "ui/ui_file_selector.h"
+#include <nilefs/ff.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <wonderful.h>
 #include <ws.h>
 #include <nilefs.h>
+#include <ws/hardware.h>
 #include "bitmap.h"
 #include "launch/launch.h"
 #include "strings.h"
@@ -30,13 +34,30 @@
 #include "../../../build/menu/assets/menu/icons.h"
 #include "../../../build/menu/assets/menu/lang.h"
 
-#define FILE_SELECTOR_ENTRY_SHIFT 8
-#define FILE_SELECTOR_MAX_FILES 1536
-
-typedef struct {
-    FILINFO fno;
-    uint8_t extension_loc;
-} file_selector_entry_t;
+static int compare_filenames(const file_selector_entry_t __far* a, const file_selector_entry_t __far* b, void *userdata) {
+    uint8_t mode = (uint8_t) userdata;
+    bool a_dir = a->fno.fattrib & AM_DIR;
+    bool b_dir = b->fno.fattrib & AM_DIR;
+    if (a_dir && !b_dir) {
+        return -1;
+    } else if (!a_dir && b_dir) {
+        return 1;
+    } else if (mode == 1) {
+        return strcasecmp(a->fno.fname, b->fno.fname);
+    } else if (mode == 2) {
+        return strcasecmp(b->fno.fname, a->fno.fname);
+    } else if (mode == 3) {
+        return a->fno.fdate - b->fno.fdate;
+    } else if (mode == 4) {
+        return b->fno.fdate - a->fno.fdate;
+    } else if (mode == 5) {
+        return a->fno.fsize - b->fno.fsize;
+    } else if (mode == 6) {
+        return b->fno.fsize - a->fno.fsize;
+    } else {
+        return 0;
+    }
+}
 
 static uint16_t ui_file_selector_scan_directory(void) {
     DIR dir;
@@ -47,8 +68,7 @@ static uint16_t ui_file_selector_scan_directory(void) {
 		while(1);
 	}
 	while (true) {
-        outportw(IO_BANK_2003_RAM, file_count >> FILE_SELECTOR_ENTRY_SHIFT);
-        file_selector_entry_t __far* fno = MK_FP(0x1000, file_count << FILE_SELECTOR_ENTRY_SHIFT);
+        file_selector_entry_t __far* fno = ui_file_selector_open_fno_direct(file_count);
 		result = f_readdir(&dir, &fno->fno);
 		if (result != FR_OK) {
             // TODO: error handling
@@ -68,15 +88,18 @@ static uint16_t ui_file_selector_scan_directory(void) {
 	}
 	f_closedir(&dir);
 
+    outportw(IO_BANK_2003_RAM, FILE_SELECTOR_INDEX_BANK);
+    for (int i = 0; i < file_count; i++)
+        FILE_SELECTOR_INDEXES[i] = i;
+    ui_file_selector_qsort(file_count, compare_filenames, (void*) 1);
+
     return file_count;
 }
 
 static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
     int x_offset = config->style == UI_SELECTOR_STYLE_16 ? 16 : 10;
 
-    outportw(IO_BANK_2003_RAM, offset >> FILE_SELECTOR_ENTRY_SHIFT);
-    file_selector_entry_t __far* fno = MK_FP(0x1000, offset << FILE_SELECTOR_ENTRY_SHIFT);
-
+    file_selector_entry_t __far *fno = ui_file_selector_open_fno(offset);
     uint16_t x = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, fno->fno.fname, 224 - x_offset);
     uint8_t icon_idx = 1;
     if (fno->fno.fattrib & AM_DIR) {
@@ -152,14 +175,13 @@ rescan_directory:
         uint16_t keys_pressed = ui_selector(&config);
 
         if (keys_pressed & KEY_A) {
-            outportw(IO_BANK_2003_RAM, config.offset >> 8);
-            FILINFO __far* fno = MK_FP(0x1000, config.offset << 8);
-            strncpy(path, fno->fname, sizeof(fno->fname));
-            if (fno->fattrib & AM_DIR) {
+            file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
+            strncpy(path, fno->fno.fname, sizeof(fno->fno.fname));
+            if (fno->fno.fattrib & AM_DIR) {
                 f_chdir(path);
             } else {
-                const char __far* ext = strrchr(fno->altname, '.');
-                if (ext != NULL) {
+                if (fno->extension_loc != 255) {
+                    const char __far* ext = fno->fno.fname + fno->extension_loc;
                     if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc)) {
                         launch_rom_metadata_t meta;
                         uint8_t result = launch_get_rom_metadata(path, &meta);
