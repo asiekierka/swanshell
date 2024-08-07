@@ -109,10 +109,10 @@ DEPS		:= $(OBJS:.o=.d)
 all: $(ROM) compile_commands.json
 
 libnile:
-	cd libnile && $(MAKE) TARGET=wswan/bootfriend install
-	cd libnile && $(MAKE) TARGET=wswan/medium install
+	@$(MAKE) -C libnile TARGET=wswan/bootfriend install
+	@$(MAKE) -C libnile TARGET=wswan/medium install
 
-build/bootstub.bin:
+build/bootstub.bin: libnile
 	$(_V)$(MAKE) -f Makefile.bootstub --no-print-directory
 
 $(ROM) $(ELF): $(ELF_STAGE1)
@@ -139,12 +139,12 @@ compile_commands.json: $(OBJS) | Makefile
 # Rules
 # -----
 
-$(BUILDDIR)/%.s.o : %.s | $(OBJS_ASSETS)
+$(BUILDDIR)/%.s.o : %.s | $(OBJS_ASSETS) libnile
 	@echo "  AS      $<"
 	@$(MKDIR) -p $(@D)
 	$(_V)$(CC) $(ASFLAGS) -MMD -MP -MJ $(patsubst %.o,%.cc.json,$@) -c -o $@ $<
 
-$(BUILDDIR)/%.c.o : %.c | $(OBJS_ASSETS)
+$(BUILDDIR)/%.c.o : %.c | $(OBJS_ASSETS) libnile
 	@echo "  CC      $<"
 	@$(MKDIR) -p $(@D)
 	$(_V)$(CC) $(CFLAGS) -MMD -MP -MJ $(patsubst %.o,%.cc.json,$@) -c -o $@ $<
