@@ -42,7 +42,7 @@ __attribute__((noreturn))
 static void report_fatfs_error(uint8_t result) {
 	// deinitialize hardware
 	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART);
-	outportb(IO_NILE_POW_CNT, 0);
+	outportb(IO_NILE_POW_CNT, NILE_POW_MCU_RESET);
 
 	outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(7, 0, 2, 5));
 	outportw(IO_SCR_PAL_3, MONO_PAL_COLORS(7, 7, 7, 7));
@@ -175,7 +175,7 @@ int main(void) {
 	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART);
 	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
 	clear_registers(true);
-	outportb(IO_NILE_POW_CNT, 0);
+	outportb(IO_NILE_POW_CNT, inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET);
 	launch_ram_asm(MK_FP(0xFFFF, 0x0000));
 
 error:
