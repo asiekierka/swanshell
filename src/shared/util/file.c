@@ -103,7 +103,7 @@ uint8_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) 
     if (bw != NULL)
         *bw = 0;
 
-    for (uint32_t i = 0; i < btw; i += buffer_size, btw -= buffer_size) {
+    for (uint32_t i = 0; btw > 0; i += buffer_size, btw -= buffer_size) {
         outportw(IO_BANK_2003_RAM, bank + (i >> 16));
         uint16_t len = buffer_size;
         if (btw < len)
