@@ -451,7 +451,7 @@ uint8_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
     bootstub_data->prog_cluster = fp.fclust;
     bootstub_data->prog_size = fp.fsize;
     if (meta != NULL) {
-        bootstub_data->prog_sram_mask = meta->sram_size >> 16;
+        bootstub_data->prog_sram_mask = (meta->sram_size - 1) >> 16;
     } else {
         bootstub_data->prog_sram_mask = 7;
     }
