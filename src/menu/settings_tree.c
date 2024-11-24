@@ -42,10 +42,10 @@ static const uint16_t __wf_rom settings_file_sort_order_name_table[] = {
     LK_SETTINGS_FILE_SORT_DEFAULT,
     LK_SETTINGS_FILE_SORT_NAME_ASC,
     LK_SETTINGS_FILE_SORT_NAME_DESC,
-    LK_SETTINGS_FILE_SORT_SIZE_ASC,
-    LK_SETTINGS_FILE_SORT_SIZE_DESC,
     LK_SETTINGS_FILE_SORT_DATE_ASC,
-    LK_SETTINGS_FILE_SORT_DATE_DESC
+    LK_SETTINGS_FILE_SORT_DATE_DESC,
+    LK_SETTINGS_FILE_SORT_SIZE_ASC,
+    LK_SETTINGS_FILE_SORT_SIZE_DESC
 };
 
 static void settings_file_sort_order_name(uint16_t value, char *buf, int buf_len) {

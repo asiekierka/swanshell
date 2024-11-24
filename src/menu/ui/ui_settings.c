@@ -21,6 +21,7 @@
 #include <wonderful.h>
 #include <ws.h>
 #include <nilefs.h>
+#include <ws/keypad.h>
 #include "bitmap.h"
 #include "settings.h"
 #include "strings.h"
@@ -63,7 +64,7 @@ void ui_settings(void) {
 
     config.config.style = UI_SELECTOR_STYLE_16;
     config.config.draw = ui_settings_draw;
-    config.config.key_mask = KEY_A | KEY_B;
+    config.config.key_mask = KEY_A | KEY_B | KEY_START;
 
 reload_menu:
     config.config.count = config.category->entry_count;
@@ -112,6 +113,9 @@ reload_menu:
                 config.category = config.category->parent;
                 goto reload_menu;
             }
+        }
+        if (keys_pressed & KEY_START) {
+            return;
         }
     }
 }

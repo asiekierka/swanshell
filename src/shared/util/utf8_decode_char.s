@@ -40,9 +40,9 @@ utf8_decode_char:
     cmp al, 0xE0
     jae utf8_decode_char3
     cmp al, 0xC0
-    jae utf8_decode_char_err
-    cmp al, 0x80
     jae utf8_decode_char2
+    cmp al, 0x80
+    jae utf8_decode_char_err
 utf8_decode_char_ret:
     ss mov [bx], si
     mov si, ds

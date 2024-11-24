@@ -35,6 +35,8 @@
 #include "../../../build/menu/assets/menu/icons.h"
 #include "lang.h"
 
+#define COMPARE(a, b) (((a) == (b)) ? 0 : (((a) < (b)) ? -1 : 1))
+
 static int compare_filenames(const file_selector_entry_t __far* a, const file_selector_entry_t __far* b, void *userdata) {
     uint8_t mode = (uint8_t) userdata;
     bool a_dir = a->fno.fattrib & AM_DIR;
@@ -48,13 +50,13 @@ static int compare_filenames(const file_selector_entry_t __far* a, const file_se
     } else if (mode == SETTING_FILE_SORT_NAME_DESC) {
         return strcasecmp(b->fno.fname, a->fno.fname);
     } else if (mode == SETTING_FILE_SORT_DATE_ASC) {
-        return a->fno.fdate - b->fno.fdate;
+        return COMPARE(a->fno.fdate, b->fno.fdate) || COMPARE(a->fno.ftime, b->fno.ftime);
     } else if (mode == SETTING_FILE_SORT_DATE_DESC) {
-        return b->fno.fdate - a->fno.fdate;
+        return COMPARE(b->fno.fdate, a->fno.fdate) || COMPARE(b->fno.ftime, a->fno.ftime);
     } else if (mode == SETTING_FILE_SORT_SIZE_ASC) {
-        return a->fno.fsize - b->fno.fsize;
+        return COMPARE(a->fno.fsize, b->fno.fsize);
     } else if (mode == SETTING_FILE_SORT_SIZE_DESC) {
-        return b->fno.fsize - a->fno.fsize;
+        return COMPARE(b->fno.fsize, a->fno.fsize);
     } else {
         return 0;
     }
@@ -159,7 +161,7 @@ void ui_file_selector(void) {
 
     config.style = UI_SELECTOR_STYLE_16;
     config.draw = ui_file_selector_draw;
-    config.key_mask = KEY_A | KEY_B;
+    config.key_mask = KEY_A | KEY_B | KEY_START;
 
 rescan_directory:
     if (reinit_ui) {
@@ -218,6 +220,14 @@ rescan_directory:
         }
         if (keys_pressed & KEY_B) {
             f_chdir(".."); // TODO: error checking
+            reinit_ui = true;
+            reinit_dirs = true;
+            goto rescan_directory;
+        }
+
+        // TODO: temporary
+        if (keys_pressed & KEY_START) {
+        	ui_settings();
             reinit_ui = true;
             reinit_dirs = true;
             goto rescan_directory;
