@@ -59,7 +59,7 @@ void ui_vgmplay(const char *path) {
 	}
 
     ui_draw_titlebar(NULL);
-    ui_draw_statusbar(lang_keys_en[LK_UI_STATUS_LOADING]);
+    ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
 
 	outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
 

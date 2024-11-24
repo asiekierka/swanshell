@@ -26,6 +26,7 @@
 #define SETTING_TYPE_CATEGORY    0
 #define SETTING_TYPE_FLAG        1
 #define SETTING_TYPE_CHOICE_BYTE 2
+#define SETTING_TYPE ACTION 3
 
 #define SETTING_FILE_SHOW_HIDDEN_SHIFT 0
 #define SETTING_FILE_SHOW_HIDDEN       (1 << SETTING_FILE_SHOW_HIDDEN_SHIFT)
@@ -52,6 +53,7 @@ typedef struct setting {
     uint16_t name;
     uint8_t type;
     uint8_t flags;
+    void (*on_change)(const struct setting __far*);
     union {
         struct {
             const struct setting_category __far *value;
@@ -74,6 +76,7 @@ typedef struct setting {
 typedef struct {
     uint8_t file_flags;
     uint8_t file_sort;
+    uint8_t language;
 } settings_t;
 
 extern settings_t settings;

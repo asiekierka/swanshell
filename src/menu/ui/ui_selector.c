@@ -24,7 +24,7 @@
 #include "ui_selector.h"
 #include "../util/input.h"
 #include "../main.h"
-#include "../../../build/menu/assets/menu/lang.h"
+#include "lang.h"
 
 #define SELECTOR_Y_OFFSET 8
 
@@ -57,7 +57,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                     config->draw(config, offset, i * row_height + SELECTOR_Y_OFFSET + row_offset);
                 }
 
-                snprintf(sbuf, sizeof(sbuf), lang_keys_en[LK_UI_FILE_SELECTOR_PAGE_FORMAT], (config->offset / row_count) + 1, ((config->count + row_count - 1) / row_count));
+                snprintf(sbuf, sizeof(sbuf), lang_keys[LK_UI_FILE_SELECTOR_PAGE_FORMAT], (config->offset / row_count) + 1, ((config->count + row_count - 1) / row_count));
                 ui_draw_statusbar(sbuf);
             }
             if ((prev_offset % row_count) != (config->offset % row_count)) {

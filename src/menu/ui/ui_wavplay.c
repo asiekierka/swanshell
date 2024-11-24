@@ -21,7 +21,7 @@
 #include <string.h>
 #include <ws.h>
 #include <nilefs.h>
-#include "../../../build/menu/assets/menu/lang.h"
+#include "lang.h"
 #include "strings.h"
 #include "ui.h"
 #include "../util/input.h"
@@ -92,7 +92,7 @@ void ui_wavplay(const char *path) {
     }
 
     ui_draw_titlebar(NULL);
-    ui_draw_statusbar(lang_keys_en[LK_UI_STATUS_LOADING]);
+    ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
 
     memset(WAV_BUFFER0, 0, WAV_BUFFER_SIZE * 2);
     fmt.channels = 0;

@@ -19,12 +19,14 @@
 #include <string.h>
 #include <nile.h>
 #include <nilefs.h>
+#include "lang.h"
 #include "settings.h"
 #include "strings.h"
 #include "util/ini.h"
 
 void settings_reset(void) {
     memset(&settings, 0, sizeof(settings));
+    lang_keys = lang_keys_en;
 }
 
 static FRESULT settings_load_category(FIL *fp, const setting_category_t __far *cat, const char *key, const char *value) {
@@ -52,6 +54,9 @@ static FRESULT settings_load_category(FIL *fp, const setting_category_t __far *c
 
         if (result != FR_OK)
             return result;
+
+        if (s->on_change)
+            s->on_change(s);
     }
 
     return FR_OK;

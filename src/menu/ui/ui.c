@@ -30,7 +30,7 @@
 #include "../util/input.h"
 #include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
-#include "../../../build/menu/assets/menu/lang.h"
+#include "lang.h"
 
 __attribute__((section(".iramx_1b80")))
 uint16_t bitmap_screen2[32 * 18 - 4];

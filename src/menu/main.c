@@ -24,6 +24,7 @@
 #include "settings.h"
 #include "ui/bitmap.h"
 #include "ui/ui.h"
+#include "ui/ui_settings.h"
 #include "launch/launch.h"
 #include "util/input.h"
 
@@ -81,15 +82,6 @@ void main(void) {
 		for(int i = 0; i < 30; i++) ws_busywait(60000);
 	}
 	ui_file_selector();
-/*	char text[60];
-	for (int i = 1; i <= 14; i++) {
-		uint16_t lines = bench_disk_read(i);
-		sprintf(text, "%d sectors = %02X / %d lines", i, disk_read_error, lines);
-		bitmapfont_draw_string(&ui_bitmap, 0, (i - 1) * 10, text, 222);
-	} */
-
-//	ui_init();
-//	ui_file_selector();
-
+	
 	while(1);
 }

@@ -22,6 +22,7 @@
 
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
+DEFINE_STRING_LOCAL(s_language, "Language");
 
 settings_t settings;
 
@@ -48,7 +49,7 @@ static const uint16_t __wf_rom settings_file_sort_order_name_table[] = {
 };
 
 static void settings_file_sort_order_name(uint16_t value, char *buf, int buf_len) {
-    strncpy(buf, lang_keys_en[settings_file_sort_order_name_table[value % 7]], buf_len);
+    strncpy(buf, lang_keys[settings_file_sort_order_name_table[value % 7]], buf_len);
 }
 
 static const setting_t __far setting_file_sort_order = {
@@ -56,6 +57,7 @@ static const setting_t __far setting_file_sort_order = {
     LK_SETTINGS_FILE_SORT_KEY,
     SETTING_TYPE_CHOICE_BYTE,
     0,
+    NULL,
     .choice = {
         &settings.file_sort,
         6,
@@ -66,7 +68,7 @@ static const setting_t __far setting_file_sort_order = {
 
 static const setting_category_t __far settings_file = {
     LK_SETTINGS_FILE_KEY,
-    NULL,
+    &settings_root,
     2,
     {
         &setting_file_show_hidden,
@@ -79,14 +81,49 @@ static const setting_t __far setting_category = {
     LK_SETTINGS_FILE_KEY,
     SETTING_TYPE_CATEGORY,
     0,
+    NULL,
     .category = { &settings_file }
 };
 
+#define LANGUAGE_COUNT 2
+
+static const uint16_t __wf_rom settings_language_name_table[] = {
+    LK_LANG_EN,
+    LK_LANG_PL
+};
+
+static const void __far* __far settings_language_table[] = {
+    lang_keys_en,
+    lang_keys_pl
+};
+
+static void settings_language_on_change(const settings_t *set) {
+    lang_keys = settings_language_table[settings.language];
+}
+
+static void settings_language_name(uint16_t value, char *buf, int buf_len) {
+    strncpy(buf, lang_keys[settings_language_name_table[value % LANGUAGE_COUNT]], buf_len);
+}
+
+static const setting_t __far setting_language = {
+    NULL,
+    LK_SETTINGS_LANGUAGE_KEY,
+    SETTING_TYPE_CHOICE_BYTE,
+    0,
+    settings_language_on_change,
+    .choice = {
+        &settings.language,
+        LANGUAGE_COUNT - 1,
+        NULL,
+        settings_language_name
+    }
+};
 const setting_category_t __far settings_root = {
     LK_SETTINGS_KEY,
     NULL,
-    1,
+    2,
     {
-        &setting_category
+        &setting_category,
+        &setting_language
     }
 };

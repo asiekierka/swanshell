@@ -33,7 +33,7 @@
 #include "../util/input.h"
 #include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
-#include "../../../build/menu/assets/menu/lang.h"
+#include "lang.h"
 
 static int compare_filenames(const file_selector_entry_t __far* a, const file_selector_entry_t __far* b, void *userdata) {
     uint8_t mode = (uint8_t) userdata;
@@ -166,7 +166,7 @@ rescan_directory:
         ui_layout_bars();
     }
     ui_draw_titlebar(NULL);
-    ui_draw_statusbar(lang_keys_en[LK_UI_STATUS_LOADING]);
+    ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
     ui_show();
     if (reinit_dirs) {
         config.offset = 0;
