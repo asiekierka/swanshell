@@ -21,6 +21,7 @@
 #include <ws.h>
 #include <wsx/planar_unpack.h>
 #include <nilefs.h>
+#include "settings.h"
 #include "ui/bitmap.h"
 #include "ui/ui.h"
 #include "launch/launch.h"
@@ -72,6 +73,7 @@ void main(void) {
 	}
 
 	ui_init();
+	settings_load();
 	if ((result = launch_backup_save_data()) != FR_OK) {
 		char text[20];
 		sprintf(text, "Save restore error %d!", result);

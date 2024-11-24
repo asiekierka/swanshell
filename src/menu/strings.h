@@ -18,6 +18,7 @@
 #ifndef _STRINGS_H_
 #define _STRINGS_H_
 
+#define DEFINE_STRING_LOCAL(name, value) static const char __far name[] = value
 #ifdef STRINGS_H_IMPLEMENTATION
 #define DEFINE_STRING(name, value) const char __far name[] = value
 #else
@@ -35,5 +36,8 @@ DEFINE_STRING(s_file_ext_sram, ".ram");
 DEFINE_STRING(s_file_ext_eeprom, ".eeprom");
 DEFINE_STRING(s_file_ext_flash, ".flash");
 DEFINE_STRING(s_file_ext_rtc, ".rtc");
+
+DEFINE_STRING(s_path_save_ini, "/NILESWAN/SAVE.INI");
+DEFINE_STRING(s_path_config_ini, "/NILESWAN/CONFIG.INI");
 
 #endif /* _STRINGS_H_ */

@@ -33,8 +33,8 @@
 
 __attribute__((section(".iramx_0040")))
 uint16_t ipl0_initial_regs[16];
-__attribute__((section(".iramC.launch.sector_buffer")))
-uint8_t sector_buffer[1024];
+__attribute__((section(".iramCx_c000")))
+uint8_t sector_buffer[2048];
 
 extern FATFS fs;
 
@@ -140,9 +140,6 @@ uint8_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     return FR_OK;
 }
 
-static const char __far save_ini_location[] = "/NILESWAN/SAVE.INI";
-
-
 static uint8_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path) {
     uint8_t stack_buffer[16];
     uint8_t *buffer;
@@ -220,11 +217,11 @@ preallocate_file_end:
     return result;
 }
 
-static const char __far save_ini_start[] = "[save]\n";
-static const char __far save_ini_sram[] = "sram";
-static const char __far save_ini_eeprom[] = "eeprom";
-static const char __far save_ini_flash[] = "flash";
-static const char __far save_ini_entry[] = "%s=%ld|%s%s\n";
+DEFINE_STRING_LOCAL(s_save_ini_start, "[Save]\n");
+DEFINE_STRING_LOCAL(s_save_ini_sram, "SRAM\n");
+DEFINE_STRING_LOCAL(s_save_ini_eeprom, "EEPROM\n");
+DEFINE_STRING_LOCAL(s_save_ini_flash, "Flash\n");
+DEFINE_STRING_LOCAL(s_save_ini_entry, "%s=%ld|%s%s\n");
 
 uint8_t launch_backup_save_data(void) {
     FIL fp, save_fp;
@@ -233,7 +230,7 @@ uint8_t launch_backup_save_data(void) {
     ini_next_result_t ini_result;
     uint8_t result;
 
-    memcpy(buffer, save_ini_location, sizeof(save_ini_location));
+    strcpy(buffer, s_path_save_ini);
     result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
     // If the .ini file doesn't exist, skip.
     if (result == FR_NO_FILE)
@@ -257,9 +254,9 @@ uint8_t launch_backup_save_data(void) {
             // TODO: Pay attention to this.
         } else if (ini_result == INI_NEXT_KEY_VALUE) {
             uint8_t file_type = 0;
-            if (!strcasecmp(key, save_ini_sram)) file_type = 1;
-            else if (!strcasecmp(key, save_ini_eeprom)) file_type = 2;
-            else if (!strcasecmp(key, save_ini_flash)) file_type = 3;
+            if (!strcasecmp(key, s_save_ini_sram)) file_type = 1;
+            else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = 2;
+            else if (!strcasecmp(key, s_save_ini_flash)) file_type = 3;
             if (file_type != 0) {
                 key = (char*) strchr(value, '|');
                 if (key != NULL) value = key + 1;
@@ -292,7 +289,7 @@ uint8_t launch_backup_save_data(void) {
     }
 
     f_close(&fp);
-    memcpy(buffer, save_ini_location, sizeof(save_ini_location));
+    strcpy(buffer, s_path_save_ini);
     f_unlink(buffer);
     return result;
 }
@@ -302,7 +299,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     char dst_path[FF_LFN_BUF + 4];
     char tmp_buf[20];
     FIL fp;
-    uint8_t result, result2;
+    uint8_t result;
 
     bool has_save_data = meta->sram_size || meta->eeprom_size || meta->flash_size;
     if (!has_save_data)
@@ -373,19 +370,19 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     }
 
     // generate .INI file
-    memcpy(tmp_buf, save_ini_location, sizeof(save_ini_location));
+    strcpy(tmp_buf, s_path_save_ini);
     result = f_open(&fp, tmp_buf, FA_CREATE_ALWAYS | FA_WRITE);
     if (result != FR_OK)
         return result;
     
-    result = f_puts(save_ini_start, &fp) < 0 ? FR_INT_ERR : FR_OK;
+    result = f_puts(s_save_ini_start, &fp) < 0 ? FR_INT_ERR : FR_OK;
     if (result != FR_OK)
         goto launch_restore_save_data_ini_end;
 
     if (meta->sram_size != 0) {
         strcpy(ext_loc, s_file_ext_sram);
-        result = f_printf(&fp, save_ini_entry,
-            (const char __far*) save_ini_sram,
+        result = f_printf(&fp, s_save_ini_entry,
+            (const char __far*) s_save_ini_sram,
             (uint32_t) meta->sram_size,
             (const char __far*) dst_cwd,
             (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
@@ -395,8 +392,8 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
     if (meta->eeprom_size != 0) {
         strcpy(ext_loc, s_file_ext_eeprom);
-        result = f_printf(&fp, save_ini_entry,
-            (const char __far*) save_ini_eeprom,
+        result = f_printf(&fp, s_save_ini_entry,
+            (const char __far*) s_save_ini_eeprom,
             (uint32_t) meta->eeprom_size,
             (const char __far*) dst_cwd,
             (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
@@ -406,8 +403,8 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
     if (meta->flash_size != 0) {
         strcpy(ext_loc, s_file_ext_flash);
-        result = f_printf(&fp, save_ini_entry,
-            (const char __far*) save_ini_flash,
+        result = f_printf(&fp, s_save_ini_entry,
+            (const char __far*) s_save_ini_flash,
             (uint32_t) meta->flash_size,
             (const char __far*) dst_cwd,
             (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
@@ -416,9 +413,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     }
 
 launch_restore_save_data_ini_end:
-    result2 = f_close(&fp);
-    if (result == FR_OK && result2 != FR_OK)
-        return result2;
+    result = result || f_close(&fp);
     return result;
 }
 

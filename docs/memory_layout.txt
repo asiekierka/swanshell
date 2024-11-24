@@ -1,0 +1,14 @@
+|  From  |   To   | Description |
+| ------ | ------ | ----------- |
+| 0x0000 | 0x003F | IRQ vectors |
+| 0x0040 | 0x005F | IPL0 initial registers (TODO: move out) |
+| 0x0060 | 0x1B7F | C data/BSS |
+| ...... | 0x1B80 | C stack |
+| 0x1B80 | 0x1FF7 | Screen #2 |
+| 0x1FF8 | 0x1FFF | C data/BSS |
+| 0x2000 | 0x3FFF | Tiles |
+| 0x3800 | 0x3FFF | Screen 1 in WSC mode only |
+| 0x4000 | 0xBFFF | WSC Tiles |
+| 0xC000 | 0xC7FF | WSC I/O buffer |
+| 0xC800 | 0xFDFF | Unused |
+| 0xFE00 | 0xFFFF | WSC palettes |

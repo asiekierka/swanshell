@@ -24,7 +24,7 @@
 #include <nilefs.h>
 
 // currently defined in launch.c
-extern uint8_t sector_buffer[1024];
+extern uint8_t sector_buffer[2048];
 
 uint8_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br);
 uint8_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw);

@@ -26,6 +26,7 @@
 #include <ws/hardware.h>
 #include "bitmap.h"
 #include "launch/launch.h"
+#include "settings.h"
 #include "strings.h"
 #include "ui.h"
 #include "ui_selector.h"
@@ -42,17 +43,17 @@ static int compare_filenames(const file_selector_entry_t __far* a, const file_se
         return -1;
     } else if (!a_dir && b_dir) {
         return 1;
-    } else if (mode == 1) {
+    } else if (mode == SETTING_FILE_SORT_NAME_ASC) {
         return strcasecmp(a->fno.fname, b->fno.fname);
-    } else if (mode == 2) {
+    } else if (mode == SETTING_FILE_SORT_NAME_DESC) {
         return strcasecmp(b->fno.fname, a->fno.fname);
-    } else if (mode == 3) {
+    } else if (mode == SETTING_FILE_SORT_DATE_ASC) {
         return a->fno.fdate - b->fno.fdate;
-    } else if (mode == 4) {
+    } else if (mode == SETTING_FILE_SORT_DATE_DESC) {
         return b->fno.fdate - a->fno.fdate;
-    } else if (mode == 5) {
+    } else if (mode == SETTING_FILE_SORT_SIZE_ASC) {
         return a->fno.fsize - b->fno.fsize;
-    } else if (mode == 6) {
+    } else if (mode == SETTING_FILE_SORT_SIZE_DESC) {
         return b->fno.fsize - a->fno.fsize;
     } else {
         return 0;
@@ -70,6 +71,8 @@ static uint16_t ui_file_selector_scan_directory(void) {
 	while (true) {
         file_selector_entry_t __far* fno = ui_file_selector_open_fno_direct(file_count);
 		result = f_readdir(&dir, &fno->fno);
+
+        // Invalid/empty result?
 		if (result != FR_OK) {
             // TODO: error handling
 			break;
@@ -78,6 +81,12 @@ static uint16_t ui_file_selector_scan_directory(void) {
 			break;
 		}
 
+        // Hidden file?
+        if ((fno->fno.fattrib & AM_HID) && !(settings.file_flags & SETTING_FILE_SHOW_HIDDEN)) {
+            continue;
+        }
+
+        // Cache extension location
         const char __far* ext_loc = strrchr(fno->fno.fname, '.');
         fno->extension_loc = ext_loc == NULL ? 255 : ext_loc - fno->fno.fname;
 
@@ -91,7 +100,7 @@ static uint16_t ui_file_selector_scan_directory(void) {
     outportw(IO_BANK_2003_RAM, FILE_SELECTOR_INDEX_BANK);
     for (int i = 0; i < file_count; i++)
         FILE_SELECTOR_INDEXES[i] = i;
-    ui_file_selector_qsort(file_count, compare_filenames, (void*) 1);
+    ui_file_selector_qsort(file_count, compare_filenames, (void*) settings.file_sort);
 
     return file_count;
 }

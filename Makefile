@@ -63,6 +63,7 @@ ifneq ($(CBINDIRS),)
 endif
 SOURCES_S	:= $(shell find -L $(SOURCEDIRS) -name "*.s")
 SOURCES_C	:= $(shell find -L $(SOURCEDIRS) -name "*.c")
+SOURCES_LANG	:= $(shell find -L lang)
 
 SOURCES_CBIN += build/bootstub.bin
 
@@ -155,7 +156,7 @@ $(BUILDDIR)/%.bin.o $(BUILDDIR)/%_bin.h : %.bin
 	$(_V)$(WF)/bin/wf-bin2c -a 2 --address-space __far $(@D) $<
 	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/$*.bin.o $(BUILDDIR)/$*_bin.c
 
-$(BUILDDIR)/assets/menu/lang.o $(BUILDDIR)/assets/menu/lang.h :
+$(BUILDDIR)/assets/menu/lang.o $(BUILDDIR)/assets/menu/lang.h : $(SOURCES_LANG)
 	@echo "  LANG"
 	@$(MKDIR) -p $(@D)
 	$(_V)$(PYTHON3) tools/gen_strings.py lang $(BUILDDIR)/assets/menu/lang.c $(BUILDDIR)/assets/menu/lang.h
