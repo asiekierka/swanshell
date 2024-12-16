@@ -105,40 +105,17 @@ static void progress_tick(void) {
 
 /* === Hardware configuration === */
 
-static inline void clear_registers(bool disable_color_mode) {
-    // wait for vblank, disable display, reset some registers
-	while (inportb(IO_LCD_LINE) != 144);
-
-	bool color_active = ws_system_color_active();
-	_nmemset((void*) 0x2000, 0x00, color_active ? 0xE000 : 0x2000);
-    if (color_active) {
-        uint8_t ctrl2 = disable_color_mode ? 0x0A : 0x8A;
-        outportb(IO_SYSTEM_CTRL2, ctrl2);
-	}
-
-    outportw(IO_DISPLAY_CTRL, 0);
-    outportb(IO_LCD_SEG, 0);
-    outportb(IO_SPR_BASE, 0);
-    outportb(IO_SPR_FIRST, 0);
-    outportb(IO_SPR_COUNT, 0);
-    // outportw(IO_SCR1_SCRL_X, 0); Already done in progress_init
-    outportw(IO_SCR2_SCRL_X, 0);
-    outportb(IO_HWINT_VECTOR, 0);
-    outportb(IO_HWINT_ENABLE, 0);
-    outportb(IO_INT_NMI_CTRL, 0);
-    outportb(IO_KEY_SCAN, 0x40);
-    outportb(IO_SCR_BASE, 0x26);
-
-    outportb(IO_HWINT_ACK, 0xFF);
-}
+// main_asm.s
+extern void restore_cold_boot_io_state(bool disable_color_mode);
 
 /* === Main boot code === */
 
 __attribute__((noreturn))
-extern void launch_ram_asm(const void __far *ptr);
+extern void cold_jump(const void __far *ptr);
 
 int main(void) {
 	outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+	// Copy boot registers for cold_jump()
 	memcpy((void*) 0x0040, &MEM_NILE_IPC->boot_regs, 24);
 	nile_tf_load_state_from_ipc();
 
@@ -173,10 +150,19 @@ int main(void) {
     
 	outportb(IO_CART_FLASH, 0);
 	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART);
+
+    // wait for vblank before clearing registers
+	while (inportb(IO_LCD_LINE) != 144)
+		;
+	// disable display and segments first
+    outportw(IO_DISPLAY_CTRL, 0);
+    outportb(IO_LCD_SEG, 0);
+	outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+	restore_cold_boot_io_state(true);
 	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
-	clear_registers(true);
+    outportb(IO_HWINT_ACK, 0xFF);
 	outportb(IO_NILE_POW_CNT, inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET);
-	launch_ram_asm(MK_FP(0xFFFF, 0x0000));
+	cold_jump(MK_FP(0xFFFF, 0x0000));
 
 error:
 	report_fatfs_error(result);

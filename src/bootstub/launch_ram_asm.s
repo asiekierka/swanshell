@@ -22,13 +22,13 @@
     .arch   i186
     .code16
     .intel_syntax noprefix
-    .global launch_ram_asm
+    .global cold_jump
 
     // DX:AX - jump pointer
     // CX - bank limit
-    .section .fartext.s.launch_ram_asm, "a"
+    .section .fartext.s.cold_jump, "a"
     .align 2
-launch_ram_asm:
+cold_jump:
     mov bx, ax
 
     // Write bank values
