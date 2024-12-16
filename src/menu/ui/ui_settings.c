@@ -35,7 +35,7 @@ typedef struct ui_settings_config {
     const setting_category_t __far* category;
 } ui_settings_config_t;
 
-DEFINE_STRING_LOCAL(s_arrow, "->");
+DEFINE_STRING_LOCAL(s_arrow, "→");
 
 static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
     char buf[96];
@@ -43,7 +43,7 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
     ui_settings_config_t *sconfig = (ui_settings_config_t*) config;
     const setting_t __far* s = sconfig->category->entries[offset];
 
-    int x_offset = 2;
+    int x_offset = 4;
     int len = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, lang_keys[s->name], 224 - x_offset);
 
     if (s->type == SETTING_TYPE_CATEGORY) {
