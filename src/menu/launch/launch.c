@@ -93,6 +93,9 @@ static const uint16_t __far eeprom_sizes[] = {
     0, 128, 2048, 0, 0, 1024, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0
 };
+static const uint8_t __far eeprom_emu_control[] = {
+    0, NILE_EMU_EEPROM_128B, NILE_EMU_EEPROM_2KB, 0, 0, NILE_EMU_EEPROM_1KB
+};
 
 uint8_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     uint8_t tmp[5];
@@ -447,8 +450,17 @@ uint8_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
     bootstub_data->prog_size = fp.fsize;
     if (meta != NULL) {
         bootstub_data->prog_sram_mask = (meta->sram_size - 1) >> 16;
+        bootstub_data->prog_emu_cnt =
+            meta->eeprom_size ? eeprom_emu_control[meta->footer.save_type >> 4] : 0;
+        // TODO: Emulate EEPROM N/C (remove meta->eeprom_size check)
+        bootstub_data->prog_pow_cnt =
+              (meta->sram_size ? NILE_POW_SRAM : 0)
+            | ((meta->footer.mapper != 1 && meta->eeprom_size) ? NILE_POW_IO_2001 : 0)
+            | (meta->footer.mapper != 0 ? NILE_POW_IO_2003 : 0);
     } else {
         bootstub_data->prog_sram_mask = 7;
+        bootstub_data->prog_emu_cnt = 0;
+        bootstub_data->prog_pow_cnt = inportb(IO_NILE_POW_CNT);
     }
     
     // Jump to bootstub

@@ -16,6 +16,8 @@ typedef struct {
     uint32_t prog_size; // Program size
     uint32_t prog_cluster; // Starting cluster for program
     uint8_t prog_sram_mask;
+    uint8_t prog_pow_cnt;
+    uint8_t prog_emu_cnt;
 } bootstub_data_t;
 
 #define bootstub_data ((volatile bootstub_data_t*) 0x0060)

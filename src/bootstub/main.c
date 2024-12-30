@@ -158,10 +158,14 @@ int main(void) {
     outportw(IO_DISPLAY_CTRL, 0);
     outportb(IO_LCD_SEG, 0);
 	outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+	// disabling POW_CNT will depower TF card, reflect that in IPC
+	MEM_NILE_IPC->tf_card_status = 0;
 	restore_cold_boot_io_state(true);
 	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
     outportb(IO_HWINT_ACK, 0xFF);
-	outportb(IO_NILE_POW_CNT, inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET);
+	outportb(IO_NILE_EMU_CNT, bootstub_data->prog_emu_cnt);
+	// POW_CNT disables cart registers, so must be last
+	outportb(IO_NILE_POW_CNT, (inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET) | bootstub_data->prog_pow_cnt);
 	cold_jump(MK_FP(0xFFFF, 0x0000));
 
 error:
