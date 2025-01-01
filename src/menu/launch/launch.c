@@ -93,6 +93,9 @@ static const uint16_t __far eeprom_sizes[] = {
     0, 128, 2048, 0, 0, 1024, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0
 };
+static const uint8_t __far eeprom_bits[] = {
+    0, 6, 10, 0, 0, 10
+};
 static const uint8_t __far eeprom_emu_control[] = {
     0, NILE_EMU_EEPROM_128B, NILE_EMU_EEPROM_2KB, 0, 0, NILE_EMU_EEPROM_1KB
 };
@@ -221,9 +224,9 @@ preallocate_file_end:
 }
 
 DEFINE_STRING_LOCAL(s_save_ini_start, "[Save]\n");
-DEFINE_STRING_LOCAL(s_save_ini_sram, "SRAM\n");
-DEFINE_STRING_LOCAL(s_save_ini_eeprom, "EEPROM\n");
-DEFINE_STRING_LOCAL(s_save_ini_flash, "Flash\n");
+DEFINE_STRING_LOCAL(s_save_ini_sram, "SRAM");
+DEFINE_STRING_LOCAL(s_save_ini_eeprom, "EEPROM");
+DEFINE_STRING_LOCAL(s_save_ini_flash, "Flash");
 DEFINE_STRING_LOCAL(s_save_ini_entry, "%s=%ld|%s%s\n");
 
 uint8_t launch_backup_save_data(void) {
@@ -261,6 +264,9 @@ uint8_t launch_backup_save_data(void) {
             else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = 2;
             else if (!strcasecmp(key, s_save_ini_flash)) file_type = 3;
             if (file_type != 0) {
+                // TODO: Fix EEPROM/Flash restore
+                if (file_type != 1) continue;
+
                 key = (char*) strchr(value, '|');
                 if (key != NULL) value = key + 1;
 
@@ -294,6 +300,28 @@ uint8_t launch_backup_save_data(void) {
     f_close(&fp);
     strcpy(buffer, s_path_save_ini);
     f_unlink(buffer);
+    return result;
+}
+
+static FRESULT launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
+    uint16_t w;
+    FRESULT result;
+
+    ws_eeprom_handle_t h = ws_eeprom_handle_cartridge(eeprom_bits[mode]);
+    outportb(IO_NILE_EMU_CNT, eeprom_emu_control[mode]);
+
+    ws_eeprom_write_unlock(h);
+    for (uint16_t i = 0; i < words; i++) {
+         result = f_read(fp, &w, 2, NULL);
+         if (result != FR_OK)
+             break;
+         if (!ws_eeprom_write_word(h, i << 1, w)) {
+             result = FR_TIMEOUT;
+             break;
+         }
+    }
+    ws_eeprom_write_lock(h);
+
     return result;
 }
 
@@ -343,7 +371,14 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         if (result != FR_OK)
             return result;
 
-        // TODO: copy
+        // copy data to EEPROM
+        result = launch_read_eeprom(&fp, meta->footer.save_type >> 4,
+            f_size(&fp) >> 1);
+        if (result != FR_OK) {
+            f_close(&fp);
+            return result;
+        }
+
         result = f_close(&fp);
         if (result != FR_OK)
             return result;
