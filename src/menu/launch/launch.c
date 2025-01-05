@@ -333,12 +333,11 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     uint8_t result;
 
     bool has_save_data = meta->sram_size || meta->eeprom_size || meta->flash_size;
-    if (!has_save_data)
-        return FR_OK;
 
     ui_layout_clear(0);
     ui_show();
-    ui_draw_centered_status("Card -> Save");
+    if (has_save_data)
+	    ui_draw_centered_status("Card -> Save");
 
     // extension-editable version of "path"
     strcpy(dst_path, path);
@@ -407,8 +406,17 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         *(++dst_cwd_end) = 0;
     }
 
-    // generate .INI file
     strcpy(tmp_buf, s_path_save_ini);
+
+    if (!has_save_data) {
+        // remove .INI file, if it exists
+        result = f_unlink(tmp_buf);
+        if (result != FR_OK && result != FR_NO_FILE)
+            return result;
+        return FR_OK;
+    }
+
+    // generate .INI file
     result = f_open(&fp, tmp_buf, FA_CREATE_ALWAYS | FA_WRITE);
     if (result != FR_OK)
         return result;
