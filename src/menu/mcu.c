@@ -76,3 +76,15 @@ FRESULT mcu_reset(bool flash) {
 
 	return FR_OK;
 }
+
+bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen) {
+	if (!nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU))
+		return false;
+	if (!nile_spi_tx_sync_block(&cmd, 2))
+		return false;
+	if (buflen) {
+		if (!nile_spi_tx_sync_block(buffer, buflen))
+			return false;
+	}
+	return true;
+}

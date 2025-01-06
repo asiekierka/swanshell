@@ -24,6 +24,7 @@
 #include <nilefs.h>
 #include "launch.h"
 #include "bootstub.h"
+#include "mcu.h"
 #include "strings.h"
 #include "../../build/menu/build/bootstub_bin.h"
 #include "../../build/menu/assets/menu/bootstub_tiles.h"
@@ -99,6 +100,15 @@ static const uint8_t __far eeprom_bits[] = {
 static const uint8_t __far eeprom_emu_control[] = {
     0, NILE_EMU_EEPROM_128B, NILE_EMU_EEPROM_2KB, 0, 0, NILE_EMU_EEPROM_1KB
 };
+static const uint8_t __far eeprom_mcu_control[] = {
+    0, 2, 6, 0, 0, 5
+};
+typedef enum {
+    SAVE_TYPE_NONE = 0,
+    SAVE_TYPE_SRAM,
+    SAVE_TYPE_EEPROM,
+    SAVE_TYPE_FLASH
+} launch_save_type_t;
 
 uint8_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     uint8_t tmp[5];
@@ -259,13 +269,13 @@ uint8_t launch_backup_save_data(void) {
         } else if (ini_result == INI_NEXT_CATEGORY) {
             // TODO: Pay attention to this.
         } else if (ini_result == INI_NEXT_KEY_VALUE) {
-            uint8_t file_type = 0;
-            if (!strcasecmp(key, s_save_ini_sram)) file_type = 1;
-            else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = 2;
-            else if (!strcasecmp(key, s_save_ini_flash)) file_type = 3;
-            if (file_type != 0) {
+            uint8_t file_type = SAVE_TYPE_NONE;
+            if (!strcasecmp(key, s_save_ini_sram)) file_type = SAVE_TYPE_SRAM;
+            else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = SAVE_TYPE_EEPROM;
+            else if (!strcasecmp(key, s_save_ini_flash)) file_type = SAVE_TYPE_FLASH;
+            if (file_type != SAVE_TYPE_NONE) {
                 // TODO: Fix EEPROM/Flash restore
-                if (file_type != 1) continue;
+                if (file_type != SAVE_TYPE_SRAM) continue;
 
                 key = (char*) strchr(value, '|');
                 if (key != NULL) value = key + 1;
@@ -277,15 +287,23 @@ uint8_t launch_backup_save_data(void) {
                     return result;
                 }
 
-                if (file_type == 1) {
+                if (file_type == SAVE_TYPE_SRAM) {
                     outportb(IO_CART_FLASH, 0);
                     result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), NULL);
-                } else if (file_type == 2) {
-                    // TODO: EEPROM restore          
-                    result = FR_OK;          
-                } else if (file_type == 3) {
-                    // Flash restore
-                    result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp), NULL);
+                } else if (file_type == SAVE_TYPE_EEPROM) {
+                    // TODO: EEPROM restore
+                    result = FR_OK;
+                } else if (file_type == SAVE_TYPE_FLASH) {
+                    uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
+                    outportw(IO_BANK_2003_ROM0, (f_size(&save_fp) - 1) >> 16);
+                    memcpy(buffer, MK_FP(0x1000, 0xFFF0), 16);
+                    outportw(IO_BANK_2003_ROM0, prev_bank);
+                    // Only restore flash if contents appear bootable
+                    if (((uint8_t) buffer[0]) == 0xEA && ((uint8_t) buffer[4]) > 0x10) {
+                        result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp), NULL);
+                    } else {
+                        result = FR_INT_ERR;
+                    }
                 }
 
                 f_close(&save_fp);
@@ -337,7 +355,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     ui_layout_clear(0);
     ui_show();
     if (has_save_data)
-	    ui_draw_centered_status("Card -> Save");
+        ui_draw_centered_status("Card -> Save");
 
     // extension-editable version of "path"
     strcpy(dst_path, path);
@@ -369,6 +387,11 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL);
         if (result != FR_OK)
             return result;
+
+        // initialize MCU
+        if (!mcu_native_set_eeprom_type(eeprom_mcu_control[meta->footer.save_type >> 4]))
+            return FR_INT_ERR;
+	mcu_native_finish();
 
         // copy data to EEPROM
         result = launch_read_eeprom(&fp, meta->footer.save_type >> 4,
@@ -505,7 +528,11 @@ uint8_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
         bootstub_data->prog_emu_cnt = 0;
         bootstub_data->prog_pow_cnt = inportb(IO_NILE_POW_CNT);
     }
-    
+
+    // Switch MCU to relevant mode
+    mcu_native_set_mode(meta->eeprom_size ? 1 : 2);
+    mcu_native_finish();
+
     // Jump to bootstub
     memcpy((void*) 0x00c0, bootstub, bootstub_size);
     asm volatile("ljmp $0x0000,$0x00c0\n");
