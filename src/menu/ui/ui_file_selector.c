@@ -159,11 +159,11 @@ void ui_file_selector(void) {
     bool reinit_ui = true;
     bool reinit_dirs = true;
 
-    config.style = UI_SELECTOR_STYLE_16;
+rescan_directory:
     config.draw = ui_file_selector_draw;
     config.key_mask = KEY_A | KEY_B | KEY_START;
+    config.style = settings.file_view;
 
-rescan_directory:
     if (reinit_ui) {
         ui_layout_bars();
     }

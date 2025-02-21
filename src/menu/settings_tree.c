@@ -16,12 +16,14 @@
  */
 
 #include <string.h>
+#include "lang_gen.h"
 #include "settings.h"
 #include "lang.h"
 #include "strings.h"
 
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
+DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
 DEFINE_STRING_LOCAL(s_language, "Language");
 
 settings_t settings;
@@ -66,13 +68,37 @@ static const setting_t __far setting_file_sort_order = {
     }
 };
 
+static const uint16_t __wf_rom settings_file_view_name_table[] = {
+    LK_SETTINGS_FILE_VIEW_LARGE,
+    LK_SETTINGS_FILE_VIEW_SMALL
+};
+
+static void settings_file_view_name(uint16_t value, char *buf, int buf_len) {
+    strncpy(buf, lang_keys[settings_file_view_name_table[value & 1]], buf_len);
+}
+
+static const setting_t __far setting_file_view = {
+    s_file_view_key,
+    LK_SETTINGS_FILE_VIEW_KEY,
+    SETTING_TYPE_CHOICE_BYTE,
+    0,
+    NULL,
+    .choice = {
+        &settings.file_view,
+        1,
+        NULL,
+        settings_file_view_name
+    }
+};
+
 static const setting_category_t __far settings_file = {
     LK_SETTINGS_FILE_KEY,
     &settings_root,
-    2,
+    3,
     {
-        &setting_file_show_hidden,
-        &setting_file_sort_order
+        &setting_file_view,
+        &setting_file_sort_order,
+        &setting_file_show_hidden
     }
 };
 

@@ -39,6 +39,9 @@
 #define SETTING_FILE_SORT_SIZE_ASC  5
 #define SETTING_FILE_SORT_SIZE_DESC 6
 
+#define SETTING_FILE_VIEW_LARGE 0
+#define SETTING_FILE_VIEW_SMALL 1
+
 struct setting;
 
 typedef struct setting_category {
@@ -77,6 +80,7 @@ typedef struct {
     uint8_t file_flags;
     uint8_t file_sort;
     uint8_t language;
+    uint8_t file_view;
 } settings_t;
 
 extern settings_t settings;
