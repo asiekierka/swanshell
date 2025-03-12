@@ -32,9 +32,8 @@ cold_jump:
     mov bx, ax
 
     // Write bank values
-    mov al, 0x0F
-    out IO_BANK_ROM_LINEAR, al
     mov ax, 0xFFFF
+    out IO_BANK_ROM_LINEAR, al
     out IO_BANK_2003_RAM, ax
     out IO_BANK_2003_ROM0, ax
     out IO_BANK_2003_ROM1, ax
@@ -60,10 +59,15 @@ cold_jump:
     mov ax, [0x50]
     mov [0x2002], ax
 
-    // Jump to relocated stub
+    // Clear 0x00 - 0x3F
     xor ax, ax
     mov di, ax
-    mov cx, 0x1000
+    mov cx, (0x40 >> 1)
+    rep stosw
+
+    // Clear 0x58 - 0x1FFF and jump to relocated stub
+    mov di, 0x58
+    mov cx, ((0x2000 - 0x58) >> 1)
     jmp 0x2004
 
 launch_ram_asm_relocated:
@@ -103,7 +107,7 @@ launch_ram_asm_relocated:
     // Restore final registers
     mov ax, [0x2002]
     mov ds, ax
-    mov ax, [0x2000]
+    ss mov ax, [0x2000]
 
     // Fly me to the moon
 launch_ram_asm_relocated_stub:

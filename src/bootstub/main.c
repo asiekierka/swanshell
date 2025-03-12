@@ -116,7 +116,7 @@ extern void cold_jump(const void __far *ptr);
 int main(void) {
 	outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
 	// Copy boot registers for cold_jump()
-	memcpy((void*) 0x0040, &MEM_NILE_IPC->boot_regs, 24);
+	memcpy((void*) 0x0040, MEM_NILE_IPC->boot_regs.data, 24);
 	nile_tf_load_state_from_ipc();
 
 	// Read ROM, sector by sector
