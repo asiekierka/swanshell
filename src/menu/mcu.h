@@ -36,7 +36,9 @@ static inline bool mcu_native_set_eeprom_type(uint8_t type) {
 }
 
 static inline bool mcu_native_set_mode(uint8_t mode) {
-	return mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x01, mode), NULL, 0);
+	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x01, mode), NULL, 0))
+		return false;
+	return nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 }
 
 static inline bool mcu_native_finish(void) {

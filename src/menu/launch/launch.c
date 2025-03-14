@@ -393,6 +393,9 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             return FR_INT_ERR;
 	mcu_native_finish();
 
+        // switch MCU to EEPROM mode
+        mcu_native_set_mode(1);
+
         // copy data to EEPROM
         result = launch_read_eeprom(&fp, meta->footer.save_type >> 4,
             f_size(&fp) >> 1);
@@ -529,9 +532,10 @@ uint8_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
         bootstub_data->prog_pow_cnt = inportb(IO_NILE_POW_CNT);
     }
 
-    // Switch MCU to relevant mode
-    mcu_native_set_mode(meta->eeprom_size ? 1 : 2);
-    mcu_native_finish();
+    // Switch MCU to RTC mode
+    if (!meta->eeprom_size) {
+        mcu_native_set_mode(2);
+    }
 
     // Jump to bootstub
     memcpy((void*) 0x00c0, bootstub, bootstub_size);
