@@ -391,10 +391,11 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         // initialize MCU
         if (!mcu_native_set_eeprom_type(eeprom_mcu_control[meta->footer.save_type >> 4]))
             return FR_INT_ERR;
-	mcu_native_finish();
+	    mcu_native_finish();
 
         // switch MCU to EEPROM mode
         mcu_native_set_mode(1);
+        nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 
         // copy data to EEPROM
         result = launch_read_eeprom(&fp, meta->footer.save_type >> 4,
@@ -403,6 +404,8 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             f_close(&fp);
             return result;
         }
+
+        mcu_native_finish();
 
         result = f_close(&fp);
         if (result != FR_OK)
