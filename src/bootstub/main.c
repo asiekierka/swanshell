@@ -130,6 +130,7 @@ int main(void) {
 	progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 2 : 1));
 	cluster_open(bootstub_data->prog_cluster);
 	outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
+	outportb(IO_LCD_SEG, (bootstub_data->prog_flags & 1) ? LCD_SEG_ORIENT_V : LCD_SEG_ORIENT_H);
 
 	while (bank < total_banks) {
 		outportw(IO_BANK_2003_RAM, bank);
@@ -147,25 +148,27 @@ int main(void) {
 		offset = 0x0000;
 		bank++;
 	}
-    
-	outportb(IO_CART_FLASH, 0);
-	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART);
 
-    // wait for vblank before clearing registers
+	outportb(IO_CART_FLASH, 0);
+	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
+
+	// wait for vblank before clearing registers
 	while (inportb(IO_LCD_LINE) != 144)
 		;
 	// disable display and segments first
-    outportw(IO_DISPLAY_CTRL, 0);
-    outportb(IO_LCD_SEG, 0);
+	outportw(IO_DISPLAY_CTRL, 0);
+	outportb(IO_LCD_SEG, 0);
 	outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
 	// disabling POW_CNT will depower TF card, reflect that in IPC
 	MEM_NILE_IPC->tf_card_status = 0;
 	restore_cold_boot_io_state(true);
+        outportb(IO_SYSTEM_CTRL1, (inportb(IO_SYSTEM_CTRL1) & ~0xC) | (bootstub_data->prog_flags & 0xC));
 	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
-    outportb(IO_HWINT_ACK, 0xFF);
 	outportb(IO_NILE_EMU_CNT, bootstub_data->prog_emu_cnt);
 	// POW_CNT disables cart registers, so must be last
 	outportb(IO_NILE_POW_CNT, (inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET) | bootstub_data->prog_pow_cnt);
+	// jump to cartridge
+	outportb(IO_HWINT_ACK, 0xFF);
 	cold_jump(MK_FP(0xFFFF, 0x0000));
 
 error:

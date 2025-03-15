@@ -18,6 +18,7 @@ typedef struct {
     uint8_t prog_sram_mask;
     uint8_t prog_pow_cnt;
     uint8_t prog_emu_cnt;
+    uint8_t prog_flags;
 } bootstub_data_t;
 
 #define bootstub_data ((volatile bootstub_data_t*) 0x0060)

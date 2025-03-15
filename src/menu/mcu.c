@@ -68,7 +68,7 @@ FRESULT mcu_reset(bool flash) {
 			return 0xF3;
 	}
 
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 5; i++)
 		ws_busywait(50000);
 
 	nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);

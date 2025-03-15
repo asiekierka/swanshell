@@ -529,15 +529,19 @@ uint8_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
               (meta->sram_size ? NILE_POW_SRAM : 0)
             | ((meta->footer.mapper != 1 && meta->eeprom_size) ? NILE_POW_IO_2001 : 0)
             | (meta->footer.mapper != 0 ? NILE_POW_IO_2003 : 0);
+        // NOTE: 8-bit ROM bus width is currently not supported.
+        bootstub_data->prog_flags = meta->footer.flags | 0x04;
     } else {
         bootstub_data->prog_sram_mask = 7;
         bootstub_data->prog_emu_cnt = 0;
         bootstub_data->prog_pow_cnt = inportb(IO_NILE_POW_CNT);
+        bootstub_data->prog_flags = 0x04;
     }
 
     // Switch MCU to RTC mode
     if (!meta->eeprom_size) {
         mcu_native_set_mode(2);
+        mcu_native_finish();
     }
 
     // Jump to bootstub
