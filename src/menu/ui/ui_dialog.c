@@ -237,10 +237,3 @@ int16_t ui_dialog_action(ui_dialog_config_t *config, uint8_t selected_button) {
 
     return UI_DIALOG_ACTION_BACK;
 }
-
-void ui_dialog_error_handle(int16_t error) {
-    if (!error) return;
-    char error_name_buffer[48];
-    error_to_string_buffer(error, error_name_buffer, sizeof(error_name_buffer));
-
-}

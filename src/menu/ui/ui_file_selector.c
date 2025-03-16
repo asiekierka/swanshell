@@ -208,15 +208,17 @@ rescan_directory:
                         // Error
                         ui_error_handle(result, NULL, 0);
                         reinit_ui = true;
+                        goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_bmp)) {
                         ui_bmpview(path);
-                        reinit_ui = true;
                     } else if (!strcasecmp(ext, s_file_ext_wav)) {
                         ui_wavplay(path);
                         reinit_ui = true;
+                        goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_vgm)) {
                         ui_vgmplay(path);
                         reinit_ui = true;
+                        goto rescan_directory;
                     }
                 }
             }
