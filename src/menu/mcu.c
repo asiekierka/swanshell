@@ -23,7 +23,7 @@
 #include "lang.h"
 #include "strings.h"
 #include "ui/ui.h"
-#include "ui/ui_dialog.h"
+#include "ui/ui_popup_dialog.h"
 
 DEFINE_STRING_LOCAL(s_mcu_path, "/NILESWAN/MCU.BIN");
 
@@ -32,7 +32,7 @@ int16_t mcu_reset(bool flash) {
 	uint8_t result;
 	uint16_t br;
 	uint8_t buffer[NILE_MCU_FLASH_PAGE_SIZE];
-	ui_dialog_config_t dlg = {0};
+	ui_popup_dialog_config_t dlg = {0};
 
 	strcpy(buffer, s_mcu_path);
 	result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
@@ -51,7 +51,7 @@ int16_t mcu_reset(bool flash) {
 		dlg.title = lang_keys[LK_DIALOG_UPDATING_MCU];
 		dlg.progress_max = pages;
 
-		ui_dialog_draw(&dlg);
+		ui_popup_dialog_draw(&dlg);
 		ui_show();
 
 		if (!nile_mcu_boot_erase_memory(0, pages))
@@ -75,7 +75,7 @@ int16_t mcu_reset(bool flash) {
 			}
 
 			dlg.progress_step = i+1;
-			ui_dialog_draw_update(&dlg);
+			ui_popup_dialog_draw_update(&dlg);
 		}
 
 		if (!nile_mcu_boot_jump(NILE_MCU_FLASH_START))
@@ -87,7 +87,7 @@ int16_t mcu_reset(bool flash) {
 
 	if (flash) {
 		ui_hide();
-		ui_dialog_clear(&dlg);
+		ui_popup_dialog_clear(&dlg);
 	}
 
 	nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);

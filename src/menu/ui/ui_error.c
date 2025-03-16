@@ -20,12 +20,12 @@
 #include "errors.h"
 #include "lang.h"
 #include "ui/ui.h"
-#include "ui_dialog.h"
+#include "ui_popup_dialog.h"
 #include "ui_error.h"
 
 int16_t ui_error_handle(int16_t error, const char __far *title, uint16_t flags) {
     char error_name_buffer[48];
-    ui_dialog_config_t dlg = {0};
+    ui_popup_dialog_config_t dlg = {0};
 
     if (!error) return 0;
     error_to_string_buffer(error, error_name_buffer, sizeof(error_name_buffer));
@@ -37,9 +37,9 @@ int16_t ui_error_handle(int16_t error, const char __far *title, uint16_t flags) 
         dlg.title = error_name_buffer;
     }
     dlg.buttons[0] = LK_OK;
-    ui_dialog_draw(&dlg);
+    ui_popup_dialog_draw(&dlg);
     ui_show();
-    ui_dialog_action(&dlg, 0);
+    ui_popup_dialog_action(&dlg, 0);
 
     return 0;
 }

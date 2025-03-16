@@ -32,7 +32,7 @@
 #include "../../build/menu/assets/menu/bootstub_tiles.h"
 #include "lang.h"
 #include "ui/ui.h"
-#include "ui/ui_dialog.h"
+#include "ui/ui_popup_dialog.h"
 #include "util/file.h"
 #include "util/ini.h"
 
@@ -249,7 +249,7 @@ int16_t launch_backup_save_data(void) {
     char *key, *value;
     ini_next_result_t ini_result;
     int16_t result;
-    ui_dialog_config_t dlg = {0};
+    ui_popup_dialog_config_t dlg = {0};
 
     strcpy(buffer, s_path_save_ini);
     result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
@@ -260,7 +260,7 @@ int16_t launch_backup_save_data(void) {
         return result;
 
     dlg.title = lang_keys[LK_DIALOG_STORE_SAVE];
-    ui_dialog_draw(&dlg);
+    ui_popup_dialog_draw(&dlg);
     ui_show();
 
     while (true) {
@@ -324,7 +324,7 @@ int16_t launch_backup_save_data(void) {
     strcpy(buffer, s_path_save_ini);
     f_unlink(buffer);
 launch_backup_save_data_return_result:
-    ui_dialog_clear(&dlg);
+    ui_popup_dialog_clear(&dlg);
     return result;
 }
 
@@ -356,13 +356,13 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     char tmp_buf[20];
     FIL fp;
     int16_t result;
-    ui_dialog_config_t dlg = {0};
+    ui_popup_dialog_config_t dlg = {0};
 
     bool has_save_data = meta->sram_size || meta->eeprom_size || meta->flash_size;
 
     if (has_save_data) {
         dlg.title = lang_keys[LK_DIALOG_PREPARE_SAVE];
-        ui_dialog_draw(&dlg);
+        ui_popup_dialog_draw(&dlg);
     }
 
     // extension-editable version of "path"
@@ -504,7 +504,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 launch_restore_save_data_ini_end:
     result = result || f_close(&fp);
 launch_restore_save_data_return_result:
-    ui_dialog_clear(&dlg);
+    ui_popup_dialog_clear(&dlg);
     return result;
 }
 
