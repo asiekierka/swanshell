@@ -71,6 +71,8 @@ static uint16_t bank_count;
 static uint16_t bank_count_max;
 static uint16_t progress_pos;
 
+#define PROGRESS_BAR_Y 13
+
 static void progress_init(uint16_t graphic, uint16_t max_value) {
 	if (ws_system_color_active()) {
 		MEM_COLOR_PALETTE(0)[0] = 0xFFF;
@@ -82,25 +84,34 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 		outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(0, 7, 5, 2));
 	}
 
+	// Initialize screen 1
     outportw(IO_SCR1_SCRL_X, 0);
-	outportb(IO_SCR_BASE, SCR1_BASE(SCREEN));
 	ws_screen_fill_tiles(SCREEN, 0x120, 0, 0, 28, 18);
 	for (int i = 0; i < 12; i++) {
 		ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i, (i & 3) + 12, (i >> 2) + 7);
 	}
-	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE);
+
+	// Initialize screen 2
+	ws_screen_fill_tiles(SCREEN, ((uint8_t) '-') | 0x100, 0, 31, 28, 1);
+	outportw(IO_SCR2_SCRL_X, ((31 - PROGRESS_BAR_Y) << 11));
+	outportw(IO_SCR2_WIN_X1, (6 | (PROGRESS_BAR_Y << 8)) << 3);
+	outportw(IO_SCR2_WIN_X2, ((6 | ((PROGRESS_BAR_Y + 1) << 8)) << 3) - 0x101);
+
+	// Show screens
+	outportb(IO_SCR_BASE, SCR1_BASE(SCREEN) | SCR2_BASE(SCREEN));
+	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE | DISPLAY_SCR2_WIN_INSIDE);
 
 	bank_count = 0;
 	bank_count_max = max_value;
 	progress_pos = 0;
+
+	// 
 }
 
 static void progress_tick(void) {
-	uint16_t progress_end = ((++bank_count) << 4) / bank_count_max;
-	if (progress_end > 16) progress_end = 16;
-	for (; progress_pos < progress_end; progress_pos++) {
-		ws_screen_put_tile(SCREEN, ((uint8_t) '-') | 0x100, 6 + progress_pos, 13);
-	}
+	uint16_t progress_end = ((uint32_t)(++bank_count) << 7) / bank_count_max;
+	if (progress_end > 128) progress_end = 128;
+	outportb(IO_SCR2_WIN_X2, (6 << 3) + progress_end - 1);
 }
 
 /* === Hardware configuration === */
