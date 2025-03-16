@@ -26,7 +26,8 @@
     .global font8_bitmap
     .balign 2
 font8_bitmap:
-    
+
+.word 8 // height
 .reloc ., R_386_SEG16, font8_bitmap_0
 .word 0
 .reloc ., R_386_SEG16, font8_bitmap_1

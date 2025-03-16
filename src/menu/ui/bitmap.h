@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <wonderful.h>
 
-// Expected layout:
+// Expected layout (tile order ABCDEFGH):
 //
 // AE ; width = 2
 // BF ; height = 4
@@ -71,10 +71,14 @@ void bitmap_vline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uin
 extern const uint16_t __far font8_bitmap[];
 extern const uint16_t __far font16_bitmap[];
 
+#define BITMAPFONT_CHAR_GAP 1
+
 void bitmapfont_set_active_font(const uint16_t __far *font);
 uint16_t bitmapfont_get_char_width(uint32_t ch);
 uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch);
 uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width);
 uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t max_width);
+void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height);
+uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width);
 
 #endif /* __BITMAP_H__ */

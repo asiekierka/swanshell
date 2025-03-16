@@ -144,16 +144,18 @@ void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
     }
 }
 
-#define PER_CHAR_GAP 1
-
 void bitmapfont_set_active_font(const uint16_t __far *font) {
     font_bitmap = font;
+}
+
+static inline uint16_t bitmapfont_get_height(void) {
+    return font_bitmap[0];
 }
 
 static const uint16_t __far* bitmapfont_find_char(uint32_t ch) {
     if (ch > 0xFFFFFF)
         return NULL;
-    uint16_t ch_high = ch >> 8;
+    uint16_t ch_high = (ch >> 8) + 1;
     if (ch_high >= FONT_BITMAP_SIZE)
         return NULL;
 
@@ -185,14 +187,17 @@ static const uint16_t __far* bitmapfont_find_char(uint32_t ch) {
     return NULL;
 }
 
-uint16_t bitmapfont_get_char_width(uint32_t ch) {
-    const uint8_t __far* data = (const uint8_t __far*) bitmapfont_find_char(ch);
+static inline uint16_t bitmapfont_get_char_width_a(const uint16_t __far* data16) {
+    const uint8_t __far *data = (const uint8_t __far*) data16;
     if (data == NULL) return 0;
-    return (data[2] & 0xF) + (data[3] & 0xF);
+    return (data[2] & 0xF) + (data[3] & 0xF);    
 }
 
-uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch) {
-    const uint16_t __far* data = bitmapfont_find_char(ch);
+uint16_t bitmapfont_get_char_width(uint32_t ch) {
+    return bitmapfont_get_char_width_a(bitmapfont_find_char(ch));
+}
+
+static uint16_t bitmapfont_draw_char_a(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* data) {
     if (data == NULL) return 0;
 
     uint16_t x = data[1] & 0xF;
@@ -253,15 +258,23 @@ uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yo
     return x + w;
 }
 
+uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch) {
+    return bitmapfont_draw_char_a(bitmap, xofs, yofs, bitmapfont_find_char(ch));
+}
+
 uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width) {
     uint32_t ch;
     uint16_t width = 0;
+    
     while ((ch = utf8_decode_char(&str)) != 0) {
-        width += bitmapfont_get_char_width(ch) + PER_CHAR_GAP;
-        if (width - PER_CHAR_GAP >= max_width)
-            return width - PER_CHAR_GAP;
+        uint16_t new_width = width + bitmapfont_get_char_width(ch);
+        if (new_width > max_width)
+            return width - BITMAPFONT_CHAR_GAP;
+
+        width = new_width + BITMAPFONT_CHAR_GAP;
     }
-    return width;
+
+    return width - BITMAPFONT_CHAR_GAP;
 }
 
 uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t max_width) {
@@ -269,11 +282,111 @@ uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t 
     uint16_t width = 0;
 
     while ((ch = utf8_decode_char(&str)) != 0) {
-        uint16_t w = bitmapfont_draw_char(bitmap, xofs, yofs, ch) + PER_CHAR_GAP;
+        const uint16_t __far* data = bitmapfont_find_char(ch);
+        uint16_t new_width = width + bitmapfont_get_char_width_a(data);
+        if (new_width > max_width)
+            return width - BITMAPFONT_CHAR_GAP;
+
+        uint16_t w = bitmapfont_draw_char_a(bitmap, xofs, yofs, data) + BITMAPFONT_CHAR_GAP;
         xofs += w;
         width += w;
-        if (width - PER_CHAR_GAP >= max_width)
-            return width - PER_CHAR_GAP;
     }
-    return width;
+
+    return width - BITMAPFONT_CHAR_GAP;
+}
+
+void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height) {
+    uint32_t ch;
+    uint16_t line_width = 0;
+    uint16_t max_width = 0;
+    const char __far* break_str = NULL;
+    uint16_t break_width = 0;
+
+    *height = 0;
+    while ((ch = utf8_decode_char(&str)) != 0) {
+repeat_char:
+        ;
+        bool is_soft_break = ch == ' ';
+        bool is_hard_break = ch == '\n';
+        if (is_soft_break && !line_width) {
+            continue;
+        }
+        uint16_t new_line_width = line_width + bitmapfont_get_char_width(ch);
+        if (is_soft_break || is_hard_break) {
+            break_str = str;
+            break_width = line_width;
+        }
+        if (new_line_width > *width || is_hard_break) {
+            if (break_str != NULL) {
+                str = break_str;
+                line_width = break_width;
+                break_str = NULL;
+                ch = 0;
+            }
+            if (max_width < line_width) {
+                max_width = line_width;
+            }
+            line_width = 0;
+            *height += bitmapfont_get_height();
+            if (ch) {
+                goto repeat_char;
+            }
+        } else {
+            line_width = new_line_width + BITMAPFONT_CHAR_GAP;
+        }
+    }
+    if (line_width) {
+        if (max_width < line_width) {
+            max_width = line_width;
+        }
+        *height += bitmapfont_get_height();    
+    }
+    *width = line_width;
+}
+
+uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width) {
+    uint32_t ch;
+    uint16_t line_width = 0;
+    const char __far* start_str = str;
+    const char __far* prev_str = str;
+    const char __far* break_str = NULL;
+    uint16_t start_yofs = yofs;
+
+    while (true) {
+        ch = utf8_decode_char(&str);
+        bool is_soft_break = ch == ' ';
+        bool is_hard_break = ch == '\n';
+        if (is_soft_break && !line_width) {
+            continue;
+        }
+        uint16_t new_line_width = line_width + bitmapfont_get_char_width(ch);
+        if (is_soft_break || is_hard_break) {
+            break_str = str;
+        }
+        if (new_line_width > width || is_hard_break || !ch) {
+            if (!ch) {
+                break_str = str;
+            } else if (break_str == NULL) {
+                break_str = prev_str;
+            }
+            uint16_t local_xofs = xofs;
+            while (start_str < break_str) {
+                ch = utf8_decode_char(&start_str);
+                local_xofs += bitmapfont_draw_char(bitmap, local_xofs, yofs, ch) + BITMAPFONT_CHAR_GAP;
+            }
+            str = break_str;
+            start_str = break_str;
+            prev_str = break_str;
+            break_str = NULL;
+            line_width = 0;
+            yofs += bitmapfont_get_height();
+            if (!ch) {
+                break;
+            }
+        } else {
+            line_width = new_line_width + BITMAPFONT_CHAR_GAP;
+            prev_str = str;
+        }
+    }
+    return yofs - start_yofs;
 }

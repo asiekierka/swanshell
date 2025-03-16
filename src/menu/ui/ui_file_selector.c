@@ -115,7 +115,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     uint8_t icon_idx = 1;
     if (fno->fno.fattrib & AM_DIR) {
         icon_idx = 0;
-        bitmapfont_draw_string(&ui_bitmap, x, y, "/", 255);
+        bitmapfont_draw_char(&ui_bitmap, x + BITMAPFONT_CHAR_GAP, y, '/');
     } else {
         const char __far* ext = fno->fno.fname + fno->extension_loc;
         if (ext != NULL) {

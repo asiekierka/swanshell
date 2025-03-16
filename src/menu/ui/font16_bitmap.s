@@ -27,6 +27,7 @@
     .balign 2
 font16_bitmap:
     
+.word 16 // height
 .reloc ., R_386_SEG16, font16_bitmap_0
 .word 0
 .reloc ., R_386_SEG16, font16_bitmap_1
