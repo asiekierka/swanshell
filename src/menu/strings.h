@@ -40,4 +40,6 @@ DEFINE_STRING(s_file_ext_rtc, ".rtc");
 DEFINE_STRING(s_path_save_ini, "/NILESWAN/SAVE.INI");
 DEFINE_STRING(s_path_config_ini, "/NILESWAN/CONFIG.INI");
 
+DEFINE_STRING(s_error_unknown, "Error %d");
+
 #endif /* _STRINGS_H_ */

@@ -19,7 +19,7 @@
 #include <ws.h>
 #include "file.h"
 
-uint8_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
+int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
     uint16_t prev_bank = inportw(IO_BANK_2003_RAM);
     
     uint16_t lbr;
@@ -31,7 +31,7 @@ uint8_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
         uint16_t to_read_part;
         to_read_part = btr >= 0x8000 ? 0x8000 : btr;
         btr -= to_read_part;
-        uint8_t result = f_read(fp, MK_FP(0x1000, 0x0000), to_read_part, &lbr);
+        int16_t result = f_read(fp, MK_FP(0x1000, 0x0000), to_read_part, &lbr);
         if (result != FR_OK)
             return result;
         if (br != NULL)
@@ -52,7 +52,7 @@ uint8_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
     return FR_OK;
 }
 
-uint8_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
+int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
     uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
     uint16_t lbw;
     if (bw != NULL)
@@ -63,7 +63,7 @@ uint8_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
         uint16_t to_read_part;
         to_read_part = btw >= 0x8000 ? 0x8000 : btw;
         btw -= to_read_part;
-        uint8_t result = f_write(fp, MK_FP(0x2000, 0x0000), to_read_part, &lbw);
+        int16_t result = f_write(fp, MK_FP(0x2000, 0x0000), to_read_part, &lbw);
         if (result != FR_OK)
             return result;
         if (bw != NULL)
@@ -84,7 +84,7 @@ uint8_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
     return FR_OK;
 }
 
-uint8_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
+int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
     // Reading directly from SRAM would conflict with the SPI buffer.
     uint8_t stack_buffer[16];
     uint8_t *buffer;

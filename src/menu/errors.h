@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -14,20 +14,26 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
-
-#ifndef _FILE_H_
-#define _FILE_H_
-
+ 
+#ifndef _ERRORS_H_
+#define _ERRORS_H_
+ 
 #include <stdbool.h>
 #include <stdint.h>
 #include <wonderful.h>
+
+// Negative error codes are reserved for libc errors
+#include <errno.h>
+
+// Positive error codes < 0x80 are reserved for FatFs
 #include <nilefs.h>
 
-// currently defined in launch.c
-extern uint8_t sector_buffer[2048];
+// Positive error codes >= 0x80 are for swanshell
+#define ERR_MCU_COMM_FAILED 0x80
+#define ERR_SAVE_CORRUPT 0x81
 
-int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br);
-int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw);
-int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw);
+const char __far* error_to_string(int16_t value);
+void error_to_string_buffer(int16_t value, char *buffer, size_t buflen);
 
-#endif /* _FILE_H_ */
+#endif /* _LANG_H_ */
+ 

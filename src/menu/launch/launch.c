@@ -24,6 +24,7 @@
 #include <nilefs.h>
 #include "launch.h"
 #include "bootstub.h"
+#include "errors.h"
 #include "lang_gen.h"
 #include "mcu.h"
 #include "strings.h"
@@ -113,13 +114,13 @@ typedef enum {
     SAVE_TYPE_FLASH
 } launch_save_type_t;
 
-uint8_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
+int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     uint8_t tmp[5];
     uint16_t br;
     bool elisa_found = false;
 
     FIL f;
-    uint8_t result = f_open(&f, path, FA_OPEN_EXISTING | FA_READ);
+    int16_t result = f_open(&f, path, FA_OPEN_EXISTING | FA_READ);
     if (result != FR_OK)
         return result;
 
@@ -159,11 +160,11 @@ uint8_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     return FR_OK;
 }
 
-static uint8_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path) {
+static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path) {
     uint8_t stack_buffer[16];
     uint8_t *buffer;
     uint16_t buffer_size;
-    uint8_t result, result2;
+    int16_t result, result2;
     uint16_t bw;
 
     if (ws_system_color_active()) {
@@ -242,12 +243,12 @@ DEFINE_STRING_LOCAL(s_save_ini_eeprom, "EEPROM");
 DEFINE_STRING_LOCAL(s_save_ini_flash, "Flash");
 DEFINE_STRING_LOCAL(s_save_ini_entry, "%s=%ld|%s%s\n");
 
-uint8_t launch_backup_save_data(void) {
+int16_t launch_backup_save_data(void) {
     FIL fp, save_fp;
     char buffer[FF_LFN_BUF + 4];
     char *key, *value;
     ini_next_result_t ini_result;
-    uint8_t result;
+    int16_t result;
     ui_dialog_config_t dlg = {0};
 
     strcpy(buffer, s_path_save_ini);
@@ -306,7 +307,7 @@ uint8_t launch_backup_save_data(void) {
                     if (((uint8_t) buffer[0]) == 0xEA && ((uint8_t) buffer[4]) > 0x10) {
                         result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp), NULL);
                     } else {
-                        result = FR_INT_ERR;
+                        result = ERR_SAVE_CORRUPT;
                     }
                 }
 
@@ -327,9 +328,9 @@ launch_backup_save_data_return_result:
     return result;
 }
 
-static FRESULT launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
+static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
     uint16_t w;
-    FRESULT result;
+    int16_t result;
 
     ws_eeprom_handle_t h = ws_eeprom_handle_cartridge(eeprom_bits[mode]);
     outportb(IO_NILE_EMU_CNT, eeprom_emu_control[mode]);
@@ -349,12 +350,12 @@ static FRESULT launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
     return result;
 }
 
-uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) {
+int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) {
     char dst_cwd[FF_LFN_BUF + 4];
     char dst_path[FF_LFN_BUF + 4];
     char tmp_buf[20];
     FIL fp;
-    uint8_t result;
+    int16_t result;
     ui_dialog_config_t dlg = {0};
 
     bool has_save_data = meta->sram_size || meta->eeprom_size || meta->flash_size;
@@ -397,7 +398,7 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
         // initialize MCU
         if (!mcu_native_set_eeprom_type(eeprom_mcu_control[meta->footer.save_type >> 4])) {
-            result = FR_INT_ERR;
+            result = ERR_MCU_COMM_FAILED;
             goto launch_restore_save_data_return_result;
         }
 	    mcu_native_finish();
@@ -504,10 +505,10 @@ launch_restore_save_data_return_result:
     return result;
 }
 
-uint8_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta) {
+int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta) {
     FILINFO fp;
     
-	uint8_t result = f_stat(path, &fp);
+	int16_t result = f_stat(path, &fp);
 	if (result != FR_OK) {
         return result;
 	}

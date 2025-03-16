@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2024, 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -44,9 +44,9 @@ typedef struct {
     uint32_t flash_size;
 } launch_rom_metadata_t;
 
-uint8_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta);
-uint8_t launch_backup_save_data(void);
-uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta);
-uint8_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta);
+int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta);
+int16_t launch_backup_save_data(void);
+int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta);
+int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta);
 
 #endif /* _LAUNCH_H_ */
