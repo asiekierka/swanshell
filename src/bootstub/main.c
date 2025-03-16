@@ -52,9 +52,9 @@ static void report_fatfs_error(uint8_t result) {
 
 	const char *error_detail = NULL;
 	switch (result) {
-		case FR_DISK_ERR: error_detail = "Disk I/O error"; break;
+		case FR_DISK_ERR: error_detail = "Storage I/O error"; break;
 		case FR_INT_ERR: case FR_INVALID_PARAMETER: error_detail = "Internal error"; break;
-		case FR_NOT_READY: error_detail = "Drive not ready"; break;
+		case FR_NOT_READY: error_detail = "Storage not ready"; break;
 		case FR_NO_FILE: case FR_NO_PATH: error_detail = "File not found"; break;
 		case FR_NO_FILESYSTEM: error_detail = "FAT filesystem not found"; break;
 	}
@@ -104,8 +104,6 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 	bank_count = 0;
 	bank_count_max = max_value;
 	progress_pos = 0;
-
-	// 
 }
 
 static void progress_tick(void) {
