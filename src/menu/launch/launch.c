@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2024, 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -24,11 +24,14 @@
 #include <nilefs.h>
 #include "launch.h"
 #include "bootstub.h"
+#include "lang_gen.h"
 #include "mcu.h"
 #include "strings.h"
 #include "../../build/menu/build/bootstub_bin.h"
 #include "../../build/menu/assets/menu/bootstub_tiles.h"
+#include "lang.h"
 #include "ui/ui.h"
+#include "ui/ui_dialog.h"
 #include "util/file.h"
 #include "util/ini.h"
 
@@ -245,6 +248,7 @@ uint8_t launch_backup_save_data(void) {
     char *key, *value;
     ini_next_result_t ini_result;
     uint8_t result;
+    ui_dialog_config_t dlg = {0};
 
     strcpy(buffer, s_path_save_ini);
     result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
@@ -254,16 +258,16 @@ uint8_t launch_backup_save_data(void) {
     if (result != FR_OK)
         return result;
 
-    ui_layout_clear(0);
+    dlg.title = lang_keys[LK_DIALOG_STORE_SAVE];
+    ui_dialog_draw(&dlg);
     ui_show();
-    ui_draw_centered_status("Save -> Card");
 
     while (true) {
         ini_result = ini_next(&fp, buffer, sizeof(buffer), &key, &value);
         if (ini_result == INI_NEXT_ERROR) {
             result = FR_INT_ERR;
             f_close(&fp);
-            return result;
+            goto launch_backup_save_data_return_result;
         } else if (ini_result == INI_NEXT_FINISHED) {
             break;
         } else if (ini_result == INI_NEXT_CATEGORY) {
@@ -284,7 +288,7 @@ uint8_t launch_backup_save_data(void) {
                 if (result != FR_OK) {
                     // TODO: Handle FR_NO_FILE by preallocating a new file.
                     f_close(&fp);
-                    return result;
+                    goto launch_backup_save_data_return_result;
                 }
 
                 if (file_type == SAVE_TYPE_SRAM) {
@@ -309,7 +313,7 @@ uint8_t launch_backup_save_data(void) {
                 f_close(&save_fp);
                 if (result != FR_OK) {
                     f_close(&fp);
-                    return result;
+                    goto launch_backup_save_data_return_result;
                 }
             }
         }
@@ -318,6 +322,8 @@ uint8_t launch_backup_save_data(void) {
     f_close(&fp);
     strcpy(buffer, s_path_save_ini);
     f_unlink(buffer);
+launch_backup_save_data_return_result:
+    ui_dialog_clear(&dlg);
     return result;
 }
 
@@ -349,13 +355,14 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     char tmp_buf[20];
     FIL fp;
     uint8_t result;
+    ui_dialog_config_t dlg = {0};
 
     bool has_save_data = meta->sram_size || meta->eeprom_size || meta->flash_size;
 
-    ui_layout_clear(0);
-    ui_show();
-    if (has_save_data)
-        ui_draw_centered_status("Card -> Save");
+    if (has_save_data) {
+        dlg.title = lang_keys[LK_DIALOG_PREPARE_SAVE];
+        ui_dialog_draw(&dlg);
+    }
 
     // extension-editable version of "path"
     strcpy(dst_path, path);
@@ -368,29 +375,31 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         strcpy(ext_loc, s_file_ext_sram);
         result = preallocate_file(dst_path, &fp, 0xFF, meta->sram_size, NULL);
         if (result != FR_OK)
-            return result;
+            goto launch_restore_save_data_return_result;
 
         // copy data to SRAM
         outportb(IO_CART_FLASH, 0);
         result = f_read_sram_banked(&fp, 0, f_size(&fp), NULL);
         if (result != FR_OK) {
             f_close(&fp);
-            return result;
+            goto launch_restore_save_data_return_result;
         }
 
         result = f_close(&fp);
         if (result != FR_OK)
-            return result;
+            goto launch_restore_save_data_return_result;
     }
     if (meta->eeprom_size != 0) {
         strcpy(ext_loc, s_file_ext_eeprom);
         result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL);
         if (result != FR_OK)
-            return result;
+            goto launch_restore_save_data_return_result;
 
         // initialize MCU
-        if (!mcu_native_set_eeprom_type(eeprom_mcu_control[meta->footer.save_type >> 4]))
-            return FR_INT_ERR;
+        if (!mcu_native_set_eeprom_type(eeprom_mcu_control[meta->footer.save_type >> 4])) {
+            result = FR_INT_ERR;
+            goto launch_restore_save_data_return_result;
+        }
 	    mcu_native_finish();
 
         // switch MCU to EEPROM mode
@@ -402,24 +411,24 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             f_size(&fp) >> 1);
         if (result != FR_OK) {
             f_close(&fp);
-            return result;
+            goto launch_restore_save_data_return_result;
         }
 
         mcu_native_finish();
 
         result = f_close(&fp);
         if (result != FR_OK)
-            return result;
+            goto launch_restore_save_data_return_result;
     }
     if (meta->flash_size != 0) {
         strcpy(ext_loc, s_file_ext_flash);
         result = preallocate_file(dst_path, &fp, 0xFF, meta->flash_size, path);
         if (result != FR_OK)
-            return result;
+            goto launch_restore_save_data_return_result;
 
         result = f_close(&fp);
         if (result != FR_OK)
-            return result;
+            goto launch_restore_save_data_return_result;
 
         // Use .flash instead of .ws/.wsc to boot on this platform.
         strcpy(path + (ext_loc - dst_path), s_file_ext_flash);
@@ -442,13 +451,14 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         result = f_unlink(tmp_buf);
         if (result != FR_OK && result != FR_NO_FILE)
             return result;
-        return FR_OK;
+        result = FR_OK;
+        goto launch_restore_save_data_return_result;
     }
 
     // generate .INI file
     result = f_open(&fp, tmp_buf, FA_CREATE_ALWAYS | FA_WRITE);
     if (result != FR_OK)
-        return result;
+        goto launch_restore_save_data_return_result;
     
     result = f_puts(s_save_ini_start, &fp) < 0 ? FR_INT_ERR : FR_OK;
     if (result != FR_OK)
@@ -489,6 +499,8 @@ uint8_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
 launch_restore_save_data_ini_end:
     result = result || f_close(&fp);
+launch_restore_save_data_return_result:
+    ui_dialog_clear(&dlg);
     return result;
 }
 

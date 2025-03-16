@@ -28,6 +28,15 @@
 
 #define SELECTOR_Y_OFFSET 8
 
+void ui_selector_clear_selection(ui_selector_config_t *config) {
+    for (int ix = 0; ix < 28; ix++) {
+        for (int iy = 0; iy < 16; iy++) {
+            uint16_t pal = 0;
+            ws_screen_put_tile(bitmap_screen2, pal | ((iy + 1) + (ix * 18)), ix, iy + 1);
+        }
+    }
+}
+
 uint16_t ui_selector(ui_selector_config_t *config) {
     char sbuf[33];
     bool full_redraw = true;

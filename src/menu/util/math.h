@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,23 +15,13 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __UI_SELECTOR_H__
-#define __UI_SELECTOR_H__
+ #ifndef _UTIL_MATH_H_
+ #define _UTIL_MATH_H_
+ 
+ #include <stdint.h>
 
-#include "ui.h"
+ #define MIN(a,b) (((a)>(b))?(b):(a))
+ #define MAX(a,b) (((a)<(b))?(b):(a))
 
-#define UI_SELECTOR_STYLE_16 0
-#define UI_SELECTOR_STYLE_8  1
-
-typedef struct ui_selector_config {
-    uint16_t offset, count;
-    uint16_t key_mask;
-    uint8_t style;
-
-    void (*draw)(struct ui_selector_config *config, uint16_t idx, uint16_t y);
-} ui_selector_config_t;
-
-void ui_selector_clear_selection(ui_selector_config_t *config);
-uint16_t ui_selector(ui_selector_config_t *config);
-
-#endif /* __UI_SELECTOR_H__ */
+ #endif /* _UTIL_MATH_H_ */
+ 

@@ -191,6 +191,7 @@ rescan_directory:
             if (fno->fno.fattrib & AM_DIR) {
                 f_chdir(path);
             } else {
+                ui_selector_clear_selection(&config);
                 if (fno->extension_loc != 255) {
                     const char __far* ext = fno->fno.fname + fno->extension_loc;
                     if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc)) {

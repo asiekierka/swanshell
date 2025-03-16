@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2024, 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -303,7 +303,8 @@ void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t 
     uint16_t break_width = 0;
 
     *height = 0;
-    while ((ch = utf8_decode_char(&str)) != 0) {
+    while (true) {
+        ch = utf8_decode_char(&str);
 repeat_char:
         ;
         bool is_soft_break = ch == ' ';
@@ -316,32 +317,32 @@ repeat_char:
             break_str = str;
             break_width = line_width;
         }
-        if (new_line_width > *width || is_hard_break) {
-            if (break_str != NULL) {
+        if (new_line_width > *width || is_hard_break || !ch) {
+            bool char_consumed = false;
+            if (new_line_width <= *width) {
+                line_width = new_line_width;
+            } else if (break_str != NULL) {
                 str = break_str;
                 line_width = break_width;
                 break_str = NULL;
-                ch = 0;
+                char_consumed = true;
             }
             if (max_width < line_width) {
                 max_width = line_width;
             }
             line_width = 0;
             *height += bitmapfont_get_height();
-            if (ch) {
+            if (!ch) {
+                break;
+            } else if (!char_consumed) {
                 goto repeat_char;
             }
         } else {
             line_width = new_line_width + BITMAPFONT_CHAR_GAP;
         }
     }
-    if (line_width) {
-        if (max_width < line_width) {
-            max_width = line_width;
-        }
-        *height += bitmapfont_get_height();    
-    }
-    *width = line_width;
+
+    *width = max_width;
 }
 
 uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width) {

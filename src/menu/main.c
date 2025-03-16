@@ -19,6 +19,7 @@
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
+#include <ws/util.h>
 #include <wsx/planar_unpack.h>
 #include <nilefs.h>
 #include "mcu.h"
@@ -75,6 +76,7 @@ void main(void) {
 	}
 
 	ui_init();
+	ui_layout_clear(0);
 	mcu_reset(true);
 	settings_load();
 	if ((result = launch_backup_save_data()) != FR_OK) {
