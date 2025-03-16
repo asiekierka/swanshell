@@ -35,7 +35,6 @@
 #define APPEND_GAP(a) ((a) = (a) + ((a)?INNER_GAP:0))
 #define APPEND_WITH_GAP(a,b) ((a) = (a) + ((a)?INNER_GAP:0) + (b))
 #define APPEND_INCLUDING_GAP(a,b) ((a) = (a) + (INNER_GAP) + (b))
-#define CENTERED_IN_BOX(xofs,width,inner_width) ((xofs) + (((width) - (inner_width)) >> 1))
 
 void ui_popup_dialog_reset(ui_popup_dialog_config_t *config) {
     config->width = 0;
@@ -66,7 +65,7 @@ static inline void ui_popup_dialog_draw_buttons(ui_popup_dialog_config_t *config
         button_width += button_w[i];
     }
 
-    uint16_t xofs = CENTERED_IN_BOX(config->x, config->width, button_width);
+    uint16_t xofs = UI_CENTERED_IN_BOX(config->x, config->width, button_width);
     if (selected == -1) {
         for (int i = 0; i < UI_POPUP_DIALOG_MAX_BUTTON_COUNT; i++) {
             if (!config->buttons[i]) break;
@@ -149,7 +148,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         config->y = (DISPLAY_HEIGHT_PX - config->height) >> 1;
     }
 
-    uint16_t inner_y = CENTERED_IN_BOX(config->y, config->height, inner_height);
+    uint16_t inner_y = UI_CENTERED_IN_BOX(config->y, config->height, inner_height);
     inner_height = 0;
 
     ui_popup_dialog_clear(config);
@@ -159,7 +158,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
     if (config->title) {
         bitmapfont_set_active_font(font16_bitmap);
         bitmapfont_draw_string_box(&ui_bitmap,
-            CENTERED_IN_BOX(config->x, config->width, title_box_width),
+            UI_CENTERED_IN_BOX(config->x, config->width, title_box_width),
             inner_y + inner_height,
             config->title, title_box_width);
             APPEND_INCLUDING_GAP(inner_height, title_box_height);
@@ -167,7 +166,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
     if (config->description) {
         bitmapfont_set_active_font(font8_bitmap);
         bitmapfont_draw_string_box(&ui_bitmap,
-            CENTERED_IN_BOX(config->x, config->width, desc_box_width),
+            UI_CENTERED_IN_BOX(config->x, config->width, desc_box_width),
             inner_y + inner_height,
             config->description, desc_box_width);
             APPEND_INCLUDING_GAP(inner_height, desc_box_height);
@@ -230,10 +229,10 @@ int16_t ui_popup_dialog_action(ui_popup_dialog_config_t *config, uint8_t selecte
             }
             if (keys_pressed & KEY_B) {
                 ui_popup_dialog_draw_buttons(config, -1);
-                return UI_POPUP_DIALOG_ACTION_BACK;
+                return UI_POPUP_ACTION_BACK;
             }
         }
     }
 
-    return UI_POPUP_DIALOG_ACTION_BACK;
+    return UI_POPUP_ACTION_BACK;
 }

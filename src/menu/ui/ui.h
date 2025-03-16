@@ -23,6 +23,10 @@
 #include <stdint.h>
 #include "bitmap.h"
 
+#define UI_CENTERED_IN_BOX(xofs,width,inner_width) ((xofs) + (((width) - (inner_width)) >> 1))
+
+#define UI_POPUP_ACTION_BACK -1
+
 extern bitmap_t ui_bitmap;
 
 void ui_init(void);

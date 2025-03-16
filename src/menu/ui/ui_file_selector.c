@@ -25,12 +25,15 @@
 #include <nilefs.h>
 #include <ws/hardware.h>
 #include "bitmap.h"
+#include "lang_gen.h"
 #include "launch/launch.h"
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
+#include "ui/ui_popup_list.h"
 #include "ui_error.h"
 #include "ui_selector.h"
+#include "ui_settings.h"
 #include "../util/input.h"
 #include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
@@ -153,6 +156,18 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     }
 }
 
+static bool ui_file_selector_options(void) {
+    ui_popup_list_config_t lst = {0};
+    lst.option[0] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
+    switch (ui_popup_list(&lst)) {
+    default:
+        return false;
+    case 0:
+        ui_settings();
+        return true;
+    }
+}
+
 void ui_file_selector(void) {
     char path[FF_LFN_BUF + 1];
 
@@ -235,9 +250,11 @@ rescan_directory:
 
         // TODO: temporary
         if (keys_pressed & KEY_START) {
-        	ui_settings();
+            ui_selector_clear_selection(&config);
+            if (ui_file_selector_options()) {
+                reinit_dirs = true;
+            }
             reinit_ui = true;
-            reinit_dirs = true;
             goto rescan_directory;
         }
     }
