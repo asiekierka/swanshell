@@ -19,6 +19,7 @@
 #include <ws.h>
 #include <nile.h>
 #include <nilefs.h>
+#include "errors.h"
 #include "lang.h"
 #include "strings.h"
 #include "ui/ui.h"
@@ -26,7 +27,7 @@
 
 DEFINE_STRING_LOCAL(s_mcu_path, "/NILESWAN/MCU.BIN");
 
-FRESULT mcu_reset(bool flash) {
+int16_t mcu_reset(bool flash) {
 	FIL fp;
 	uint8_t result;
 	uint16_t br;
@@ -40,7 +41,7 @@ FRESULT mcu_reset(bool flash) {
 
 	nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 	if (!nile_mcu_reset(flash))
-		return 0xF0;
+		return ERR_MCU_COMM_FAILED;
 
 	if (flash) {
 		uint32_t addr = NILE_MCU_FLASH_START;
@@ -54,7 +55,7 @@ FRESULT mcu_reset(bool flash) {
 		ui_show();
 
 		if (!nile_mcu_boot_erase_memory(0, pages))
-			return 0xF1;
+			return ERR_MCU_COMM_FAILED;
 
 		for (uint16_t i = 0; i < pages; i++, addr += NILE_MCU_FLASH_PAGE_SIZE) {
 			uint16_t btr = to_read < NILE_MCU_FLASH_PAGE_SIZE ? to_read : NILE_MCU_FLASH_PAGE_SIZE;
@@ -70,7 +71,7 @@ FRESULT mcu_reset(bool flash) {
 			if (!nile_mcu_boot_write_memory(addr, buffer, btr)) {
 				nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
 				f_close(&fp);
-				return 0xF2;
+				return ERR_MCU_COMM_FAILED;
 			}
 
 			dlg.progress_step = i+1;
@@ -78,7 +79,7 @@ FRESULT mcu_reset(bool flash) {
 		}
 
 		if (!nile_mcu_boot_jump(NILE_MCU_FLASH_START))
-			return 0xF3;
+			return ERR_MCU_COMM_FAILED;
 	}
 
 	for (int i = 0; i < 5; i++)

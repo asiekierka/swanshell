@@ -341,7 +341,7 @@ static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
          if (result != FR_OK)
              break;
          if (!ws_eeprom_write_word(h, i << 1, w)) {
-             result = FR_TIMEOUT;
+             result = ERR_EEPROM_COMM_FAILED;
              break;
          }
     }
@@ -404,7 +404,10 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 	    mcu_native_finish();
 
         // switch MCU to EEPROM mode
-        mcu_native_set_mode(1);
+        if (!mcu_native_set_mode(1)) {
+            result = ERR_MCU_COMM_FAILED;
+            goto launch_restore_save_data_return_result;
+        }
         nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 
         // copy data to EEPROM

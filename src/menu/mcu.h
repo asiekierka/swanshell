@@ -23,7 +23,7 @@
 #include <wonderful.h>
 #include <nile.h>
 
-FRESULT mcu_reset(bool flash);
+int16_t mcu_reset(bool flash);
 bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen);
 
 static inline bool mcu_native_set_eeprom_type(uint8_t type) {

@@ -87,7 +87,7 @@ extern settings_t settings;
 extern const setting_category_t __far settings_root;
 
 void settings_reset(void);
-FRESULT settings_load(void);
-FRESULT settings_save(void);
+int16_t settings_load(void);
+int16_t settings_save(void);
 
 #endif /* _SETTINGS_H_ */

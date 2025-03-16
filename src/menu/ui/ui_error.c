@@ -14,27 +14,32 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
-#ifndef _ERRORS_H_
-#define _ERRORS_H_
- 
+
 #include <stdbool.h>
-#include <stdint.h>
-#include <wonderful.h>
+#include <ws.h>
+#include "errors.h"
+#include "lang.h"
+#include "ui/ui.h"
+#include "ui_dialog.h"
+#include "ui_error.h"
 
-// Negative error codes are reserved for libc errors
-#include <errno.h>
+int16_t ui_error_handle(int16_t error, const char __far *title, uint16_t flags) {
+    char error_name_buffer[48];
+    ui_dialog_config_t dlg = {0};
 
-// Positive error codes < 0x80 are reserved for FatFs
-#include <nilefs.h>
+    if (!error) return 0;
+    error_to_string_buffer(error, error_name_buffer, sizeof(error_name_buffer));
 
-// Positive error codes >= 0x80 are for swanshell
-#define ERR_MCU_COMM_FAILED 0x80
-#define ERR_SAVE_CORRUPT 0x81
-#define ERR_EEPROM_COMM_FAILED 0x82
+    if (title) {
+        dlg.title = title;
+        dlg.description = error_name_buffer;
+    } else {
+        dlg.title = error_name_buffer;
+    }
+    dlg.buttons[0] = LK_OK;
+    ui_dialog_draw(&dlg);
+    ui_show();
+    ui_dialog_action(&dlg, 0);
 
-const char __far* error_to_string(int16_t value);
-void error_to_string_buffer(int16_t value, char *buffer, size_t buflen);
-
-#endif /* _LANG_H_ */
- 
+    return 0;
+}

@@ -22,10 +22,14 @@
 #include <ws/util.h>
 #include <wsx/planar_unpack.h>
 #include <nilefs.h>
+#include "lang.h"
+#include "lang_gen.h"
 #include "mcu.h"
 #include "settings.h"
 #include "ui/bitmap.h"
 #include "ui/ui.h"
+#include "ui/ui_error.h"
+#include "ui/ui_file_selector.h"
 #include "ui/ui_settings.h"
 #include "launch/launch.h"
 #include "util/input.h"
@@ -69,23 +73,17 @@ void main(void) {
 
 	// TODO: PCv2 detect
 
-	uint8_t result;
-	result = f_mount(&fs, "", 1);
-	if (result != FR_OK) {
-		while(1);
-	}
-
 	ui_init();
 	ui_layout_clear(0);
-	mcu_reset(true);
-	settings_load();
-	if ((result = launch_backup_save_data()) != FR_OK) {
-		char text[20];
-		sprintf(text, "Save restore error %d!", result);
-		bitmapfont_draw_string(&ui_bitmap, 5, 5, text, 222);
-		for(int i = 0; i < 30; i++) ws_busywait(60000);
-	}
-	ui_file_selector();
+
+	int16_t result;
+	result = f_mount(&fs, "", 1);
+	if (result) while(1) ui_error_handle(result, lang_keys[LK_ERROR_TITLE_FS_INIT], 0);
 	
+	ui_error_handle(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
+	ui_error_handle(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
+	ui_error_handle(result = launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
+	ui_file_selector();
+
 	while(1);
 }

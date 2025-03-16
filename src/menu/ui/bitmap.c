@@ -148,8 +148,12 @@ void bitmapfont_set_active_font(const uint16_t __far *font) {
     font_bitmap = font;
 }
 
-static inline uint16_t bitmapfont_get_height(void) {
+static inline uint16_t __bitmapfont_get_font_height(void) {
     return font_bitmap[0];
+}
+
+uint16_t bitmapfont_get_font_height(void) {
+    return __bitmapfont_get_font_height();
 }
 
 static const uint16_t __far* bitmapfont_find_char(uint32_t ch) {
@@ -331,7 +335,7 @@ repeat_char:
                 max_width = line_width;
             }
             line_width = 0;
-            *height += bitmapfont_get_height();
+            *height += __bitmapfont_get_font_height();
             if (!ch) {
                 break;
             } else if (!char_consumed) {
@@ -380,7 +384,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
             prev_str = break_str;
             break_str = NULL;
             line_width = 0;
-            yofs += bitmapfont_get_height();
+            yofs += __bitmapfont_get_font_height();
             if (!ch) {
                 break;
             }

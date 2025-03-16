@@ -74,6 +74,7 @@ extern const uint16_t __far font16_bitmap[];
 #define BITMAPFONT_CHAR_GAP 1
 
 void bitmapfont_set_active_font(const uint16_t __far *font);
+uint16_t bitmapfont_get_font_height(void);
 uint16_t bitmapfont_get_char_width(uint32_t ch);
 uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch);
 uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width);

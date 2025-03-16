@@ -21,23 +21,29 @@
 #include <stdint.h>
 #include <wonderful.h>
 
+#define UI_DIALOG_MAX_BUTTON_COUNT 3
 typedef struct ui_dialog_config {
     const char __far* title;
     const char __far* description;
 
     uint16_t progress_step;
     uint16_t progress_max;
+    uint16_t buttons[UI_DIALOG_MAX_BUTTON_COUNT];
 
     // Auto-filled (if width/height are zero)
     uint8_t x, y, width, height;
 
     // Auto-filled
     uint8_t progress_y;
+    uint8_t buttons_y;
 } ui_dialog_config_t;
 
 void ui_dialog_reset(ui_dialog_config_t *config);
 void ui_dialog_clear(ui_dialog_config_t *config);
 void ui_dialog_draw(ui_dialog_config_t *config);
 void ui_dialog_draw_update(ui_dialog_config_t *config);
+
+#define UI_DIALOG_ACTION_BACK -1
+int16_t ui_dialog_action(ui_dialog_config_t *config, uint8_t selected_button);
 
 #endif /* __UI_DIALOG_H__ */

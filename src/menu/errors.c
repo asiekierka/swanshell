@@ -38,6 +38,8 @@ const char __far *error_to_string(int16_t value) {
         return lang_keys[LK_ERROR_MCU_COMM_FAILED];
     case ERR_SAVE_CORRUPT:
         return lang_keys[LK_ERROR_SAVE_CORRUPT];
+    case ERR_EEPROM_COMM_FAILED:
+        return lang_keys[LK_ERROR_EEPROM_COMM_FAILED];
     default:
         return NULL;
     }

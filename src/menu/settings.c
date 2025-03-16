@@ -29,10 +29,10 @@ void settings_reset(void) {
     lang_keys = lang_keys_en;
 }
 
-static FRESULT settings_load_category(FIL *fp, const setting_category_t __far *cat, const char *key, const char *value) {
+static int16_t settings_load_category(FIL *fp, const setting_category_t __far *cat, const char *key, const char *value) {
     for (int i = 0; i < cat->entry_count; i++) {
         const setting_t __far *s = cat->entries[i];
-        FRESULT result = FR_OK;
+        int16_t result = FR_OK;
 
         if (s->type == SETTING_TYPE_CATEGORY) {
             result = settings_load_category(fp, s->category.value, key, value);
@@ -62,9 +62,9 @@ static FRESULT settings_load_category(FIL *fp, const setting_category_t __far *c
     return FR_OK;
 }
 
-FRESULT settings_load(void) {
+int16_t settings_load(void) {
     FIL fp;
-    FRESULT result;
+    int16_t result;
     char buffer[FF_LFN_BUF + 32];
     char *key, *value;
     ini_next_result_t ini_result;
@@ -100,10 +100,10 @@ settings_load_error:
 
 DEFINE_STRING_LOCAL(s_ini_entry_flag, "%s=%d\n");
 
-static FRESULT settings_save_category(FIL *fp, const setting_category_t __far *cat) {
+static int16_t settings_save_category(FIL *fp, const setting_category_t __far *cat) {
     for (int i = 0; i < cat->entry_count; i++) {
         const setting_t __far *s = cat->entries[i];
-        FRESULT result = FR_OK;
+        int16_t result = FR_OK;
 
         if (s->type == SETTING_TYPE_CATEGORY) {
             result = settings_save_category(fp, s->category.value);
@@ -123,9 +123,9 @@ static FRESULT settings_save_category(FIL *fp, const setting_category_t __far *c
     return FR_OK;
 }
 
-FRESULT settings_save(void) {
+int16_t settings_save(void) {
     FIL fp;
-    FRESULT result;
+    int16_t result;
     char tmp_buf[20];
 
     strcpy(tmp_buf, s_path_config_ini);

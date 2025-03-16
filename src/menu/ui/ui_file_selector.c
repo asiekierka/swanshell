@@ -29,6 +29,7 @@
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
+#include "ui_error.h"
 #include "ui_selector.h"
 #include "../util/input.h"
 #include "../main.h"
@@ -196,13 +197,17 @@ rescan_directory:
                     const char __far* ext = fno->fno.fname + fno->extension_loc;
                     if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc)) {
                         launch_rom_metadata_t meta;
-                        uint8_t result = launch_get_rom_metadata(path, &meta);
+                        int16_t result = launch_get_rom_metadata(path, &meta);
                         if (result == FR_OK) {
                             result = launch_restore_save_data(path, &meta);
                             if (result == FR_OK) {
                                 result = launch_rom_via_bootstub(path, &meta);
                             }
                         }
+
+                        // Error
+                        ui_error_handle(result, NULL, 0);
+                        reinit_ui = true;
                     } else if (!strcasecmp(ext, s_file_ext_bmp)) {
                         ui_bmpview(path);
                         reinit_ui = true;
