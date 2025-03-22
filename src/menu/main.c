@@ -63,6 +63,13 @@ static uint16_t bench_disk_read(uint16_t sectors) {
 	return inportw(IO_HBLANK_COUNTER) ^ 0xFFFF;
 }
 
+void fs_init(void) {
+	char blank = 0;
+	int16_t result;
+	result = f_mount(&fs, &blank, 1);
+	if (result) while(1) ui_error_handle(result, lang_keys[LK_ERROR_TITLE_FS_INIT], 0);
+}
+
 void main(void) {
 	outportb(IO_INT_NMI_CTRL, 0);
 
@@ -71,18 +78,14 @@ void main(void) {
 	ws_hwint_enable(HWINT_VBLANK);
 	cpu_irq_enable();
 
-	// TODO: PCv2 detect
-
 	ui_init();
 	ui_layout_clear(0);
 
-	int16_t result;
-	result = f_mount(&fs, "", 1);
-	if (result) while(1) ui_error_handle(result, lang_keys[LK_ERROR_TITLE_FS_INIT], 0);
-	
+	fs_init();
+
 	ui_error_handle(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
 	ui_error_handle(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
-	ui_error_handle(result = launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
+	ui_error_handle(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
 	ui_file_selector();
 
 	while(1);
