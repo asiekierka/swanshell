@@ -15,6 +15,9 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <assert.h>
+#include <nile/mcu.h>
+#include <nilefs/ff.h>
 #include <string.h>
 #include <ws.h>
 #include <nile.h>
@@ -27,32 +30,81 @@
 
 DEFINE_STRING_LOCAL(s_mcu_path, "/NILESWAN/MCU.BIN");
 
+static const uint8_t __wf_rom mcu_header_u0_v1[] = {'M', 'C', 'U', '0'};
+
+static_assert(NILE_MCU_FLASH_PAGE_SIZE == 128, "Invalid flash page size!");
+#define NILE_MCU_FLASH_FOOTER_START (NILE_MCU_FLASH_START + 262144 - NILE_MCU_FLASH_PAGE_SIZE)
+
 int16_t mcu_reset(bool flash) {
 	FIL fp;
 	uint8_t result;
 	uint16_t br;
 	uint8_t buffer[NILE_MCU_FLASH_PAGE_SIZE];
+	uint8_t read_buffer[NILE_MCU_FLASH_PAGE_SIZE];
 	ui_popup_dialog_config_t dlg = {0};
 
-	strcpy(buffer, s_mcu_path);
-	result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
-	if (result != FR_OK)
-		return result;
+	if (flash) {
+		strcpy(buffer, s_mcu_path);
+		result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
 
+		// If no file is present, assume the user did not want to update the MCU.
+		if (result == FR_NO_FILE) {
+			flash = false;
+			goto mcu_no_file;
+		}
+
+		// If the file is present, but a read issue was present, return it.
+		if (result != FR_OK)
+			return result;
+
+		// Return information about an invalid MCU.BIN format.
+		result = f_read(&fp, read_buffer, NILE_MCU_FLASH_PAGE_SIZE, &br);
+		if (result != FR_OK || memcmp(read_buffer, mcu_header_u0_v1, 4)) {
+			f_close(&fp);
+			return ERR_MCU_BIN_CORRUPT;
+		}
+
+		// TODO: It would be a good idea to also validate the file's size.
+	}
+
+mcu_no_file:
 	nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 	if (!nile_mcu_reset(flash))
 		return ERR_MCU_COMM_FAILED;
 
 	if (flash) {
+		// Compare MCU footer with MCU.BIN copy
+
+		if (!nile_mcu_boot_read_memory(NILE_MCU_FLASH_FOOTER_START, buffer, NILE_MCU_FLASH_PAGE_SIZE))
+			return ERR_MCU_COMM_FAILED;
+
+		if (!memcmp(buffer, read_buffer, NILE_MCU_FLASH_PAGE_SIZE))
+			goto mcu_compare_success;
+
+		// Initialize dialog screen
+
 		uint32_t addr = NILE_MCU_FLASH_START;
-		uint32_t to_read = f_size(&fp);
-		uint16_t pages = (f_size(&fp)+NILE_MCU_FLASH_PAGE_SIZE-1)/NILE_MCU_FLASH_PAGE_SIZE;
+		uint32_t to_read = f_size(&fp) - NILE_MCU_FLASH_PAGE_SIZE;
+		uint16_t pages = (to_read+NILE_MCU_FLASH_PAGE_SIZE-1)/NILE_MCU_FLASH_PAGE_SIZE;
 
 		dlg.title = lang_keys[LK_DIALOG_UPDATING_MCU];
-		dlg.progress_max = pages;
+		dlg.progress_max = pages + 1;
 
 		ui_popup_dialog_draw(&dlg);
 		ui_show();
+
+		// Write MCU footer
+
+		if (!nile_mcu_boot_erase_memory((NILE_MCU_FLASH_FOOTER_START - NILE_MCU_FLASH_START) / NILE_MCU_FLASH_PAGE_SIZE, 1))
+			return ERR_MCU_COMM_FAILED;
+
+		if (!nile_mcu_boot_write_memory(NILE_MCU_FLASH_FOOTER_START, read_buffer, NILE_MCU_FLASH_PAGE_SIZE))
+			return ERR_MCU_COMM_FAILED;
+
+		dlg.progress_step++;
+		ui_popup_dialog_draw_update(&dlg);
+
+		// Write MCU firmware blob
 
 		if (!nile_mcu_boot_erase_memory(0, pages))
 			return ERR_MCU_COMM_FAILED;
@@ -74,16 +126,16 @@ int16_t mcu_reset(bool flash) {
 				return ERR_MCU_COMM_FAILED;
 			}
 
-			dlg.progress_step = i+1;
+			dlg.progress_step++;
 			ui_popup_dialog_draw_update(&dlg);
 		}
 
+mcu_compare_success:
 		if (!nile_mcu_boot_jump(NILE_MCU_FLASH_START))
 			return ERR_MCU_COMM_FAILED;
 	}
 
-	for (int i = 0; i < 5; i++)
-		ws_busywait(50000);
+	ws_busywait(50000);
 
 	if (flash) {
 		ui_hide();
@@ -91,7 +143,10 @@ int16_t mcu_reset(bool flash) {
 	}
 
 	nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
-	f_close(&fp);
+
+	if (flash) {
+		f_close(&fp);
+	}
 
 	return FR_OK;
 }

@@ -20,6 +20,7 @@
 #include <nilefs/ff.h>
 #include "errors.h"
 #include "lang.h"
+#include "lang_gen.h"
 #include "strings.h"
 
 const char __far *error_to_string(int16_t value) {
@@ -40,6 +41,8 @@ const char __far *error_to_string(int16_t value) {
         return lang_keys[LK_ERROR_SAVE_CORRUPT];
     case ERR_EEPROM_COMM_FAILED:
         return lang_keys[LK_ERROR_EEPROM_COMM_FAILED];
+    case ERR_MCU_BIN_CORRUPT:
+        return lang_keys[LK_ERROR_MCU_BIN_CORRUPT];
     default:
         return NULL;
     }

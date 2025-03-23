@@ -32,6 +32,7 @@
 #define ERR_MCU_COMM_FAILED 0x80
 #define ERR_SAVE_CORRUPT 0x81
 #define ERR_EEPROM_COMM_FAILED 0x82
+#define ERR_MCU_BIN_CORRUPT 0x83
 
 const char __far* error_to_string(int16_t value);
 void error_to_string_buffer(int16_t value, char *buffer, size_t buflen);
