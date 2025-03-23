@@ -78,13 +78,15 @@ void main(void) {
 	ws_hwint_enable(HWINT_VBLANK);
 	cpu_irq_enable();
 
+	settings_reset();
+
 	ui_init();
 	ui_layout_clear(0);
 
 	fs_init();
 
-	ui_error_handle(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
 	ui_error_handle(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
+	ui_error_handle(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
 	ui_error_handle(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
 	ui_file_selector();
 
