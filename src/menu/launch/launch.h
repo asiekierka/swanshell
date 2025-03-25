@@ -38,6 +38,7 @@ typedef struct {
 } rom_footer_t;
 
 typedef struct {
+    uint32_t id;
     rom_footer_t footer;
     uint32_t sram_size;
     uint16_t eeprom_size;

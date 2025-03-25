@@ -15,6 +15,7 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <nilefs/ff.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -123,6 +124,8 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     int16_t result = f_open(&f, path, FA_OPEN_EXISTING | FA_READ);
     if (result != FR_OK)
         return result;
+
+    meta->id = f.obj.sclust;
 
     uint32_t size = f_size(&f);
     if (size == 0x80000) {
@@ -238,10 +241,12 @@ preallocate_file_end:
 }
 
 DEFINE_STRING_LOCAL(s_save_ini_start, "[Save]\n");
+DEFINE_STRING_LOCAL(s_save_ini_id, "ID");
 DEFINE_STRING_LOCAL(s_save_ini_sram, "SRAM");
 DEFINE_STRING_LOCAL(s_save_ini_eeprom, "EEPROM");
 DEFINE_STRING_LOCAL(s_save_ini_flash, "Flash");
 DEFINE_STRING_LOCAL(s_save_ini_entry, "%s=%ld|%s%s\n");
+DEFINE_STRING_LOCAL(s_save_ini_id_entry, "ID=%ld\n");
 
 int16_t launch_backup_save_data(void) {
     FIL fp, save_fp;
@@ -250,6 +255,7 @@ int16_t launch_backup_save_data(void) {
     ini_next_result_t ini_result;
     int16_t result;
     ui_popup_dialog_config_t dlg = {0};
+    uint32_t id = 0;
 
     strcpy(buffer, s_path_save_ini);
     result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
@@ -274,6 +280,11 @@ int16_t launch_backup_save_data(void) {
         } else if (ini_result == INI_NEXT_CATEGORY) {
             // TODO: Pay attention to this.
         } else if (ini_result == INI_NEXT_KEY_VALUE) {
+            if (!strcasecmp(key, s_save_ini_id)) {
+                id = atol(value);
+                continue;
+            }
+
             uint8_t file_type = SAVE_TYPE_NONE;
             if (!strcasecmp(key, s_save_ini_sram)) file_type = SAVE_TYPE_SRAM;
             else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = SAVE_TYPE_EEPROM;
@@ -468,6 +479,10 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     if (result != FR_OK)
         goto launch_restore_save_data_ini_end;
 
+    result = f_printf(&fp, s_save_ini_id_entry, meta->id) < 0 ? FR_INT_ERR : FR_OK;
+    if (result != FR_OK)
+        goto launch_restore_save_data_ini_end;
+    
     if (meta->sram_size != 0) {
         strcpy(ext_loc, s_file_ext_sram);
         result = f_printf(&fp, s_save_ini_entry,
