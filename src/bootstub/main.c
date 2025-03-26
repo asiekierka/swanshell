@@ -85,7 +85,7 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 	}
 
 	// Initialize screen 1
-    outportw(IO_SCR1_SCRL_X, 0);
+	outportw(IO_SCR1_SCRL_X, 0);
 	ws_screen_fill_tiles(SCREEN, 0x120, 0, 0, 28, 18);
 	for (int i = 0; i < 12; i++) {
 		ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i, (i & 3) + 12, (i >> 2) + 7);
@@ -146,7 +146,7 @@ int main(void) {
 		if (offset < 0x8000) {
 			progress_tick();
 			if ((result = cluster_read(MK_FP(0x1000, offset), 0x8000 - offset)) != FR_OK) {
-                 goto error;
+				goto error;
 			}
 			offset = 0x8000;
 		}
@@ -169,7 +169,9 @@ int main(void) {
 	outportb(IO_LCD_SEG, 0);
 	outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
 	// disabling POW_CNT will depower TF card, reflect that in IPC
-	MEM_NILE_IPC->tf_card_status = 0;
+	if (!(bootstub_data->prog_pow_cnt & NILE_POW_TF)) {
+		MEM_NILE_IPC->tf_card_status = 0;
+	}
 	restore_cold_boot_io_state(true);
         outportb(IO_SYSTEM_CTRL1, (inportb(IO_SYSTEM_CTRL1) & ~0xC) | (bootstub_data->prog_flags & 0xC));
 	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
