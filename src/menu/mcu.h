@@ -35,9 +35,7 @@ static inline bool mcu_native_set_eeprom_type(uint8_t type) {
 	return true;
 }
 
-static inline bool mcu_native_set_mode(uint8_t mode) {
-	return mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x01, mode), NULL, 0);
-}
+bool mcu_native_set_mode(uint8_t mode);
 
 static inline bool mcu_native_finish(void) {
 	return nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);

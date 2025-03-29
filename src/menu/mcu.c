@@ -164,3 +164,9 @@ bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen) {
 	}
 	return true;
 }
+
+bool mcu_native_set_mode(uint8_t mode) {
+	bool result = mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x01, mode), NULL, 0);
+	ws_busywait(2500);
+	return result;
+}

@@ -346,16 +346,20 @@ static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
     ws_eeprom_handle_t h = ws_eeprom_handle_cartridge(eeprom_bits[mode]);
     outportb(IO_NILE_EMU_CNT, eeprom_emu_control[mode]);
 
+    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
     ws_eeprom_write_unlock(h);
     for (uint16_t i = 0; i < words; i++) {
+         nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
          result = f_read(fp, &w, 2, NULL);
          if (result != FR_OK)
              break;
+         nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
          if (!ws_eeprom_write_word(h, i << 1, w)) {
              result = ERR_EEPROM_COMM_FAILED;
              break;
          }
     }
+    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
     ws_eeprom_write_lock(h);
 
     return result;
@@ -419,7 +423,6 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             result = ERR_MCU_COMM_FAILED;
             goto launch_restore_save_data_return_result;
         }
-        nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 
         // copy data to EEPROM
         result = launch_read_eeprom(&fp, meta->footer.save_type >> 4,
