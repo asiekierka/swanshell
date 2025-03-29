@@ -19,6 +19,7 @@
 #define _MCU_H_
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <wonderful.h>
 #include <nile.h>
@@ -26,11 +27,36 @@
 int16_t mcu_reset(bool flash);
 bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen);
 
-static inline bool mcu_native_set_eeprom_type(uint8_t type) {
+static inline bool mcu_native_save_id_set(uint32_t id) {
+	uint8_t tmp;
+	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x16, 0), &id, 4))
+		return false;
+	if (!nile_mcu_native_recv_cmd(&tmp, 1))
+		return false;
+	return true;
+}
+
+static inline bool mcu_native_save_id_get(uint32_t *id) {
+	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x17, 0), NULL, 0))
+		return false;
+	if (!nile_mcu_native_recv_cmd(&id, 4))
+		return false;
+	return true;
+}
+
+static inline bool mcu_native_eeprom_set_type(uint8_t type) {
 	uint8_t tmp;
 	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x10, type), NULL, 0))
 		return false;
 	if (!nile_mcu_native_recv_cmd(&tmp, 1))
+		return false;
+	return true;
+}
+
+static inline bool mcu_native_eeprom_read_data(uint8_t *buffer, uint16_t offset, uint16_t words) {
+	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x12, words), &offset, 2))
+		return false;
+	if (!nile_mcu_native_recv_cmd(buffer, words * 2))
 		return false;
 	return true;
 }

@@ -137,7 +137,8 @@ mcu_compare_success:
 			return ERR_MCU_COMM_FAILED;
 	}
 
-	ws_busywait(50000);
+	for (int i = 0; i < 5; i++)
+		ws_busywait(50000);
 
 	if (flash) {
 		ui_hide();

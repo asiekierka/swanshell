@@ -17,9 +17,11 @@
 
 #include <nilefs/ff.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
+#include <ws/util.h>
 #include <wsx/lzsa.h>
 #include <nile.h>
 #include <nilefs.h>
@@ -240,6 +242,53 @@ preallocate_file_end:
     return result;
 }
 
+#define MAX_WRITE_EEPROM_WORDS 64
+
+static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words) {
+    int16_t result;
+
+    for (uint16_t i = 0; i < words; i += MAX_WRITE_EEPROM_WORDS) {
+        int to_read = words > MAX_WRITE_EEPROM_WORDS ? MAX_WRITE_EEPROM_WORDS : words;
+        nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
+        if (!mcu_native_eeprom_read_data(buffer, i, to_read)) {
+            result = ERR_EEPROM_COMM_FAILED;
+            break;
+        }        
+         nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+         result = f_write(fp, buffer, to_read << 1, NULL);
+         if (result != FR_OK)
+             break;
+    }
+
+    return result;
+}
+
+static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
+    uint16_t w;
+    int16_t result;
+
+    ws_eeprom_handle_t h = ws_eeprom_handle_cartridge(eeprom_bits[mode]);
+    outportb(IO_NILE_EMU_CNT, eeprom_emu_control[mode]);
+
+    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
+    ws_eeprom_write_unlock(h);
+    for (uint16_t i = 0; i < words; i++) {
+         nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+         result = f_read(fp, &w, 2, NULL);
+         if (result != FR_OK)
+             break;
+         nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
+         if (!ws_eeprom_write_word(h, i << 1, w)) {
+             result = ERR_EEPROM_COMM_FAILED;
+             break;
+         }
+    }
+    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
+    ws_eeprom_write_lock(h);
+
+    return result;
+}
+
 DEFINE_STRING_LOCAL(s_save_ini_start, "[Save]\n");
 DEFINE_STRING_LOCAL(s_save_ini_id, "ID");
 DEFINE_STRING_LOCAL(s_save_ini_sram, "SRAM");
@@ -256,6 +305,8 @@ int16_t launch_backup_save_data(void) {
     int16_t result;
     ui_popup_dialog_config_t dlg = {0};
     uint32_t id = 0;
+    uint32_t mcu_id;
+    uint16_t value_num;
 
     strcpy(buffer, s_path_save_ini);
     result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
@@ -268,6 +319,13 @@ int16_t launch_backup_save_data(void) {
     dlg.title = lang_keys[LK_DIALOG_STORE_SAVE];
     ui_popup_dialog_draw(&dlg);
     ui_show();
+
+    // read save ID from MCU
+    if (!mcu_native_save_id_get(&mcu_id)) {
+        result = ERR_MCU_COMM_FAILED;
+        goto launch_backup_save_data_return_result;
+    }
+    mcu_native_finish();
 
     while (true) {
         ini_result = ini_next(&fp, buffer, sizeof(buffer), &key, &value);
@@ -290,11 +348,20 @@ int16_t launch_backup_save_data(void) {
             else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = SAVE_TYPE_EEPROM;
             else if (!strcasecmp(key, s_save_ini_flash)) file_type = SAVE_TYPE_FLASH;
             if (file_type != SAVE_TYPE_NONE) {
-                // TODO: Fix EEPROM/Flash restore
-                if (file_type != SAVE_TYPE_SRAM) continue;
+                // TODO: Fix Flash restore
+                if (file_type == SAVE_TYPE_FLASH) continue;
 
                 key = (char*) strchr(value, '|');
-                if (key != NULL) value = key + 1;
+                if (key != NULL) {
+                    key[0] = 0;
+                    value_num = atoi(value);
+                    value = key + 1;
+                }
+
+                if (id != mcu_id) {
+                    result = ERR_SAVE_CORRUPT;
+                    goto launch_backup_save_data_return_result;
+                }
 
                 result = f_open(&save_fp, value, FA_OPEN_EXISTING | FA_WRITE);
                 if (result != FR_OK) {
@@ -307,8 +374,7 @@ int16_t launch_backup_save_data(void) {
                     outportb(IO_CART_FLASH, 0);
                     result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), NULL);
                 } else if (file_type == SAVE_TYPE_EEPROM) {
-                    // TODO: EEPROM restore
-                    result = FR_OK;
+                    result = launch_write_eeprom(&save_fp, buffer, value_num);
                 } else if (file_type == SAVE_TYPE_FLASH) {
                     uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
                     outportw(IO_BANK_2003_ROM0, (f_size(&save_fp) - 1) >> 16);
@@ -339,32 +405,6 @@ launch_backup_save_data_return_result:
     return result;
 }
 
-static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
-    uint16_t w;
-    int16_t result;
-
-    ws_eeprom_handle_t h = ws_eeprom_handle_cartridge(eeprom_bits[mode]);
-    outportb(IO_NILE_EMU_CNT, eeprom_emu_control[mode]);
-
-    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
-    ws_eeprom_write_unlock(h);
-    for (uint16_t i = 0; i < words; i++) {
-         nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
-         result = f_read(fp, &w, 2, NULL);
-         if (result != FR_OK)
-             break;
-         nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
-         if (!ws_eeprom_write_word(h, i << 1, w)) {
-             result = ERR_EEPROM_COMM_FAILED;
-             break;
-         }
-    }
-    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
-    ws_eeprom_write_lock(h);
-
-    return result;
-}
-
 int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) {
     char dst_cwd[FF_LFN_BUF + 4];
     char dst_path[FF_LFN_BUF + 4];
@@ -379,6 +419,13 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         dlg.title = lang_keys[LK_DIALOG_PREPARE_SAVE];
         ui_popup_dialog_draw(&dlg);
     }
+
+    // write save ID to MCU
+    if (!mcu_native_save_id_set(has_save_data ? meta->id : 0)) {
+        result = ERR_MCU_COMM_FAILED;
+        goto launch_restore_save_data_return_result;
+    }
+    mcu_native_finish();
 
     // extension-editable version of "path"
     strcpy(dst_path, path);
@@ -412,7 +459,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             goto launch_restore_save_data_return_result;
 
         // initialize MCU
-        if (!mcu_native_set_eeprom_type(eeprom_mcu_control[meta->footer.save_type >> 4])) {
+        if (!mcu_native_eeprom_set_type(eeprom_mcu_control[meta->footer.save_type >> 4])) {
             result = ERR_MCU_COMM_FAILED;
             goto launch_restore_save_data_return_result;
         }
