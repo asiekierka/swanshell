@@ -374,7 +374,7 @@ int16_t launch_backup_save_data(void) {
                     outportb(IO_CART_FLASH, 0);
                     result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), NULL);
                 } else if (file_type == SAVE_TYPE_EEPROM) {
-                    result = launch_write_eeprom(&save_fp, buffer, value_num);
+                    result = launch_write_eeprom(&save_fp, buffer, value_num >> 1);
                 } else if (file_type == SAVE_TYPE_FLASH) {
                     uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
                     outportw(IO_BANK_2003_ROM0, (f_size(&save_fp) - 1) >> 16);

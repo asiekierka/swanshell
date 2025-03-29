@@ -36,13 +36,7 @@ static inline bool mcu_native_save_id_set(uint32_t id) {
 	return true;
 }
 
-static inline bool mcu_native_save_id_get(uint32_t *id) {
-	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x17, 0), NULL, 0))
-		return false;
-	if (!nile_mcu_native_recv_cmd(&id, 4))
-		return false;
-	return true;
-}
+bool mcu_native_save_id_get(uint32_t *id);
 
 static inline bool mcu_native_eeprom_set_type(uint8_t type) {
 	uint8_t tmp;

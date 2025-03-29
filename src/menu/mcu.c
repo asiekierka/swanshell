@@ -137,8 +137,7 @@ mcu_compare_success:
 			return ERR_MCU_COMM_FAILED;
 	}
 
-	for (int i = 0; i < 5; i++)
-		ws_busywait(50000);
+	ws_busywait(50000);
 
 	if (flash) {
 		ui_hide();
@@ -170,4 +169,12 @@ bool mcu_native_set_mode(uint8_t mode) {
 	bool result = mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x01, mode), NULL, 0);
 	ws_busywait(2500);
 	return result;
+}
+
+bool mcu_native_save_id_get(uint32_t *id) {
+	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x17, 0), NULL, 0))
+		return false;
+	if (!nile_mcu_native_recv_cmd(id, 4))
+		return false;
+	return true;
 }
