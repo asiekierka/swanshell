@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
-#include <wsx/lzsa.h>
+#include <wsx/zx0.h>
 #include <nile.h>
 #include <nilefs.h>
 #include "launch.h"
@@ -615,7 +615,7 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
     if (ws_system_color_active()) {
         ws_system_mode_set(WS_MODE_COLOR);
     }
-    wsx_lzsa2_decompress((void*) 0x3200, gfx_bootstub_tiles);
+    wsx_zx0_decompress((void*) 0x3200, gfx_bootstub_tiles);
 
     // Populate bootstub data
     bootstub_data->data_base = fs.database;
