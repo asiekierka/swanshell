@@ -15,13 +15,11 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <nilefs/ff.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/util.h>
 #include <wsx/lzsa.h>
 #include <nile.h>
 #include <nilefs.h>
@@ -45,6 +43,8 @@ __attribute__((section(".iramCx_c000")))
 uint8_t sector_buffer[2048];
 
 extern FATFS fs;
+
+#define NILE_IPC_SAVE_ID ((volatile uint32_t __far*) MK_FP(0x1000, 512 - sizeof(uint32_t)))
 
 /*
 void ui_boot(const char *path) {
@@ -91,6 +91,21 @@ void ui_boot(const char *path) {
     clear_registers(true);
     launch_ram_asm(MK_FP(0xFFFF, 0x0000), );
 } */
+
+uint32_t launch_get_ipc_save_id(void) {
+    uint16_t prev_sram_bank = inportw(IO_BANK_2003_RAM);
+    outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+    uint32_t save_id = *NILE_IPC_SAVE_ID;
+    outportw(IO_BANK_2003_RAM, prev_sram_bank);
+    return save_id;
+}
+
+void launch_set_ipc_save_id(uint32_t v) {
+    uint16_t prev_sram_bank = inportw(IO_BANK_2003_RAM);
+    outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+    *NILE_IPC_SAVE_ID = v;
+    outportw(IO_BANK_2003_RAM, prev_sram_bank);
+}
 
 static const uint8_t __far elisa_font_string[] = {'E', 'L', 'I', 'S', 'A'};
 static const uint16_t __far sram_sizes[] = {
@@ -348,9 +363,6 @@ int16_t launch_backup_save_data(void) {
             else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = SAVE_TYPE_EEPROM;
             else if (!strcasecmp(key, s_save_ini_flash)) file_type = SAVE_TYPE_FLASH;
             if (file_type != SAVE_TYPE_NONE) {
-                // TODO: Fix Flash restore
-                if (file_type == SAVE_TYPE_FLASH) continue;
-
                 key = (char*) strchr(value, '|');
                 if (key != NULL) {
                     key[0] = 0;
@@ -358,9 +370,16 @@ int16_t launch_backup_save_data(void) {
                     value = key + 1;
                 }
 
-                if (id != mcu_id) {
-                    result = ERR_SAVE_CORRUPT;
-                    goto launch_backup_save_data_return_result;
+                if (file_type == SAVE_TYPE_FLASH) {
+                    if (id != launch_get_ipc_save_id()) {
+                        result = ERR_SAVE_CORRUPT;
+                        goto launch_backup_save_data_return_result;    
+                    }
+                } else {
+                    if (id != mcu_id) {
+                        result = ERR_SAVE_CORRUPT;
+                        goto launch_backup_save_data_return_result;
+                    }
                 }
 
                 result = f_open(&save_fp, value, FA_OPEN_EXISTING | FA_WRITE);
@@ -380,6 +399,7 @@ int16_t launch_backup_save_data(void) {
                     outportw(IO_BANK_2003_ROM0, (f_size(&save_fp) - 1) >> 16);
                     memcpy(buffer, MK_FP(0x1000, 0xFFF0), 16);
                     outportw(IO_BANK_2003_ROM0, prev_bank);
+                    
                     // Only restore flash if contents appear bootable
                     if (((uint8_t) buffer[0]) == 0xEA && ((uint8_t) buffer[4]) > 0x10) {
                         result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp), NULL);
@@ -497,6 +517,8 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
         // Use .flash instead of .ws/.wsc to boot on this platform.
         strcpy(path + (ext_loc - dst_path), s_file_ext_flash);
+
+        launch_set_ipc_save_id(meta->id);
     }
 
     result = f_getcwd(dst_cwd, sizeof(dst_cwd) - 1);
@@ -529,10 +551,24 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     if (result != FR_OK)
         goto launch_restore_save_data_ini_end;
 
+    // ID has to be parsed before other entries
     result = f_printf(&fp, s_save_ini_id_entry, meta->id) < 0 ? FR_INT_ERR : FR_OK;
     if (result != FR_OK)
         goto launch_restore_save_data_ini_end;
-    
+
+    // Write FLASH entry first, as it has a weaker save ID condition
+    // (present in IPC, as opposed to present on MCU)
+    if (meta->flash_size != 0) {
+        strcpy(ext_loc, s_file_ext_flash);
+        result = f_printf(&fp, s_save_ini_entry,
+            (const char __far*) s_save_ini_flash,
+            (uint32_t) meta->flash_size,
+            (const char __far*) dst_cwd,
+            (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
+        if (result != FR_OK)
+            goto launch_restore_save_data_ini_end;
+    }
+
     if (meta->sram_size != 0) {
         strcpy(ext_loc, s_file_ext_sram);
         result = f_printf(&fp, s_save_ini_entry,
@@ -549,17 +585,6 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         result = f_printf(&fp, s_save_ini_entry,
             (const char __far*) s_save_ini_eeprom,
             (uint32_t) meta->eeprom_size,
-            (const char __far*) dst_cwd,
-            (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
-        if (result != FR_OK)
-            goto launch_restore_save_data_ini_end;
-    }
-
-    if (meta->flash_size != 0) {
-        strcpy(ext_loc, s_file_ext_flash);
-        result = f_printf(&fp, s_save_ini_entry,
-            (const char __far*) s_save_ini_flash,
-            (uint32_t) meta->flash_size,
             (const char __far*) dst_cwd,
             (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
         if (result != FR_OK)
