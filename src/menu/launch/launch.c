@@ -629,7 +629,8 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
     if (meta != NULL) {
         bootstub_data->prog_sram_mask = (meta->sram_size - 1) >> 16;
         bootstub_data->prog_emu_cnt =
-            meta->eeprom_size ? eeprom_emu_control[meta->footer.save_type >> 4] : 0;
+              (meta->eeprom_size ? eeprom_emu_control[meta->footer.save_type >> 4] : 0)
+            | (meta->flash_size ? NILE_EMU_FLASH_FSM : 0);
         // TODO: Emulate EEPROM N/C (remove meta->eeprom_size check)
         bootstub_data->prog_pow_cnt =
               (meta->sram_size ? NILE_POW_SRAM : 0)
