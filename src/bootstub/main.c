@@ -107,6 +107,7 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 }
 
 static void progress_tick(void) {
+	if (!bank_count_max) return;
 	uint16_t progress_end = ((uint32_t)(++bank_count) << 7) / bank_count_max;
 	if (progress_end > 128) progress_end = 128;
 	outportb(IO_SCR2_WIN_X2, (6 << 3) + progress_end - 1);
@@ -136,7 +137,7 @@ int main(void) {
 	uint16_t bank = (real_size - size) >> 16;
 	uint16_t total_banks = real_size >> 16;
 
-	progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 2 : 1));
+	progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 1 : 0));
 	cluster_open(bootstub_data->prog_cluster);
 	outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
 	outportb(IO_LCD_SEG, (bootstub_data->prog_flags & 1) ? LCD_SEG_ORIENT_V : LCD_SEG_ORIENT_H);
