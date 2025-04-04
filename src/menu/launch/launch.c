@@ -645,6 +645,11 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
         bootstub_data->prog_flags = 0x04;
     }
 
+    // Lock IEEPROM
+    if (!(meta->footer.game_version & 0x80)) {
+        outportw(IO_IEEP_CTRL, IEEP_PROTECT);
+    }
+
     // Switch MCU to RTC mode
     if (!meta->eeprom_size) {
         mcu_native_set_mode(2);
