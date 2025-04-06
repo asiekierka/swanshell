@@ -630,14 +630,14 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
         bootstub_data->prog_sram_mask = (meta->sram_size - 1) >> 16;
         bootstub_data->prog_emu_cnt =
               (meta->eeprom_size ? eeprom_emu_control[meta->footer.save_type >> 4] : 0)
-            | (meta->flash_size ? NILE_EMU_FLASH_FSM : 0);
+            | (meta->flash_size ? NILE_EMU_FLASH_FSM : 0)
+            | ((meta->footer.flags & 0x04) ? NILE_EMU_ROM_BUS_16BIT : NILE_EMU_ROM_BUS_8BIT);
         // TODO: Emulate EEPROM N/C (remove meta->eeprom_size check)
         bootstub_data->prog_pow_cnt =
               (meta->sram_size ? NILE_POW_SRAM : 0)
             | ((meta->footer.mapper != 1 && meta->eeprom_size) ? NILE_POW_IO_2001 : 0)
             | (meta->footer.mapper != 0 ? NILE_POW_IO_2003 : 0);
-        // NOTE: 8-bit ROM bus width is currently not supported.
-        bootstub_data->prog_flags = meta->footer.flags | 0x04;
+        bootstub_data->prog_flags = meta->footer.flags;
     } else {
         bootstub_data->prog_sram_mask = 7;
         bootstub_data->prog_emu_cnt = 0;
