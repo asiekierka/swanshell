@@ -652,7 +652,7 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
 
     // Switch MCU to RTC mode
     if (!meta->eeprom_size) {
-        mcu_native_set_mode(2);
+        mcu_native_set_mode(meta->footer.mapper == 1 ? 2 : 0xFF);
         mcu_native_finish();
     }
 
