@@ -14,29 +14,34 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
-#ifndef _ERRORS_H_
-#define _ERRORS_H_
- 
-#include <stdbool.h>
-#include <stdint.h>
+
 #include <wonderful.h>
+#include <ws.h>
 
-// Negative error codes are reserved for libc errors
-#include <errno.h>
+    .arch   i186
+    .code16
+    .intel_syntax noprefix
 
-// Positive error codes < 0x80 are reserved for FatFs
-#include <nilefs.h>
+    .section .text.s.freya_soft_reset, "ax"
+    .global freya_soft_reset
+    .global freya_soft_reset_end
+freya_soft_reset:
+    // unlock nileswan registers
+    mov al, 0xDD
+    out 0xE2, al
 
-// Positive error codes >= 0x80 are for swanshell
-#define ERR_MCU_COMM_FAILED 0x80
-#define ERR_SAVE_CORRUPT 0x81
-#define ERR_EEPROM_COMM_FAILED 0x82
-#define ERR_MCU_BIN_CORRUPT 0x83
-#define ERR_SAVE_PSRAM_CORRUPT 0x84
+    // reset linear ROM bank
+    mov ax, 0xFFFF
+    out 0xC0, al
+    // hide display
+    push ax
+    inc ax
+    out 0x00, ax
+    push ax
+    dec ax
 
-const char __far* error_to_string(int16_t value);
-void error_to_string_buffer(int16_t value, char *buffer, size_t buflen);
-
-#endif /* _LANG_H_ */
- 
+    // jump to 0xFFFF:0x0000
+    // this code takes advantage of V30MZ prefetch
+    out 0xE4, ax
+    retf
+freya_soft_reset_end:

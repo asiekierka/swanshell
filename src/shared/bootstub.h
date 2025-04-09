@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET 0x01
+
 typedef struct {
     // FAT information
     uint8_t fs_type;
@@ -19,6 +21,7 @@ typedef struct {
     uint8_t prog_pow_cnt;
     uint8_t prog_emu_cnt;
     uint8_t prog_flags;
+    uint8_t prog_patches;
 } bootstub_data_t;
 
 #define bootstub_data ((volatile bootstub_data_t*) 0x0060)

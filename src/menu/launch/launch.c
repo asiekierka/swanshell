@@ -93,18 +93,24 @@ void ui_boot(const char *path) {
 } */
 
 uint32_t launch_get_ipc_save_id(void) {
+    uint8_t prev_cart_flash = inportb(IO_CART_FLASH);
     uint16_t prev_sram_bank = inportw(IO_BANK_2003_RAM);
     outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+    outportb(IO_CART_FLASH, 0);
     uint32_t save_id = *NILE_IPC_SAVE_ID;
     outportw(IO_BANK_2003_RAM, prev_sram_bank);
+    outportb(IO_CART_FLASH, prev_cart_flash);
     return save_id;
 }
 
 void launch_set_ipc_save_id(uint32_t v) {
+    uint8_t prev_cart_flash = inportb(IO_CART_FLASH);
     uint16_t prev_sram_bank = inportw(IO_BANK_2003_RAM);
     outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+    outportb(IO_CART_FLASH, 0);
     *NILE_IPC_SAVE_ID = v;
     outportw(IO_BANK_2003_RAM, prev_sram_bank);
+    outportb(IO_CART_FLASH, prev_cart_flash);
 }
 
 static const uint8_t __far elisa_font_string[] = {'E', 'L', 'I', 'S', 'A'};
@@ -168,6 +174,7 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     meta->sram_size = sram_sizes[meta->footer.save_type & 0xF] * 1024L;
     meta->eeprom_size = eeprom_sizes[meta->footer.save_type >> 4];
     meta->flash_size = 0;
+    meta->freya_found = false;
     if (elisa_found
         && meta->footer.publisher_id == 0x00
         && meta->footer.game_id == 0x00
@@ -175,6 +182,7 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
         && meta->footer.mapper == 0x01) {
 
         meta->flash_size = 0x80000;
+        meta->freya_found = true;
     }
 
     return FR_OK;
@@ -372,7 +380,7 @@ int16_t launch_backup_save_data(void) {
 
                 if (file_type == SAVE_TYPE_FLASH) {
                     if (id != launch_get_ipc_save_id()) {
-                        result = ERR_SAVE_CORRUPT;
+                        result = ERR_SAVE_PSRAM_CORRUPT;
                         goto launch_backup_save_data_return_result;    
                     }
                 } else {
@@ -384,7 +392,7 @@ int16_t launch_backup_save_data(void) {
 
                 result = f_open(&save_fp, value, FA_OPEN_EXISTING | FA_WRITE);
                 if (result != FR_OK) {
-                    // TODO: Handle FR_NO_FILE by preallocating a new file.
+                    // TODO: Handle FR_NO_FILE by preallocating a new file?
                     f_close(&fp);
                     goto launch_backup_save_data_return_result;
                 }
@@ -397,14 +405,16 @@ int16_t launch_backup_save_data(void) {
                 } else if (file_type == SAVE_TYPE_FLASH) {
                     uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
                     outportw(IO_BANK_2003_ROM0, (f_size(&save_fp) - 1) >> 16);
-                    memcpy(buffer, MK_FP(0x1000, 0xFFF0), 16);
+                    memcpy(buffer, MK_FP(0x2000, 0xFFF0), 16);
                     outportw(IO_BANK_2003_ROM0, prev_bank);
                     
-                    // Only restore flash if contents appear bootable
-                    if (((uint8_t) buffer[0]) == 0xEA && ((uint8_t) buffer[4]) > 0x10) {
-                        result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp), NULL);
+                    // Only restore flash if contents appear bootable.
+                    // FIXME: This skips the ROM footer to avoid losing the original entrypoint
+                    // for runtime patches, which is not ideal.
+                    if (((uint8_t) buffer[0]) == 0xEA && ((uint8_t) buffer[4]) >= 0x10) {
+                        result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp) - 16, NULL);
                     } else {
-                        result = ERR_SAVE_CORRUPT;
+                        result = ERR_SAVE_PSRAM_CORRUPT;
                     }
                 }
 
@@ -433,7 +443,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     int16_t result;
     ui_popup_dialog_config_t dlg = {0};
 
-    bool has_save_data = meta->sram_size || meta->eeprom_size || meta->flash_size;
+    bool has_save_data = meta->sram_size || meta->eeprom_size;
 
     if (has_save_data) {
         dlg.title = lang_keys[LK_DIALOG_PREPARE_SAVE];
@@ -644,6 +654,7 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
         bootstub_data->prog_pow_cnt = inportb(IO_NILE_POW_CNT);
         bootstub_data->prog_flags = 0x04;
     }
+    bootstub_data->prog_patches = meta->freya_found ? BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET : 0;
 
     // Lock IEEPROM
     if (!(meta->footer.game_version & 0x80)) {

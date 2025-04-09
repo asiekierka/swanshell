@@ -15,8 +15,6 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <nile/hardware.h>
-#include <nile/ipc.h>
 #include <stdint.h>
 #include <string.h>
 #include <wonderful.h>
@@ -25,6 +23,7 @@
 #include <nilefs.h>
 #include <ws/hardware.h>
 #include "cluster_read.h"
+#include "patches.h"
 #include "bootstub.h"
 #include "util/math.h"
 #include "util/util.h"
@@ -32,6 +31,8 @@
 #define SCREEN ((uint16_t *) 0x2800)
 
 /* === Error reporting === */
+
+void __far* start_pointer = MK_FP(0xFFFF, 0x0000);
 
 static const char fatfs_error_header[] = "TF card read failed (  )";
 static const uint8_t hexchars[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -123,11 +124,13 @@ extern void restore_cold_boot_io_state(bool disable_color_mode);
 __attribute__((noreturn))
 extern void cold_jump(const void __far *ptr);
 
+extern void nilefs_ipc_sync(void);
+
 int main(void) {
 	outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
 	// Copy boot registers for cold_jump()
 	memcpy((void*) 0x0040, MEM_NILE_IPC->boot_regs.data, 24);
-	nile_tf_load_state_from_ipc();
+	nilefs_ipc_sync();
 
 	// Read ROM, sector by sector
 	uint8_t result;
@@ -159,6 +162,10 @@ int main(void) {
 		bank++;
 	}
 
+	if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET) {
+		patch_apply_freya_soft_reset();
+	}
+
 	outportb(IO_CART_FLASH, 0);
 	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 
@@ -181,7 +188,7 @@ int main(void) {
 	outportb(IO_NILE_POW_CNT, (inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET) | bootstub_data->prog_pow_cnt);
 	// jump to cartridge
 	outportb(IO_HWINT_ACK, 0xFF);
-	cold_jump(MK_FP(0xFFFF, 0x0000));
+	cold_jump(start_pointer);
 
 error:
 	report_fatfs_error(result);
