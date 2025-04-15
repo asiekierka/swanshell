@@ -24,6 +24,7 @@
 #include <nilefs.h>
 #include "errors.h"
 #include "lang.h"
+#include "mcu.h"
 #include "strings.h"
 #include "ui/ui.h"
 #include "ui/ui_popup_dialog.h"
@@ -171,10 +172,23 @@ bool mcu_native_set_mode(uint8_t mode) {
 	return result;
 }
 
-bool mcu_native_save_id_get(uint32_t *id) {
-	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x17, 0), NULL, 0))
+bool mcu_native_save_id_set(uint32_t id, uint16_t target) {
+	uint8_t tmp;
+	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x16, target & 0x1FF), &id, 4))
 		return false;
-	if (!nile_mcu_native_recv_cmd(id, 4))
+	if (!nile_mcu_native_recv_cmd(&tmp, 1))
 		return false;
+	return true;
+}
+
+bool mcu_native_save_id_get(uint32_t *id, uint16_t target) {
+        if (!(target & 0x1FF)) {
+		*id = SAVE_ID_NONE;
+	} else {
+		if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x17, target & 0x1FF), NULL, 0))
+			return false;
+		if (!nile_mcu_native_recv_cmd(id, 4))
+			return false;
+	}
 	return true;
 }

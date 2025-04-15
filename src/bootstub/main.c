@@ -140,34 +140,36 @@ int main(void) {
 	uint16_t bank = (real_size - size) >> 16;
 	uint16_t total_banks = real_size >> 16;
 
-	progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 1 : 0));
-	cluster_open(bootstub_data->prog_cluster);
-	outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
 	outportb(IO_LCD_SEG, (bootstub_data->prog_flags & 1) ? LCD_SEG_ORIENT_V : LCD_SEG_ORIENT_H);
+	if (bootstub_data->prog_cluster) {
+		progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 1 : 0));
+		cluster_open(bootstub_data->prog_cluster);
+		outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
 
-	while (bank < total_banks) {
-		outportw(IO_BANK_2003_RAM, bank);
-		if (offset < 0x8000) {
+		while (bank < total_banks) {
+			outportw(IO_BANK_2003_RAM, bank);
+			if (offset < 0x8000) {
+				progress_tick();
+				if ((result = cluster_read(MK_FP(0x1000, offset), 0x8000 - offset)) != FR_OK) {
+					goto error;
+				}
+				offset = 0x8000;
+			}
 			progress_tick();
-			if ((result = cluster_read(MK_FP(0x1000, offset), 0x8000 - offset)) != FR_OK) {
+			if ((result = cluster_read(MK_FP(0x1000, offset), -offset)) != FR_OK) {
 				goto error;
 			}
-			offset = 0x8000;
+			offset = 0x0000;
+			bank++;
 		}
-		progress_tick();
-		if ((result = cluster_read(MK_FP(0x1000, offset), -offset)) != FR_OK) {
-			goto error;
+
+		if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET) {
+			patch_apply_freya_soft_reset();
 		}
-		offset = 0x0000;
-		bank++;
-	}
 
-	if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET) {
-		patch_apply_freya_soft_reset();
+		outportb(IO_CART_FLASH, 0);
+		outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 	}
-
-	outportb(IO_CART_FLASH, 0);
-	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 
 	// wait for vblank before clearing registers
 	while (inportb(IO_LCD_LINE) != 144)

@@ -15,11 +15,14 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <nile/ipc.h>
+#include <nilefs/ff.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
+#include <ws/hardware.h>
 #include <wsx/zx0.h>
 #include <nile.h>
 #include <nilefs.h>
@@ -92,25 +95,42 @@ void ui_boot(const char *path) {
     launch_ram_asm(MK_FP(0xFFFF, 0x0000), );
 } */
 
-uint32_t launch_get_ipc_save_id(void) {
-    uint8_t prev_cart_flash = inportb(IO_CART_FLASH);
-    uint16_t prev_sram_bank = inportw(IO_BANK_2003_RAM);
-    outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
-    outportb(IO_CART_FLASH, 0);
-    uint32_t save_id = *NILE_IPC_SAVE_ID;
-    outportw(IO_BANK_2003_RAM, prev_sram_bank);
-    outportb(IO_CART_FLASH, prev_cart_flash);
-    return save_id;
+uint32_t launch_get_save_id(uint16_t target) {
+    uint32_t save_id = SAVE_ID_NONE;
+
+    if (target & SAVE_ID_FOR_FLASH) {
+        uint8_t prev_cart_flash = inportb(IO_CART_FLASH);
+        uint16_t prev_sram_bank = inportw(IO_BANK_2003_RAM);
+        outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+        outportb(IO_CART_FLASH, 0);
+        save_id = *NILE_IPC_SAVE_ID;
+        outportw(IO_BANK_2003_RAM, prev_sram_bank);
+        outportb(IO_CART_FLASH, prev_cart_flash);
+        if (save_id != SAVE_ID_NONE)
+            return save_id;
+    }
+
+    if (mcu_native_save_id_get(&save_id, target)) {
+        mcu_native_finish();
+        return save_id;
+    }
+
+    mcu_native_finish();
+    return SAVE_ID_NONE;
 }
 
-void launch_set_ipc_save_id(uint32_t v) {
+bool launch_set_save_id(uint32_t v, uint16_t target) {
     uint8_t prev_cart_flash = inportb(IO_CART_FLASH);
     uint16_t prev_sram_bank = inportw(IO_BANK_2003_RAM);
     outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
     outportb(IO_CART_FLASH, 0);
-    *NILE_IPC_SAVE_ID = v;
+    *NILE_IPC_SAVE_ID = (target & SAVE_ID_FOR_FLASH) ? v : SAVE_ID_NONE;
     outportw(IO_BANK_2003_RAM, prev_sram_bank);
     outportb(IO_CART_FLASH, prev_cart_flash);
+
+    bool result = mcu_native_save_id_set(v, target);
+    mcu_native_finish();
+    return result;
 }
 
 static const uint8_t __far elisa_font_string[] = {'E', 'L', 'I', 'S', 'A'};
@@ -131,12 +151,6 @@ static const uint8_t __far eeprom_emu_control[] = {
 static const uint8_t __far eeprom_mcu_control[] = {
     0, 2, 6, 0, 0, 5
 };
-typedef enum {
-    SAVE_TYPE_NONE = 0,
-    SAVE_TYPE_SRAM,
-    SAVE_TYPE_EEPROM,
-    SAVE_TYPE_FLASH
-} launch_save_type_t;
 
 int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     uint8_t tmp[5];
@@ -328,7 +342,6 @@ int16_t launch_backup_save_data(void) {
     int16_t result;
     ui_popup_dialog_config_t dlg = {0};
     uint32_t id = 0;
-    uint32_t mcu_id;
     uint16_t value_num;
 
     strcpy(buffer, s_path_save_ini);
@@ -342,13 +355,6 @@ int16_t launch_backup_save_data(void) {
     dlg.title = lang_keys[LK_DIALOG_STORE_SAVE];
     ui_popup_dialog_draw(&dlg);
     ui_show();
-
-    // read save ID from MCU
-    if (!mcu_native_save_id_get(&mcu_id)) {
-        result = ERR_MCU_COMM_FAILED;
-        goto launch_backup_save_data_return_result;
-    }
-    mcu_native_finish();
 
     while (true) {
         ini_result = ini_next(&fp, buffer, sizeof(buffer), &key, &value);
@@ -366,11 +372,11 @@ int16_t launch_backup_save_data(void) {
                 continue;
             }
 
-            uint8_t file_type = SAVE_TYPE_NONE;
-            if (!strcasecmp(key, s_save_ini_sram)) file_type = SAVE_TYPE_SRAM;
-            else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = SAVE_TYPE_EEPROM;
-            else if (!strcasecmp(key, s_save_ini_flash)) file_type = SAVE_TYPE_FLASH;
-            if (file_type != SAVE_TYPE_NONE) {
+            uint16_t file_type = 0;
+            if (!strcasecmp(key, s_save_ini_sram)) file_type = SAVE_ID_FOR_SRAM;
+            else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = SAVE_ID_FOR_EEPROM;
+            else if (!strcasecmp(key, s_save_ini_flash)) file_type = SAVE_ID_FOR_FLASH;
+            if (file_type) {
                 key = (char*) strchr(value, '|');
                 if (key != NULL) {
                     key[0] = 0;
@@ -378,16 +384,10 @@ int16_t launch_backup_save_data(void) {
                     value = key + 1;
                 }
 
-                if (file_type == SAVE_TYPE_FLASH) {
-                    if (id != launch_get_ipc_save_id()) {
-                        result = ERR_SAVE_PSRAM_CORRUPT;
-                        goto launch_backup_save_data_return_result;    
-                    }
-                } else {
-                    if (id != mcu_id) {
-                        result = ERR_SAVE_CORRUPT;
-                        goto launch_backup_save_data_return_result;
-                    }
+                uint32_t fetched_id = launch_get_save_id(file_type);
+                if (id != fetched_id) {
+                    result = file_type == SAVE_ID_FOR_FLASH ? ERR_SAVE_PSRAM_CORRUPT : ERR_SAVE_CORRUPT;
+                    goto launch_backup_save_data_return_result;
                 }
 
                 result = f_open(&save_fp, value, FA_OPEN_EXISTING | FA_WRITE);
@@ -397,12 +397,12 @@ int16_t launch_backup_save_data(void) {
                     goto launch_backup_save_data_return_result;
                 }
 
-                if (file_type == SAVE_TYPE_SRAM) {
+                if (file_type == SAVE_ID_FOR_SRAM) {
                     outportb(IO_CART_FLASH, 0);
                     result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), NULL);
-                } else if (file_type == SAVE_TYPE_EEPROM) {
+                } else if (file_type == SAVE_ID_FOR_EEPROM) {
                     result = launch_write_eeprom(&save_fp, buffer, value_num >> 1);
-                } else if (file_type == SAVE_TYPE_FLASH) {
+                } else if (file_type == SAVE_ID_FOR_FLASH) {
                     uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
                     outportw(IO_BANK_2003_ROM0, (f_size(&save_fp) - 1) >> 16);
                     memcpy(buffer, MK_FP(0x2000, 0xFFF0), 16);
@@ -431,6 +431,9 @@ int16_t launch_backup_save_data(void) {
     strcpy(buffer, s_path_save_ini);
     f_unlink(buffer);
 launch_backup_save_data_return_result:
+    // Clear save ID
+    launch_set_save_id(SAVE_ID_NONE, 0);
+
     ui_popup_dialog_clear(&dlg);
     return result;
 }
@@ -443,19 +446,22 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     int16_t result;
     ui_popup_dialog_config_t dlg = {0};
 
-    bool has_save_data = meta->sram_size || meta->eeprom_size;
+    uint16_t save_target = 0;
+    if (meta->sram_size)   save_target |= SAVE_ID_FOR_SRAM;
+    if (meta->eeprom_size) save_target |= SAVE_ID_FOR_EEPROM;
+    if (meta->flash_size)  save_target |= SAVE_ID_FOR_FLASH;
 
-    if (has_save_data) {
+    if (save_target) {
         dlg.title = lang_keys[LK_DIALOG_PREPARE_SAVE];
         ui_popup_dialog_draw(&dlg);
     }
 
     // write save ID to MCU
-    if (!mcu_native_save_id_set(has_save_data ? meta->id : 0)) {
+    // (error only if save ID was required)
+    if (!launch_set_save_id(meta->id, save_target) && save_target) {
         result = ERR_MCU_COMM_FAILED;
         goto launch_restore_save_data_return_result;
     }
-    mcu_native_finish();
 
     // extension-editable version of "path"
     strcpy(dst_path, path);
@@ -527,8 +533,6 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
         // Use .flash instead of .ws/.wsc to boot on this platform.
         strcpy(path + (ext_loc - dst_path), s_file_ext_flash);
-
-        launch_set_ipc_save_id(meta->id);
     }
 
     result = f_getcwd(dst_cwd, sizeof(dst_cwd) - 1);
@@ -543,7 +547,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
     strcpy(tmp_buf, s_path_save_ini);
 
-    if (!has_save_data) {
+    if (!save_target) {
         // remove .INI file, if it exists
         result = f_unlink(tmp_buf);
         if (result != FR_OK && result != FR_NO_FILE)

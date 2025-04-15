@@ -24,19 +24,17 @@
 #include <wonderful.h>
 #include <nile.h>
 
+#define SAVE_ID_FOR_EEPROM 0x1
+#define SAVE_ID_FOR_SRAM   0x2
+#define SAVE_ID_FOR_FLASH  0x200
+#define SAVE_ID_FOR_ALL    0x203
+#define SAVE_ID_NONE       ((uint32_t) 0xFFFFFFFF)
+
 int16_t mcu_reset(bool flash);
 bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen);
 
-static inline bool mcu_native_save_id_set(uint32_t id) {
-	uint8_t tmp;
-	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x16, 0), &id, 4))
-		return false;
-	if (!nile_mcu_native_recv_cmd(&tmp, 1))
-		return false;
-	return true;
-}
-
-bool mcu_native_save_id_get(uint32_t *id);
+bool mcu_native_save_id_set(uint32_t id, uint16_t target);
+bool mcu_native_save_id_get(uint32_t *id, uint16_t target);
 
 static inline bool mcu_native_eeprom_set_type(uint8_t type) {
 	uint8_t tmp;
