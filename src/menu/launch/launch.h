@@ -40,6 +40,7 @@ typedef struct {
 typedef struct {
     uint32_t id;
     rom_footer_t footer;
+    uint16_t rom_banks;
     uint32_t sram_size;
     uint16_t eeprom_size;
     uint32_t flash_size;

@@ -135,7 +135,11 @@ int main(void) {
 	// Read ROM, sector by sector
 	uint8_t result;
 	uint32_t size = bootstub_data->prog_size;
-	uint32_t real_size = size < 0x10000 ? 0x10000 : math_next_power_of_two(size);
+	uint32_t rom_size = ((uint32_t) bootstub_data->rom_banks) << 16;
+	if (size > rom_size) {
+		rom_size = size;
+	}
+	uint32_t real_size = rom_size < 0x10000 ? 0x10000 : math_next_power_of_two(rom_size);
 	uint16_t offset = (real_size - size);
 	uint16_t bank = (real_size - size) >> 16;
 	uint16_t total_banks = real_size >> 16;

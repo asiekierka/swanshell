@@ -134,6 +134,9 @@ bool launch_set_save_id(uint32_t v, uint16_t target) {
 }
 
 static const uint8_t __far elisa_font_string[] = {'E', 'L', 'I', 'S', 'A'};
+static const uint16_t __far rom_banks[] = {
+    2, 4, 8, 16, 32, 48, 64, 96, 128, 256, 512, 1024
+};
 static const uint16_t __far sram_sizes[] = {
     0, 32, 32, 128, 256, 512, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0
@@ -185,6 +188,7 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     if (result != FR_OK)
         return result;
 
+    meta->rom_banks = meta->footer.rom_size > 0x0B ? 0 : rom_banks[meta->footer.rom_size];
     meta->sram_size = sram_sizes[meta->footer.save_type & 0xF] * 1024L;
     meta->eeprom_size = eeprom_sizes[meta->footer.save_type >> 4];
     meta->flash_size = 0;
@@ -641,6 +645,7 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
     bootstub_data->prog_cluster = fp.fclust;
     bootstub_data->prog_size = fp.fsize;
     if (meta != NULL) {
+        bootstub_data->rom_banks = meta->rom_banks;
         bootstub_data->prog_sram_mask = (meta->sram_size - 1) >> 16;
         bootstub_data->prog_emu_cnt =
               (meta->eeprom_size ? eeprom_emu_control[meta->footer.save_type >> 4] : 0)
@@ -653,6 +658,7 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
             | (meta->footer.mapper != 0 ? NILE_POW_IO_2003 : 0);
         bootstub_data->prog_flags = meta->footer.flags;
     } else {
+        bootstub_data->rom_banks = 0;
         bootstub_data->prog_sram_mask = 7;
         bootstub_data->prog_emu_cnt = 0;
         bootstub_data->prog_pow_cnt = inportb(IO_NILE_POW_CNT);

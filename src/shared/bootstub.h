@@ -16,6 +16,7 @@ typedef struct {
 
     // Program information
     uint32_t prog_size; // Program size
+    uint16_t rom_banks; // Requested ROM banks
     uint32_t prog_cluster; // Starting cluster for program
     uint8_t prog_sram_mask;
     uint8_t prog_pow_cnt;
