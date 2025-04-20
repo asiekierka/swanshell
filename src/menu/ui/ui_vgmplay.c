@@ -22,6 +22,7 @@
 #include <ws.h>
 #include <nilefs.h>
 #include <ws/system.h>
+#include "errors.h"
 #include "lang.h"
 #include "ui.h"
 #include "../util/input.h"
@@ -46,35 +47,35 @@ void  __attribute__((interrupt, assume_ss_data)) vgm_interrupt_handler(void) {
     }
 }
 
-void ui_vgmplay(const char *path) {
+int ui_vgmplay(const char *path) {
     vgmswan_state_t local_vgm_state;
     FIL fp;
 
     ui_layout_bars();
 
-	uint8_t result = f_open(&fp, path, FA_READ);
-	if (result != FR_OK) {
-        // TODO
-        return;
-	}
+    uint8_t result = f_open(&fp, path, FA_READ);
+    if (result != FR_OK) {
+        return result;
+    }
 
     ui_draw_titlebar(NULL);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
 
-	outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
+    outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
 
     uint32_t size = f_size(&fp);
     if (size > 4L*1024*1024) {
-        return;
+        return ERR_FILE_TOO_LARGE;
     }
     uint16_t offset = 0;
     uint16_t bank = 0;
 
-	while (size > 0) {
-		outportw(IO_BANK_2003_RAM, bank);
+    while (size > 0) {
+        outportw(IO_BANK_2003_RAM, bank);
         uint16_t to_read = size > 0x8000 ? 0x8000 : size;
         if ((result = f_read(&fp, MK_FP(0x1000, offset), to_read, NULL)) != FR_OK) {
-            goto ui_vgmplay_end;
+            f_close(&fp);
+            return result;
         }
         size -= to_read;
         if (offset == 0x8000) {
@@ -83,12 +84,13 @@ void ui_vgmplay(const char *path) {
         } else {
             offset = 0x8000;
         }
-	}
+    }
+    f_close(&fp);
     
-	outportb(IO_CART_FLASH, 0);
+    outportb(IO_CART_FLASH, 0);
     outportw(IO_BANK_2003_ROM0, 0);
     if (*((const uint32_t __far*) MK_FP(0x2000, 0x0000)) != 0x206d6756) {
-        goto ui_vgmplay_end;
+        return ERR_FILE_FORMAT_INVALID;
     }
 
     ui_draw_statusbar(NULL);
@@ -117,7 +119,7 @@ void ui_vgmplay(const char *path) {
     outportb(IO_SND_OUT_CTRL, 0);
     outportb(IO_SND_CH_CTRL, 0);
 
-ui_vgmplay_end:
-    f_close(&fp);
     ui_init();
+
+    return 0;
 }

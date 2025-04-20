@@ -37,9 +37,9 @@ void ui_layout_bars(void);
 void ui_draw_centered_status(const char __far* text);
 void ui_draw_titlebar(const char __far* text);
 void ui_draw_statusbar(const char __far* text);
-void ui_bmpview(const char *path);
-void ui_vgmplay(const char *path);
-void ui_wavplay(const char *path);
+int ui_bmpview(const char *path);
+int ui_vgmplay(const char *path);
+int ui_wavplay(const char *path);
 
 extern uint16_t bitmap_screen2[];
 

@@ -619,10 +619,13 @@ launch_restore_save_data_return_result:
 int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta) {
     FILINFO fp;
     
-	int16_t result = f_stat(path, &fp);
-	if (result != FR_OK) {
+    int16_t result = f_stat(path, &fp);
+    if (result != FR_OK) {
         return result;
-	}
+    }
+    if (fp.fsize > 16*1024*1024L) {
+        return ERR_FILE_TOO_LARGE;
+    }
 
     outportw(IO_DISPLAY_CTRL, 0);
 

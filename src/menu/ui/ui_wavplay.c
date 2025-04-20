@@ -21,6 +21,7 @@
 #include <string.h>
 #include <ws.h>
 #include <nilefs.h>
+#include "errors.h"
 #include "lang.h"
 #include "strings.h"
 #include "ui.h"
@@ -78,7 +79,7 @@ static void seconds_to_buffer(uint16_t seconds, char *seconds_buffer) {
     seconds_buffer[0] = (seconds / 600) + '0';
 }
 
-void ui_wavplay(const char *path) {
+int ui_wavplay(const char *path) {
     char seconds_buffer[6];
     FIL fp;
     wave_fmt_t fmt;
@@ -87,8 +88,7 @@ void ui_wavplay(const char *path) {
 
     uint8_t result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
     if (result != FR_OK) {
-        // TODO
-        return;
+        return result;
     }
 
     ui_draw_titlebar(NULL);
@@ -99,48 +99,47 @@ void ui_wavplay(const char *path) {
 
     uint32_t chunk_info[3];
     if ((result = f_read(&fp, chunk_info, 12, NULL)) != FR_OK) {
-        // TODO
-        goto ui_wavplay_end;
+        return result;
     }
     if (chunk_info[0] != RIFF_CHUNK_RIFF || chunk_info[2] != RIFF_CHUNK_WAVE) {
-        // TODO
-        goto ui_wavplay_end;
+        return ERR_FILE_FORMAT_INVALID;
     }
 
     while (true) {
         if ((result = f_read(&fp, chunk_info, 8, NULL)) != FR_OK) {
-            // TODO
-            goto ui_wavplay_end;
+            f_close(&fp);
+            return result;
         }
         uint32_t remainder = f_tell(&fp) + chunk_info[1];
 
         if (chunk_info[0] == RIFF_CHUNK_data) {
             if (fmt.channels == 0) {
-                // TODO: fmt not found
-                goto ui_wavplay_end;
+                // fmt chunk not found
+                f_close(&fp);
+                return ERR_FILE_FORMAT_INVALID;
             }
             break;
         } else if (chunk_info[0] == RIFF_CHUNK_fmt) {
             if ((result = f_read(&fp, &fmt, sizeof(fmt), NULL)) != FR_OK) {
-                // TODO
-                goto ui_wavplay_end;
+                f_close(&fp);
+                return result;
             }
         }
 
         if ((result = f_lseek(&fp, remainder)) != FR_OK) {
-            // TODO
-            goto ui_wavplay_end;
+            f_close(&fp);
+            return result;
         }
     }
 
     if (fmt.format != 1) {
-        // TODO
-        goto ui_wavplay_end;
+        f_close(&fp);
+        return ERR_FILE_FORMAT_INVALID;
     }
 
     if (fmt.sample_rate >= 65536 || fmt.sample_rate < 1) {
-        // TODO
-        goto ui_wavplay_end;
+        f_close(&fp);
+        return ERR_FILE_FORMAT_INVALID;
     }
     
     if (!ws_system_color_active()) {
@@ -337,8 +336,10 @@ void ui_wavplay(const char *path) {
     }
     outportb(IO_SND_OUT_CTRL, 0);
     outportb(IO_SND_CH_CTRL, 0);
-    
+
 ui_wavplay_end:
     f_close(&fp);
     ui_init();
+
+    return 0;
 }

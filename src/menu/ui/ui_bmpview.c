@@ -21,6 +21,7 @@
 #include <string.h>
 #include <ws.h>
 #include <nilefs.h>
+#include "errors.h"
 #include "ui.h"
 #include "../util/input.h"
 #include "../main.h"
@@ -42,24 +43,22 @@ typedef struct {
     uint32_t important_color_count;
 } bmp_header_t;
 
-void ui_bmpview(const char *path) {
+int ui_bmpview(const char *path) {
     FIL fp;
     uint8_t result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
     if (result != FR_OK) {
-        // TODO
-        return;
+        return result;
     }
 
     if (f_size(&fp) > 65535) {
-        // TODO
         f_close(&fp);
-        goto ui_bmpview_end;
+        return ERR_FILE_TOO_LARGE;
     }
 
     result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), NULL);
     f_close(&fp);
     if (result != FR_OK) {
-        goto ui_bmpview_end;
+        return result;
     }
 
     bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
@@ -67,8 +66,7 @@ void ui_bmpview(const char *path) {
         bmp->width <= 0 || bmp->width > 224 || bmp->height <= 0 || bmp->height > 144 ||
         bmp->compression != 0 || bmp->color_count > (ws_system_color_active() ? 16 : 4) ||
         (bmp->bpp != 1 && (!ws_system_color_active() || bmp->bpp != 4))) {
-        // TODO
-        goto ui_bmpview_end;
+        return ERR_FILE_FORMAT_INVALID;
     }
 
     outportw(IO_DISPLAY_CTRL, 0);
@@ -141,6 +139,7 @@ void ui_bmpview(const char *path) {
     outportw(IO_DISPLAY_CTRL, (16 << 8) | DISPLAY_SCR2_ENABLE | DISPLAY_SCR2_WIN_INSIDE);
     input_wait_any_key();
 
-ui_bmpview_end:
     ui_init();
+
+    return 0;
 }

@@ -225,13 +225,13 @@ rescan_directory:
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_bmp)) {
-                        ui_bmpview(path);
+                        ui_error_handle(ui_bmpview(path), NULL, 0);
                     } else if (!strcasecmp(ext, s_file_ext_wav)) {
-                        ui_wavplay(path);
+                        ui_error_handle(ui_wavplay(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_vgm)) {
-                        ui_vgmplay(path);
+                        ui_error_handle(ui_vgmplay(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     }

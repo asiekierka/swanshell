@@ -45,6 +45,10 @@ const char __far *error_to_string(int16_t value) {
         return lang_keys[LK_ERROR_MCU_BIN_CORRUPT];
     case ERR_SAVE_PSRAM_CORRUPT:
         return lang_keys[LK_ERROR_SAVE_PSRAM_CORRUPT];
+    case ERR_FILE_TOO_LARGE:
+        return lang_keys[LK_ERROR_FILE_TOO_LARGE];
+    case ERR_FILE_FORMAT_INVALID:
+        return lang_keys[LK_ERROR_FILE_FORMAT_INVALID];
     default:
         return NULL;
     }
