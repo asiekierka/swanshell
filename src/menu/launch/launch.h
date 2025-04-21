@@ -24,7 +24,9 @@
 #include <wonderful.h>
 
 typedef struct {
-    uint8_t jump_call[5];
+    uint8_t jump_command;
+    uint16_t jump_offset;
+    uint16_t jump_segment;
     uint8_t maintenance;
     uint8_t publisher_id;
     uint8_t color;

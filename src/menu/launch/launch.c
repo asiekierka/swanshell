@@ -676,9 +676,16 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
 
     // Switch MCU to RTC mode
     if (!meta->eeprom_size) {
-        mcu_native_set_mode(meta->footer.mapper == 1 ? 2 : 0xFF);
-        mcu_native_finish();
+        if (meta->footer.mapper == 1) {
+            outportb(IO_NILE_IRQ_ENABLE, NILE_IRQ_MCU);
+            mcu_native_set_mode(2);
+        } else {
+            outportb(IO_NILE_IRQ_ENABLE, 0);
+            mcu_native_set_mode(0xFF);
+        }
     }
+    outportb(IO_NILE_IRQ_STATUS, 0xFF);
+    mcu_native_finish();
 
     // Jump to bootstub
     memcpy((void*) 0x00c0, bootstub, bootstub_size);
