@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <wonderful.h>
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     uint8_t jump_command;
     uint16_t jump_offset;
     uint16_t jump_segment;
