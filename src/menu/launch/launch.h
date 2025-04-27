@@ -54,4 +54,6 @@ int16_t launch_backup_save_data(void);
 int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta);
 int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta);
 
+int16_t launch_bfb(const char *path);
+
 #endif /* _LAUNCH_H_ */

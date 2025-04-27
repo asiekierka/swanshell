@@ -129,6 +129,8 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
                 icon_idx = 3;
             } else if (!strcasecmp(ext, s_file_ext_wav) || !strcasecmp(ext, s_file_ext_vgm)) {
                 icon_idx = 4;
+            } else if (!strcasecmp(ext, s_file_ext_bfb)) {
+                icon_idx = 5;
             }
         }
     }
@@ -166,6 +168,12 @@ static bool ui_file_selector_options(void) {
         ui_settings(&settings_root);
         return true;
     }
+}
+
+static int ui_file_selector_bfb_options(void) {
+    ui_popup_list_config_t lst = {0};
+    lst.option[0] = lang_keys[LK_SUBMENU_OPTION_TEST];
+    return ui_popup_list(&lst);
 }
 
 void ui_file_selector(void) {
@@ -232,6 +240,14 @@ rescan_directory:
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_vgm)) {
                         ui_error_handle(ui_vgmplay(path), NULL, 0);
+                        reinit_ui = true;
+                        goto rescan_directory;
+                    } else if (!strcasecmp(ext, s_file_ext_bfb)) {
+                        ui_selector_clear_selection(&config);
+                        int option = ui_file_selector_bfb_options();
+                        if (option == 0) {
+                            ui_error_handle(launch_bfb(path), NULL, 0);
+                        }
                         reinit_ui = true;
                         goto rescan_directory;
                     }

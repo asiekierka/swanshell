@@ -25,6 +25,7 @@
 #define DEFINE_STRING(name, value) extern const char __far name[]
 #endif
 
+DEFINE_STRING(s_file_ext_bfb, ".bfb");
 DEFINE_STRING(s_file_ext_bmp, ".bmp");
 DEFINE_STRING(s_file_ext_vgm, ".vgm");
 DEFINE_STRING(s_file_ext_wav, ".wav");
