@@ -70,8 +70,8 @@ void ui_draw_titlebar(const char __far* text) {
 
 void ui_draw_statusbar(const char __far* text) {
     bitmap_rect_fill(&ui_bitmap, 0, 144-8, 244, 8, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmapfont_set_active_font(font8_bitmap);
     if (text != NULL) {
-        bitmapfont_set_active_font(font8_bitmap);
         bitmapfont_draw_string(&ui_bitmap, 2, 144-8, text, 224 - 4);
     }
 }

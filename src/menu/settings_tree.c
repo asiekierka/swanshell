@@ -24,6 +24,7 @@
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
 DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
+DEFINE_STRING_LOCAL(s_program_fast_sram_key, "ProgFastSRAM");
 DEFINE_STRING_LOCAL(s_language, "Language");
 
 settings_t settings;
@@ -31,6 +32,7 @@ settings_t settings;
 static const setting_t __far setting_file_show_hidden = {
     s_file_show_hidden_key,
     LK_SETTINGS_FILE_SHOW_HIDDEN_KEY,
+    LK_SETTINGS_FILE_SHOW_HIDDEN_HELP,
     SETTING_TYPE_FLAG,
     0,
     .flag = {
@@ -57,6 +59,7 @@ static void settings_file_sort_order_name(uint16_t value, char *buf, int buf_len
 static const setting_t __far setting_file_sort_order = {
     s_file_sort_order_key,
     LK_SETTINGS_FILE_SORT_KEY,
+    0,
     SETTING_TYPE_CHOICE_BYTE,
     0,
     NULL,
@@ -80,6 +83,7 @@ static void settings_file_view_name(uint16_t value, char *buf, int buf_len) {
 static const setting_t __far setting_file_view = {
     s_file_view_key,
     LK_SETTINGS_FILE_VIEW_KEY,
+    0,
     SETTING_TYPE_CHOICE_BYTE,
     0,
     NULL,
@@ -93,6 +97,7 @@ static const setting_t __far setting_file_view = {
 
 static const setting_category_t __far settings_file = {
     LK_SETTINGS_FILE_KEY,
+    0,
     &settings_root,
     3,
     {
@@ -102,9 +107,10 @@ static const setting_category_t __far settings_file = {
     }
 };
 
-static const setting_t __far setting_category = {
+static const setting_t __far setting_file = {
     NULL,
     LK_SETTINGS_FILE_KEY,
+    0,
     SETTING_TYPE_CATEGORY,
     0,
     NULL,
@@ -134,6 +140,7 @@ static void settings_language_name(uint16_t value, char *buf, int buf_len) {
 static const setting_t __far setting_language = {
     NULL,
     LK_SETTINGS_LANGUAGE_KEY,
+    0,
     SETTING_TYPE_CHOICE_BYTE,
     0,
     settings_language_on_change,
@@ -144,12 +151,48 @@ static const setting_t __far setting_language = {
         settings_language_name
     }
 };
+
+static const setting_t __far setting_program_fast_sram = {
+    s_program_fast_sram_key,
+    LK_SETTINGS_PROG_SRAM_OVERCLOCK,
+    LK_SETTINGS_PROG_SRAM_OVERCLOCK_HELP,
+    SETTING_TYPE_FLAG,
+    0,
+    .flag = {
+        &settings.file_flags,
+        SETTING_FILE_SHOW_HIDDEN_SHIFT,
+        LK_NO, LK_YES
+    }
+};
+
+static const setting_category_t __far settings_program = {
+    LK_SETTINGS_PROG_KEY,
+    0,
+    &settings_root,
+    1,
+    {
+        &setting_program_fast_sram
+    }
+};
+
+static const setting_t __far setting_program = {
+    NULL,
+    LK_SETTINGS_PROG_KEY,
+    0,
+    SETTING_TYPE_CATEGORY,
+    0,
+    NULL,
+    .category = { &settings_program }
+};
+
 const setting_category_t __far settings_root = {
     LK_SETTINGS_KEY,
+    0,
     NULL,
-    2,
+    3,
     {
-        &setting_category,
+        &setting_file,
+        &setting_program,
         &setting_language
     }
 };

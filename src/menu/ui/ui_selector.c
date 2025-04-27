@@ -37,6 +37,10 @@ void ui_selector_clear_selection(ui_selector_config_t *config) {
     }
 }
 
+#define UI_SELECTOR_OFFSET_TO_BOUNDS() \
+    if (config->count > 0 && config->offset >= config->count) \
+        config->offset = config->count - 1
+
 uint16_t ui_selector(ui_selector_config_t *config) {
     char sbuf[33];
     bool full_redraw = true;
@@ -68,6 +72,10 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
                 snprintf(sbuf, sizeof(sbuf), lang_keys[LK_UI_FILE_SELECTOR_PAGE_FORMAT], (config->offset / row_count) + 1, ((config->count + row_count - 1) / row_count));
                 ui_draw_statusbar(sbuf);
+                if (config->info_key) {
+                    const char __far* info_str = lang_keys[config->info_key];
+                    bitmapfont_draw_string(&ui_bitmap, 224 - 2 - bitmapfont_get_string_width(info_str, 224), 144-8, info_str, 224);
+                }
             }
             if ((prev_offset % row_count) != (config->offset % row_count)) {
                 // Draw highlights
@@ -123,29 +131,40 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
         // Page/entry movement
         if (keys_pressed & KEY_X1) {
-            if (config->offset == 0 || ((config->offset - 1) % row_count) == (row_count - 1))
-                config->offset = config->offset + (row_count - 1);
-            else
-                config->offset = config->offset - 1;
+            do {
+                if (config->offset == 0 || ((config->offset - 1) % row_count) == (row_count - 1))
+                    config->offset = config->offset + (row_count - 1);
+                else
+                    config->offset = config->offset - 1;
+                UI_SELECTOR_OFFSET_TO_BOUNDS();
+            } while (config->can_select != NULL && !config->can_select(config, config->offset));
         }
         if (keys_pressed & KEY_X3) {
-            if ((config->offset + 1) == config->count)
-                config->offset = config->offset - (config->offset % row_count);
-            else if (((config->offset + 1) % row_count) == 0)
-                config->offset = config->offset - (row_count - 1);
-            else
-                config->offset = config->offset + 1;
+            do {
+                if ((config->offset + 1) == config->count)
+                    config->offset = config->offset - (config->offset % row_count);
+                else if (((config->offset + 1) % row_count) == 0)
+                    config->offset = config->offset - (row_count - 1);
+                else
+                    config->offset = config->offset + 1;
+                UI_SELECTOR_OFFSET_TO_BOUNDS();
+            } while (config->can_select != NULL && !config->can_select(config, config->offset));
         }
         if (keys_pressed & KEY_X2) {
-            if ((config->offset - (config->offset % row_count) + row_count) < config->count)
-                config->offset += row_count;
+            do {
+                if ((config->offset - (config->offset % row_count) + row_count) < config->count)
+                    config->offset += row_count;
+                UI_SELECTOR_OFFSET_TO_BOUNDS();
+            } while (config->can_select != NULL && !config->can_select(config, config->offset));
         }
         if (keys_pressed & KEY_X4) {
-            if (config->offset >= row_count)
-                config->offset -= row_count;
+            do {
+                if (config->offset >= row_count)
+                    config->offset -= row_count;
+                UI_SELECTOR_OFFSET_TO_BOUNDS();
+            } while (config->can_select != NULL && !config->can_select(config, config->offset));
         }
-        if (config->count > 0 && config->offset >= config->count)
-            config->offset = config->count - 1;
+        UI_SELECTOR_OFFSET_TO_BOUNDS();
 
         // User actions
         if (keys_pressed & config->key_mask)

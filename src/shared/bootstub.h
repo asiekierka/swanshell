@@ -15,13 +15,14 @@ typedef struct {
     uint32_t fat_entry_count;
 
     // Program information
-    uint32_t prog_size; // Program size
-    uint16_t rom_banks; // Requested ROM banks
-    uint32_t prog_cluster; // Starting cluster for program
+    uint32_t prog_size; ///< Program size
+    uint16_t rom_banks; ///< Requested ROM banks
+    uint32_t prog_cluster; ///< Starting cluster for program
     uint8_t prog_sram_mask;
     uint8_t prog_pow_cnt;
     uint8_t prog_emu_cnt;
-    uint8_t prog_flags;
+    uint8_t prog_flags; ///< IO_SYSTEM_CTRL1 flags
+    uint8_t prog_flags2; ///< IO_SYSTEM_CTRL2 flags
     uint8_t prog_patches;
 } bootstub_data_t;
 

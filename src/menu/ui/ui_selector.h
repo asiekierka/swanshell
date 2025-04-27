@@ -24,11 +24,14 @@
 #define UI_SELECTOR_STYLE_8  1
 
 typedef struct ui_selector_config {
-    uint16_t offset, count;
-    uint16_t key_mask;
-    uint8_t style;
+    uint16_t offset; ///< Currently selected entry. Controlled by ui_selector().
+    uint16_t count; ///< Maximum number of entries.
+    uint16_t info_key; ///< Language key for auxilliary information.
+    uint16_t key_mask; ///< Keys which exit the ui_selector() main loop.
+    uint8_t style; ///< Style.
 
     void (*draw)(struct ui_selector_config *config, uint16_t idx, uint16_t y);
+    bool (*can_select)(struct ui_selector_config *config, uint16_t idx);
 } ui_selector_config_t;
 
 void ui_selector_clear_selection(ui_selector_config_t *config);

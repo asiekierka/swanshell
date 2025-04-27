@@ -42,10 +42,13 @@
 #define SETTING_FILE_VIEW_LARGE 0
 #define SETTING_FILE_VIEW_SMALL 1
 
+#define SETTING_FLAG_COLOR_ONLY 0x01
+
 struct setting;
 
 typedef struct setting_category {
     uint16_t name;
+    uint16_t help;
     const struct setting_category __far *parent;
     uint16_t entry_count;
     const struct setting __far* entries[];
@@ -54,6 +57,7 @@ typedef struct setting_category {
 typedef struct setting {
     const char __far* key;
     uint16_t name;
+    uint16_t help;
     uint8_t type;
     uint8_t flags;
     void (*on_change)(const struct setting __far*);
@@ -76,7 +80,15 @@ typedef struct setting {
     };
 } setting_t;
 
+#define SETTING_PROG_FLAG_SRAM_OVERCLOCK_SHIFT 0
+#define SETTING_PROG_FLAG_SRAM_OVERCLOCK (1 << SETTING_PROG_FLAG_SRAM_OVERCLOCK_SHIFT)
+
 typedef struct {
+    uint8_t flags;
+} settings_prog_t;
+
+typedef struct {
+    settings_prog_t prog;
     uint8_t file_flags;
     uint8_t file_sort;
     uint8_t language;

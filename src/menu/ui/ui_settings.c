@@ -22,13 +22,16 @@
 #include <ws.h>
 #include <nilefs.h>
 #include <ws/keypad.h>
+#include <ws/system.h>
 #include "bitmap.h"
+#include "lang_gen.h"
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
 #include "ui_selector.h"
 #include "ui_settings.h"
 #include "lang.h"
+#include "util/input.h"
 
 typedef struct ui_settings_config {
     ui_selector_config_t config;
@@ -58,13 +61,28 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
     bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, 224 - x_offset);
 }
 
-void ui_settings(void) {
-    ui_settings_config_t config = {{0}, &settings_root};
+static bool ui_settings_can_select(struct ui_selector_config *config, uint16_t offset) {
+    ui_settings_config_t *sconfig = (ui_settings_config_t*) config;
+    const setting_t __far* s = sconfig->category->entries[offset];
+
+    if (s->flags & SETTING_FLAG_COLOR_ONLY) {
+        if (!ws_system_is_color()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void ui_settings(const setting_category_t __far* root_category) {
+    ui_settings_config_t config = {{0}, root_category};
     bool reinit_ui = true;
 
     config.config.style = UI_SELECTOR_STYLE_16;
     config.config.draw = ui_settings_draw;
-    config.config.key_mask = KEY_A | KEY_B | KEY_START;
+    config.config.can_select = ui_settings_can_select;
+    config.config.key_mask = KEY_A | KEY_B | KEY_START | KEY_Y1;
+    config.config.info_key = ws_system_get_model() == WS_MODEL_PCV2 ? LK_SETTINGS_INFO_PC2 : LK_SETTINGS_INFO_WS;
 
 reload_menu:
     config.config.count = config.category->entry_count;
@@ -80,6 +98,24 @@ reload_menu:
     while (true) {
         uint16_t keys_pressed = ui_selector(&config.config);
         const setting_t __far* s = config.category->entries[config.config.offset];
+
+        if (keys_pressed & KEY_Y1) {
+            if (s->help) {
+                ui_layout_bars();
+                bitmap_rect_fill(&ui_bitmap, 0, 8, 28 * 8, 16 * 8, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
+
+                ui_draw_titlebar(lang_keys[s->name]);
+                ui_draw_statusbar(NULL);
+                
+                bitmapfont_set_active_font(font16_bitmap);
+                bitmapfont_draw_string_box(&ui_bitmap, 2, 10, lang_keys[s->help], 224 - 4);
+
+                input_wait_any_key();
+
+                reinit_ui = true;
+                goto reload_menu;
+            }
+        }
 
         if (keys_pressed & KEY_A) {
             if (s->type == SETTING_TYPE_CATEGORY) {
@@ -109,7 +145,7 @@ reload_menu:
             }
         }
         if (keys_pressed & KEY_B) {
-            if (config.category->parent) {
+            if (config.category != root_category && config.category->parent) {
                 config.category = config.category->parent;
                 goto reload_menu;
             }

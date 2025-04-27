@@ -19,8 +19,9 @@
 #define __UI_SETTINGS_H__
 
 #include <ws.h>
+#include "settings.h"
 #include "ui.h"
 
-void ui_settings(void);
+void ui_settings(const setting_category_t __far* root_category);
 
 #endif /* __UI_SETTINGS_H__ */

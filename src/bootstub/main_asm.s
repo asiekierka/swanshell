@@ -32,7 +32,6 @@ __outsw_loop:
     loop __outsw_loop
     ret
 
-    // AL - disable color mode?
     .section .fartext.s.restore_cold_boot_io_state, "a"
     .align 2
 restore_cold_boot_io_state:
@@ -40,7 +39,6 @@ restore_cold_boot_io_state:
     push es
     push si
     push di
-    mov bh, al
     push ds
     pop es
 
@@ -56,17 +54,6 @@ restore_cold_boot_io_state:
 1:
     rep stosw
 
-    // if color active...
-    test bl, 0x80
-    jz 2f
-    mov al, 0x8A
-    // if disable color mode...
-    test bh, bh
-    jz 1f
-    mov al, 0x0A
-1:
-    out 0x60, al
-2:
     // reset I/O ports 0x00 - 0x5F
     mov ax, 0x1000
     mov ds, ax

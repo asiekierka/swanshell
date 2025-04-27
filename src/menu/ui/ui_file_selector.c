@@ -163,7 +163,7 @@ static bool ui_file_selector_options(void) {
     default:
         return false;
     case 0:
-        ui_settings();
+        ui_settings(&settings_root);
         return true;
     }
 }

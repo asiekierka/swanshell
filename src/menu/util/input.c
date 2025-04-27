@@ -32,9 +32,9 @@ void vblank_input_update(void) {
 		// WS:   ....yyyyxxxxbas.
 		// PCv2: ....pc1Cre1vud1l
 		// remapped:
-		//       ...p....urldcCe.
+		//       .......purldcCe.
 		keys = 
-			  ((keys & 0x0800) <<  1) /*p*/
+			  ((keys & 0x0800) >>  3) /*p*/
 			| ((keys & 0x0400) >>  7) /*c*/
 			| ((keys & 0x0100) >>  6) /*C*/
 			| ((keys & 0x0080) >>  1) /*r*/

@@ -31,6 +31,7 @@
 #include "errors.h"
 #include "lang_gen.h"
 #include "mcu.h"
+#include "settings.h"
 #include "strings.h"
 #include "../../build/menu/build/bootstub_bin.h"
 #include "../../build/menu/assets/menu/bootstub_tiles.h"
@@ -667,6 +668,7 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
         bootstub_data->prog_pow_cnt = inportb(IO_NILE_POW_CNT);
         bootstub_data->prog_flags = 0x04;
     }
+    bootstub_data->prog_flags2 = (settings.prog.flags & SETTING_PROG_FLAG_SRAM_OVERCLOCK) ? 0x00 : 0x0A;
     bootstub_data->prog_patches = meta->freya_found ? BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET : 0;
 
     // Lock IEEPROM

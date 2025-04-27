@@ -187,7 +187,8 @@ int main(void) {
 		MEM_NILE_IPC->tf_card_status = 0;
 	}
 	restore_cold_boot_io_state(true);
-        outportb(IO_SYSTEM_CTRL1, (inportb(IO_SYSTEM_CTRL1) & ~0xC) | (bootstub_data->prog_flags & 0xC));
+	outportb(IO_SYSTEM_CTRL1, (inportb(IO_SYSTEM_CTRL1) & ~0xC) | (bootstub_data->prog_flags & 0xC));
+	outportb(IO_SYSTEM_CTRL2, bootstub_data->prog_flags2);
 	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
 	outportb(IO_NILE_EMU_CNT, bootstub_data->prog_emu_cnt);
 	// POW_CNT disables cart registers, so must be last
