@@ -32,11 +32,11 @@ freya_soft_reset:
 
     // reset linear ROM bank
     mov ax, 0xFFFF
-    out 0xC0, al
+    out WS_CART_BANK_ROML_PORT, al
     // hide display
     push ax
     inc ax
-    out 0x00, ax
+    out WS_DISPLAY_CTRL_PORT, ax
     push ax
     dec ax
 

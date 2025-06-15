@@ -28,8 +28,8 @@ extern uint8_t freya_soft_reset_end;
 #define FREYA_SOFT_RESET_START 0xFFC8
 
 void patch_apply_freya_soft_reset(void) {
-    outportw(IO_BANK_2003_RAM, 0x07);
-    outportb(IO_CART_FLASH, 1);
+    outportw(WS_CART_EXTBANK_RAM_PORT, 0x07);
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
     // Check if the preceding area is unused.
     // The patch area could already be overwritten, so this is a kind of heuristic.
@@ -43,5 +43,5 @@ void patch_apply_freya_soft_reset(void) {
     *((uint16_t __far*) MK_FP(0x1000, 0xFFF1)) = FREYA_SOFT_RESET_START;
     *((uint16_t __far*) MK_FP(0x1000, 0xFFF3)) = 0xF000;
 
-    outportb(IO_CART_FLASH, 0);
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
 }

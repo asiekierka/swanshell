@@ -21,7 +21,6 @@
 #include <ws.h>
 #include <nile.h>
 #include <nilefs.h>
-#include <ws/hardware.h>
 #include "cluster_read.h"
 #include "patches.h"
 #include "bootstub.h"
@@ -41,12 +40,11 @@ extern uint8_t diskio_detail_code;
 
 __attribute__((noreturn))
 static void report_fatfs_error(uint8_t result) {
-	// deinitialize hardware
-	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART);
-	outportb(IO_NILE_POW_CNT, NILE_POW_MCU_RESET);
+	uint8_t buffer[12];
 
-	outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(7, 0, 2, 5));
-	outportw(IO_SCR_PAL_3, MONO_PAL_COLORS(7, 7, 7, 7));
+	// print FatFs error
+	outportw(WS_SCR_PAL_0_PORT, 0x5207);
+	outportw(WS_SCR_PAL_3_PORT, 0x7777);
 	memcpy_expand_8_16(SCREEN + (2 * 32) + 2, fatfs_error_header, sizeof(fatfs_error_header) - 1, 0x0100);
 	ws_screen_put_tile(SCREEN, 23, 2, hexchars[result >> 4] | 0x0100);
 	ws_screen_put_tile(SCREEN, 24, 2, hexchars[result & 0xF] | 0x0100);
@@ -60,10 +58,25 @@ static void report_fatfs_error(uint8_t result) {
 		case FR_NO_FILESYSTEM: error_detail = "FAT filesystem not found"; break;
 	}
 	if (error_detail != NULL) {
-		memcpy_expand_8_16(SCREEN + ((17 - 2) * 32) + ((28 - strlen(error_detail)) >> 1), error_detail, strlen(error_detail), 0x0100);
+		memcpy_expand_8_16(SCREEN + ((16 - 2) * 32) + ((28 - strlen(error_detail)) >> 1), error_detail, strlen(error_detail), 0x0100);
 	}
 
-	while(1);
+	// try fetching flash ID
+	nile_flash_wake();
+	result = nile_flash_read_uuid(buffer);
+	nile_flash_sleep();
+	if (result) {
+		for (int i = 0; i < 8; i++) {
+			ws_screen_put_tile(SCREEN, 6 + i*2, 15, hexchars[buffer[i] >> 4] | 0x0100);
+			ws_screen_put_tile(SCREEN, 7 + i*2, 15, hexchars[buffer[i] & 0xF] | 0x0100);
+		}
+	}
+
+	// deinitialize hardware
+	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART);
+	outportb(IO_NILE_POW_CNT, NILE_POW_MCU_RESET);
+	ia16_disable_irq();
+	while(1) ia16_halt();
 }
 
 /* === Visual flair === */
@@ -75,18 +88,18 @@ static uint16_t progress_pos;
 #define PROGRESS_BAR_Y 13
 
 static void progress_init(uint16_t graphic, uint16_t max_value) {
-	if (ws_system_color_active()) {
-		MEM_COLOR_PALETTE(0)[0] = 0xFFF;
-		MEM_COLOR_PALETTE(0)[1] = 0x000;
-		MEM_COLOR_PALETTE(0)[2] = 0x555;
-		MEM_COLOR_PALETTE(0)[3] = 0xAAA;
+	if (ws_system_is_color_active()) {
+		WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
+		WS_DISPLAY_COLOR_MEM(0)[1] = 0x000;
+		WS_DISPLAY_COLOR_MEM(0)[2] = 0x555;
+		WS_DISPLAY_COLOR_MEM(0)[3] = 0xAAA;
 	} else {
-		ws_display_set_shade_lut(SHADE_LUT_DEFAULT);
-		outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(0, 7, 5, 2));
+		ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT_DEFAULT);
+		outportw(WS_SCR_PAL_0_PORT, 0x2570);
 	}
 
 	// Initialize screen 1
-	outportw(IO_SCR1_SCRL_X, 0);
+	outportw(WS_SCR1_SCRL_X_PORT, 0);
 	ws_screen_fill_tiles(SCREEN, 0x120, 0, 0, 28, 18);
 	for (int i = 0; i < 12; i++) {
 		ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i, (i & 3) + 12, (i >> 2) + 7);
@@ -94,13 +107,13 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 
 	// Initialize screen 2
 	ws_screen_fill_tiles(SCREEN, ((uint8_t) '-') | 0x100, 0, 31, 28, 1);
-	outportw(IO_SCR2_SCRL_X, ((31 - PROGRESS_BAR_Y) << 11));
-	outportw(IO_SCR2_WIN_X1, (6 | (PROGRESS_BAR_Y << 8)) << 3);
-	outportw(IO_SCR2_WIN_X2, ((6 | ((PROGRESS_BAR_Y + 1) << 8)) << 3) - 0x101);
+	outportw(WS_SCR2_SCRL_X_PORT, ((31 - PROGRESS_BAR_Y) << 11));
+	outportw(WS_SCR2_WIN_X1_PORT, (6 | (PROGRESS_BAR_Y << 8)) << 3);
+	outportw(WS_SCR2_WIN_X2_PORT, ((6 | ((PROGRESS_BAR_Y + 1) << 8)) << 3) - 0x101);
 
 	// Show screens
-	outportb(IO_SCR_BASE, SCR1_BASE(SCREEN) | SCR2_BASE(SCREEN));
-	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE | DISPLAY_SCR2_WIN_INSIDE);
+	outportb(WS_SCR_BASE_PORT, WS_SCR_BASE_ADDR1(SCREEN) | WS_SCR_BASE_ADDR2(SCREEN));
+	outportw(WS_DISPLAY_CTRL_PORT, WS_DISPLAY_CTRL_SCR1_ENABLE | WS_DISPLAY_CTRL_SCR2_ENABLE | WS_DISPLAY_CTRL_SCR2_WIN_INSIDE);
 
 	bank_count = 0;
 	bank_count_max = max_value;
@@ -111,7 +124,7 @@ static void progress_tick(void) {
 	if (!bank_count_max) return;
 	uint16_t progress_end = ((uint32_t)(++bank_count) << 7) / bank_count_max;
 	if (progress_end > 128) progress_end = 128;
-	outportb(IO_SCR2_WIN_X2, (6 << 3) + progress_end - 1);
+	outportb(WS_SCR2_WIN_X2_PORT, (6 << 3) + progress_end - 1);
 }
 
 /* === Hardware configuration === */
@@ -127,7 +140,7 @@ extern void cold_jump(const void __far *ptr);
 extern void nilefs_ipc_sync(void);
 
 int main(void) {
-	outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+	outportw(WS_CART_EXTBANK_RAM_PORT, NILE_SEG_RAM_IPC);
 	// Copy boot registers for cold_jump()
 	memcpy((void*) 0x0040, MEM_NILE_IPC->boot_regs.data, 24);
 	nilefs_ipc_sync();
@@ -144,14 +157,14 @@ int main(void) {
 	uint16_t bank = (real_size - size) >> 16;
 	uint16_t total_banks = real_size >> 16;
 
-	outportb(IO_LCD_SEG, (bootstub_data->prog_flags & 1) ? LCD_SEG_ORIENT_V : LCD_SEG_ORIENT_H);
+	outportb(WS_LCD_ICON_PORT, (bootstub_data->prog_flags & 1) ? WS_LCD_ICON_ORIENT_V : WS_LCD_ICON_ORIENT_H);
 	if (bootstub_data->prog_cluster) {
 		progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 1 : 0));
 		cluster_open(bootstub_data->prog_cluster);
-		outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
+		outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
 		while (bank < total_banks) {
-			outportw(IO_BANK_2003_RAM, bank);
+			outportw(WS_CART_EXTBANK_RAM_PORT, bank);
 			if (offset < 0x8000) {
 				progress_tick();
 				if ((result = cluster_read(MK_FP(0x1000, offset), 0x8000 - offset)) != FR_OK) {
@@ -171,30 +184,30 @@ int main(void) {
 			patch_apply_freya_soft_reset();
 		}
 
-		outportb(IO_CART_FLASH, 0);
+		outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
 		outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 	}
 
 	// wait for vblank before clearing registers
-	while (inportb(IO_LCD_LINE) != 144)
+	while (inportb(WS_DISPLAY_LINE_PORT) != 144)
 		;
 	// disable display and segments first
-	outportw(IO_DISPLAY_CTRL, 0);
-	outportb(IO_LCD_SEG, 0);
-	outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
+	outportw(WS_DISPLAY_CTRL_PORT, 0);
+	outportb(WS_LCD_ICON_PORT, 0);
+	outportw(WS_CART_EXTBANK_RAM_PORT, NILE_SEG_RAM_IPC);
 	// disabling POW_CNT will depower TF card, reflect that in IPC
 	if (!(bootstub_data->prog_pow_cnt & NILE_POW_TF)) {
 		MEM_NILE_IPC->tf_card_status = 0;
 	}
 	restore_cold_boot_io_state(true);
-	outportb(IO_SYSTEM_CTRL1, (inportb(IO_SYSTEM_CTRL1) & ~0xC) | (bootstub_data->prog_flags & 0xC));
-	outportb(IO_SYSTEM_CTRL2, bootstub_data->prog_flags2);
+	outportb(WS_SYSTEM_CTRL_PORT, (inportb(WS_SYSTEM_CTRL_PORT) & ~0xC) | (bootstub_data->prog_flags & 0xC));
+	outportb(WS_SYSTEM_CTRL_COLOR_PORT, bootstub_data->prog_flags2);
 	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
 	outportb(IO_NILE_EMU_CNT, bootstub_data->prog_emu_cnt);
 	// POW_CNT disables cart registers, so must be last
 	outportb(IO_NILE_POW_CNT, (inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET) | bootstub_data->prog_pow_cnt);
 	// jump to cartridge
-	outportb(IO_HWINT_ACK, 0xFF);
+	outportb(WS_INT_ACK_PORT, 0xFF);
 	cold_jump(start_pointer);
 
 error:

@@ -20,14 +20,14 @@
 #include "file.h"
 
 int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
-    uint16_t prev_bank = inportw(IO_BANK_2003_RAM);
+    uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
     
     uint16_t lbr;
     if (br != NULL)
         *br = 0;
 
     while (btr) {
-        outportw(IO_BANK_2003_RAM, bank++);
+        outportw(WS_CART_EXTBANK_RAM_PORT, bank++);
         uint16_t to_read_part;
         to_read_part = btr >= 0x8000 ? 0x8000 : btr;
         btr -= to_read_part;
@@ -48,18 +48,18 @@ int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
         }
     }
 
-    outportw(IO_BANK_2003_RAM, prev_bank);
+    outportw(WS_CART_EXTBANK_RAM_PORT, prev_bank);
     return FR_OK;
 }
 
 int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
-    uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
+    uint16_t prev_bank = inportw(WS_CART_EXTBANK_ROM0_PORT);
     uint16_t lbw;
     if (bw != NULL)
         *bw = 0;
 
     while (btw) {
-        outportw(IO_BANK_2003_ROM0, bank++);
+        outportw(WS_CART_EXTBANK_ROM0_PORT, bank++);
         uint16_t to_read_part;
         to_read_part = btw >= 0x8000 ? 0x8000 : btw;
         btw -= to_read_part;
@@ -80,7 +80,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
         }
     }
 
-    outportw(IO_BANK_2003_ROM0, prev_bank);
+    outportw(WS_CART_EXTBANK_ROM0_PORT, prev_bank);
     return FR_OK;
 }
 
@@ -99,12 +99,12 @@ int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) 
         buffer_size = sizeof(stack_buffer);
     }
 
-    uint16_t prev_bank = inportw(IO_BANK_2003_RAM);
+    uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
     if (bw != NULL)
         *bw = 0;
 
     for (uint32_t i = 0; btw > 0; i += buffer_size, btw -= buffer_size) {
-        outportw(IO_BANK_2003_RAM, bank + (i >> 16));
+        outportw(WS_CART_EXTBANK_RAM_PORT, bank + (i >> 16));
         uint16_t len = buffer_size;
         if (btw < len)
             len = btw;
@@ -116,6 +116,6 @@ int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) 
             *bw += lbw;
     }
 
-    outportw(IO_BANK_2003_RAM, prev_bank);
+    outportw(WS_CART_EXTBANK_RAM_PORT, prev_bank);
     return FR_OK;
 }
