@@ -16,8 +16,8 @@
  */
 
 #include <string.h>
+#include <wsx/utf8.h>
 #include "bitmap.h"
-#include "util/utf8.h"
 
 #define BITMAP_AT(bitmap, x, y) (((uint8_t*) (bitmap)->start) + ((y) * (bitmap)->y_pitch) + (((x) >> (bitmap)->x_shift) * (bitmap)->x_pitch))
 
@@ -270,7 +270,7 @@ uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width) 
     uint32_t ch;
     uint16_t width = 0;
     
-    while ((ch = utf8_decode_char(&str)) != 0) {
+    while ((ch = wsx_utf8_decode_next(&str)) != 0) {
         uint16_t new_width = width + bitmapfont_get_char_width(ch);
         if (new_width > max_width)
             return width - BITMAPFONT_CHAR_GAP;
@@ -285,7 +285,7 @@ uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t 
     uint32_t ch;
     uint16_t width = 0;
 
-    while ((ch = utf8_decode_char(&str)) != 0) {
+    while ((ch = wsx_utf8_decode_next(&str)) != 0) {
         const uint16_t __far* data = bitmapfont_find_char(ch);
         uint16_t new_width = width + bitmapfont_get_char_width_a(data);
         if (new_width > max_width)
@@ -308,7 +308,7 @@ void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t 
 
     *height = 0;
     while (true) {
-        ch = utf8_decode_char(&str);
+        ch = wsx_utf8_decode_next(&str);
 repeat_char:
         ;
         bool is_soft_break = ch == ' ';
@@ -358,7 +358,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
     uint16_t start_yofs = yofs;
 
     while (true) {
-        ch = utf8_decode_char(&str);
+        ch = wsx_utf8_decode_next(&str);
         bool is_soft_break = ch == ' ';
         bool is_hard_break = ch == '\n';
         if (is_soft_break && !line_width) {
@@ -376,7 +376,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
             }
             uint16_t local_xofs = xofs;
             while (start_str < break_str) {
-                ch = utf8_decode_char(&start_str);
+                ch = wsx_utf8_decode_next(&start_str);
                 local_xofs += bitmapfont_draw_char(bitmap, local_xofs, yofs, ch) + BITMAPFONT_CHAR_GAP;
             }
             str = break_str;
