@@ -36,10 +36,10 @@ __attribute__((section(".iramx_1b80")))
 uint16_t bitmap_screen2[32 * 18 - 4];
 
 __attribute__((section(".iramx_2000")))
-ws_tile_t bitmap_tiles[512];
+ws_display_tile_t bitmap_tiles[512];
 
 __attribute__((section(".iramCx_4000")))
-ws_tile_t bitmap_tiles_c1[512];
+ws_display_tile_t bitmap_tiles_c1[512];
 
 bitmap_t ui_bitmap;
 

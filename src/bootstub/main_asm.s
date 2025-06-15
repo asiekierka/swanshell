@@ -86,4 +86,4 @@ restore_cold_boot_io_state:
     pop si
     pop es
     pop ds
-    WF_PLATFORM_RET
+    IA16_RET

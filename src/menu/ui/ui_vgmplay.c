@@ -104,7 +104,7 @@ int ui_vgmplay(const char *path) {
     outportw(IO_HBLANK_TIMER, 2);
     outportw(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE);
 
-    ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, (ws_int_handler_t) vgm_interrupt_handler);
+    ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, (ia16_int_handler_t) vgm_interrupt_handler);
     ws_hwint_enable(HWINT_HBLANK_TIMER);
 
     while (vgm_state->bank != 0xFF) {

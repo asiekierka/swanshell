@@ -51,7 +51,7 @@ utf8_decode_char_ret:
     pop si
     pop ds
 
-    ASM_PLATFORM_RET
+    IA16_RET
 
 utf8_decode_char2:
     and al, 0x1F

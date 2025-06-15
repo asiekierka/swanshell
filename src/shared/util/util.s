@@ -39,7 +39,7 @@ memcpy_expand_8_16:
 
     mov di, ax
     mov si, dx
-    mov ax, [WF_PLATFORM_CALL_STACK_OFFSET(10)]
+    mov ax, [IA16_CALL_STACK_OFFSET(10)]
 
     cld
 memcpy_expand_8_16_loop:
@@ -51,4 +51,4 @@ memcpy_expand_8_16_loop:
     pop di
     pop si
     pop es
-    ASM_PLATFORM_RET 0x2
+    IA16_RET 0x2

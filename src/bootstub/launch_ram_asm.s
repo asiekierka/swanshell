@@ -33,10 +33,10 @@ cold_jump:
 
     // Write bank values
     mov ax, 0xFFFF
-    out IO_BANK_ROM_LINEAR, al
-    out IO_BANK_2003_RAM, ax
-    out IO_BANK_2003_ROM0, ax
-    out IO_BANK_2003_ROM1, ax
+    out WS_CART_BANK_ROML_PORT, al
+    out WS_CART_EXTBANK_RAM_PORT, ax
+    out WS_CART_EXTBANK_ROM0_PORT, ax
+    out WS_CART_EXTBANK_ROM1_PORT, ax
 
     // Clear DS/ES for memory I/O
     cld

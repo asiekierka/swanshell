@@ -24,7 +24,7 @@ CBINDIRS	:= data/menu
 # Defines passed to all files
 # ---------------------------
 
-DEFINES		:=
+DEFINES		:= -DLIBWS_API_COMPAT=202504L
 
 # Libraries
 # ---------
