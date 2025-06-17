@@ -157,13 +157,7 @@ mcu_compare_success:
 bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen) {
 	if (!nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU))
 		return false;
-	if (!nile_spi_tx_sync_block(&cmd, 2))
-		return false;
-	if (buflen) {
-		if (!nile_spi_tx_sync_block(buffer, buflen))
-			return false;
-	}
-	return true;
+	return nile_mcu_native_send_cmd(cmd, buffer, buflen) >= 0;
 }
 
 bool mcu_native_set_mode(uint8_t mode) {
@@ -176,7 +170,7 @@ bool mcu_native_save_id_set(uint32_t id, uint16_t target) {
 	uint8_t tmp;
 	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x16, target & 0x1FF), &id, 4))
 		return false;
-	if (!nile_mcu_native_recv_cmd(&tmp, 1))
+	if (nile_mcu_native_recv_cmd(&tmp, 1) < 1)
 		return false;
 	return true;
 }
@@ -187,7 +181,7 @@ bool mcu_native_save_id_get(uint32_t *id, uint16_t target) {
 	} else {
 		if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x17, target & 0x1FF), NULL, 0))
 			return false;
-		if (!nile_mcu_native_recv_cmd(id, 4))
+		if (nile_mcu_native_recv_cmd(id, 4) < 4)
 			return false;
 	}
 	return true;
