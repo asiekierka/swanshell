@@ -211,7 +211,7 @@ static uint16_t bitmapfont_draw_char_a(const bitmap_t *bitmap, uint16_t xofs, ui
     if (!h) return x + w;
 
     const uint8_t __far* font_data = ((const uint8_t __far*) data) + data[0];
-    xofs += x;
+    xofs += x + w - 1;
     yofs += y;
     uint8_t *tile = BITMAP_AT(bitmap, xofs, yofs);
     xofs &= 7;
@@ -221,41 +221,29 @@ static uint16_t bitmapfont_draw_char_a(const bitmap_t *bitmap, uint16_t xofs, ui
     font_data += 2;
 
     for (uint16_t iy = 0; iy < h; iy++, tile += bitmap->bpp) {
-        uint16_t local_fifo = pixel_fifo;
-        if (pixel_fifo_left < w) {
-            local_fifo |= (*font_data << pixel_fifo_left);
-        }
-
         uint8_t *dst = tile;
         int16_t px_total_left = w;
-        uint16_t px_row_left = 8 - xofs;
-        uint16_t px_row_offset = w >= px_row_left ? 0 : (px_row_left - w);
-        if (px_row_left > px_total_left) px_row_left = px_total_left;
-        
+        uint16_t px_row_offset = xofs ^ 7;
+
         while (px_total_left > 0) {
-            uint16_t row = (local_fifo >> (px_total_left - px_row_left));
+            uint16_t px_row_left = 8 - px_row_offset;
+            if (px_row_left > px_total_left) px_row_left = px_total_left;
+
+            if (pixel_fifo_left < px_row_left) {
+                pixel_fifo |= (*(font_data++) << pixel_fifo_left);
+                pixel_fifo_left += 8;
+            }
+
             uint8_t mask = count_width_mask[px_row_left] << px_row_offset;
-            uint8_t src = (row << px_row_offset) & mask;
+            uint8_t src = (pixel_fifo << px_row_offset) & mask;
             *dst = (*dst & (~mask)) | src;
 
             px_total_left -= px_row_left;
-            dst += bitmap->x_pitch;
+            dst -= bitmap->x_pitch;
+            pixel_fifo >>= px_row_left;
+            pixel_fifo_left -= px_row_left;
 
-            px_row_left = 8;
-            if (px_row_left > px_total_left) px_row_left = px_total_left;
-            px_row_offset = 8 - px_row_left;
-        }
-
-        if (pixel_fifo_left >= w) {
-            pixel_fifo >>= w;
-            pixel_fifo_left -= w;
-        } else {
-            pixel_fifo = (*(font_data++) >> (w - pixel_fifo_left));
-            pixel_fifo_left = 8 - (w - pixel_fifo_left);
-        }
-        while (pixel_fifo_left <= 8) {
-            pixel_fifo |= (*(font_data++) << pixel_fifo_left);
-            pixel_fifo_left += 8;
+            px_row_offset = 0;
         }
     }
 
