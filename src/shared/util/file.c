@@ -91,7 +91,7 @@ int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) 
     uint16_t buffer_size;
     uint16_t lbw;
 
-    if (ws_system_color_active()) {
+    if (ws_system_is_color_active()) {
         buffer = sector_buffer;
         buffer_size = sizeof(sector_buffer);
     } else {

@@ -41,8 +41,8 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
     }
     uint16_t list_width = list_inner_width + ((LIST_ENTRY_X_PADDING + 1) * 2);
     uint16_t list_height = bitmapfont_get_font_height() * option_count + 2;
-    uint16_t list_x = (DISPLAY_WIDTH_PX - list_width) >> 1;
-    uint16_t list_y = (DISPLAY_HEIGHT_PX - list_height) >> 1;
+    uint16_t list_x = (WS_DISPLAY_WIDTH_PIXELS - list_width) >> 1;
+    uint16_t list_y = (WS_DISPLAY_HEIGHT_PIXELS - list_height) >> 1;
 
     bitmap_rect_draw(&ui_bitmap, list_x, list_y, list_width, list_height,
         BITMAP_COLOR(3, 3, BITMAP_COLOR_MODE_STORE), false);
@@ -51,7 +51,7 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
 
     for (int i = 0; i < option_count; i++) {
         bitmapfont_draw_string(&ui_bitmap,
-            (DISPLAY_WIDTH_PX - option_width[i]) >> 1,
+            (WS_DISPLAY_WIDTH_PIXELS - option_width[i]) >> 1,
             list_y + 1 + LIST_ENTRY_Y_OFFSET + bitmapfont_get_font_height() * i,
             config->option[i], 224);
     }
@@ -89,10 +89,10 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
                 selected = 0;
             }
         }
-        if (keys_pressed & KEY_A) {
+        if (keys_pressed & WS_KEY_A) {
             return selected;
         }
-        if (keys_pressed & KEY_B) {
+        if (keys_pressed & WS_KEY_B) {
             return UI_POPUP_ACTION_BACK;
         }
     }

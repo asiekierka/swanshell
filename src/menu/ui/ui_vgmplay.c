@@ -35,13 +35,13 @@ void  __attribute__((interrupt, assume_ss_data)) vgm_interrupt_handler(void) {
         uint16_t result = vgmswan_play(vgm_state);
         if (result > 1) {
             if (result != VGMSWAN_PLAYBACK_FINISHED) {
-                outportw(IO_TIMER_CTRL, 0);
-                outportw(IO_HBLANK_TIMER, result);
-                outportw(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE);
+                outportw(WS_TIMER_CTRL_PORT, 0);
+                outportw(WS_TIMER_HBL_RELOAD_PORT, result);
+                outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
             } else {
                 vgm_state->bank = 0xFF;
             }
-            ws_hwint_ack(HWINT_HBLANK_TIMER);
+            ws_int_ack(WS_INT_ACK_HBL_TIMER);
             return;
         }
     }
@@ -61,7 +61,7 @@ int ui_vgmplay(const char *path) {
     ui_draw_titlebar(NULL);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
 
-    outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
     uint32_t size = f_size(&fp);
     if (size > 4L*1024*1024) {
@@ -71,7 +71,7 @@ int ui_vgmplay(const char *path) {
     uint16_t bank = 0;
 
     while (size > 0) {
-        outportw(IO_BANK_2003_RAM, bank);
+        outportw(WS_CART_EXTBANK_RAM_PORT, bank);
         uint16_t to_read = size > 0x8000 ? 0x8000 : size;
         if ((result = f_read(&fp, MK_FP(0x1000, offset), to_read, NULL)) != FR_OK) {
             f_close(&fp);
@@ -87,8 +87,8 @@ int ui_vgmplay(const char *path) {
     }
     f_close(&fp);
     
-    outportb(IO_CART_FLASH, 0);
-    outportw(IO_BANK_2003_ROM0, 0);
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
+    outportw(WS_CART_EXTBANK_ROM0_PORT, 0);
     if (*((const uint32_t __far*) MK_FP(0x2000, 0x0000)) != 0x206d6756) {
         return ERR_FILE_FORMAT_INVALID;
     }
@@ -98,14 +98,13 @@ int ui_vgmplay(const char *path) {
 
     vgm_state = &local_vgm_state;
     vgmswan_init(&local_vgm_state, 0, 0);
-    outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x3FC0));
-    outportb(IO_SND_OUT_CTRL, 0x0F);
+    outportb(WS_SOUND_WAVE_BASE_PORT, WS_SOUND_WAVE_BASE_ADDR(0x3FC0));
+    outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_100);
+    outportw(WS_TIMER_HBL_RELOAD_PORT, 2);
+    outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
 
-    outportw(IO_HBLANK_TIMER, 2);
-    outportw(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE);
-
-    ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, (ia16_int_handler_t) vgm_interrupt_handler);
-    ws_hwint_enable(HWINT_HBLANK_TIMER);
+    ws_int_set_handler(WS_INT_HBL_TIMER, (ia16_int_handler_t) vgm_interrupt_handler);
+    ws_int_enable(WS_INT_ENABLE_HBL_TIMER);
 
     while (vgm_state->bank != 0xFF) {
         input_update();
@@ -114,10 +113,10 @@ int ui_vgmplay(const char *path) {
         }
     }
 
-    ws_hwint_disable(HWINT_HBLANK_TIMER);
-    outportw(IO_TIMER_CTRL, 0);
-    outportb(IO_SND_OUT_CTRL, 0);
-    outportb(IO_SND_CH_CTRL, 0);
+    ws_int_disable(WS_INT_ENABLE_HBL_TIMER);
+    outportw(WS_TIMER_CTRL_PORT, 0);
+    outportb(WS_SOUND_OUT_CTRL_PORT, 0);
+    outportb(WS_SOUND_CH_CTRL_PORT, 0);
 
     ui_init();
 

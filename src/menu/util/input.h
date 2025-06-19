@@ -24,15 +24,15 @@
 
 extern uint16_t input_pressed, input_held;
 
-#define KEY_UP KEY_X1
-#define KEY_DOWN KEY_X3
-#define KEY_LEFT KEY_X4
-#define KEY_RIGHT KEY_X2
+#define KEY_UP WS_KEY_X1
+#define KEY_DOWN WS_KEY_X3
+#define KEY_LEFT WS_KEY_X4
+#define KEY_RIGHT WS_KEY_X2
 
-#define KEY_AUP KEY_Y1
-#define KEY_ADOWN KEY_Y3
-#define KEY_ALEFT KEY_Y4
-#define KEY_ARIGHT KEY_Y2
+#define KEY_AUP WS_KEY_Y1
+#define KEY_ADOWN WS_KEY_Y3
+#define KEY_ALEFT WS_KEY_Y4
+#define KEY_ARIGHT WS_KEY_Y2
 
 void vblank_input_update(void);
 void input_reset(void);

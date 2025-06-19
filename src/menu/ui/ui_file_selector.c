@@ -15,7 +15,6 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ui/ui_file_selector.h"
 #include <nilefs/ff.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -23,13 +22,13 @@
 #include <wonderful.h>
 #include <ws.h>
 #include <nilefs.h>
-#include <ws/hardware.h>
 #include "bitmap.h"
 #include "lang_gen.h"
 #include "launch/launch.h"
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
+#include "ui/ui_file_selector.h"
 #include "ui/ui_popup_list.h"
 #include "ui_error.h"
 #include "ui_selector.h"
@@ -103,7 +102,7 @@ static uint16_t ui_file_selector_scan_directory(void) {
 	}
 	f_closedir(&dir);
 
-    outportw(IO_BANK_2003_RAM, FILE_SELECTOR_INDEX_BANK);
+    outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_INDEX_BANK);
     for (int i = 0; i < file_count; i++)
         FILE_SELECTOR_INDEXES[i] = i;
     ui_file_selector_qsort(file_count, compare_filenames, (void*) settings.file_sort);
@@ -138,22 +137,22 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     uint16_t i = y >> 3;
     if (config->style == UI_SELECTOR_STYLE_16) {
         // TODO: swap rows and colums in 16-high icons
-        if (ws_system_color_active()) {
-            memcpy(MEM_TILE_4BPP(i), gfx_icons_16color + (icon_idx * 128), 32);
-            memcpy(MEM_TILE_4BPP(i + 1), gfx_icons_16color + (icon_idx * 128) + 64, 32);
-            memcpy(MEM_TILE_4BPP(i + 18), gfx_icons_16color + (icon_idx * 128) + 32, 32);
-            memcpy(MEM_TILE_4BPP(i + 19), gfx_icons_16color + (icon_idx * 128) + 96, 32);
+        if (ws_system_is_color_active()) {
+            memcpy(WS_TILE_4BPP_MEM(i), gfx_icons_16color + (icon_idx * 128), 32);
+            memcpy(WS_TILE_4BPP_MEM(i + 1), gfx_icons_16color + (icon_idx * 128) + 64, 32);
+            memcpy(WS_TILE_4BPP_MEM(i + 18), gfx_icons_16color + (icon_idx * 128) + 32, 32);
+            memcpy(WS_TILE_4BPP_MEM(i + 19), gfx_icons_16color + (icon_idx * 128) + 96, 32);
         } else {
-            memcpy(MEM_TILE(i), gfx_icons_16mono + (icon_idx * 64), 16);
-            memcpy(MEM_TILE(i + 1), gfx_icons_16mono + (icon_idx * 64) + 32, 16);
-            memcpy(MEM_TILE(i + 18), gfx_icons_16mono + (icon_idx * 64) + 16, 16);
-            memcpy(MEM_TILE(i + 19), gfx_icons_16mono + (icon_idx * 64) + 48, 16);
+            memcpy(WS_TILE_MEM(i), gfx_icons_16mono + (icon_idx * 64), 16);
+            memcpy(WS_TILE_MEM(i + 1), gfx_icons_16mono + (icon_idx * 64) + 32, 16);
+            memcpy(WS_TILE_MEM(i + 18), gfx_icons_16mono + (icon_idx * 64) + 16, 16);
+            memcpy(WS_TILE_MEM(i + 19), gfx_icons_16mono + (icon_idx * 64) + 48, 16);
         }
     } else {
-        if (ws_system_color_active()) {
-            memcpy(MEM_TILE_4BPP(i), gfx_icons_8color + (icon_idx * 32), 32);
+        if (ws_system_is_color_active()) {
+            memcpy(WS_TILE_4BPP_MEM(i), gfx_icons_8color + (icon_idx * 32), 32);
         } else {
-            memcpy(MEM_TILE(i), gfx_icons_8mono + (icon_idx * 16), 16);
+            memcpy(WS_TILE_MEM(i), gfx_icons_8mono + (icon_idx * 16), 16);
         }
     }
 }
@@ -185,7 +184,7 @@ void ui_file_selector(void) {
 
 rescan_directory:
     config.draw = ui_file_selector_draw;
-    config.key_mask = KEY_A | KEY_B | KEY_START;
+    config.key_mask = WS_KEY_A | WS_KEY_B | WS_KEY_START;
     config.style = settings.file_view;
 
     if (reinit_ui) {
@@ -209,7 +208,7 @@ rescan_directory:
     while (true) {
         uint16_t keys_pressed = ui_selector(&config);
 
-        if (keys_pressed & KEY_A) {
+        if (keys_pressed & WS_KEY_A) {
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
             strncpy(path, fno->fno.fname, sizeof(fno->fno.fname));
             if (fno->fno.fattrib & AM_DIR) {
@@ -257,7 +256,7 @@ rescan_directory:
             reinit_dirs = true;
             goto rescan_directory;
         }
-        if (keys_pressed & KEY_B) {
+        if (keys_pressed & WS_KEY_B) {
             f_chdir(".."); // TODO: error checking
             reinit_ui = true;
             reinit_dirs = true;
@@ -265,7 +264,7 @@ rescan_directory:
         }
 
         // TODO: temporary
-        if (keys_pressed & KEY_START) {
+        if (keys_pressed & WS_KEY_START) {
             ui_selector_clear_selection(&config);
             if (ui_file_selector_options()) {
                 reinit_dirs = true;

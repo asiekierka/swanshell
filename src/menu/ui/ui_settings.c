@@ -66,7 +66,7 @@ static bool ui_settings_can_select(struct ui_selector_config *config, uint16_t o
     const setting_t __far* s = sconfig->category->entries[offset];
 
     if (s->flags & SETTING_FLAG_COLOR_ONLY) {
-        if (!ws_system_is_color()) {
+        if (!ws_system_is_color_model()) {
             return false;
         }
     }
@@ -81,7 +81,7 @@ void ui_settings(const setting_category_t __far* root_category) {
     config.config.style = UI_SELECTOR_STYLE_16;
     config.config.draw = ui_settings_draw;
     config.config.can_select = ui_settings_can_select;
-    config.config.key_mask = KEY_A | KEY_B | KEY_START | KEY_Y1;
+    config.config.key_mask = WS_KEY_A | WS_KEY_B | WS_KEY_START | WS_KEY_Y1;
     config.config.info_key = ws_system_get_model() == WS_MODEL_PCV2 ? LK_SETTINGS_INFO_PC2 : LK_SETTINGS_INFO_WS;
 
 reload_menu:
@@ -99,7 +99,7 @@ reload_menu:
         uint16_t keys_pressed = ui_selector(&config.config);
         const setting_t __far* s = config.category->entries[config.config.offset];
 
-        if (keys_pressed & KEY_Y1) {
+        if (keys_pressed & WS_KEY_Y1) {
             if (s->help) {
                 ui_layout_bars();
                 bitmap_rect_fill(&ui_bitmap, 0, 8, 28 * 8, 16 * 8, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
@@ -117,7 +117,7 @@ reload_menu:
             }
         }
 
-        if (keys_pressed & KEY_A) {
+        if (keys_pressed & WS_KEY_A) {
             if (s->type == SETTING_TYPE_CATEGORY) {
                 config.category = s->category.value;
                 goto reload_menu;
@@ -144,13 +144,13 @@ reload_menu:
                 goto reload_menu;
             }
         }
-        if (keys_pressed & KEY_B) {
+        if (keys_pressed & WS_KEY_B) {
             if (config.category != root_category && config.category->parent) {
                 config.category = config.category->parent;
                 goto reload_menu;
             }
         }
-        if (keys_pressed & KEY_START) {
+        if (keys_pressed & WS_KEY_START) {
             return;
         }
     }

@@ -26,8 +26,6 @@
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
 #include "vgm.h"
 
 #define VGM_SAMPLES_TO_LINES(x) (((((uint32_t) (x)) * 120) + 440) / 441)
@@ -35,10 +33,10 @@
 void dprint(const char __far* format, ...);
 
 static uint8_t __far* vgmswan_state_to_ptr(vgmswan_state_t *state, uint16_t *backup) {
-    if (backup != NULL) *backup = inportw(IO_BANK_ROM0);
+    if (backup != NULL) *backup = inportw(WS_CART_BANK_ROM0_PORT);
 
-    outportb(IO_BANK_ROM0, state->bank);
-    outportb(IO_BANK_ROM1, state->bank + 1);
+    outportb(WS_CART_BANK_ROM0_PORT, state->bank);
+    outportb(WS_CART_BANK_ROM1_PORT, state->bank + 1);
 
     return MK_FP(0x2000 | (state->pos >> 4), state->pos & 0xF);
 }
@@ -63,7 +61,7 @@ static void vgmswan_jump_to_start_point(vgmswan_state_t *state) {
     uint16_t offset = *((uint16_t __far*) (ptr + 0x34)) + 0x34;
     state->pos += offset;
     
-    outportw(IO_BANK_ROM0, bank_backup);
+    outportw(WS_CART_BANK_ROM0_PORT, bank_backup);
 }
 
 static void vgmswan_jump_to_loop_point(vgmswan_state_t *state) {
@@ -87,7 +85,7 @@ static void vgmswan_jump_to_loop_point(vgmswan_state_t *state) {
         state->bank = (loop_point >> 16) + state->bank;
     }
     
-    outportw(IO_BANK_ROM0, bank_backup);
+    outportw(WS_CART_BANK_ROM0_PORT, bank_backup);
 }
 
 void vgmswan_init(vgmswan_state_t *state, uint8_t bank, uint16_t pos) {
@@ -129,7 +127,7 @@ uint16_t vgmswan_play(vgmswan_state_t *state) {
             ptr++; // type - TODO: handle that?
             uint32_t len = *((uint32_t __far*) ptr); ptr += 4;
 try_copy_pcm:
-            if (ws_system_color_active()) {
+            if (ws_system_is_color_active()) {
                 if (state->pcm_data_block_count >= VGMSWAN_MAX_DATA_BLOCKS) {
                     result = VGMSWAN_PLAYBACK_FINISHED; break;
                 }
@@ -141,8 +139,8 @@ try_copy_pcm:
                     max_ofs = 0xFE00;
                     next_ofs = 0x1800;
                 } else {
-                    outportw(IO_DISPLAY_CTRL, 0);
-                    max_ofs = (ws_system_color_active() ? 0x8000 : 0x4000);
+                    outportw(WS_DISPLAY_CTRL_PORT, 0);
+                    max_ofs = (ws_system_is_color_active() ? 0x8000 : 0x4000);
                 }
                 if (((uint32_t)ofs + len) > max_ofs) {
                     if (next_ofs != 0xFFFF) {
@@ -178,7 +176,7 @@ try_copy_pcm:
             uint8_t stream_id = *(ptr++);
             uint16_t frequency = *((uint16_t __far*) ptr); ptr += 4;
             
-            if (!ws_system_color_active()) break;
+            if (!ws_system_is_color_active()) break;
             state->pcm_stream_flags[stream_id] &= 0xFC;
             if (frequency >= 16000) {
                 state->pcm_stream_flags[stream_id] |= VGMSWAN_DAC_FREQ_24000;
@@ -201,7 +199,7 @@ try_copy_pcm:
             uint8_t flags = *(ptr++);
             uint32_t length = *((uint32_t __far*) ptr); ptr += 4;
 
-            if (!ws_system_color_active()) break;
+            if (!ws_system_is_color_active()) break;
 
             uint32_t location = 0x8000;
             if (offset != 0xFFFFFFFF) location += offset;
@@ -209,43 +207,43 @@ try_copy_pcm:
                 result = VGMSWAN_PLAYBACK_FINISHED; break;
             }
 
-            outportb(IO_SDMA_CTRL, 0);
-            outportw(IO_SDMA_SOURCE_L, location);
-            outportb(IO_SDMA_SOURCE_H, location >> 16);
+            outportb(WS_SDMA_CTRL_PORT, 0);
+            outportw(WS_SDMA_SOURCE_L_PORT, location);
+            outportb(WS_SDMA_SOURCE_H_PORT, location >> 16);
             switch (flags & 0x03) {
             case 0: break;
             case 3:
             case 1: {
                 // TODO: number of commands not supported
-                outportw(IO_SDMA_LENGTH_L, length);
-                outportb(IO_SDMA_LENGTH_H, 0);
+                outportw(WS_SDMA_LENGTH_L_PORT, length);
+                outportb(WS_SDMA_LENGTH_H_PORT, 0);
             } break;
             case 2: {
-                outportw(IO_SDMA_LENGTH_L, length * 44);
-                outportb(IO_SDMA_LENGTH_H, 0);                
+                outportw(WS_SDMA_LENGTH_L_PORT, length * 44);
+                outportb(WS_SDMA_LENGTH_H_PORT, 0);                
             } break;
             }
-            outportb(IO_SDMA_CTRL, (state->pcm_stream_flags[stream_id] & 0x03) | ((flags & 0x80) ? SDMA_REPEAT : 0) | DMA_TRANSFER_ENABLE);
+            outportb(WS_SDMA_CTRL_PORT, (state->pcm_stream_flags[stream_id] & 0x03) | ((flags & 0x80) ? WS_SDMA_CTRL_REPEAT : 0) | WS_SDMA_CTRL_ENABLE);
             // outportb(state->pcm_stream_ctrl_a[stream_id], state->pcm_stream_ctrl_d[stream_id]);
         } break;
         case 0x94: { /* Stop Stream */
             ptr++;
             
-            if (!ws_system_color_active()) break;
-            outportb(IO_SDMA_CTRL, 0);
+            if (!ws_system_is_color_active()) break;
+            outportb(WS_SDMA_CTRL_PORT, 0);
         } break;
         case 0x95: { /* Start Stream Fast */
             uint8_t stream_id = *(ptr++);
             uint8_t block_id = *(ptr); ptr += 2;
             uint8_t flags = *(ptr++);
             
-            if (!ws_system_color_active()) break;
-            outportb(IO_SDMA_CTRL, 0);
-            outportw(IO_SDMA_SOURCE_L, state->pcm_data_block_offset[block_id]);
-            outportb(IO_SDMA_SOURCE_H, 0);
-            outportw(IO_SDMA_LENGTH_L, state->pcm_data_block_length[block_id]);
-            outportb(IO_SDMA_LENGTH_H, 0);
-            outportb(IO_SDMA_CTRL, (state->pcm_stream_flags[stream_id] & 0x03) | ((flags & 0x01) ? SDMA_REPEAT : 0) | DMA_TRANSFER_ENABLE);
+            if (!ws_system_is_color_active()) break;
+            outportb(WS_SDMA_CTRL_PORT, 0);
+            outportw(WS_SDMA_SOURCE_L_PORT, state->pcm_data_block_offset[block_id]);
+            outportb(WS_SDMA_SOURCE_H_PORT, 0);
+            outportw(WS_SDMA_LENGTH_L_PORT, state->pcm_data_block_length[block_id]);
+            outportb(WS_SDMA_LENGTH_H_PORT, 0);
+            outportb(WS_SDMA_CTRL_PORT, (state->pcm_stream_flags[stream_id] & 0x03) | ((flags & 0x01) ? WS_SDMA_CTRL_REPEAT : 0) | WS_SDMA_CTRL_ENABLE);
             // outportb(state->pcm_stream_ctrl_a[stream_id], state->pcm_stream_ctrl_d[stream_id]);
 
             // dprint("%d %d %d %d %d", stream_id, flags, block_id, state->pcm_stream_flags[stream_id], length);
@@ -284,7 +282,7 @@ try_copy_pcm:
                 // dprint("skipping wavebase = %02X", data);
             } else {
                 if (addr == 0x10 && !(data & 0x20)) {
-                    outportb(IO_SDMA_CTRL, 0);
+                    outportb(WS_SDMA_CTRL_PORT, 0);
                 }
                 outportb(0x80 + addr, data);
             }
@@ -293,14 +291,14 @@ try_copy_pcm:
             uint8_t ofshi = *(ptr++);
             uint8_t ofslo = *(ptr++);
             uint8_t data = *(ptr++);
-            uint16_t addr = ((ofshi << 8) | ofslo) + (inportb(IO_SND_WAVE_BASE) << 6);
+            uint16_t addr = ((ofshi << 8) | ofslo) + (inportb(WS_SOUND_WAVE_BASE_PORT) << 6);
             *((uint8_t*) addr) = data;
         } break;
 #endif
         case 0x66: {
             // result = VGMSWAN_PLAYBACK_FINISHED;
             vgmswan_jump_to_loop_point(state);
-            outportw(IO_BANK_ROM0, bank_backup);
+            outportw(WS_CART_BANK_ROM0_PORT, bank_backup);
             return 0;
         } break;
         default: {
@@ -313,6 +311,6 @@ try_copy_pcm:
     }
 
     vgmswan_ptr_to_state(state, ptr);
-    outportw(IO_BANK_ROM0, bank_backup);
+    outportw(WS_CART_BANK_ROM0_PORT, bank_backup);
     return VGM_SAMPLES_TO_LINES(result);
 }

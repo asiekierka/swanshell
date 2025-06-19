@@ -21,9 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/cartridge.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
 #include <wsx/zx0.h>
 #include <nile.h>
 #include <nilefs.h>
@@ -45,7 +42,7 @@ int16_t launch_bfb(const char *path) {
     uint32_t br;
     uint16_t header[2];
     
-    if (!ws_system_color_active()) {
+    if (!ws_system_is_color_active()) {
         return FR_INT_ERR;
     }
 
@@ -71,8 +68,8 @@ int16_t launch_bfb(const char *path) {
     void __far* ptr = MK_FP(segment, offset);
 
     // Disable IRQs - avoid other code interfering/overwriting memory
-    cpu_irq_disable();
-    outportw(IO_DISPLAY_CTRL, 0);
+    ia16_disable_irq();
+    outportw(WS_DISPLAY_CTRL_PORT, 0);
 
     result = f_read(&fp, ptr, max_size, &br);
 	if (result != FR_OK) {

@@ -36,13 +36,13 @@ typedef struct {
 
 __attribute__((always_inline))
 static inline file_selector_entry_t __far *ui_file_selector_open_fno_direct(uint16_t offset) {
-    outportw(IO_BANK_2003_RAM, FILE_SELECTOR_RAM_BANK_OFFSET + (offset >> FILE_SELECTOR_ENTRY_SHIFT));
+    outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_RAM_BANK_OFFSET + (offset >> FILE_SELECTOR_ENTRY_SHIFT));
     return MK_FP(0x1000, offset << FILE_SELECTOR_ENTRY_SHIFT);
 }
 
 __attribute__((always_inline))
 static inline file_selector_entry_t __far *ui_file_selector_open_fno(uint16_t offset) {
-    outportw(IO_BANK_2003_RAM, FILE_SELECTOR_INDEX_BANK);
+    outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_INDEX_BANK);
     return ui_file_selector_open_fno_direct(FILE_SELECTOR_INDEXES[offset]);
 }
 

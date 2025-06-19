@@ -31,7 +31,7 @@
 
 #define WAV_BUFFER_SIZE 4096
 #define WAV_BUFFER_SHIFT 12
-#define WAV_BUFFER_LINEAR0 (!ws_system_color_active() ? 0x2000 : 0xA000)
+#define WAV_BUFFER_LINEAR0 (!ws_system_is_color_active() ? 0x2000 : 0xA000)
 #define WAV_BUFFER_LINEAR1 (WAV_BUFFER_LINEAR0 + WAV_BUFFER_SIZE)
 #define WAV_BUFFER0 MK_FP(WAV_BUFFER_LINEAR0 >> 16, WAV_BUFFER_LINEAR0 & 0xFFFF)
 #define WAV_BUFFER1 MK_FP(WAV_BUFFER_LINEAR1 >> 16, WAV_BUFFER_LINEAR1 & 0xFFFF)
@@ -142,7 +142,7 @@ int ui_wavplay(const char *path) {
         return ERR_FILE_FORMAT_INVALID;
     }
     
-    if (!ws_system_color_active()) {
+    if (!ws_system_is_color_active()) {
         ui_hide();
     }
 
@@ -157,7 +157,7 @@ int ui_wavplay(const char *path) {
     uint32_t seconds_current = 0;
     uint32_t seconds_in_song = chunk_info[1] / bytes_per_second;
 
-    if (ws_system_color_active()) {
+    if (ws_system_is_color_active()) {
         ui_draw_statusbar(NULL);
         ui_draw_titlebar(path);
 
@@ -194,13 +194,13 @@ int ui_wavplay(const char *path) {
             BITMAP_COLOR(MAINPAL_COLOR_BLACK, 3, BITMAP_COLOR_MODE_STORE), false);
     }
 
-    outportb(IO_SND_CH_CTRL, 0);
-    outportb(IO_SND_OUT_CTRL, 0);
+    outportb(WS_SOUND_CH_CTRL_PORT, 0);
+    outportb(WS_SOUND_OUT_CTRL_PORT, 0);
 
     input_wait_clear();
 
     bool use_irq = true;
-    if (ws_system_color_active()) {
+    if (ws_system_is_color_active()) {
         if (fmt.channels == 1 && fmt.bits_per_sample == 8)
             if (fmt.sample_rate == 24000 || fmt.sample_rate == 12000 || fmt.sample_rate == 6000 || fmt.sample_rate == 4000)
                 use_irq = false;
@@ -224,27 +224,27 @@ int ui_wavplay(const char *path) {
         POSITION_COUNTER_INCR = ((((uint32_t) fmt.sample_rate << 16) / timer_sample_rate) << (15 - WAV_BUFFER_SHIFT)) * bytes_per_sample;
         POSITION_COUNTER_START = WAV_BUFFER_LINEAR0 >> 8;
 
-        outportb(IO_SND_VOL_CH2, 0x80);
-        outportb(IO_SND_CH_CTRL, SND_CH2_ENABLE | SND_CH2_VOICE);
-        outportb(IO_SND_VOL_CH2_VOICE, SND_VOL_CH2_FULL);
-        outportb(IO_SND_OUT_CTRL, SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE | SND_OUT_DIVIDER_2);
+        outportb(WS_SOUND_VOICE_SAMPLE_PORT, 0x80);
+        outportb(WS_SOUND_CH_CTRL_PORT, WS_SOUND_CH_CTRL_CH2_ENABLE | WS_SOUND_CH_CTRL_CH2_VOICE);
+        outportb(WS_SOUND_VOICE_VOL_PORT, WS_SOUND_VOICE_VOL_LEFT_FULL | WS_SOUND_VOICE_VOL_RIGHT_FULL);
+        outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_400);
 
-        cpu_irq_disable();
-        ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, ui_wavplay_irq_8_mono);
-        outportw(IO_HBLANK_TIMER, timer_step);
-        outportw(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE | HBLANK_TIMER_REPEAT);
-        ws_hwint_enable(HWINT_HBLANK_TIMER);
-        cpu_irq_enable();
+        ia16_disable_irq();
+        ws_int_set_handler(WS_INT_HBL_TIMER, ui_wavplay_irq_8_mono);
+        outportw(WS_TIMER_HBL_RELOAD_PORT, timer_step);
+        outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_REPEAT);
+        ws_int_enable(WS_INT_ENABLE_HBL_TIMER);
+        ia16_enable_irq();
     } else {
-        outportb(IO_SND_VOL_CH2, 0x80);
-        outportb(IO_SND_CH_CTRL, SND_CH2_ENABLE | SND_CH2_VOICE);
-        outportb(IO_SND_VOL_CH2_VOICE, SND_VOL_CH2_FULL);
-        outportb(IO_SND_OUT_CTRL, SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE | SND_OUT_DIVIDER_2);
+        outportb(WS_SOUND_VOICE_SAMPLE_PORT, 0x80);
+        outportb(WS_SOUND_CH_CTRL_PORT, WS_SOUND_CH_CTRL_CH2_ENABLE | WS_SOUND_CH_CTRL_CH2_VOICE);
+        outportb(WS_SOUND_VOICE_VOL_PORT, WS_SOUND_VOICE_VOL_LEFT_FULL | WS_SOUND_VOICE_VOL_RIGHT_FULL);
+        outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_400);
 
-        outportw(IO_SDMA_SOURCE_L, WAV_BUFFER_LINEAR0);
-        outportb(IO_SDMA_SOURCE_H, 0);
-        outportw(IO_SDMA_LENGTH_L, WAV_BUFFER_SIZE * 2);
-        outportb(IO_SDMA_LENGTH_H, 0);
+        outportw(WS_SDMA_SOURCE_L_PORT, WAV_BUFFER_LINEAR0);
+        outportb(WS_SDMA_SOURCE_H_PORT, 0);
+        outportw(WS_SDMA_LENGTH_L_PORT, WAV_BUFFER_SIZE * 2);
+        outportb(WS_SDMA_LENGTH_H_PORT, 0);
 
         uint8_t rate;
         if (fmt.sample_rate == 24000)
@@ -256,7 +256,7 @@ int ui_wavplay(const char *path) {
         else
             rate = 0;
 
-        outportb(IO_SDMA_CTRL, DMA_TRANSFER_ENABLE | rate | SDMA_REPEAT | SDMA_TARGET_CH2);
+        outportb(WS_SDMA_CTRL_PORT, WS_SDMA_CTRL_ENABLE | rate | WS_SDMA_CTRL_REPEAT | WS_SDMA_CTRL_TARGET_CH2);
     }
     
     uint8_t next_buffer = 0;
@@ -267,7 +267,7 @@ int ui_wavplay(const char *path) {
             if (use_irq) {
                 read_next = !(POSITION_COUNTER_HIGH & 0x8000);
             } else {
-                read_next = inportw(IO_SDMA_SOURCE_L) < WAV_BUFFER_LINEAR1;
+                read_next = inportw(WS_SDMA_SOURCE_L_PORT) < WAV_BUFFER_LINEAR1;
             }
             if (read_next) {
                 if ((result = f_read(&fp, WAV_BUFFER1, WAV_BUFFER_SIZE, &bytes_read)) != FR_OK || bytes_read < WAV_BUFFER_SIZE) {
@@ -280,7 +280,7 @@ int ui_wavplay(const char *path) {
             if (use_irq) {
                 read_next = (POSITION_COUNTER_HIGH & 0x8000);
             } else {
-                read_next = inportw(IO_SDMA_SOURCE_L) >= WAV_BUFFER_LINEAR1;
+                read_next = inportw(WS_SDMA_SOURCE_L_PORT) >= WAV_BUFFER_LINEAR1;
             }
             if (read_next) {
                 if ((result = f_read(&fp, WAV_BUFFER0, WAV_BUFFER_SIZE, &bytes_read)) != FR_OK || bytes_read < WAV_BUFFER_SIZE) {
@@ -291,7 +291,7 @@ int ui_wavplay(const char *path) {
             }
         }
 
-        if (ws_system_color_active()) {
+        if (ws_system_is_color_active()) {
             bool update_seconds = false;
             bytes_read_subsecond += bytes_read;
             while (bytes_read_subsecond > bytes_per_second) {
@@ -329,13 +329,13 @@ int ui_wavplay(const char *path) {
     }
 
     if (use_irq) {
-        ws_hwint_disable(HWINT_HBLANK_TIMER);
-        outportw(IO_TIMER_CTRL, 0);
+        ws_int_disable(WS_INT_ENABLE_HBL_TIMER);
+        outportw(WS_TIMER_CTRL_PORT, 0);
     } else {
-        outportb(IO_SDMA_CTRL, 0);
+        outportb(WS_SDMA_CTRL_PORT, 0);
     }
-    outportb(IO_SND_OUT_CTRL, 0);
-    outportb(IO_SND_CH_CTRL, 0);
+    outportb(WS_SOUND_OUT_CTRL_PORT, 0);
+    outportb(WS_SOUND_CH_CTRL_PORT, 0);
 
 ui_wavplay_end:
     f_close(&fp);

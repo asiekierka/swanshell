@@ -64,12 +64,12 @@ int ui_bmpview(const char *path) {
     bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
     if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
         bmp->width <= 0 || bmp->width > 224 || bmp->height <= 0 || bmp->height > 144 ||
-        bmp->compression != 0 || bmp->color_count > (ws_system_color_active() ? 16 : 4) ||
-        (bmp->bpp != 1 && (!ws_system_color_active() || bmp->bpp != 4))) {
+        bmp->compression != 0 || bmp->color_count > (ws_system_is_color_active() ? 16 : 4) ||
+        (bmp->bpp != 1 && (!ws_system_is_color_active() || bmp->bpp != 4))) {
         return ERR_FILE_FORMAT_INVALID;
     }
 
-    outportw(IO_DISPLAY_CTRL, 0);
+    outportw(WS_DISPLAY_CTRL_PORT, 0);
 
     // set screen
     int ip = 0;
@@ -81,19 +81,19 @@ int ui_bmpview(const char *path) {
     
     // configure palette
     uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
-    if (ws_system_color_active()) {
-        ws_mode_set(bmp->bpp == 4 ? WS_MODE_COLOR_4BPP_PACKED : WS_MODE_COLOR);
+    if (ws_system_is_color_active()) {
+        ws_system_set_mode(bmp->bpp == 4 ? WS_MODE_COLOR_4BPP_PACKED : WS_MODE_COLOR);
 
         for (int i = 0; i < bmp->color_count; i++) {
             uint8_t b = *(palette++);
             uint8_t g = *(palette++);
             uint8_t r = *(palette++);
             palette++;
-            MEM_COLOR_PALETTE(0)[i] = RGB(r >> 4, g >> 4, b >> 4);
+            WS_DISPLAY_COLOR_MEM(0)[i] = WS_RGB(r >> 4, g >> 4, b >> 4);
         }
-        MEM_COLOR_PALETTE(1)[0] = MEM_COLOR_PALETTE(0)[0];
+        WS_DISPLAY_COLOR_MEM(1)[0] = WS_DISPLAY_COLOR_MEM(0)[0];
     } else {
-        outportw(IO_SCR_PAL_0, 0x7654);
+        outportw(WS_SCR_PAL_0_PORT, 0x7654);
         uint16_t shades = 0;
         for (int i = 0; i < bmp->color_count; i++) {
             uint16_t b = *(palette++);
@@ -102,8 +102,8 @@ int ui_bmpview(const char *path) {
             palette++;
             shades |= ((77 * r + 150 * g + 29 * b) >> 12) << (i * 4);
         }
-        outportb(IO_LCD_SHADE_01, 0xFF);
-        outportw(IO_LCD_SHADE_45, shades ^ 0xFFFF);
+        outportb(WS_LCD_SHADE_01_PORT, 0xFF);
+        outportw(WS_LCD_SHADE_45_PORT, shades ^ 0xFFFF);
     }
 
     // copy data
@@ -130,13 +130,13 @@ int ui_bmpview(const char *path) {
     uint8_t xo = (224 - bmp->width) >> 1;
     uint8_t yo = ((144 - bmp->height) >> 1);
 
-    outportb(IO_SCR2_SCRL_X, -xo);
-    outportb(IO_SCR2_SCRL_Y, -yo + inportb(IO_SCR2_SCRL_Y));
-    outportb(IO_SCR2_WIN_X1, xo);
-    outportb(IO_SCR2_WIN_Y1, yo);
-    outportb(IO_SCR2_WIN_X2, xo + bmp->width - 1);
-    outportb(IO_SCR2_WIN_Y2, yo + bmp->height - 1);
-    outportw(IO_DISPLAY_CTRL, (16 << 8) | DISPLAY_SCR2_ENABLE | DISPLAY_SCR2_WIN_INSIDE);
+    outportb(WS_SCR2_SCRL_X_PORT, -xo);
+    outportb(WS_SCR2_SCRL_Y_PORT, -yo + inportb(WS_SCR2_SCRL_Y_PORT));
+    outportb(WS_SCR2_WIN_X1_PORT, xo);
+    outportb(WS_SCR2_WIN_Y1_PORT, yo);
+    outportb(WS_SCR2_WIN_X2_PORT, xo + bmp->width - 1);
+    outportb(WS_SCR2_WIN_Y2_PORT, yo + bmp->height - 1);
+    outportw(WS_DISPLAY_CTRL_PORT, (16 << 8) | WS_DISPLAY_CTRL_SCR2_ENABLE | WS_DISPLAY_CTRL_SCR2_WIN_INSIDE);
     input_wait_any_key();
 
     ui_init();

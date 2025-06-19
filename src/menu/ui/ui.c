@@ -19,9 +19,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/display.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
 #include "bitmap.h"
 #include "launch/launch.h"
 #include "strings.h"
@@ -99,48 +96,48 @@ void ui_init(void) {
 #if 0
     if (0) {
 #else
-    if (ws_system_is_color()) {
+    if (ws_system_is_color_model()) {
 #endif
-        ws_system_mode_set(WS_MODE_COLOR_4BPP);
-        ui_bitmap = BITMAP(MEM_TILE_4BPP(0), 28, 18, 4);
+        ws_system_set_mode(WS_MODE_COLOR_4BPP);
+        ui_bitmap = BITMAP(WS_TILE_4BPP_MEM(0), 28, 18, 4);
 
         // palette 0 - icon palette
-        MEM_COLOR_PALETTE(0)[0] = 0xFFF;
-        memcpy(MEM_COLOR_PALETTE(0) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
+        WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
+        memcpy(WS_DISPLAY_COLOR_MEM(0) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
 
         // palette 1 - icon palette (selected)
-        memcpy(MEM_COLOR_PALETTE(1) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
-        MEM_COLOR_PALETTE(1)[2] ^= 0xFFF;
-        MEM_COLOR_PALETTE(1)[3] ^= 0xFFF;
+        memcpy(WS_DISPLAY_COLOR_MEM(1) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
+        WS_DISPLAY_COLOR_MEM(1)[2] ^= 0xFFF;
+        WS_DISPLAY_COLOR_MEM(1)[3] ^= 0xFFF;
 
         // palette 2 - titlebar palette
-        MEM_COLOR_PALETTE(2)[0] = 0x0FFF;
-        MEM_COLOR_PALETTE(2)[1] = 0x0000;
-        MEM_COLOR_PALETTE(2)[2] = 0x04A7;
-        MEM_COLOR_PALETTE(2)[3] = 0x0FFF;
+        WS_DISPLAY_COLOR_MEM(2)[0] = 0xFFF;
+        WS_DISPLAY_COLOR_MEM(2)[1] = 0x000;
+        WS_DISPLAY_COLOR_MEM(2)[2] = 0x4A7;
+        WS_DISPLAY_COLOR_MEM(2)[3] = 0xFFF;
     } else {
-        ui_bitmap = BITMAP(MEM_TILE(0), 28, 18, 2);
+        ui_bitmap = BITMAP(WS_TILE_MEM(0), 28, 18, 2);
 
-        ws_display_set_shade_lut(SHADE_LUT_DEFAULT);
+        ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT_DEFAULT);
         // palette 0 - icon palette
-        outportw(IO_SCR_PAL_0, MONO_PAL_COLORS(2, 5, 0, 7));
+        outportw(WS_SCR_PAL_0_PORT, 0x7052);
         // palette 1 - icon palette (selected)
-        outportw(IO_SCR_PAL_1, MONO_PAL_COLORS(2, 5, 7, 0));
+        outportw(WS_SCR_PAL_1_PORT, 0x0725);
         // palette 2 - titlebar palette
-        outportw(IO_SCR_PAL_2, MONO_PAL_COLORS(0, 7, 3, 0));
+        outportw(WS_SCR_PAL_2_PORT, 0x0370);
     }
 
-    outportb(IO_SCR_BASE, SCR1_BASE(0x3800) | SCR2_BASE(bitmap_screen2));
-    outportw(IO_SCR2_SCRL_X, (14*8) << 8);
+    outportb(WS_SCR_BASE_PORT, WS_SCR_BASE_ADDR1(0x3800) | WS_SCR_BASE_ADDR2(bitmap_screen2));
+    outportw(WS_SCR2_SCRL_X_PORT, (14*8) << 8);
 }
 
 void ui_hide(void) {
-    outportw(IO_DISPLAY_CTRL, 0);
+    outportw(WS_DISPLAY_CTRL_PORT, 0);
 }
 
 void ui_show(void) {
     // TODO: wallpaper support
-    outportw(IO_DISPLAY_CTRL, inportw(IO_DISPLAY_CTRL) | DISPLAY_SCR2_ENABLE);
+    outportw(WS_DISPLAY_CTRL_PORT, inportw(WS_DISPLAY_CTRL_PORT) | WS_DISPLAY_CTRL_SCR2_ENABLE);
 }
 
 void ui_layout_clear(uint16_t pal) {
@@ -150,5 +147,5 @@ void ui_layout_clear(uint16_t pal) {
 
 void ui_layout_bars(void) {
     bitmap_rect_clear(&ui_bitmap, 0, 0, 224, 144);
-    INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? SCR_ENTRY_PALETTE(2) : 0);
+    INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0);
 }

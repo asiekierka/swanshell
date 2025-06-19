@@ -38,8 +38,8 @@ volatile uint16_t vbl_ticks;
 
 __attribute__((assume_ss_data, interrupt))
 void __far vblank_int_handler(void) {
-	ws_hwint_ack(HWINT_VBLANK);
-	cpu_irq_enable();
+	ws_int_ack(WS_INT_ACK_VBLANK);
+	ia16_enable_irq();
 	vbl_ticks++;
 	vblank_input_update();
 }
@@ -48,7 +48,7 @@ void wait_for_vblank(void) {
 	uint16_t vbl_ticks_last = vbl_ticks;
 
 	while (vbl_ticks == vbl_ticks_last) {
-		cpu_halt();
+		ia16_halt();
 	}
 }
 
@@ -56,11 +56,11 @@ FATFS fs;
 
 static uint8_t disk_read_error;
 static uint16_t bench_disk_read(uint16_t sectors) {
-	outportw(IO_HBLANK_TIMER, 65535);
-	outportb(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE | HBLANK_TIMER_ONESHOT);
+	outportw(WS_TIMER_HBL_RELOAD_PORT, 65535);
+	outportb(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
 	disk_read_error = disk_read(0, MK_FP(0x1000, 0x0000), 0, sectors);
-	outportb(IO_TIMER_CTRL, 0);
-	return inportw(IO_HBLANK_COUNTER) ^ 0xFFFF;
+	outportb(WS_TIMER_CTRL_PORT, 0);
+	return inportw(WS_TIMER_HBL_COUNTER_PORT) ^ 0xFFFF;
 }
 
 void fs_init(void) {
@@ -77,12 +77,12 @@ volatile uint8_t bios_pad[0x1FF0] = {0x00};
 void main(void) {
 	// FIXME: bios_pad[0] is used here solely to create a strong memory reference
 	// to dodge elf2rom's limited section garbage collector
-	outportb(IO_INT_NMI_CTRL, bios_pad[0] & 0x00);
+	outportb(WS_INT_NMI_CTRL_PORT, bios_pad[0] & 0x00);
 
-	cpu_irq_disable();
-	ws_hwint_set_handler(HWINT_IDX_VBLANK, vblank_int_handler);
-	ws_hwint_enable(HWINT_VBLANK);
-	cpu_irq_enable();
+	ia16_disable_irq();
+	ws_int_set_handler(WS_INT_VBLANK, vblank_int_handler);
+	ws_int_enable(WS_INT_ENABLE_VBLANK);
+	ia16_enable_irq();
 
 	settings_reset();
 

@@ -49,11 +49,11 @@ void vblank_input_update(void) {
 }
 
 void input_reset(void) {
-	cpu_irq_disable();
+	ia16_disable_irq();
 	input_keys = 0;
 	input_keys_repressed = 0;
 	input_keys_released = 0;
-	cpu_irq_enable();
+	ia16_enable_irq();
 }
 
 #define JOY_REPEAT_DELAY 18
@@ -66,11 +66,11 @@ void input_update(void) {
 	uint16_t keys_repressed;
 	uint16_t keys_released;
 
-	cpu_irq_disable();
+	ia16_disable_irq();
 	keys_pressed = input_keys;
 	keys_repressed = input_keys_repressed;
 	keys_released = input_keys_released;
-	cpu_irq_enable();
+	ia16_enable_irq();
 
 	input_pressed = 0;
 	uint16_t input_mask = 2;

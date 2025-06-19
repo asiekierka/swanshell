@@ -15,14 +15,12 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <nile/ipc.h>
 #include <nilefs/ff.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/hardware.h>
 #include <wsx/zx0.h>
 #include <nile.h>
 #include <nilefs.h>
@@ -60,8 +58,8 @@ void ui_boot(const char *path) {
         return;
 	}
 
-    outportw(IO_DISPLAY_CTRL, 0);
-	outportb(IO_CART_FLASH, CART_FLASH_ENABLE);
+    outportw(WS_DISPLAY_CTRL_PORT, 0);
+	outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
     uint32_t size = f_size(&fp);
     if (size > 4L*1024*1024) {
@@ -76,7 +74,7 @@ void ui_boot(const char *path) {
     uint16_t total_banks = real_size >> 16;
 
 	while (bank < total_banks) {
-		outportw(IO_BANK_2003_RAM, bank);
+		outportw(WS_CART_EXTBANK_RAM_PORT, bank);
 		if (offset < 0x8000) {
 			if ((result = f_read(&fp, MK_FP(0x1000, offset), 0x8000 - offset, NULL)) != FR_OK) {
                 ui_init();
@@ -100,13 +98,13 @@ uint32_t launch_get_save_id(uint16_t target) {
     uint32_t save_id = SAVE_ID_NONE;
 
     if (target & SAVE_ID_FOR_FLASH) {
-        uint8_t prev_cart_flash = inportb(IO_CART_FLASH);
-        uint16_t prev_sram_bank = inportw(IO_BANK_2003_RAM);
-        outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
-        outportb(IO_CART_FLASH, 0);
+        uint8_t prev_cart_flash = inportb(WS_CART_BANK_FLASH_PORT);
+        uint16_t prev_sram_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
+        outportw(WS_CART_EXTBANK_RAM_PORT, NILE_SEG_RAM_IPC);
+        outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
         save_id = *NILE_IPC_SAVE_ID;
-        outportw(IO_BANK_2003_RAM, prev_sram_bank);
-        outportb(IO_CART_FLASH, prev_cart_flash);
+        outportw(WS_CART_EXTBANK_RAM_PORT, prev_sram_bank);
+        outportb(WS_CART_BANK_FLASH_PORT, prev_cart_flash);
         if (save_id != SAVE_ID_NONE)
             return save_id;
     }
@@ -121,13 +119,13 @@ uint32_t launch_get_save_id(uint16_t target) {
 }
 
 bool launch_set_save_id(uint32_t v, uint16_t target) {
-    uint8_t prev_cart_flash = inportb(IO_CART_FLASH);
-    uint16_t prev_sram_bank = inportw(IO_BANK_2003_RAM);
-    outportw(IO_BANK_2003_RAM, NILE_SEG_RAM_IPC);
-    outportb(IO_CART_FLASH, 0);
+    uint8_t prev_cart_flash = inportb(WS_CART_BANK_FLASH_PORT);
+    uint16_t prev_sram_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
+    outportw(WS_CART_EXTBANK_RAM_PORT, NILE_SEG_RAM_IPC);
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
     *NILE_IPC_SAVE_ID = (target & SAVE_ID_FOR_FLASH) ? v : SAVE_ID_NONE;
-    outportw(IO_BANK_2003_RAM, prev_sram_bank);
-    outportb(IO_CART_FLASH, prev_cart_flash);
+    outportw(WS_CART_EXTBANK_RAM_PORT, prev_sram_bank);
+    outportb(WS_CART_BANK_FLASH_PORT, prev_cart_flash);
 
     bool result = mcu_native_save_id_set(v, target);
     mcu_native_finish();
@@ -220,7 +218,7 @@ static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, ui
     int16_t result, result2;
     uint16_t bw;
 
-    if (ws_system_color_active()) {
+    if (ws_system_is_color_active()) {
         buffer = sector_buffer;
         buffer_size = sizeof(sector_buffer);
     } else {
@@ -409,15 +407,15 @@ int16_t launch_backup_save_data(void) {
                 }
 
                 if (file_type == SAVE_ID_FOR_SRAM) {
-                    outportb(IO_CART_FLASH, 0);
+                    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
                     result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), NULL);
                 } else if (file_type == SAVE_ID_FOR_EEPROM) {
                     result = launch_write_eeprom(&save_fp, buffer, value_num >> 1);
                 } else if (file_type == SAVE_ID_FOR_FLASH) {
-                    uint16_t prev_bank = inportw(IO_BANK_2003_ROM0);
-                    outportw(IO_BANK_2003_ROM0, (f_size(&save_fp) - 1) >> 16);
+                    uint16_t prev_bank = inportw(WS_CART_EXTBANK_ROM0_PORT);
+                    outportw(WS_CART_EXTBANK_ROM0_PORT, (f_size(&save_fp) - 1) >> 16);
                     memcpy(buffer, MK_FP(0x2000, 0xFFF0), 16);
-                    outportw(IO_BANK_2003_ROM0, prev_bank);
+                    outportw(WS_CART_EXTBANK_ROM0_PORT, prev_bank);
                     
                     // Only restore flash if contents appear bootable.
                     // FIXME: This skips the ROM footer to avoid losing the original entrypoint
@@ -488,7 +486,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             goto launch_restore_save_data_return_result;
 
         // copy data to SRAM
-        outportb(IO_CART_FLASH, 0);
+        outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
         result = f_read_sram_banked(&fp, 0, f_size(&fp), NULL);
         if (result != FR_OK) {
             f_close(&fp);
@@ -634,14 +632,14 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
         return ERR_FILE_TOO_LARGE;
     }
 
-    outportw(IO_DISPLAY_CTRL, 0);
+    outportw(WS_DISPLAY_CTRL_PORT, 0);
 
     // Disable IRQs - avoid other code interfering/overwriting memory
-    cpu_irq_disable();
+    ia16_disable_irq();
 
     // Initialize bootstub graphics
-    if (ws_system_color_active()) {
-        ws_system_mode_set(WS_MODE_COLOR);
+    if (ws_system_is_color_active()) {
+        ws_system_set_mode(WS_MODE_COLOR);
     }
     wsx_zx0_decompress((void*) 0x3200, gfx_bootstub_tiles);
 
@@ -679,7 +677,7 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
 
     // Lock IEEPROM
     if (!(meta->footer.game_version & 0x80)) {
-        outportw(IO_IEEP_CTRL, IEEP_PROTECT);
+        outportw(WS_IEEP_CTRL_PORT, WS_IEEP_CTRL_PROTECT);
     }
 
     // Switch MCU to RTC mode

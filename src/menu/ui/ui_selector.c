@@ -18,9 +18,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <ws.h>
-#include <ws/display.h>
-#include <ws/hardware.h>
-#include <ws/system.h>
 #include "ui_selector.h"
 #include "../util/input.h"
 #include "../main.h"
@@ -98,7 +95,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                     for (int ix = 0; ix < 28; ix++) {
                         for (int iy = 0; iy < 16; iy++) {
                             uint16_t pal = 0;
-                            if ((iy >> (row_height > 8 ? 1 : 0)) == sel) pal = SCR_ATTR_PALETTE(1);
+                            if ((iy >> (row_height > 8 ? 1 : 0)) == sel) pal = WS_SCREEN_ATTR_PALETTE(1);
                             ws_screen_put_tile(bitmap_screen2, pal | ((iy + 1) + (ix * 18)), ix, iy + 1);
                         }
                     }
@@ -110,11 +107,11 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                     }
                     for (int ix = 0; ix < 28; ix++) {
                         ws_screen_put_tile(bitmap_screen2, ((prev_sel + 1) + (ix * 18)), ix, prev_sel + 1);
-                        ws_screen_put_tile(bitmap_screen2, SCR_ATTR_PALETTE(1) | ((sel + 1) + (ix * 18)), ix, sel + 1);
+                        ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel + 1) + (ix * 18)), ix, sel + 1);
                         
                         if (row_height > 8) {
                             ws_screen_put_tile(bitmap_screen2, ((prev_sel + 2) + (ix * 18)), ix, prev_sel + 2);
-                            ws_screen_put_tile(bitmap_screen2, SCR_ATTR_PALETTE(1) | ((sel + 2) + (ix * 18)), ix, sel + 2);
+                            ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel + 2) + (ix * 18)), ix, sel + 2);
                         }
                     }
                 }
@@ -130,7 +127,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
         uint16_t keys_pressed = input_pressed;
 
         // Page/entry movement
-        if (keys_pressed & KEY_X1) {
+        if (keys_pressed & WS_KEY_X1) {
             do {
                 if (config->offset == 0 || ((config->offset - 1) % row_count) == (row_count - 1))
                     config->offset = config->offset + (row_count - 1);
@@ -139,7 +136,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                 UI_SELECTOR_OFFSET_TO_BOUNDS();
             } while (config->can_select != NULL && !config->can_select(config, config->offset));
         }
-        if (keys_pressed & KEY_X3) {
+        if (keys_pressed & WS_KEY_X3) {
             do {
                 if ((config->offset + 1) == config->count)
                     config->offset = config->offset - (config->offset % row_count);
@@ -150,14 +147,14 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                 UI_SELECTOR_OFFSET_TO_BOUNDS();
             } while (config->can_select != NULL && !config->can_select(config, config->offset));
         }
-        if (keys_pressed & KEY_X2) {
+        if (keys_pressed & WS_KEY_X2) {
             do {
                 if ((config->offset - (config->offset % row_count) + row_count) < config->count)
                     config->offset += row_count;
                 UI_SELECTOR_OFFSET_TO_BOUNDS();
             } while (config->can_select != NULL && !config->can_select(config, config->offset));
         }
-        if (keys_pressed & KEY_X4) {
+        if (keys_pressed & WS_KEY_X4) {
             do {
                 if (config->offset >= row_count)
                     config->offset -= row_count;

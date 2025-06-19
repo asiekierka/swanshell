@@ -144,8 +144,8 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
     if (!config->width || !config->height) {
         config->width = ROUND_TO_8_WITH_BORDER(inner_width);
         config->height = ROUND_TO_8_WITH_BORDER(inner_height);
-        config->x = (DISPLAY_WIDTH_PX - config->width) >> 1;
-        config->y = (DISPLAY_HEIGHT_PX - config->height) >> 1;
+        config->x = (WS_DISPLAY_WIDTH_PIXELS - config->width) >> 1;
+        config->y = (WS_DISPLAY_HEIGHT_PIXELS - config->height) >> 1;
     }
 
     uint16_t inner_y = UI_CENTERED_IN_BOX(config->y, config->height, inner_height);
@@ -224,10 +224,10 @@ int16_t ui_popup_dialog_action(ui_popup_dialog_config_t *config, uint8_t selecte
             if (prev_selected_button != selected_button) {
                 ui_popup_dialog_draw_buttons(config, selected_button);
             }
-            if (keys_pressed & KEY_A) {
+            if (keys_pressed & WS_KEY_A) {
                 return selected_button;
             }
-            if (keys_pressed & KEY_B) {
+            if (keys_pressed & WS_KEY_B) {
                 ui_popup_dialog_draw_buttons(config, -1);
                 return UI_POPUP_ACTION_BACK;
             }

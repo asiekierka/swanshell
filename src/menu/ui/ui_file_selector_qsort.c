@@ -17,7 +17,7 @@
 
 #include <stddef.h>
 #include <string.h>
-#include <ws/hardware.h>
+#include <ws.h>
 #include "ui_file_selector.h"
 
 // https://github.com/DevSolar/pdclib/blob/master/functions/stdlib/qsort.c
@@ -53,7 +53,7 @@ static int qsort_compare(int (*compar)(const file_selector_entry_t __far*, const
     file_selector_entry_t fno_i;
     memcpy(&fno_i, ui_file_selector_open_fno_direct(i), sizeof(file_selector_entry_t));
     int result = compar(&fno_i, ui_file_selector_open_fno_direct(j), userdata);
-    outportw(IO_BANK_2003_RAM, FILE_SELECTOR_INDEX_BANK);
+    outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_INDEX_BANK);
     return result;
 }
 
@@ -70,7 +70,7 @@ void ui_file_selector_qsort(size_t nmemb, int (*compar)(const file_selector_entr
     uint16_t __far* base_          = FILE_SELECTOR_INDEXES;
     uint16_t __far* limit          = base_ + nmemb;
     PREPARE_STACK;
-    outportw(IO_BANK_2003_RAM, FILE_SELECTOR_INDEX_BANK);
+    outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_INDEX_BANK);
 
     for ( ;; )
     {
