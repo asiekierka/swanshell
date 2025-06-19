@@ -169,6 +169,9 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     meta->id = f.obj.sclust;
 
     uint32_t size = f_size(&f);
+    if (size < 16)
+        return ERR_FILE_FORMAT_INVALID;
+
     if (size == 0x80000) {
         result = f_lseek(&f, 0x70000);
         if (result != FR_OK)
@@ -188,6 +191,9 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     result = f_read(&f, &(meta->footer), sizeof(rom_footer_t), &br);
     if (result != FR_OK)
         return result;
+
+    if (meta->footer.jump_command != 0xEA || meta->footer.jump_segment == 0x0000)
+        return ERR_FILE_FORMAT_INVALID;
 
     meta->rom_banks = meta->footer.rom_size > 0x0B ? 0 : rom_banks[meta->footer.rom_size];
     meta->sram_size = sram_sizes[meta->footer.save_type & 0xF] * 1024L;
