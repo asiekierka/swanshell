@@ -70,8 +70,14 @@ void fs_init(void) {
 	if (result) while(1) ui_error_handle(result, lang_keys[LK_ERROR_TITLE_FS_INIT], 0);
 }
 
+// Reserve 0x2000 bytes of space for BIOS window
+__attribute__((section(".rom0_ffff_e000.bios_pad")))
+volatile uint8_t bios_pad[0x1FF0] = {0x00};
+
 void main(void) {
-	outportb(IO_INT_NMI_CTRL, 0);
+	// FIXME: bios_pad[0] is used here solely to create a strong memory reference
+	// to dodge elf2rom's limited section garbage collector
+	outportb(IO_INT_NMI_CTRL, bios_pad[0] & 0x00);
 
 	cpu_irq_disable();
 	ws_hwint_set_handler(HWINT_IDX_VBLANK, vblank_int_handler);
