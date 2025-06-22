@@ -1,5 +1,4 @@
 local process = require("wf.api.v1.process")
-local nnpack = require("wf.api.v1.process.tools.nnpack")
 local superfamiconv = require("wf.api.v1.process.tools.superfamiconv")
 
 local function gen_palette_mono(values)

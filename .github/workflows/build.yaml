@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    container: cbrzeszczot/wonderful:wswan-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Fetch missing submodules
+        run: git config --global --add safe.directory `pwd` && git submodule update --init --recursive
+
+      - name: Install additional dependencies
+        run: apt-get update && apt-get install -y python3 && wf-pacman -Syu --noconfirm wf-tools wf-superfamiconv wf-zx0-salvador
+
+      - name: Build
+        run: make
+
+      - name: Re-organize
+        run: mkdir -p ci/NILESWAN && cp dist/MENU.WS ci/NILESWAN/MENU.WS
+
+      - name: Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: swanshell
+          path: ci/*

@@ -3,7 +3,6 @@ local MAX_HEIGHT = 15
 local ROM_OFFSET_SHIFT = 0
 
 local bdf = dofile("lib/bdf.lua")
-local nnpack = require("wf.api.v1.process.tools.nnpack")
 local process = require("wf.api.v1.process")
 local tablex = require("pl.tablex")
 
