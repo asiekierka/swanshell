@@ -58,25 +58,25 @@ typedef struct {
 } bmp_header_t;
 
 void ui_draw_titlebar(const char __far* text) {
-    bitmap_rect_fill(&ui_bitmap, 0, 0, 244, 8, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
     if (text != NULL) {
         bitmapfont_set_active_font(font8_bitmap);
-        bitmapfont_draw_string(&ui_bitmap, 2, 0, text, 224 - 4);
+        bitmapfont_draw_string(&ui_bitmap, 2, 0, text, WS_DISPLAY_WIDTH_PIXELS - 4);
     }
 }
 
 void ui_draw_statusbar(const char __far* text) {
-    bitmap_rect_fill(&ui_bitmap, 0, 144-8, 244, 8, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 0, WS_DISPLAY_HEIGHT_PIXELS-8, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
     bitmapfont_set_active_font(font8_bitmap);
     if (text != NULL) {
-        bitmapfont_draw_string(&ui_bitmap, 2, 144-8, text, 224 - 4);
+        bitmapfont_draw_string(&ui_bitmap, 2, WS_DISPLAY_HEIGHT_PIXELS-8, text, WS_DISPLAY_WIDTH_PIXELS - 4);
     }
 }
 
 void ui_draw_centered_status(const char __far* text) {
-    int16_t width = bitmapfont_get_string_width(text, 224);
-    bitmap_rect_clear(&ui_bitmap, 0, (144 - 12) >> 1, 224, 11);
-    bitmapfont_draw_string(&ui_bitmap, (224 - width) >> 1, (144 - 12) >> 1, text, 224);
+    int16_t width = bitmapfont_get_string_width(text, WS_DISPLAY_WIDTH_PIXELS);
+    bitmap_rect_clear(&ui_bitmap, 0, (WS_DISPLAY_HEIGHT_PIXELS - 12) >> 1, WS_DISPLAY_WIDTH_PIXELS, 11);
+    bitmapfont_draw_string(&ui_bitmap, (WS_DISPLAY_WIDTH_PIXELS - width) >> 1, (WS_DISPLAY_HEIGHT_PIXELS - 12) >> 1, text, WS_DISPLAY_WIDTH_PIXELS);
 }
 
 #define INIT_SCREEN_PATTERN(screen_loc, pal) \
@@ -141,11 +141,16 @@ void ui_show(void) {
 }
 
 void ui_layout_clear(uint16_t pal) {
-    bitmap_rect_clear(&ui_bitmap, 0, 0, 224, 144);
+    bitmap_rect_clear(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS);
     INIT_SCREEN_PATTERN(bitmap_screen2, pal);
 }
 
 void ui_layout_bars(void) {
-    bitmap_rect_clear(&ui_bitmap, 0, 0, 224, 144);
+    bitmap_rect_clear(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS);
+    INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0);
+}
+
+void ui_layout_clear_bars_content(void) {
+    bitmap_rect_fill(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
     INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0);
 }

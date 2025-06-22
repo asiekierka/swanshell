@@ -114,7 +114,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     int x_offset = config->style == UI_SELECTOR_STYLE_16 ? 16 : 10;
 
     file_selector_entry_t __far *fno = ui_file_selector_open_fno(offset);
-    uint16_t x = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, fno->fno.fname, 224 - x_offset);
+    uint16_t x = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, fno->fno.fname, WS_DISPLAY_WIDTH_PIXELS - x_offset);
     uint8_t icon_idx = 1;
     if (fno->fno.fattrib & AM_DIR) {
         icon_idx = 0;

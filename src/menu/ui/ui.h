@@ -34,6 +34,7 @@ void ui_hide(void);
 void ui_show(void);
 void ui_layout_clear(uint16_t pal);
 void ui_layout_bars(void);
+void ui_layout_clear_bars_content(void);
 void ui_draw_centered_status(const char __far* text);
 void ui_draw_titlebar(const char __far* text);
 void ui_draw_statusbar(const char __far* text);

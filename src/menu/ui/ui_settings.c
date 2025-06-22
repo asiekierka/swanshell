@@ -47,7 +47,7 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
     const setting_t __far* s = sconfig->category->entries[offset];
 
     int x_offset = 4;
-    int len = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, lang_keys[s->name], 224 - x_offset);
+    int len = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, lang_keys[s->name], WS_DISPLAY_WIDTH_PIXELS - x_offset);
 
     if (s->type == SETTING_TYPE_CATEGORY) {
         strcpy(buf, s_arrow);
@@ -57,8 +57,8 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
         s->choice.name(*((uint8_t*) s->choice.value), buf, sizeof(buf));
     }
   
-    x_offset = 224 - x_offset - bitmapfont_get_string_width(buf, 224 - x_offset - len);
-    bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, 224 - x_offset);
+    x_offset = WS_DISPLAY_WIDTH_PIXELS - x_offset - bitmapfont_get_string_width(buf, WS_DISPLAY_WIDTH_PIXELS - x_offset - len);
+    bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, WS_DISPLAY_WIDTH_PIXELS - x_offset);
 }
 
 static bool ui_settings_can_select(struct ui_selector_config *config, uint16_t offset) {
@@ -108,7 +108,7 @@ reload_menu:
                 ui_draw_statusbar(NULL);
                 
                 bitmapfont_set_active_font(font16_bitmap);
-                bitmapfont_draw_string_box(&ui_bitmap, 2, 10, lang_keys[s->help], 224 - 4);
+                bitmapfont_draw_string_box(&ui_bitmap, 2, 10, lang_keys[s->help], WS_DISPLAY_WIDTH_PIXELS - 4);
 
                 input_wait_any_key();
 

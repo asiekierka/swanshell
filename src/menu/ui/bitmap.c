@@ -257,7 +257,7 @@ uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yo
 uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width) {
     uint32_t ch;
     uint16_t width = 0;
-    
+
     while ((ch = wsx_utf8_decode_next(&str)) != 0) {
         uint16_t new_width = width + bitmapfont_get_char_width(ch);
         if (new_width > max_width)

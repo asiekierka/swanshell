@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, 2023, 2024 Adrian Siekierka
+ * Copyright (c) 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,30 +15,30 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _INPUT_H_
-#define _INPUT_H_
+#ifndef __UI_OSK_H__
+#define __UI_OSK_H__
 
-#include <stdbool.h>
-#include <stdint.h>
 #include <ws.h>
+#include "ui.h"
 
-extern uint16_t input_pressed, input_held, input_released;
+#define UI_OSK_MAX_ROWS 6
 
-#define KEY_UP WS_KEY_X1
-#define KEY_DOWN WS_KEY_X3
-#define KEY_LEFT WS_KEY_X4
-#define KEY_RIGHT WS_KEY_X2
+enum {
+    UI_OSK_FR_ALPHA,
+    UI_OSK_FR_OK,
+    UI_OSK_FR_COUNT
+};
 
-#define KEY_AUP WS_KEY_Y1
-#define KEY_ADOWN WS_KEY_Y3
-#define KEY_ALEFT WS_KEY_Y4
-#define KEY_ARIGHT WS_KEY_Y2
+typedef struct {
+    char* buffer;
+    uint16_t bufpos;
+    uint16_t buflen;
+    int8_t x, y;
+    uint8_t tab, width, height;
+    uint8_t row_width[UI_OSK_MAX_ROWS];
+    uint8_t fr_xpos[UI_OSK_FR_COUNT];
+} ui_osk_state_t;
 
-void vblank_input_update(void);
-void input_reset(void);
-void input_update(void);
-void input_wait_clear(void);
-void input_wait_key(uint16_t key);
-void input_wait_any_key(void);
+void ui_osk(ui_osk_state_t *state);
 
-#endif /* _INPUT_H_ */
+#endif /* __UI_OSK_H__ */

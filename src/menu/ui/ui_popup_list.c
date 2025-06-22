@@ -36,7 +36,7 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
     bitmapfont_set_active_font(font16_bitmap);
     for (; option_count < UI_POPUP_LIST_MAX_OPTION_COUNT; option_count++) {
         if (!config->option[option_count]) break;
-        option_width[option_count] = bitmapfont_get_string_width(config->option[option_count], 224);
+        option_width[option_count] = bitmapfont_get_string_width(config->option[option_count], WS_DISPLAY_WIDTH_PIXELS);
         list_inner_width = MAX(list_inner_width, option_width[option_count]);
     }
     uint16_t list_width = list_inner_width + ((LIST_ENTRY_X_PADDING + 1) * 2);
@@ -53,7 +53,7 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
         bitmapfont_draw_string(&ui_bitmap,
             (WS_DISPLAY_WIDTH_PIXELS - option_width[i]) >> 1,
             list_y + 1 + LIST_ENTRY_Y_OFFSET + bitmapfont_get_font_height() * i,
-            config->option[i], 224);
+            config->option[i], WS_DISPLAY_WIDTH_PIXELS);
     }
 
     uint8_t selected = 0;

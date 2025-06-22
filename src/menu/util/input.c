@@ -24,7 +24,7 @@ extern volatile uint16_t vbl_ticks;
 uint16_t input_keys = 0;
 uint16_t input_keys_repressed = 0;
 uint16_t input_keys_released = 0;
-uint16_t input_pressed, input_held;
+uint16_t input_pressed, input_held, input_released;
 
 void vblank_input_update(void) {
 	uint16_t keys = ws_keypad_scan();
@@ -100,6 +100,7 @@ KeyRepressed:
 			input_held &= ~input_mask;
 		}
 	}
+	input_released = keys_released;
 
 	input_reset();
 }

@@ -61,7 +61,7 @@ static inline void ui_popup_dialog_draw_buttons(ui_popup_dialog_config_t *config
         if (!config->buttons[i]) break;
         if (i > 0) button_width += INNER_GAP;
         button_x[i] = button_width;
-        button_w[i] = (BUTTON_X_BORDER * 2) + bitmapfont_get_string_width(lang_keys[config->buttons[i]], 224);
+        button_w[i] = (BUTTON_X_BORDER * 2) + bitmapfont_get_string_width(lang_keys[config->buttons[i]], WS_DISPLAY_WIDTH_PIXELS);
         button_width += button_w[i];
     }
 
@@ -80,7 +80,7 @@ static inline void ui_popup_dialog_draw_buttons(ui_popup_dialog_config_t *config
         bitmap_rect_fill(&ui_bitmap, xofs + button_x[i] + 1, config->buttons_y + 1,
             button_w[i] - 2, button_height - 2, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
         bitmapfont_draw_string(&ui_bitmap, xofs + button_x[i] + BUTTON_X_BORDER, config->buttons_y + BUTTON_Y_BORDER,
-            lang_keys[config->buttons[i]], 224);  
+            lang_keys[config->buttons[i]], WS_DISPLAY_WIDTH_PIXELS);  
         if (selected == i) {
             bitmap_rect_fill(&ui_bitmap, xofs + button_x[i] + 1, config->buttons_y + 1,
                 button_w[i] - 2, button_height - 2, BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));    
@@ -134,7 +134,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         for (int i = 0; i < UI_POPUP_DIALOG_MAX_BUTTON_COUNT; i++) {
             if (!config->buttons[i]) break;
             if (i > 0) button_width += INNER_GAP;
-            button_width += (BUTTON_X_BORDER * 2) + bitmapfont_get_string_width(lang_keys[config->buttons[i]], 224);
+            button_width += (BUTTON_X_BORDER * 2) + bitmapfont_get_string_width(lang_keys[config->buttons[i]], WS_DISPLAY_WIDTH_PIXELS);
         }
 
         APPEND_WITH_GAP(inner_height, bitmapfont_get_font_height() - 1 + (BUTTON_Y_BORDER * 2));

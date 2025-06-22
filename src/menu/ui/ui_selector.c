@@ -71,7 +71,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                 ui_draw_statusbar(sbuf);
                 if (config->info_key) {
                     const char __far* info_str = lang_keys[config->info_key];
-                    bitmapfont_draw_string(&ui_bitmap, 224 - 2 - bitmapfont_get_string_width(info_str, 224), 144-8, info_str, 224);
+                    bitmapfont_draw_string(&ui_bitmap, WS_DISPLAY_WIDTH_PIXELS - 2 - bitmapfont_get_string_width(info_str, WS_DISPLAY_WIDTH_PIXELS), WS_DISPLAY_HEIGHT_PIXELS-8, info_str, WS_DISPLAY_WIDTH_PIXELS);
                 }
             }
             if ((prev_offset % row_count) != (config->offset % row_count)) {
@@ -81,13 +81,13 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                     for (int iy = 0; iy < row_count; iy++) {
                         uint16_t pal = 0;
                         if (iy == (config->offset % row_count)) pal = 2;
-                        bitmap_rect_fill(&ui_bitmap, 0, iy * row_height + SELECTOR_Y_OFFSET, 224, row_height, BITMAP_COLOR(pal, 2, BITMAP_COLOR_MODE_STORE));
+                        bitmap_rect_fill(&ui_bitmap, 0, iy * row_height + SELECTOR_Y_OFFSET, WS_DISPLAY_WIDTH_PIXELS, row_height, BITMAP_COLOR(pal, 2, BITMAP_COLOR_MODE_STORE));
                     }
                 } else {
                     int iy1 = (prev_file_offset % row_count);
                     int iy2 = (config->offset % row_count);
-                    bitmap_rect_fill(&ui_bitmap, 0, iy1 * row_height + SELECTOR_Y_OFFSET, 224, row_height, BITMAP_COLOR(0, 2, BITMAP_COLOR_MODE_STORE));
-                    bitmap_rect_fill(&ui_bitmap, 0, iy2 * row_height + SELECTOR_Y_OFFSET, 224, row_height, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
+                    bitmap_rect_fill(&ui_bitmap, 0, iy1 * row_height + SELECTOR_Y_OFFSET, WS_DISPLAY_WIDTH_PIXELS, row_height, BITMAP_COLOR(0, 2, BITMAP_COLOR_MODE_STORE));
+                    bitmap_rect_fill(&ui_bitmap, 0, iy2 * row_height + SELECTOR_Y_OFFSET, WS_DISPLAY_WIDTH_PIXELS, row_height, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
                 }
 #else
                 uint16_t sel = (config->offset % row_count);
