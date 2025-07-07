@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, 2023, 2024 Adrian Siekierka
+ * Copyright (c) 2024 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,15 +15,20 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _MATH_H_
-#define _MATH_H_
+#ifndef _FILE_H_
+#define _FILE_H_
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <wonderful.h>
+#include <nilefs.h>
 
-#define MIN(a,b) (((a)>(b))?(b):(a))
-#define MAX(a,b) (((a)<(b))?(b):(a))
+// currently defined in launch.c
+extern uint8_t sector_buffer[2048];
 
-uint32_t math_next_power_of_two(uint32_t value);
+FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode);
+int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br);
+int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw);
+int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw);
 
-#endif /* _MATH_H_ */
+#endif /* _FILE_H_ */

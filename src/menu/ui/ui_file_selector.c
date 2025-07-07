@@ -157,21 +157,34 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     }
 }
 
-static bool ui_file_selector_options(void) {
-    ui_popup_list_config_t lst = {0};
+static bool ui_file_selector_options(const char __far *filename) {
+    ui_popup_list_config_t lst;
+options_start:
+    memset(&lst, 0, sizeof(ui_popup_list_config_t));
     lst.option[0] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
+    lst.option[1] = lang_keys[LK_SUBMENU_OPTION_WITCH];
     switch (ui_popup_list(&lst)) {
     default:
         return false;
     case 0:
         ui_settings(&settings_root);
         return true;
+    case 1:
+        memset(&lst, 0, sizeof(ui_popup_list_config_t));
+        lst.option[0] = lang_keys[LK_SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS];
+        switch (ui_popup_list(&lst)) {
+        default:
+            goto options_start;
+        case 0:
+            ww_extract_from_rom(filename);
+            return true;
+        }
     }
 }
 
 static int ui_file_selector_bfb_options(void) {
     ui_popup_list_config_t lst = {0};
-    lst.option[0] = lang_keys[LK_SUBMENU_OPTION_TEST];
+    lst.option[0] = lang_keys[LK_SUBMENU_OPTION_TEST_BFB];
     return ui_popup_list(&lst);
 }
 
@@ -265,8 +278,10 @@ rescan_directory:
 
         // TODO: temporary
         if (keys_pressed & WS_KEY_START) {
+            file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
+
             ui_selector_clear_selection(&config);
-            if (ui_file_selector_options()) {
+            if (ui_file_selector_options(fno->fno.fname)) {
                 reinit_dirs = true;
             }
             reinit_ui = true;

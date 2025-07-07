@@ -27,6 +27,8 @@
 
 DEFINE_STRING(s_file_ext_bfb, ".bfb");
 DEFINE_STRING(s_file_ext_bmp, ".bmp");
+DEFINE_STRING(s_file_ext_bin, ".bin");
+DEFINE_STRING(s_file_ext_raw, ".raw");
 DEFINE_STRING(s_file_ext_vgm, ".vgm");
 DEFINE_STRING(s_file_ext_wav, ".wav");
 DEFINE_STRING(s_file_ext_ws, ".ws");
@@ -40,7 +42,10 @@ DEFINE_STRING(s_file_ext_rtc, ".rtc");
 
 DEFINE_STRING(s_path_save_ini, "/NILESWAN/SAVE.INI");
 DEFINE_STRING(s_path_config_ini, "/NILESWAN/CONFIG.INI");
+DEFINE_STRING(s_path_fbin, "/NILESWAN/fbin");
+DEFINE_STRING(s_path_sep, "/");
 
 DEFINE_STRING(s_error_unknown, "Error %d");
+DEFINE_STRING(s_bios, "bios");
 
 #endif /* _STRINGS_H_ */

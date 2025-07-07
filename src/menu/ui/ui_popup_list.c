@@ -24,7 +24,7 @@
 #include "ui_popup_list.h"
 #include "../main.h"
 #include "../util/input.h"
-#include "../util/math.h"
+#include "../../shared/util/math.h"
 
 #define LIST_ENTRY_X_PADDING 2
 #define LIST_ENTRY_Y_OFFSET 1
@@ -39,20 +39,20 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
         option_width[option_count] = bitmapfont_get_string_width(config->option[option_count], WS_DISPLAY_WIDTH_PIXELS);
         list_inner_width = MAX(list_inner_width, option_width[option_count]);
     }
-    uint16_t list_width = list_inner_width + ((LIST_ENTRY_X_PADDING + 1) * 2);
-    uint16_t list_height = bitmapfont_get_font_height() * option_count + 2;
+    uint16_t list_width = list_inner_width + ((LIST_ENTRY_X_PADDING + 2) * 2);
+    uint16_t list_height = bitmapfont_get_font_height() * option_count + 4;
     uint16_t list_x = (WS_DISPLAY_WIDTH_PIXELS - list_width) >> 1;
     uint16_t list_y = (WS_DISPLAY_HEIGHT_PIXELS - list_height) >> 1;
 
-    bitmap_rect_draw(&ui_bitmap, list_x, list_y, list_width, list_height,
-        BITMAP_COLOR(3, 3, BITMAP_COLOR_MODE_STORE), false);
-    bitmap_rect_fill(&ui_bitmap, list_x + 1, list_y + 1, list_width - 2, list_height - 2,
+    bitmap_rect_fill(&ui_bitmap, list_x, list_y, list_width, list_height,
         BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_draw(&ui_bitmap, list_x + 1, list_y + 1, list_width - 2, list_height - 2,
+        BITMAP_COLOR(3, 3, BITMAP_COLOR_MODE_STORE), false);
 
     for (int i = 0; i < option_count; i++) {
         bitmapfont_draw_string(&ui_bitmap,
             (WS_DISPLAY_WIDTH_PIXELS - option_width[i]) >> 1,
-            list_y + 1 + LIST_ENTRY_Y_OFFSET + bitmapfont_get_font_height() * i,
+            list_y + 2 + LIST_ENTRY_Y_OFFSET + bitmapfont_get_font_height() * i,
             config->option[i], WS_DISPLAY_WIDTH_PIXELS);
     }
 
@@ -63,12 +63,12 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
     while (true) {
         if (selected != prev_selected) {
             if (prev_selected != 0xFF) {
-                bitmap_rect_fill(&ui_bitmap, list_x + 1, list_y + 1 + bitmapfont_get_font_height() * prev_selected,
-                    list_width - 2, bitmapfont_get_font_height(), BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));    
+                bitmap_rect_fill(&ui_bitmap, list_x + 2, list_y + 2 + bitmapfont_get_font_height() * prev_selected,
+                    list_width - 4, bitmapfont_get_font_height(), BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));    
             }
 
-            bitmap_rect_fill(&ui_bitmap, list_x + 1, list_y + 1 + bitmapfont_get_font_height() * selected,
-                list_width - 2, bitmapfont_get_font_height(), BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));    
+            bitmap_rect_fill(&ui_bitmap, list_x + 2, list_y + 2 + bitmapfont_get_font_height() * selected,
+                list_width - 4, bitmapfont_get_font_height(), BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));    
             prev_selected = selected;
         }
 

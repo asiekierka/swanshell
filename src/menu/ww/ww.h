@@ -14,14 +14,11 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
-
- #ifndef _UTIL_MATH_H_
- #define _UTIL_MATH_H_
  
- #include <stdint.h>
+#ifndef WW_WW_H_
+#define WW_WW_H_
 
- #define MIN(a,b) (((a)>(b))?(b):(a))
- #define MAX(a,b) (((a)<(b))?(b):(a))
+#include <stdbool.h>
+#include <stdint.h>
 
- #endif /* _UTIL_MATH_H_ */
- 
+#endif /* WW_WW_H_ */

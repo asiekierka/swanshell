@@ -24,7 +24,7 @@
 #include "ui_popup_dialog.h"
 #include "../main.h"
 #include "../util/input.h"
-#include "../util/math.h"
+#include "../../shared/util/math.h"
 
 #define INNER_GAP 4
 #define MIN_PROGRESS_BAR_WIDTH 64

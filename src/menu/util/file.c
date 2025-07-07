@@ -15,9 +15,17 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <nilefs/ff.h>
 #include <string.h>
 #include <ws.h>
 #include "file.h"
+
+FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode) {
+    char local_path[FF_LFN_BUF + 1];
+    local_path[FF_LFN_BUF] = 0;
+    strncpy(local_path, path, FF_LFN_BUF);
+    return f_open(fp, local_path, mode);
+}
 
 int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
