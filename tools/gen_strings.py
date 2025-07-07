@@ -70,6 +70,8 @@ for fn in glob.glob("lang//*.properties"):
 	lang_key = Path(fn).stem
 	with open(fn) as fp_i:
 		for i in fp_i:
+			if lang_key == "_global":
+				lang_key = "en"
 			property_langs[lang_key] = True
 			i: str = i.rstrip("\n")
 			if i.startswith("#"):
