@@ -65,26 +65,25 @@ static int compare_filenames(const file_selector_entry_t __far* a, const file_se
     }
 }
 
-static uint16_t ui_file_selector_scan_directory(void) {
+static int16_t ui_file_selector_scan_directory(uint16_t *count) {
     DIR dir;
     uint16_t file_count = 0;
+    *count = 0;
 
     uint8_t result = f_opendir(&dir, ".");
-	if (result != FR_OK) {
-		while(1);
-	}
+	if (result != FR_OK)
+		return result;
 	while (true) {
         file_selector_entry_t __far* fno = ui_file_selector_open_fno_direct(file_count);
 		result = f_readdir(&dir, &fno->fno);
 
         // Invalid/empty result?
 		if (result != FR_OK) {
-            // TODO: error handling
+            f_closedir(&dir);
+            return result;
+        }
+		if (fno->fno.fname[0] == 0)
 			break;
-		}
-		if (fno->fno.fname[0] == 0) {
-			break;
-		}
 
         // Hidden file?
         if ((fno->fno.fattrib & AM_HID) && !(settings.file_flags & SETTING_FILE_SHOW_HIDDEN)) {
@@ -96,9 +95,8 @@ static uint16_t ui_file_selector_scan_directory(void) {
         fno->extension_loc = ext_loc == NULL ? 255 : ext_loc - fno->fno.fname;
 
         file_count++;
-        if (file_count >= FILE_SELECTOR_MAX_FILES) {
+        if (file_count >= FILE_SELECTOR_MAX_FILES)
             break;
-        }
 	}
 	f_closedir(&dir);
 
@@ -107,7 +105,8 @@ static uint16_t ui_file_selector_scan_directory(void) {
         FILE_SELECTOR_INDEXES[i] = i;
     ui_file_selector_qsort(file_count, compare_filenames, (void*) settings.file_sort);
 
-    return file_count;
+    *count = file_count;
+    return FR_OK;
 }
 
 static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
@@ -208,7 +207,9 @@ rescan_directory:
     ui_show();
     if (reinit_dirs) {
         config.offset = 0;
-        config.count = ui_file_selector_scan_directory();
+        int16_t result = ui_file_selector_scan_directory(&config.count);
+        if (ui_error_handle(result, NULL, 0))
+            goto rescan_directory;
     }
     if (reinit_ui || reinit_dirs) {
         f_getcwd(path, sizeof(path) - 1);

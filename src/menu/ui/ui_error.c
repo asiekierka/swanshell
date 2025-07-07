@@ -41,5 +41,5 @@ int16_t ui_error_handle(int16_t error, const char __far *title, uint16_t flags) 
     ui_show();
     ui_popup_dialog_action(&dlg, 0);
 
-    return 0;
+    return error;
 }
