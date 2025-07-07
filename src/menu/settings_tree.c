@@ -138,7 +138,7 @@ static void settings_language_name(uint16_t value, char *buf, int buf_len) {
 }
 
 static const setting_t __far setting_language = {
-    NULL,
+    s_language,
     LK_SETTINGS_LANGUAGE_KEY,
     0,
     SETTING_TYPE_CHOICE_BYTE,

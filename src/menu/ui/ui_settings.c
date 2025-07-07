@@ -28,6 +28,7 @@
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
+#include "ui/ui_error.h"
 #include "ui_selector.h"
 #include "ui_settings.h"
 #include "lang.h"
@@ -151,7 +152,9 @@ reload_menu:
             }
         }
         if (keys_pressed & WS_KEY_START) {
-            return;
+            break;
         }
     }
+
+    ui_error_handle(settings_save(), NULL, 0);
 }
