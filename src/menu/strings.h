@@ -44,6 +44,8 @@ DEFINE_STRING(s_path_save_ini, "/NILESWAN/SAVE.INI");
 DEFINE_STRING(s_path_config_ini, "/NILESWAN/CONFIG.INI");
 DEFINE_STRING(s_path_fbin, "/NILESWAN/fbin");
 DEFINE_STRING(s_path_sep, "/");
+DEFINE_STRING(s_dot, ".");
+DEFINE_STRING(s_dotdot, "..");
 
 DEFINE_STRING(s_error_unknown, "Error %d");
 DEFINE_STRING(s_bios, "bios");

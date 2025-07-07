@@ -20,5 +20,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <wonderful.h>
+
+int16_t ww_ui_extract_from_rom(const char __far* filename);
 
 #endif /* WW_WW_H_ */

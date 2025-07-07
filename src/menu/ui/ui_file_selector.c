@@ -37,6 +37,7 @@
 #include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
 #include "lang.h"
+#include "ww/ww.h"
 
 #define COMPARE(a, b) (((a) == (b)) ? 0 : (((a) < (b)) ? -1 : 1))
 
@@ -70,7 +71,9 @@ static int16_t ui_file_selector_scan_directory(uint16_t *count) {
     uint16_t file_count = 0;
     *count = 0;
 
-    uint8_t result = f_opendir(&dir, ".");
+    char path[2];
+    strcpy(path, s_dot);
+    uint8_t result = f_opendir(&dir, path);
 	if (result != FR_OK)
 		return result;
 	while (true) {
@@ -175,7 +178,7 @@ options_start:
         default:
             goto options_start;
         case 0:
-            ww_extract_from_rom(filename);
+            ww_ui_extract_from_rom(filename);
             return true;
         }
     }
@@ -208,8 +211,11 @@ rescan_directory:
     if (reinit_dirs) {
         config.offset = 0;
         int16_t result = ui_file_selector_scan_directory(&config.count);
-        if (ui_error_handle(result, NULL, 0))
+        if (ui_error_handle(result, NULL, 0)) {
+            strcpy(path, s_dotdot);
+            f_chdir(path);
             goto rescan_directory;
+        }
     }
     if (reinit_ui || reinit_dirs) {
         f_getcwd(path, sizeof(path) - 1);
@@ -271,7 +277,8 @@ rescan_directory:
             goto rescan_directory;
         }
         if (keys_pressed & WS_KEY_B) {
-            f_chdir(".."); // TODO: error checking
+            strcpy(path, s_dotdot);
+            f_chdir(path);
             reinit_ui = true;
             reinit_dirs = true;
             goto rescan_directory;

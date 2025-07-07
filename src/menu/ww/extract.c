@@ -168,7 +168,50 @@ static int16_t ww_copy_to_file(FIL *fp, const char __far* filename, uint16_t _si
     return FR_OK;
 }
 
-int16_t ww_extract_from_rom(const char __far* filename) {
+static bool ww_has_any_os_files(bool in_bin_format) {
+    DIR dir;
+    FILINFO fno;
+
+    char path[2];
+    strcpy(path, s_dot);
+    uint8_t result = f_opendir(&dir, path);
+	if (result != FR_OK)
+        return false;
+
+    while (true) {
+		result = f_readdir(&dir, &fno);
+
+        // Invalid/empty result?
+		if (result != FR_OK)
+            break;
+		if (fno.fname[0] == 0)
+			break;
+
+        // Not a regular file?
+        if (fno.fattrib & AM_DIR)
+            continue;
+    
+        // Not .raw?
+        const char __far* ext_loc = strrchr(fno.fname, '.');
+        if (ext_loc == NULL)
+            continue;
+        if (strcmp(ext_loc, in_bin_format ? s_file_ext_bin : s_file_ext_raw))
+            continue;
+
+        // BIOS?
+        if (!in_bin_format && !memcmp(fno.fname, s_bios, 4))
+            continue;
+
+        // Valid OS file
+    	f_closedir(&dir);
+        return true;
+	}
+
+    f_closedir(&dir);
+    return false;
+}
+
+int16_t ww_ui_extract_from_rom(const char __far* filename) {
     FIL fp;
     int16_t result;
     const ww_hash_entry_t __far *found_entry;
