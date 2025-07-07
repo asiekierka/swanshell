@@ -215,7 +215,8 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
     FIL fp;
     int16_t result;
     const ww_hash_entry_t __far *found_entry;
-    rom_footer_t footer;
+    rom_footer_t bios_footer;
+    rom_footer_t os_footer;
 
     if ((result = create_ww_paths()) != FR_OK)
         return result;
@@ -224,6 +225,25 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
         return result;
 
     if (f_size(&fp) < 131072) {
+        f_close(&fp);
+        return ERR_FILE_FORMAT_INVALID;
+    }
+
+    // read BIOS footer
+    if ((result = f_lseek(&fp, f_size(&fp) - 16)) != FR_OK) {
+        f_close(&fp);
+        return result;
+    }
+    if ((result = f_read(&fp, &bios_footer, 16, &result) != FR_OK)) {
+        f_close(&fp);
+        return result;
+    }
+
+    // check basic footer values
+    if (bios_footer.jump_command != 0xEA
+        || bios_footer.jump_segment < 0xF000
+        || bios_footer.maintenance & 0x0F) {
+
         f_close(&fp);
         return ERR_FILE_FORMAT_INVALID;
     }
@@ -252,7 +272,7 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
             f_close(&fp);
             return result;
         }
-        if ((result = f_read(&fp, &footer, 16, &result) != FR_OK)) {
+        if ((result = f_read(&fp, &os_footer, 16, &result) != FR_OK)) {
             f_close(&fp);
             return result;
         }
@@ -278,15 +298,6 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
 
         ww_copy_to_file(&fp, found_entry->name, found_entry->size, LK_WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING);
     } else {
-        if ((result = f_lseek(&fp, f_size(&fp) - 16)) != FR_OK) {
-            f_close(&fp);
-            return result;
-        }
-        if ((result = f_read(&fp, &footer, 16, &result) != FR_OK)) {
-            f_close(&fp);
-            return result;
-        }
-
         // TODO: handle unknown BIOS versions
     }
 

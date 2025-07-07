@@ -178,7 +178,7 @@ options_start:
         default:
             goto options_start;
         case 0:
-            ww_ui_extract_from_rom(filename);
+            ui_error_handle(ww_ui_extract_from_rom(filename), NULL, 0);
             return true;
         }
     }
