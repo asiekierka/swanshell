@@ -51,8 +51,10 @@ static const char __far* get_osk_fr_string(uint8_t fr) {
 }
 
 static uint16_t get_osk_fr_width(uint8_t fr) {
-    uint16_t w = bitmapfont_get_string_width(get_osk_fr_string(fr), 65535);
-    return ((w + 4) + 15) & ~15;
+    // FIXME
+    /* uint16_t w = bitmapfont_get_string_width(get_osk_fr_string(fr), 65535);
+    return ((w + 4) + 15) & ~15; */
+    return 32;
 }
 
 static int get_osk_fr_current(ui_osk_state_t *state) {
