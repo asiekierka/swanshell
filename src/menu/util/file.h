@@ -26,6 +26,9 @@
 // currently defined in launch.c
 extern uint8_t sector_buffer[2048];
 
+#define sector_buffer_is_active ws_system_is_color_active
+// #define sector_buffer_is_active() false
+
 typedef bool (*filinfo_predicate_t)(const FILINFO __far*);
 bool f_anymatch(filinfo_predicate_t predicate, const char __far* path);
 

@@ -33,7 +33,7 @@
 #include "../lang.h"
 #include "../strings.h"
 
-#define PROGRESS_DIALOG_SHIFT 2
+#define PROGRESS_DIALOG_SHIFT 4
 
 static int16_t find_target_filename(
     const ww_hash_entry_t __far *hash,
@@ -49,7 +49,7 @@ static int16_t find_target_filename(
     uint8_t *buffer;
     uint16_t buffer_size;
 
-    if (ws_system_is_color_active()) {
+    if (sector_buffer_is_active()) {
         buffer = sector_buffer;
         buffer_size = sizeof(sector_buffer);
     } else {
@@ -121,7 +121,7 @@ static int16_t ww_copy_to_file(FIL *fp, const char __far* filename, uint16_t _si
     uint8_t *buffer;
     uint16_t buffer_size;
 
-    if (ws_system_is_color_active()) {
+    if (sector_buffer_is_active()) {
         buffer = sector_buffer;
         buffer_size = sizeof(sector_buffer);
     } else {

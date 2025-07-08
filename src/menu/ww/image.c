@@ -39,6 +39,9 @@
 #include "../settings.h"
 #include "../strings.h"
 
+#define PROGRESS_DIALOG_READ_SHIFT 5
+#define PROGRESS_DIALOG_WRITE_SHIFT 2
+
 static bool ww_is_bin_file(const FILINFO __far *fno) {
     if (fno->fattrib & AM_DIR)
         return false;
@@ -137,6 +140,7 @@ static bool ww_ui_select_file(
 }
 
 static int16_t ww_ui_replace_component_path(char *input_path, char *output_path, bool is_os, uint32_t size) {
+    uint8_t local_buffer[64];
     int16_t result;
     FIL fp;
 
@@ -147,7 +151,7 @@ static int16_t ww_ui_replace_component_path(char *input_path, char *output_path,
 
     ui_popup_dialog_config_t cfg = {0};
     cfg.title = lang_keys[LK_PROGRESS_COPYING_DATA];
-    cfg.progress_max = 2;
+    cfg.progress_max = (65536L >> PROGRESS_DIALOG_READ_SHIFT) + (65536L >> PROGRESS_DIALOG_WRITE_SHIFT);
     ui_popup_dialog_draw(&cfg);
 
     if ((result = f_open(&fp, input_path, FA_READ | FA_OPEN_EXISTING)) != FR_OK) {
@@ -163,13 +167,31 @@ static int16_t ww_ui_replace_component_path(char *input_path, char *output_path,
             return result;
         }
 
+        cfg.progress_step = (f_tell(&fp) >> PROGRESS_DIALOG_READ_SHIFT);
+        ui_popup_dialog_draw_update(&cfg);
+
         if (f_tell(&fp) >= 65536) break;
     }
     bytes_to_write = f_tell(&fp);
     f_close(&fp);
 
+    uint8_t *buffer;
+    uint16_t buffer_size;
+
+    if (sector_buffer_is_active()) {
+        buffer = sector_buffer;
+        buffer_size = sizeof(sector_buffer);
+    } else {
+        buffer = local_buffer;
+        buffer_size = sizeof(local_buffer);
+    }
+
+    bool ignore_file_not_existing = false;
+
     while (true) {
         if ((result = f_open(&fp, output_path, FA_WRITE | FA_OPEN_EXISTING)) != FR_OK) {
+            if (ignore_file_not_existing && (result == FR_NO_FILE || result == FR_NO_PATH))
+                break;
             return result;
         }
 
@@ -189,13 +211,17 @@ static int16_t ww_ui_replace_component_path(char *input_path, char *output_path,
         while (bytes_write_pos < bytes_to_write) {
             uint16_t bw;
             
-            bw = MIN(bytes_to_write - bytes_write_pos, sizeof(input_path));
-            memcpy(input_path, MK_FP(0x1000, f_tell(&fp)), bw);
+            bw = MIN(bytes_to_write - bytes_write_pos, buffer_size);
+            memcpy(buffer, MK_FP(0x1000, f_tell(&fp)), bw);
 
-            if ((result = f_write(&fp, input_path, bw, &bw)) != FR_OK) {
+            if ((result = f_write(&fp, buffer, bw, &bw)) != FR_OK) {
                 f_close(&fp);
                 return result;
             }
+
+            cfg.progress_step = (65536L >> PROGRESS_DIALOG_READ_SHIFT) + (bytes_write_pos >> PROGRESS_DIALOG_WRITE_SHIFT);
+            ui_popup_dialog_draw_update(&cfg);
+
             bytes_write_pos += bw;
         }
 
@@ -234,8 +260,7 @@ static int16_t ww_ui_replace_component_path(char *input_path, char *output_path,
             break;
         }
 
-        cfg.progress_step++;
-        ui_popup_dialog_draw_update(&cfg);
+        ignore_file_not_existing = true;
     }
 
     return 0;

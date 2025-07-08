@@ -46,6 +46,7 @@ uint8_t sector_buffer[2048];
 
 extern FATFS fs;
 
+#define STACK_BUFFER_SIZE 64
 #define NILE_IPC_SAVE_ID ((volatile uint32_t __far*) MK_FP(0x1000, 512 - sizeof(uint32_t)))
 
 /*
@@ -212,13 +213,14 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
 }
 
 static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path) {
-    uint8_t stack_buffer[16];
+    uint8_t stack_buffer[STACK_BUFFER_SIZE];
     uint8_t *buffer;
     uint16_t buffer_size;
     int16_t result, result2;
     uint16_t bw;
+    ui_popup_dialog_config_t dlg = {0};
 
-    if (ws_system_is_color_active()) {
+    if (sector_buffer_is_active()) {
         buffer = sector_buffer;
         buffer_size = sizeof(sector_buffer);
     } else {
@@ -226,13 +228,18 @@ static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, ui
         buffer_size = sizeof(stack_buffer);
     }
 
+    dlg.title = lang_keys[LK_DIALOG_PREPARE_SAVE];
+    dlg.progress_max = (file_size + buffer_size - 1) / buffer_size;
+
     result = f_open(fp, path, FA_READ | FA_WRITE | FA_OPEN_ALWAYS);
     if (result != FR_OK)
         return result;
 
     // Do not overwrite the file if it already has the right size.
     if (f_size(fp) >= file_size)
-        goto preallocate_file_end;
+        goto preallocate_file_end_no_dialog;
+
+    ui_popup_dialog_draw(&dlg);
 
     // Try to ensure a contiguous area for the file.
     result = f_expand(fp, file_size, 0);
@@ -261,6 +268,9 @@ static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, ui
             result = f_write(fp, buffer, to_write, &bw);
             if (result != FR_OK)
                 goto preallocate_file_copy_end;
+
+            dlg.progress_step++;
+            ui_popup_dialog_draw_update(&dlg);
         }
 preallocate_file_copy_end:
         f_close(&src_fp);
@@ -278,10 +288,16 @@ preallocate_file_copy_end:
             result = f_write(fp, buffer, to_write, &bw);
             if (result != FR_OK)
                 goto preallocate_file_end;
+
+            dlg.progress_step++;
+            ui_popup_dialog_draw_update(&dlg);
         }
     }
 
 preallocate_file_end:
+    ui_popup_dialog_clear(&dlg);
+
+preallocate_file_end_no_dialog:
     result2 = f_lseek(fp, 0);
     if (result == FR_OK && result2 != FR_OK)
         return result2;
@@ -453,17 +469,11 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     char tmp_buf[20];
     FIL fp;
     int16_t result;
-    ui_popup_dialog_config_t dlg = {0};
-
+    
     uint16_t save_target = 0;
     if (meta->sram_size)   save_target |= SAVE_ID_FOR_SRAM;
     if (meta->eeprom_size) save_target |= SAVE_ID_FOR_EEPROM;
     if (meta->flash_size)  save_target |= SAVE_ID_FOR_FLASH;
-
-    if (save_target) {
-        dlg.title = lang_keys[LK_DIALOG_PREPARE_SAVE];
-        ui_popup_dialog_draw(&dlg);
-    }
 
     // write save ID to MCU
     // (error only if save ID was required)
@@ -617,7 +627,6 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 launch_restore_save_data_ini_end:
     result = result || f_close(&fp);
 launch_restore_save_data_return_result:
-    ui_popup_dialog_clear(&dlg);
     return result;
 }
 
