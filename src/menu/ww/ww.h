@@ -23,5 +23,6 @@
 #include <wonderful.h>
 
 int16_t ww_ui_extract_from_rom(const char __far* filename);
+int16_t ww_ui_replace_component(const char __far* filename, bool is_os);
 
 #endif /* WW_WW_H_ */

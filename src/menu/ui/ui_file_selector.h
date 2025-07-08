@@ -22,12 +22,13 @@
 #include <nilefs.h>
 #include "ui.h"
 #include "ui_selector.h"
+#include "../util/file.h"
 
 #define FILE_SELECTOR_ENTRY_SHIFT 8
-#define FILE_SELECTOR_MAX_FILES 1500
+#define FILE_SELECTOR_MAX_FILES 1524
 #define FILE_SELECTOR_RAM_BANK_OFFSET 1
 #define FILE_SELECTOR_INDEX_BANK 6
-#define FILE_SELECTOR_INDEXES ((uint16_t __far*) MK_FP(0x1000, 0xDC00))
+#define FILE_SELECTOR_INDEXES ((uint16_t __far*) MK_FP(0x1000, 0xF410))
 
 typedef struct {
     FILINFO fno;
@@ -46,8 +47,9 @@ static inline file_selector_entry_t __far *ui_file_selector_open_fno(uint16_t of
     return ui_file_selector_open_fno_direct(FILE_SELECTOR_INDEXES[offset]);
 }
 
-
 void ui_file_selector(void);
+bool ui_file_selector_default_predicate(const FILINFO __far *fno);
+int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t predicate, uint16_t *count);
 void ui_file_selector_qsort(size_t nmemb, int (*compar)(const file_selector_entry_t __far*, const file_selector_entry_t __far*, void*), void *userdata);
 
 #endif /* __UI_FILE_SELECTOR_H__ */

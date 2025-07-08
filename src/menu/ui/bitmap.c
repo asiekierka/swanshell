@@ -201,19 +201,11 @@ uint16_t bitmapfont_get_char_width(uint32_t ch) {
     return bitmapfont_get_char_width_a(bitmapfont_find_char(ch));
 }
 
-static uint16_t bitmapfont_draw_char_a(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* data) {
-    if (data == NULL) return 0;
+void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint16_t w, uint16_t h, uint16_t bitofs, uint16_t layer, const uint8_t __far* font_data) {
+    if (font_data == NULL) return;
 
-    uint16_t x = data[1] & 0xF;
-    uint16_t y = (data[1] >>  4) & 0xF;
-    uint16_t w = (data[1] >>  8) & 0xF;
-    uint16_t h = (data[1] >> 12) & 0xF;
-    if (!h) return x + w;
-
-    const uint8_t __far* font_data = ((const uint8_t __far*) data) + data[0];
-    xofs += x + w - 1;
-    yofs += y;
-    uint8_t *tile = BITMAP_AT(bitmap, xofs, yofs);
+    xofs += w - 1;
+    uint8_t *tile = BITMAP_AT(bitmap, xofs, yofs) + layer;
     xofs &= 7;
 
     uint16_t pixel_fifo = *((const uint16_t __far*) font_data);
@@ -245,6 +237,19 @@ static uint16_t bitmapfont_draw_char_a(const bitmap_t *bitmap, uint16_t xofs, ui
 
             px_row_offset = 0;
         }
+    }
+}
+
+static inline uint16_t bitmapfont_draw_char_a(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* data) {
+    if (data == NULL) return 0;
+
+    uint16_t x = data[1] & 0xF;
+    uint16_t y = (data[1] >>  4) & 0xF;
+    uint16_t w = (data[1] >>  8) & 0xF;
+    uint16_t h = (data[1] >> 12) & 0xF;
+    if (h) {
+        const uint8_t __far* font_data = ((const uint8_t __far*) data) + data[0];
+        bitmap_draw_glyph(bitmap, xofs + x, yofs + y, w, h, 0, 0, font_data);
     }
 
     return x + w;

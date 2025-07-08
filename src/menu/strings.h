@@ -49,5 +49,8 @@ DEFINE_STRING(s_dotdot, "..");
 
 DEFINE_STRING(s_error_unknown, "Error %d");
 DEFINE_STRING(s_bios, "bios");
+DEFINE_STRING(s_freya, "freya");
+DEFINE_STRING(s_freyabios_tpl, "FreyaBIOS %c.%c.%s");
+DEFINE_STRING(s_freyaos_tpl, "FreyaOS %c.%c.%s");
 
 #endif /* _STRINGS_H_ */

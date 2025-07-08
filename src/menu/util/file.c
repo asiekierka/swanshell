@@ -20,6 +20,34 @@
 #include <ws.h>
 #include "file.h"
 
+bool f_anymatch(filinfo_predicate_t predicate, const char __far* local_path) {
+    DIR dir;
+    FILINFO fno;
+
+    strcpy(fno.fname, local_path);
+    uint8_t result = f_opendir(&dir, fno.fname);
+	if (result != FR_OK)
+        return false;
+
+    while (true) {
+		result = f_readdir(&dir, &fno);
+
+        // Invalid/empty result?
+		if (result != FR_OK)
+            break;
+		if (fno.fname[0] == 0)
+			break;
+
+        if (predicate(&fno)) {
+            f_closedir(&dir);
+            return true;
+        }
+	}
+
+    f_closedir(&dir);
+    return false;
+}
+
 FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode) {
     char local_path[FF_LFN_BUF + 1];
     local_path[FF_LFN_BUF] = 0;

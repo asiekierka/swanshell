@@ -15,7 +15,6 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <nilefs/ff.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -66,13 +65,19 @@ static int compare_filenames(const file_selector_entry_t __far* a, const file_se
     }
 }
 
-static int16_t ui_file_selector_scan_directory(uint16_t *count) {
+bool ui_file_selector_default_predicate(const FILINFO __far *fno) {
+    // Hidden file?
+    if ((fno->fattrib & AM_HID) && !(settings.file_flags & SETTING_FILE_SHOW_HIDDEN))
+        return false;
+
+    return true;
+}
+
+int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t predicate, uint16_t *count) {
     DIR dir;
     uint16_t file_count = 0;
     *count = 0;
 
-    char path[2];
-    strcpy(path, s_dot);
     uint8_t result = f_opendir(&dir, path);
 	if (result != FR_OK)
 		return result;
@@ -87,11 +92,8 @@ static int16_t ui_file_selector_scan_directory(uint16_t *count) {
         }
 		if (fno->fno.fname[0] == 0)
 			break;
-
-        // Hidden file?
-        if ((fno->fno.fattrib & AM_HID) && !(settings.file_flags & SETTING_FILE_SHOW_HIDDEN)) {
+        if (!predicate(&fno->fno))
             continue;
-        }
 
         // Cache extension location
         const char __far* ext_loc = strrchr(fno->fno.fname, '.');
@@ -174,11 +176,19 @@ options_start:
     case 1:
         memset(&lst, 0, sizeof(ui_popup_list_config_t));
         lst.option[0] = lang_keys[LK_SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS];
+        lst.option[1] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_BIOS];
+        lst.option[2] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_OS];
         switch (ui_popup_list(&lst)) {
         default:
             goto options_start;
         case 0:
             ui_error_handle(ww_ui_extract_from_rom(filename), NULL, 0);
+            return true;
+        case 1:
+            ui_error_handle(ww_ui_replace_component(filename, false), NULL, 0);
+            return true;
+        case 2:
+            ui_error_handle(ww_ui_replace_component(filename, true), NULL, 0);
             return true;
         }
     }
@@ -210,7 +220,8 @@ rescan_directory:
     ui_show();
     if (reinit_dirs) {
         config.offset = 0;
-        int16_t result = ui_file_selector_scan_directory(&config.count);
+        strcpy(path, s_dot);
+        int16_t result = ui_file_selector_scan_directory(path, ui_file_selector_default_predicate, &config.count);
         if (ui_error_handle(result, NULL, 0)) {
             strcpy(path, s_dotdot);
             f_chdir(path);

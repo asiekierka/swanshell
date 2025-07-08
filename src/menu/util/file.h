@@ -26,6 +26,9 @@
 // currently defined in launch.c
 extern uint8_t sector_buffer[2048];
 
+typedef bool (*filinfo_predicate_t)(const FILINFO __far*);
+bool f_anymatch(filinfo_predicate_t predicate, const char __far* path);
+
 FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode);
 int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br);
 int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw);
