@@ -24,11 +24,13 @@
 #include <ws.h>
 #include <nilefs.h>
 #include "lang_gen.h"
+#include "util/input.h"
 #include "ww.h"
-#include "hashes.h"
 #include "../../shared/util/math.h"
 #include "../ui/ui.h"
+#include "../ui/ui_fileops.h"
 #include "../ui/ui_file_selector.h"
+#include "../ui/ui_osk.h"
 #include "../ui/ui_popup_dialog.h"
 #include "../ui/ui_selector.h"
 #include "../util/file.h"
@@ -42,7 +44,7 @@ static bool ww_is_bin_file(const FILINFO __far *fno) {
         return false;
     
     const char __far* ext_loc = strrchr(fno->fname, '.');
-    if (ext_loc == NULL || strcmp(ext_loc, s_file_ext_bin))
+    if (ext_loc == NULL || strcasecmp(ext_loc, s_file_ext_bin))
         return false;
 
     return true;
@@ -53,7 +55,7 @@ static bool ww_is_raw_file(const FILINFO __far *fno) {
         return false;
     
     const char __far* ext_loc = strrchr(fno->fname, '.');
-    if (ext_loc == NULL || strcmp(ext_loc, s_file_ext_raw))
+    if (ext_loc == NULL || strcasecmp(ext_loc, s_file_ext_raw))
         return false;
 
     return true;
@@ -134,108 +136,174 @@ static bool ww_ui_select_file(
     }
 }
 
-int16_t ww_ui_replace_component(const char __far* remote_filename, bool is_os) {
-    char path[FF_LFN_BUF+1];
-    char filename[FF_LFN_BUF+1];
-    FIL fp;
+static int16_t ww_ui_replace_component_path(char *input_path, char *output_path, bool is_os, uint32_t size) {
     int16_t result;
+    FIL fp;
 
-    strcpy(filename, remote_filename);
+    bool dynamic_size = size == 0;
+    char *output_ext = (char*) strrchr(output_path, '.');
+    if (output_ext == NULL)
+        output_ext = output_path + strlen(output_path);
 
-    if (ww_ui_select_file(is_os, path, sizeof(path))) {
-        char *filename_ext = (char*) strrchr(filename, '.');
-        if (filename_ext == NULL)
-            filename_ext = filename + strlen(filename);
+    ui_popup_dialog_config_t cfg = {0};
+    cfg.title = lang_keys[LK_PROGRESS_COPYING_DATA];
+    cfg.progress_max = 2;
+    ui_popup_dialog_draw(&cfg);
 
-        ui_popup_dialog_config_t cfg = {0};
-        cfg.title = lang_keys[LK_PROGRESS_COPYING_DATA];
-        cfg.progress_max = 2;
-        ui_popup_dialog_draw(&cfg);
+    if ((result = f_open(&fp, input_path, FA_READ | FA_OPEN_EXISTING)) != FR_OK) {
+        return result;
+    }
 
-        if ((result = f_open(&fp, path, FA_READ | FA_OPEN_EXISTING)) != FR_OK) {
+    uint32_t bytes_to_write;
+    outportw(WS_CART_EXTBANK_RAM_PORT, 7);
+    while (!f_eof(&fp)) {
+        uint16_t bw;
+        if ((result = f_read(&fp, MK_FP(0x1000, f_tell(&fp)), MIN(f_size(&fp), 16384), &bw)) != FR_OK) {
+            f_close(&fp);
             return result;
         }
 
-        uint32_t bytes_to_write;
-        outportw(WS_CART_EXTBANK_RAM_PORT, 7);
-        while (!f_eof(&fp)) {
-            uint16_t bw;
-            if ((result = f_read(&fp, MK_FP(0x1000, f_tell(&fp)), MIN(f_size(&fp), 16384), &bw)) != FR_OK) {
-                f_close(&fp);
-                return result;
-            }
+        if (f_tell(&fp) >= 65536) break;
+    }
+    bytes_to_write = f_tell(&fp);
+    f_close(&fp);
 
-            if (f_tell(&fp) >= 65536) break;
+    while (true) {
+        if ((result = f_open(&fp, output_path, FA_WRITE | FA_OPEN_EXISTING)) != FR_OK) {
+            return result;
         }
-        bytes_to_write = f_tell(&fp);
-        f_close(&fp);
 
-        while (true) {
-            if ((result = f_open(&fp, filename, FA_WRITE | FA_OPEN_EXISTING)) != FR_OK) {
-                return result;
-            }
-
-            if (f_size(&fp) < 131072) {
-                f_close(&fp);
-                return ERR_FILE_FORMAT_INVALID;
-            }
-
-            if ((result = f_lseek(&fp, f_size(&fp) - (is_os ? 131072 : 65536))) != FR_OK) {
-                f_close(&fp);
-                return result;
-            }
-
-            uint32_t bytes_write_pos = 0;
-            while (bytes_write_pos < bytes_to_write) {
-                uint16_t bw;
-                
-                bw = MIN(bytes_to_write - bytes_write_pos, sizeof(path));
-                memcpy(path, MK_FP(0x1000, f_tell(&fp)), bw);
-
-                if ((result = f_write(&fp, path, bw, &bw)) != FR_OK) {
-                    f_close(&fp);
-                    return result;
-                }
-                bytes_write_pos += bw;
-            }
-
-            if (is_os) {
-                // Create OS footer
-                bytes_write_pos += 127;
-
-                path[0] = 0xEA;
-                path[1] = 0x00;
-                path[2] = 0x00;
-                path[3] = 0x00;
-                path[4] = 0xE0;
-                path[5] = 0x00;
-                path[6] = bytes_write_pos >> 7;
-                path[7] = bytes_write_pos >> 15;
-
-                if ((result = f_lseek(&fp, f_size(&fp) - 65536 - 16)) != FR_OK) {
-                    f_close(&fp);
-                    return result;
-                }
-
-                if ((result = f_write(&fp, path, 16, &bytes_write_pos)) != FR_OK) {
-                    f_close(&fp);
-                    return result;
-                }
-            }
-            
+        if (dynamic_size)
+            size = f_size(&fp);
+        if (size < 131072) {
             f_close(&fp);
+            return ERR_FILE_FORMAT_INVALID;
+        }
+
+        if ((result = f_lseek(&fp, size - (is_os ? 131072 : 65536))) != FR_OK) {
+            f_close(&fp);
+            return result;
+        }
+
+        uint32_t bytes_write_pos = 0;
+        while (bytes_write_pos < bytes_to_write) {
+            uint16_t bw;
             
-            // If the file under edit is not .flash, edit the .flash file too
-            if (strcmp(filename_ext, s_file_ext_flash)) {
-                strcpy(filename_ext, s_file_ext_flash);
-            } else {
-                break;
+            bw = MIN(bytes_to_write - bytes_write_pos, sizeof(input_path));
+            memcpy(input_path, MK_FP(0x1000, f_tell(&fp)), bw);
+
+            if ((result = f_write(&fp, input_path, bw, &bw)) != FR_OK) {
+                f_close(&fp);
+                return result;
+            }
+            bytes_write_pos += bw;
+        }
+
+        if (is_os) {
+            // Create OS footer
+            bytes_write_pos += 127;
+
+            input_path[0] = 0xEA;
+            input_path[1] = 0x00;
+            input_path[2] = 0x00;
+            input_path[3] = 0x00;
+            input_path[4] = 0xE0;
+            input_path[5] = 0x00;
+            input_path[6] = bytes_write_pos >> 7;
+            input_path[7] = bytes_write_pos >> 15;
+
+            if ((result = f_lseek(&fp, size - 65536 - 16)) != FR_OK) {
+                f_close(&fp);
+                return result;
             }
 
-            cfg.progress_step++;
-            ui_popup_dialog_draw_update(&cfg);
+            if ((result = f_write(&fp, input_path, 16, &bytes_write_pos)) != FR_OK) {
+                f_close(&fp);
+                return result;
+            }
         }
+        
+        f_close(&fp);
+        
+        // If the file under edit is not .flash, edit the .flash file too
+        if (!dynamic_size)
+            break;
+        if (strcasecmp(output_ext, s_file_ext_flash)) {
+            strcpy(output_ext, s_file_ext_flash);
+        } else {
+            break;
+        }
+
+        cfg.progress_step++;
+        ui_popup_dialog_draw_update(&cfg);
     }
 
     return 0;
+}
+
+int16_t ww_ui_replace_component(const char __far* remote_filename, bool is_os) {
+    char path[FF_LFN_BUF+1];
+    char filename[FF_LFN_BUF+1];
+
+    strcpy(filename, remote_filename);
+    if (ww_ui_select_file(is_os, path, sizeof(path))) {
+        return ww_ui_replace_component_path(path, filename, is_os, 0);
+    }
+
+    return 0;
+}
+
+int16_t ww_ui_create_image(void) {
+    char image_path[FF_LFN_BUF+1];
+    char bios_path[FF_LFN_BUF+1];
+    char os_path[FF_LFN_BUF+1];
+    FIL fp;
+    int16_t result;
+
+    // Query for BIOS/OS path
+    if (!ww_ui_select_file(false, bios_path, sizeof(bios_path))) return 0;
+    if (!ww_ui_select_file(true, os_path, sizeof(os_path))) return 0;
+
+    // Query for image path name
+    ui_osk_state_t osk = {0};
+    image_path[0] = 0;
+    osk.buffer = image_path;
+    osk.buflen = sizeof(image_path);
+
+    ui_layout_bars();
+    ui_draw_titlebar(lang_keys[LK_INPUT_TARGET_FILENAME]);
+    ui_draw_statusbar(NULL);
+    ui_osk(&osk);
+
+    if (!fileops_is_rom(image_path))
+        strcat(image_path, s_file_ext_wsc);
+
+    if ((result = ui_fileops_check_file_overwrite(image_path)) != FR_OK) {
+        if (result == FR_EXIST) return FR_OK;
+        return result;
+    }
+
+    ui_layout_bars();
+    ui_draw_titlebar(lang_keys[LK_SUBMENU_OPTION_WITCH_CREATE_IMAGE]);
+    ui_draw_statusbar(NULL);
+    // Allocate file
+    if ((result = f_open(&fp, image_path, FA_CREATE_ALWAYS | FA_WRITE)) != FR_OK)
+        return result;
+
+    // Try to ensure a contiguous area for the file.
+    result = f_expand(&fp, 524288L, 0);
+    /// ... failing that, non-contiguous will do.
+    if (result != FR_OK)
+        result = f_lseek(&fp, 524288L);
+    f_close(&fp);
+    if (result != FR_OK)
+        return result;
+
+    // Inject BIOS/OS data
+    if ((result = ww_ui_replace_component_path(bios_path, image_path, false, 524288L)) != FR_OK)
+        return result;
+    if ((result = ww_ui_replace_component_path(os_path, image_path, true, 524288L)) != FR_OK)
+        return result;
+
+    return FR_OK;
 }

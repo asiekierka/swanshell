@@ -29,7 +29,7 @@
 #include "ui.h"
 #include "ui/ui_file_selector.h"
 #include "ui/ui_popup_list.h"
-#include "ui_error.h"
+#include "ui_dialog.h"
 #include "ui_selector.h"
 #include "ui_settings.h"
 #include "../util/input.h"
@@ -126,7 +126,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     } else {
         const char __far* ext = fno->fno.fname + fno->extension_loc;
         if (ext != NULL) {
-            if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc)) {
+            if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
                 icon_idx = 2;
             } else if (!strcasecmp(ext, s_file_ext_bmp)) {
                 icon_idx = 3;
@@ -178,17 +178,21 @@ options_start:
         lst.option[0] = lang_keys[LK_SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS];
         lst.option[1] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_BIOS];
         lst.option[2] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_OS];
+        lst.option[3] = lang_keys[LK_SUBMENU_OPTION_WITCH_CREATE_IMAGE];
         switch (ui_popup_list(&lst)) {
         default:
             goto options_start;
         case 0:
-            ui_error_handle(ww_ui_extract_from_rom(filename), NULL, 0);
+            ui_dialog_error_check(ww_ui_extract_from_rom(filename), NULL, 0);
             return true;
         case 1:
-            ui_error_handle(ww_ui_replace_component(filename, false), NULL, 0);
+            ui_dialog_error_check(ww_ui_replace_component(filename, false), NULL, 0);
             return true;
         case 2:
-            ui_error_handle(ww_ui_replace_component(filename, true), NULL, 0);
+            ui_dialog_error_check(ww_ui_replace_component(filename, true), NULL, 0);
+            return true;
+        case 3:
+            ui_dialog_error_check(ww_ui_create_image(), NULL, 0);
             return true;
         }
     }
@@ -222,7 +226,7 @@ rescan_directory:
         config.offset = 0;
         strcpy(path, s_dot);
         int16_t result = ui_file_selector_scan_directory(path, ui_file_selector_default_predicate, &config.count);
-        if (ui_error_handle(result, NULL, 0)) {
+        if (ui_dialog_error_check(result, NULL, 0)) {
             strcpy(path, s_dotdot);
             f_chdir(path);
             goto rescan_directory;
@@ -248,7 +252,7 @@ rescan_directory:
                 ui_selector_clear_selection(&config);
                 if (fno->extension_loc != 255) {
                     const char __far* ext = fno->fno.fname + fno->extension_loc;
-                    if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc)) {
+                    if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
                         launch_rom_metadata_t meta;
                         int16_t result = launch_get_rom_metadata(path, &meta);
                         if (result == FR_OK) {
@@ -259,24 +263,24 @@ rescan_directory:
                         }
 
                         // Error
-                        ui_error_handle(result, NULL, 0);
+                        ui_dialog_error_check(result, NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_bmp)) {
-                        ui_error_handle(ui_bmpview(path), NULL, 0);
+                        ui_dialog_error_check(ui_bmpview(path), NULL, 0);
                     } else if (!strcasecmp(ext, s_file_ext_wav)) {
-                        ui_error_handle(ui_wavplay(path), NULL, 0);
+                        ui_dialog_error_check(ui_wavplay(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_vgm)) {
-                        ui_error_handle(ui_vgmplay(path), NULL, 0);
+                        ui_dialog_error_check(ui_vgmplay(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_bfb)) {
                         ui_selector_clear_selection(&config);
                         int option = ui_file_selector_bfb_options();
                         if (option == 0) {
-                            ui_error_handle(launch_bfb(path), NULL, 0);
+                            ui_dialog_error_check(launch_bfb(path), NULL, 0);
                         }
                         reinit_ui = true;
                         goto rescan_directory;

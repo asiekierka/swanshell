@@ -35,6 +35,8 @@ const char __far *error_to_string(int16_t value) {
         return lang_keys[LK_ERROR_FR_NO_FILE];
     case FR_NO_PATH:
         return lang_keys[LK_ERROR_FR_NO_PATH];
+    case FR_DENIED:
+        return lang_keys[LK_ERROR_FR_DENIED];
     case ERR_MCU_COMM_FAILED:
         return lang_keys[LK_ERROR_MCU_COMM_FAILED];
     case ERR_SAVE_CORRUPT:

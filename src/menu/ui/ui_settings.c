@@ -28,7 +28,7 @@
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
-#include "ui/ui_error.h"
+#include "ui/ui_dialog.h"
 #include "ui_selector.h"
 #include "ui_settings.h"
 #include "lang.h"
@@ -156,5 +156,5 @@ reload_menu:
         }
     }
 
-    ui_error_handle(settings_save(), NULL, 0);
+    ui_dialog_error_check(settings_save(), NULL, 0);
 }

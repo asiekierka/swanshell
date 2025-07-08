@@ -306,6 +306,7 @@ osk_full_redraw:
                         state->tab = 1 - state->tab;
                         goto osk_full_redraw;
                     case UI_OSK_FR_OK:
+                        clear_osk_xy(state);
                         return;
                 }
             } else {

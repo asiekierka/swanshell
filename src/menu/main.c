@@ -28,7 +28,7 @@
 #include "settings.h"
 #include "ui/bitmap.h"
 #include "ui/ui.h"
-#include "ui/ui_error.h"
+#include "ui/ui_dialog.h"
 #include "ui/ui_file_selector.h"
 #include "ui/ui_settings.h"
 #include "launch/launch.h"
@@ -67,7 +67,7 @@ void fs_init(void) {
 	char blank = 0;
 	int16_t result;
 	result = f_mount(&fs, &blank, 1);
-	if (result) while(1) ui_error_handle(result, lang_keys[LK_ERROR_TITLE_FS_INIT], 0);
+	if (result) while(1) ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_FS_INIT], 0);
 }
 
 // Reserve 0x2000 bytes of space for BIOS window
@@ -91,9 +91,9 @@ void main(void) {
 
 	fs_init();
 
-	ui_error_handle(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
-	ui_error_handle(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
-	ui_error_handle(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
+	ui_dialog_error_check(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
+	ui_dialog_error_check(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
+	ui_dialog_error_check(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
 
 	ui_file_selector();
 

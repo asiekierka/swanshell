@@ -15,12 +15,29 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __UI_ERROR_H__
-#define __UI_ERROR_H__
+#ifndef UI_FILEOPS_H__
+#define UI_FILEOPS_H__
 
 #include <stdint.h>
 #include <wonderful.h>
 
-int16_t ui_error_handle(int16_t error, const char __far* title, uint16_t flags);
+/**
+ * @brief Check if a given file name points to a cartridge image file.
+ */
+bool fileops_is_rom(const char __far *filename);
 
-#endif /* __UI_ERROR_H__ */
+/**
+ * @brief Delete the file and associated save data.
+ * 
+ * @return int16_t Error code
+ */
+int16_t fileops_delete_file_and_savedata(const char __far *filename);
+
+/**
+ * @brief Check if a file exists; offer the user an option to overwrite it, at which point the file and associated save data is deleted.
+ * 
+ * @return int16_t FR_OK on success, FR_EXIST if file exists (user rejects overwrite), other on error
+ */
+int16_t ui_fileops_check_file_overwrite(const char __far *filename);
+
+#endif /* UI_FILEOPS_H__ */

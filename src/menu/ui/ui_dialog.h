@@ -14,16 +14,13 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
-#ifndef WW_WW_H_
-#define WW_WW_H_
 
-#include <stdbool.h>
+#ifndef UI_DIALOG_H__
+#define UI_DIALOG_H__
+
 #include <stdint.h>
 #include <wonderful.h>
 
-int16_t ww_ui_extract_from_rom(const char __far* filename);
-int16_t ww_ui_replace_component(const char __far* filename, bool is_os);
-int16_t ww_ui_create_image(void);
+int16_t ui_dialog_error_check(int16_t error, const char __far* title, uint16_t flags);
 
-#endif /* WW_WW_H_ */
+#endif /* UI_DIALOG_H__ */

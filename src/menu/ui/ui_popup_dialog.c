@@ -201,7 +201,7 @@ int16_t ui_popup_dialog_action(ui_popup_dialog_config_t *config, uint8_t selecte
             if (!config->buttons[i]) break;
         }
 
-        ui_popup_dialog_draw_buttons(config, 0);
+        ui_popup_dialog_draw_buttons(config, selected_button);
         while (true) {
             wait_for_vblank();
             input_update();

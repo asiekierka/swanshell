@@ -21,9 +21,9 @@
 #include "lang.h"
 #include "ui/ui.h"
 #include "ui_popup_dialog.h"
-#include "ui_error.h"
+#include "ui_dialog.h"
 
-int16_t ui_error_handle(int16_t error, const char __far *title, uint16_t flags) {
+int16_t ui_dialog_error_check(int16_t error, const char __far *title, uint16_t flags) {
     char error_name_buffer[48];
     ui_popup_dialog_config_t dlg = {0};
 
