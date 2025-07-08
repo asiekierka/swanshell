@@ -21,6 +21,7 @@
 #include <wonderful.h>
 #include <ws.h>
 #include <nilefs.h>
+#include "lang_gen.h"
 #include "launch/launch.h"
 #include "ww.h"
 #include "hashes.h"
@@ -204,7 +205,9 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
         return ERR_FILE_FORMAT_INVALID;
     }
 
-    ui_layout_clear(0);
+    ui_layout_bars();
+    ui_draw_titlebar(lang_keys[LK_SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS]);
+    ui_draw_statusbar(NULL);
 
     // seek to OS location
     if ((result = f_lseek(&fp, f_size(&fp) - 131072)) != FR_OK) {
