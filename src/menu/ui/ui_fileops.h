@@ -27,6 +27,11 @@
 bool fileops_is_rom(const char __far *filename);
 
 /**
+ * @brief Check if a given file name points to a cartridge image or flash file.
+ */
+bool fileops_has_rom_contents(const char __far *filename);
+
+/**
  * @brief Delete the file and associated save data.
  * 
  * @return int16_t Error code

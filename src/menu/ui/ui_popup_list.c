@@ -29,6 +29,16 @@
 #define LIST_ENTRY_X_PADDING 2
 #define LIST_ENTRY_Y_OFFSET 1
 
+void ui_popup_list_clear(ui_popup_list_config_t *config) {
+    uint16_t list_width = config->width;
+    uint16_t list_height = config->height;
+    uint16_t list_x = (WS_DISPLAY_WIDTH_PIXELS - list_width) >> 1;
+    uint16_t list_y = (WS_DISPLAY_HEIGHT_PIXELS - list_height) >> 1;
+
+    bitmap_rect_fill(&ui_bitmap, list_x, list_y, list_width, list_height,
+        BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+}
+
 int16_t ui_popup_list(ui_popup_list_config_t *config) {
     int option_count = 0;
     uint8_t option_width[UI_POPUP_LIST_MAX_OPTION_COUNT];
@@ -43,6 +53,8 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
     uint16_t list_height = bitmapfont_get_font_height() * option_count + 4;
     uint16_t list_x = (WS_DISPLAY_WIDTH_PIXELS - list_width) >> 1;
     uint16_t list_y = (WS_DISPLAY_HEIGHT_PIXELS - list_height) >> 1;
+    config->width = list_width;
+    config->height = list_height;
 
     bitmap_rect_fill(&ui_bitmap, list_x, list_y, list_width, list_height,
         BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));

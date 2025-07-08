@@ -32,6 +32,11 @@ bool fileops_is_rom(const char __far *filename) {
     return filename_ext != NULL && (!strcasecmp(filename_ext, s_file_ext_ws) || !strcasecmp(filename_ext, s_file_ext_wsc) || !strcasecmp(filename_ext, s_file_ext_pc2));
 }
 
+bool fileops_has_rom_contents(const char __far *filename) {
+    const char __far *filename_ext = strrchr(filename, '.');
+    return filename_ext != NULL && (!strcasecmp(filename_ext, s_file_ext_ws) || !strcasecmp(filename_ext, s_file_ext_wsc) || !strcasecmp(filename_ext, s_file_ext_pc2) || !strcasecmp(filename_ext, s_file_ext_flash));
+}
+
 static int16_t __fileops_delete_path(char *path, bool hide_other_values) {
     int16_t result = f_unlink(path);
     if (result != FR_OK) {

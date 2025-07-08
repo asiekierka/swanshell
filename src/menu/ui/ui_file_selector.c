@@ -30,6 +30,7 @@
 #include "ui/ui_file_selector.h"
 #include "ui/ui_popup_list.h"
 #include "ui_dialog.h"
+#include "ui_fileops.h"
 #include "ui_selector.h"
 #include "ui_settings.h"
 #include "../util/input.h"
@@ -175,21 +176,28 @@ options_start:
         return true;
     case 1:
         memset(&lst, 0, sizeof(ui_popup_list_config_t));
-        lst.option[0] = lang_keys[LK_SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS];
-        lst.option[1] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_BIOS];
-        lst.option[2] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_OS];
-        lst.option[3] = lang_keys[LK_SUBMENU_OPTION_WITCH_CREATE_IMAGE];
+        uint8_t i = 0;
+        if (fileops_has_rom_contents(filename)) {
+            lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_BIOS];
+            lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_OS];
+            lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS];
+        }
+        lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_CREATE_IMAGE];
         switch (ui_popup_list(&lst)) {
         default:
+            ui_popup_list_clear(&lst);
             goto options_start;
         case 0:
-            ui_dialog_error_check(ww_ui_extract_from_rom(filename), NULL, 0);
+            if (i == 1)
+                ui_dialog_error_check(ww_ui_create_image(), NULL, 0);
+            else
+                ui_dialog_error_check(ww_ui_replace_component(filename, false), NULL, 0);
             return true;
         case 1:
-            ui_dialog_error_check(ww_ui_replace_component(filename, false), NULL, 0);
+            ui_dialog_error_check(ww_ui_replace_component(filename, true), NULL, 0);
             return true;
         case 2:
-            ui_dialog_error_check(ww_ui_replace_component(filename, true), NULL, 0);
+            ui_dialog_error_check(ww_ui_extract_from_rom(filename), NULL, 0);
             return true;
         case 3:
             ui_dialog_error_check(ww_ui_create_image(), NULL, 0);

@@ -24,9 +24,11 @@
 #define UI_POPUP_LIST_MAX_OPTION_COUNT 8
 typedef struct ui_popup_list_config {
     const char __far* option[UI_POPUP_LIST_MAX_OPTION_COUNT];
+    uint8_t width, height;
 } ui_popup_list_config_t;
 
 int16_t ui_popup_list(ui_popup_list_config_t *config);
+void ui_popup_list_clear(ui_popup_list_config_t *config);
 
 #endif /* __UI_POPUP_LIST_H__ */
  
