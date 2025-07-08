@@ -7,6 +7,7 @@ TARGET = wswan/medium
 include $(WONDERFUL_TOOLCHAIN)/target/$(TARGET)/makedefs.mk
 
 PYTHON3		?= python3
+VERSION		?= $(shell git rev-parse --short=8 HEAD)
 
 # Metadata
 # --------
@@ -24,7 +25,7 @@ CBINDIRS	:= data/menu
 # Defines passed to all files
 # ---------------------------
 
-DEFINES		:=
+DEFINES		:= -DVERSION=\"$(VERSION)\"
 
 # Libraries
 # ---------

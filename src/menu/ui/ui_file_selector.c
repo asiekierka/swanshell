@@ -28,6 +28,7 @@
 #include "strings.h"
 #include "ui.h"
 #include "ui/ui_file_selector.h"
+#include "ui/ui_about.h"
 #include "ui/ui_popup_list.h"
 #include "ui_dialog.h"
 #include "ui_fileops.h"
@@ -166,15 +167,19 @@ static bool ui_file_selector_options(const char __far *filename) {
     ui_popup_list_config_t lst;
 options_start:
     memset(&lst, 0, sizeof(ui_popup_list_config_t));
-    lst.option[0] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
-    lst.option[1] = lang_keys[LK_SUBMENU_OPTION_WITCH];
+    lst.option[0] = lang_keys[LK_SUBMENU_OPTION_WITCH];
+    lst.option[1] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
+    lst.option[2] = lang_keys[LK_SUBMENU_OPTION_ABOUT];
     switch (ui_popup_list(&lst)) {
     default:
         return false;
-    case 0:
+    case 1:
         ui_settings(&settings_root);
         return true;
-    case 1:
+    case 2:
+        ui_about();
+        return true;
+    case 0:
         memset(&lst, 0, sizeof(ui_popup_list_config_t));
         uint8_t i = 0;
         if (fileops_has_rom_contents(filename)) {
