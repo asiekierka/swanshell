@@ -403,11 +403,10 @@ int16_t launch_backup_save_data(void) {
             else if (!strcasecmp(key, s_save_ini_flash)) file_type = SAVE_ID_FOR_FLASH;
             if (file_type) {
                 key = (char*) strchr(value, '|');
-                if (key != NULL) {
-                    key[0] = 0;
-                    value_num = atoi(value);
-                    value = key + 1;
-                }
+                if (key == NULL) continue;
+                key[0] = 0;
+                value_num = atoi(value);
+                value = key + 1;
 
                 uint32_t fetched_id = launch_get_save_id(file_type);
                 if (id != fetched_id) {

@@ -24,7 +24,8 @@
 #include <nilefs.h>
 
 // currently defined in launch.c
-extern uint8_t sector_buffer[2048];
+#define SECTOR_BUFFER_SIZE 2048
+extern uint8_t sector_buffer[SECTOR_BUFFER_SIZE];
 
 #define sector_buffer_is_active ws_system_is_color_active
 // #define sector_buffer_is_active() false

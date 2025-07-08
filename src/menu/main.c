@@ -15,8 +15,6 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-#include <string.h>
 #include <wonderful.h>
 #include <ws.h>
 #include <ws/util.h>
@@ -26,11 +24,9 @@
 #include "lang_gen.h"
 #include "mcu.h"
 #include "settings.h"
-#include "ui/bitmap.h"
 #include "ui/ui.h"
 #include "ui/ui_dialog.h"
 #include "ui/ui_file_selector.h"
-#include "ui/ui_settings.h"
 #include "launch/launch.h"
 #include "util/input.h"
 
@@ -53,15 +49,6 @@ void wait_for_vblank(void) {
 }
 
 FATFS fs;
-
-static uint8_t disk_read_error;
-static uint16_t bench_disk_read(uint16_t sectors) {
-	outportw(WS_TIMER_HBL_RELOAD_PORT, 65535);
-	outportb(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
-	disk_read_error = disk_read(0, MK_FP(0x1000, 0x0000), 0, sectors);
-	outportb(WS_TIMER_CTRL_PORT, 0);
-	return inportw(WS_TIMER_HBL_COUNTER_PORT) ^ 0xFFFF;
-}
 
 void fs_init(void) {
 	char blank = 0;
