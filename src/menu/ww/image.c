@@ -132,7 +132,7 @@ static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t
 
 // FIXME: compiler bug?
 __attribute__((optimize("-O1")))
-static bool ww_ui_select_file(
+static bool ww_ui_select_file_inner(
     bool is_os,
     char *buffer, size_t buflen
 ) {
@@ -193,6 +193,23 @@ static bool ww_ui_select_file(
             return false;
         }
     }
+}
+
+static bool ww_ui_select_file(
+    bool is_os,
+    char *buffer, size_t buflen
+) {
+    if (ww_ui_select_file_inner(is_os, buffer, buflen))
+        return true;
+
+    ui_popup_dialog_config_t dlg = {};
+    dlg.title = lang_keys[is_os ? LK_ERROR_WITCH_NO_OS_FOUND : LK_ERROR_WITCH_NO_BIOS_FOUND];
+    dlg.buttons[0] = LK_OK;
+    ui_popup_dialog_draw(&dlg);
+    ui_popup_dialog_action(&dlg, 0);
+    ui_popup_dialog_clear(&dlg);
+
+    return false;
 }
 
 static int16_t ww_ui_replace_component_path(char *input_path, char *output_path, bool is_os, uint32_t size) {
