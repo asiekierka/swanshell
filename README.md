@@ -14,6 +14,10 @@ The primary and official file selector/launcher program for [nileswan](https://4
 
     make
 
+To build auxilliary files as well:
+
+    make dist
+
 ## Contributing
 
 ### Translations

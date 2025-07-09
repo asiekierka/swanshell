@@ -110,9 +110,9 @@ DEPS		:= $(OBJS:.o=.d)
 
 .PHONY: all clean dist athenaos-compatible athenaos-native libnile-bootfriend libnile-medium
 
-all: dist compile_commands.json
+all: $(ROM) compile_commands.json
 
-dist: $(ROM) athenaos-compatible
+dist: all athenaos-compatible
 	@echo "  DIST"
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
 

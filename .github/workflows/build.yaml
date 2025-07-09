@@ -14,16 +14,16 @@ jobs:
       - name: Clone project
         uses: actions/checkout@v4
         with:
-          submodules: false
+          submodules: recursive
 
       - name: Fetch missing submodules
         run: git config --global --add safe.directory `pwd` && git submodule update --init --recursive
 
       - name: Install additional dependencies
-        run: apt-get update && apt-get install -y python3 && wf-pacman -Syu --noconfirm wf-tools wf-superfamiconv wf-zx0-salvador
+        run: apt-get update && apt-get install -y python3 python3-pil && wf-pacman -Syu --noconfirm wf-tools wf-superfamiconv wf-zx0-salvador
 
       - name: Build
-        run: make
+        run: make dist
 
       - name: Archive
         uses: actions/upload-artifact@v4
