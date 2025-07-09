@@ -1,3 +1,6 @@
 [submodule "libnile"]
-	path = libnile
+	path = vendor/libnile
 	url = https://github.com/49bitcat/libnile
+[submodule "vendor/AthenaOS"]
+	path = vendor/AthenaOS
+	url = https://github.com/OpenWitch/AthenaOS

@@ -25,11 +25,8 @@ jobs:
       - name: Build
         run: make
 
-      - name: Re-organize
-        run: mkdir -p ci/NILESWAN && cp dist/MENU.WS ci/NILESWAN/MENU.WS
-
       - name: Archive
         uses: actions/upload-artifact@v4
         with:
           name: swanshell
-          path: ci/*
+          path: dist/*

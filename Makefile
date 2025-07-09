@@ -30,9 +30,11 @@ DEFINES		:= -DVERSION=\"$(VERSION)\"
 # Libraries
 # ---------
 
+export LIBNILE_PATH	:= vendor/libnile
+export ATHENAOS_PATH	:= vendor/AthenaOS
 LIBS		:= -lnilefs -lnile -lwsx -lws
 LIBDIRS		:= $(WF_ARCH_LIBDIRS) \
-		   libnile/dist/$(TARGET)
+		   $(LIBNILE_PATH)/dist/$(TARGET)
 
 # Build artifacts
 # ---------------
@@ -40,7 +42,7 @@ LIBDIRS		:= $(WF_ARCH_LIBDIRS) \
 BUILDDIR	:= build/menu
 ELF		:= build/$(NAME).elf
 ELF_STAGE1	:= build/$(NAME)_stage1.elf
-ROM		:= dist/MENU.WS
+ROM		:= dist/NILESWAN/MENU.WS
 
 # Verbose flag
 # ------------
@@ -106,15 +108,25 @@ DEPS		:= $(OBJS:.o=.d)
 # Targets
 # -------
 
-.PHONY: all clean libnile-bootfriend libnile-medium
+.PHONY: all clean dist athenaos-compatible athenaos-native libnile-bootfriend libnile-medium
 
-all: $(ROM) compile_commands.json
+all: dist compile_commands.json
+
+dist: $(ROM) athenaos-compatible
+	@echo "  DIST"
+	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
+
+athenaos-compatible:
+	@$(MAKE) -C $(ATHENAOS_PATH) bios
+
+athenaos-native:
+	@$(MAKE) -C $(ATHENAOS_PATH) CONFIG=config/config.nileswan.mk bios
 
 libnile-bootfriend:
-	@$(MAKE) -C libnile TARGET=wswan/bootfriend install
+	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/bootfriend install
 
 libnile-medium:
-	@$(MAKE) -C libnile TARGET=wswan/medium install
+	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/medium install
 
 build/bootstub.bin: libnile-bootfriend
 	$(_V)$(MAKE) -f Makefile.bootstub --no-print-directory
@@ -132,9 +144,11 @@ $(ELF_STAGE1): $(OBJS)
 clean:
 	@echo "  CLEAN"
 	$(V)$(MAKE) -f Makefile.bootstub clean --no-print-directory
-	$(_V)$(RM) $(ELF_STAGE1) $(ELF) $(ROM) $(BUILDDIR) compile_commands.json
-	cd libnile && $(MAKE) TARGET=wswan/bootfriend clean
-	cd libnile && $(MAKE) TARGET=wswan/medium clean
+	$(_V)$(RM) $(ELF_STAGE1) $(ELF) dist/ $(BUILDDIR) compile_commands.json
+	cd $(LIBNILE_PATH) && $(MAKE) TARGET=wswan/bootfriend clean
+	cd $(LIBNILE_PATH) && $(MAKE) TARGET=wswan/medium clean
+	cd $(ATHENAOS_PATH) && $(MAKE) clean
+	cd $(ATHENAOS_PATH) && $(MAKE) CONFIG=config/config.nileswan.mk clean
 
 compile_commands.json: $(OBJS) | Makefile
 	@echo "  MERGE   compile_commands.json"

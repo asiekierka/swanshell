@@ -72,31 +72,66 @@ static bool ww_is_raw_os_file(const FILINFO __far *fno) {
     return ww_is_raw_file(fno) && memcmp(fno->fname, s_bios, 4);
 }
 
-static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
-    char name[FF_LFN_BUF+9];
+#define WW_UI_SELECT_HAS_BIOSATHC 0x0001
+#define WW_UI_SELECT_HAS_BIOSATHN 0x0002
+#define WW_UI_SELECT_BIOSATHC -1
+#define WW_UI_SELECT_BIOSATHN -2
 
-    file_selector_entry_t __far *fno = ui_file_selector_open_fno(offset);
-
-    name[0] = 0;
-
-    // Special handling: FreyaBIOS/FreyaOS file
-    if (isdigit(fno->fno.fname[5]) && isdigit(fno->fno.fname[6]) && isdigit(fno->fno.fname[7])) {
-        char __far* filename_ext = strrchr(fno->fno.fname, '.');
-
-        if (filename_ext != NULL) *filename_ext = 0;
-        if (!memcmp(s_freya, fno->fno.fname, 5)) {
-            sprintf(name, s_freyaos_tpl, fno->fno.fname[5], fno->fno.fname[6], fno->fno.fname + 7);
-        }
-        if (!memcmp(s_bios, fno->fno.fname, 4) && fno->fno.fname[4] == 'f') {
-            sprintf(name, s_freyabios_tpl, fno->fno.fname[5], fno->fno.fname[6], fno->fno.fname + 7);
-        }
-        if (filename_ext != NULL) *filename_ext = '.';
+static int16_t get_ui_select_file_offset(uint16_t flags, uint16_t offset) {
+    uint16_t extra_entries = __builtin_popcount(flags);
+    if (offset >= extra_entries) {
+        return offset - extra_entries;
     }
 
-    if (!name[0]) strcpy(name, fno->fno.fname);
+    if (flags & WW_UI_SELECT_HAS_BIOSATHC) {
+        if (!offset) return WW_UI_SELECT_BIOSATHC;
+        offset--;
+    }
+
+    if (flags & WW_UI_SELECT_HAS_BIOSATHN) {
+        if (!offset) return WW_UI_SELECT_BIOSATHN;
+        offset--;
+    }
+
+    // Should never reach this.
+    while(1);
+}
+
+// FIXME: compiler bug?
+__attribute__((optimize("-O1")))
+static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t ui_offset, uint16_t y) {
+    char name[FF_LFN_BUF+9];
+    name[0] = 0;
+
+    int16_t offset = get_ui_select_file_offset((uint16_t) config->userdata, ui_offset);
+    if (offset >= 0) {
+        file_selector_entry_t __far *fno = ui_file_selector_open_fno((uint16_t) offset);
+
+        // Special handling: FreyaBIOS/FreyaOS file
+        if (isdigit(fno->fno.fname[5]) && isdigit(fno->fno.fname[6]) && isdigit(fno->fno.fname[7])) {
+            char __far* filename_ext = strrchr(fno->fno.fname, '.');
+
+            if (filename_ext != NULL) *filename_ext = 0;
+            if (!memcmp(s_freya, fno->fno.fname, 5)) {
+                sprintf(name, s_freyaos_tpl, fno->fno.fname[5], fno->fno.fname[6], fno->fno.fname + 7);
+            }
+            if (!memcmp(s_bios, fno->fno.fname, 4) && fno->fno.fname[4] == 'f') {
+                sprintf(name, s_freyabios_tpl, fno->fno.fname[5], fno->fno.fname[6], fno->fno.fname + 7);
+            }
+            if (filename_ext != NULL) *filename_ext = '.';
+        }
+
+        if (!name[0]) strcpy(name, fno->fno.fname);
+    } else {
+        // TODO: Implement version information
+        strcpy(name, s_athenabios_tpl);
+        strcat(name, lang_keys[offset == WW_UI_SELECT_BIOSATHC ? LK_ATHENABIOS_SUFFIX_COMPATIBLE : LK_ATHENABIOS_SUFFIX_NATIVE]);
+    }
     bitmapfont_draw_string(&ui_bitmap, 2, y, name, WS_DISPLAY_WIDTH_PIXELS - 2);
 }
 
+// FIXME: compiler bug?
+__attribute__((optimize("-O1")))
 static bool ww_ui_select_file(
     bool is_os,
     char *buffer, size_t buflen
@@ -114,7 +149,17 @@ static bool ww_ui_select_file(
     config.style = settings.file_view;
 
     if (ui_file_selector_scan_directory(path, is_os ? ww_is_raw_os_file : ww_is_raw_bios_file, &config.count))
-        return false;
+        config.count = 0;
+
+    uint16_t flags = 0;
+    if (!is_os) {
+        if (f_exists_far(s_path_athenabios_compatible))
+            flags |= WW_UI_SELECT_HAS_BIOSATHC;
+        if (f_exists_far(s_path_athenabios_native))
+            flags |= WW_UI_SELECT_HAS_BIOSATHN;
+    }
+    config.userdata = (void*) flags;
+    config.count += __builtin_popcount(flags);
 
     if (config.count <= 0)
         return false;
@@ -125,12 +170,23 @@ static bool ww_ui_select_file(
         uint16_t keys_pressed = ui_selector(&config);
 
         if (keys_pressed & WS_KEY_A) {
-            file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
-            if (strlen(fno->fno.fname) >= buflen - strlen(path) - 1)
+            int16_t offset = get_ui_select_file_offset(flags, config.offset);
+
+            if (offset >= 0) {
+                file_selector_entry_t __far *fno = ui_file_selector_open_fno(offset);
+                if (strlen(fno->fno.fname) >= buflen - strlen(path) - 1)
+                    return false;
+                strcpy(buffer, s_path_fbin);
+                strcat(buffer, s_path_sep);
+                strcat(buffer, fno->fno.fname);
+            } else if (offset == WW_UI_SELECT_BIOSATHC) {
+                strcpy(buffer, s_path_athenabios_compatible);
+            } else if (offset == WW_UI_SELECT_BIOSATHN) {
+                strcpy(buffer, s_path_athenabios_native);
+            } else {
                 return false;
-            strcpy(buffer, s_path_fbin);
-            strcat(buffer, s_path_sep);
-            strcat(buffer, fno->fno.fname);
+            }
+
             return true;
         }
         if (keys_pressed & WS_KEY_B) {

@@ -29,6 +29,7 @@ typedef struct ui_selector_config {
     uint16_t info_key; ///< Language key for auxilliary information.
     uint16_t key_mask; ///< Keys which exit the ui_selector() main loop.
     uint8_t style; ///< Style.
+    void *userdata; ///< Data to pass to selector functions.
 
     void (*draw)(struct ui_selector_config *config, uint16_t idx, uint16_t y);
     bool (*can_select)(struct ui_selector_config *config, uint16_t idx);

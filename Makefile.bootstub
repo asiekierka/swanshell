@@ -29,7 +29,7 @@ DEFINES		:=
 
 LIBS		:= -lnilefs -lnile -lwsx -lws
 LIBDIRS		:= $(WF_ARCH_LIBDIRS) \
-		   libnile/dist/$(TARGET)
+		   $(LIBNILE_PATH)/dist/$(TARGET)
 
 # Build artifacts
 # ---------------

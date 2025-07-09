@@ -25,6 +25,10 @@
 #define DEFINE_STRING(name, value) extern const char __far name[]
 #endif
 
+DEFINE_STRING(s_path_sep, "/");
+DEFINE_STRING(s_dot, ".");
+DEFINE_STRING(s_dotdot, "..");
+
 DEFINE_STRING(s_file_ext_bfb, ".bfb");
 DEFINE_STRING(s_file_ext_bmp, ".bmp");
 DEFINE_STRING(s_file_ext_bin, ".bin");
@@ -43,14 +47,15 @@ DEFINE_STRING(s_file_ext_rtc, ".rtc");
 
 DEFINE_STRING(s_path_save_ini, "/NILESWAN/SAVE.INI");
 DEFINE_STRING(s_path_config_ini, "/NILESWAN/CONFIG.INI");
-DEFINE_STRING(s_path_fbin, "/NILESWAN/fbin");
-DEFINE_STRING(s_path_sep, "/");
-DEFINE_STRING(s_dot, ".");
-DEFINE_STRING(s_dotdot, "..");
 
 DEFINE_STRING(s_error_unknown, "Error %d");
+
+DEFINE_STRING(s_path_fbin, "/NILESWAN/fbin");
+DEFINE_STRING(s_path_athenabios_compatible, "/NILESWAN/BIOSATHC.RAW");
+DEFINE_STRING(s_path_athenabios_native, "/NILESWAN/BIOSATHN.RAW");
 DEFINE_STRING(s_bios, "bios");
 DEFINE_STRING(s_freya, "freya");
+DEFINE_STRING(s_athenabios_tpl, "AthenaBIOS ");
 DEFINE_STRING(s_freyabios_tpl, "FreyaBIOS %c.%c.%s");
 DEFINE_STRING(s_freyaos_tpl, "FreyaOS %c.%c.%s");
 
