@@ -27,6 +27,7 @@
 void settings_reset(void) {
     memset(&settings, 0, sizeof(settings));
     lang_keys = lang_keys_en;
+    settings.accent_color = SETTING_THEME_ACCENT_COLOR_DEFAULT;
 }
 
 static int16_t settings_load_category(FIL *fp, const setting_category_t __far *cat, const char *key, const char *value) {
@@ -50,6 +51,8 @@ static int16_t settings_load_category(FIL *fp, const setting_category_t __far *c
             if (v <= s->choice.max && (!s->choice.allowed || s->choice.allowed(v))) {
                 *((uint8_t*) s->choice.value) = v;
             }
+        } else if (s->type == SETTING_TYPE_COLOR) {
+            *s->color.value = atoi(value) & 0xFFF;
         }
 
         if (result != FR_OK)
@@ -114,6 +117,8 @@ static int16_t settings_save_category(FIL *fp, const setting_category_t __far *c
             result = f_printf(fp, s_ini_entry_flag, s->key, v) < 0 ? FR_INT_ERR : FR_OK;
         } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
             result = f_printf(fp, s_ini_entry_flag, s->key, *((uint8_t*) s->choice.value)) < 0 ? FR_INT_ERR : FR_OK;
+        } else if (s->type == SETTING_TYPE_COLOR) {
+            result = f_printf(fp, s_ini_entry_flag, s->key, *s->color.value) < 0 ? FR_INT_ERR : FR_OK;
         }
 
         if (result != FR_OK)

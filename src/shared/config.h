@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, 2023, 2024 Adrian Siekierka
+* Copyright (c) 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,16 +15,13 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _MATH_H_
-#define _MATH_H_
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
-#include <stdbool.h>
-#include <stdint.h>
+// #define CONFIG_DEBUG_FORCE_MONO
+// #define CONFIG_DEBUG_FORCE_DISABLE_SECTOR_BUFFER
 
-#define MIN(a,b) (((a)>(b))?(b):(a))
-#define MAX(a,b) (((a)<(b))?(b):(a))
+#define CONFIG_MEMLAYOUT_SECTOR_BUFFER_SIZE 2048
+#define CONFIG_MEMLAYOUT_STACK_BUFFER_SIZE 64
 
-uint32_t math_next_power_of_two(uint32_t value);
-uint16_t math_color_to_greyscale(uint16_t rgb12);
-
-#endif /* _MATH_H_ */
+#endif /* CONFIG_H_ */

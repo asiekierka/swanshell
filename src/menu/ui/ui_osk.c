@@ -218,7 +218,7 @@ static void redraw_osk_buffer_text(ui_osk_state_t *state, bool clear) {
 static void redraw_osk(ui_osk_state_t *state) {
     CALC_OSK_DIMENSIONS;
 
-    ui_layout_bars_prefilled();
+    ui_layout_bars();
     bitmapfont_set_active_font(font16_bitmap);
 
     // draw outline

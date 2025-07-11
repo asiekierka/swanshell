@@ -26,7 +26,8 @@
 #define SETTING_TYPE_CATEGORY    0
 #define SETTING_TYPE_FLAG        1
 #define SETTING_TYPE_CHOICE_BYTE 2
-#define SETTING_TYPE ACTION 3
+#define SETTING_TYPE_ACTION      3
+#define SETTING_TYPE_COLOR       3
 
 #define SETTING_FILE_SHOW_HIDDEN_SHIFT 0
 #define SETTING_FILE_SHOW_HIDDEN       (1 << SETTING_FILE_SHOW_HIDDEN_SHIFT)
@@ -77,6 +78,9 @@ typedef struct setting {
             bool (*allowed)(uint16_t);
             void (*name)(uint16_t, char *, int);
         } choice;
+        struct {
+            uint16_t *value;
+        } color;
     };
 } setting_t;
 
@@ -87,12 +91,15 @@ typedef struct {
     uint8_t flags;
 } settings_prog_t;
 
+#define SETTING_THEME_ACCENT_COLOR_DEFAULT 0x4A7
+
 typedef struct {
     settings_prog_t prog;
     uint8_t file_flags;
     uint8_t file_sort;
     uint8_t language;
     uint8_t file_view;
+    uint16_t accent_color;
 } settings_t;
 
 extern settings_t settings;

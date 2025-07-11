@@ -20,8 +20,6 @@
 #include <ws.h>
 #include "file.h"
 
-#define STACK_BUFFER_SIZE 64
-
 bool f_anymatch(filinfo_predicate_t predicate, const char __far* local_path) {
     DIR dir;
     FILINFO fno;
@@ -132,7 +130,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
 
 int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
     // Reading directly from SRAM would conflict with the SPI buffer.
-    uint8_t stack_buffer[STACK_BUFFER_SIZE];
+    uint8_t stack_buffer[CONFIG_MEMLAYOUT_STACK_BUFFER_SIZE];
     uint8_t *buffer;
     uint16_t buffer_size;
     uint16_t lbw;

@@ -16,16 +16,21 @@
  */
 
 #include <string.h>
+#include <ws/display.h>
+#include <ws/system.h>
+
 #include "lang_gen.h"
 #include "settings.h"
 #include "lang.h"
 #include "strings.h"
+#include "util/math.h"
 
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
 DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
 DEFINE_STRING_LOCAL(s_program_fast_sram_key, "ProgFastSRAM");
 DEFINE_STRING_LOCAL(s_language, "Language");
+DEFINE_STRING_LOCAL(s_theme_accent_color_key, "ThemeAccentColor");
 
 settings_t settings;
 
@@ -185,14 +190,52 @@ static const setting_t __far setting_program = {
     .category = { &settings_program }
 };
 
+static void settings_theme_accent_color_on_change(const settings_t *set) {
+    if (ws_system_is_color_active()) {
+        WS_DISPLAY_COLOR_MEM(2)[2] = settings.accent_color;
+    }
+    outportw(WS_SCR_PAL_2_PORT, (inportw(WS_SCR_PAL_2_PORT) & ~0xF00) | ((math_color_to_greyscale(settings.accent_color) << 7) & 0x700));
+}
+
+static const setting_t __far setting_theme_accent_color = {
+    s_theme_accent_color_key,
+    LK_SETTINGS_THEME_ACCENT_COLOR,
+    0,
+    SETTING_TYPE_COLOR,
+    0,
+    settings_theme_accent_color_on_change,
+    .color = { &settings.accent_color }
+};
+
+static const setting_category_t __far settings_theme = {
+    LK_SETTINGS_THEME_KEY,
+    0,
+    &settings_root,
+    1,
+    {
+        &setting_theme_accent_color
+    }
+};
+
+static const setting_t __far setting_theme = {
+    NULL,
+    LK_SETTINGS_THEME_KEY,
+    0,
+    SETTING_TYPE_CATEGORY,
+    0,
+    NULL,
+    .category = { &settings_theme }
+};
+
 const setting_category_t __far settings_root = {
     LK_SETTINGS_KEY,
     0,
     NULL,
-    3,
+    4,
     {
         &setting_file,
         &setting_program,
+        &setting_theme,
         &setting_language
     }
 };

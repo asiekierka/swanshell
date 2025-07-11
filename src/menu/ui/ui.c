@@ -26,8 +26,10 @@
 #include "ui_selector.h"
 #include "../util/input.h"
 #include "../main.h"
+#include "settings.h"
 #include "../../../build/menu/assets/menu/icons.h"
 #include "lang.h"
+#include "config.h"
 
 __attribute__((section(".iramx_1b80")))
 uint16_t bitmap_screen2[32 * 18 - 4];
@@ -93,7 +95,7 @@ void ui_init(void) {
     ui_hide();
 
     // initialize palettes
-#if 0
+#ifdef CONFIG_DEBUG_FORCE_MONO
     if (0) {
 #else
     if (ws_system_is_color_model()) {
@@ -113,7 +115,7 @@ void ui_init(void) {
         // palette 2 - titlebar palette
         WS_DISPLAY_COLOR_MEM(2)[0] = 0xFFF;
         WS_DISPLAY_COLOR_MEM(2)[1] = 0x000;
-        WS_DISPLAY_COLOR_MEM(2)[2] = 0x4A7;
+        WS_DISPLAY_COLOR_MEM(2)[2] = SETTING_THEME_ACCENT_COLOR_DEFAULT;
         WS_DISPLAY_COLOR_MEM(2)[3] = 0xFFF;
     } else {
         ui_bitmap = BITMAP(WS_TILE_MEM(0), 28, 18, 2);
@@ -141,16 +143,15 @@ void ui_show(void) {
 }
 
 void ui_layout_clear(uint16_t pal) {
-    bitmap_rect_clear(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS);
+    if (pal == 0) {
+        bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
+    } else {
+        bitmap_rect_clear(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS);
+    }
     INIT_SCREEN_PATTERN(bitmap_screen2, pal);
 }
 
 void ui_layout_bars(void) {
-    bitmap_rect_clear(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS);
-    INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0);
-}
-
-void ui_layout_bars_prefilled(void) {
     bitmap_rect_fill(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
     INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0);
 }

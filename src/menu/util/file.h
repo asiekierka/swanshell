@@ -22,13 +22,16 @@
 #include <stdint.h>
 #include <wonderful.h>
 #include <nilefs.h>
+#include "config.h"
 
 // currently defined in launch.c
-#define SECTOR_BUFFER_SIZE 2048
-extern uint8_t sector_buffer[SECTOR_BUFFER_SIZE];
+extern uint8_t sector_buffer[CONFIG_MEMLAYOUT_SECTOR_BUFFER_SIZE];
 
+#ifdef CONFIG_DEBUG_FORCE_DISABLE_SECTOR_BUFFER
+#define sector_buffer_is_active() false
+#else
 #define sector_buffer_is_active ws_system_is_color_active
-// #define sector_buffer_is_active() false
+#endif
 
 typedef bool (*filinfo_predicate_t)(const FILINFO __far*);
 bool f_anymatch(filinfo_predicate_t predicate, const char __far* path);

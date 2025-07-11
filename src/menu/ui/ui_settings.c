@@ -56,6 +56,8 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
         strcpy(buf, lang_keys[(*s->flag.value & (1 << s->flag.bit)) ? s->flag.name_true : s->flag.name_false]);
     } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
         s->choice.name(*((uint8_t*) s->choice.value), buf, sizeof(buf));
+    } else if (s->type == SETTING_TYPE_COLOR) {
+        snprintf(buf, sizeof(buf), s_color, *s->color.value & 0xFFF);
     }
   
     x_offset = WS_DISPLAY_WIDTH_PIXELS - x_offset - bitmapfont_get_string_width(buf, WS_DISPLAY_WIDTH_PIXELS - x_offset - len);

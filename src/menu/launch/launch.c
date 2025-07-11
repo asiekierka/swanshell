@@ -46,7 +46,6 @@ uint8_t sector_buffer[2048];
 
 extern FATFS fs;
 
-#define STACK_BUFFER_SIZE 64
 #define NILE_IPC_SAVE_ID ((volatile uint32_t __far*) MK_FP(0x1000, 512 - sizeof(uint32_t)))
 
 /*
@@ -213,7 +212,7 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
 }
 
 static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path) {
-    uint8_t stack_buffer[STACK_BUFFER_SIZE];
+    uint8_t stack_buffer[CONFIG_MEMLAYOUT_STACK_BUFFER_SIZE];
     uint8_t *buffer;
     uint16_t buffer_size;
     int16_t result, result2;
@@ -307,7 +306,7 @@ preallocate_file_end_no_dialog:
 #define MAX_WRITE_EEPROM_WORDS 64
 
 static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words) {
-    int16_t result;
+    int16_t result = FR_OK;
 
     for (uint16_t i = 0; i < words; i += MAX_WRITE_EEPROM_WORDS) {
         int to_read = words > MAX_WRITE_EEPROM_WORDS ? MAX_WRITE_EEPROM_WORDS : words;

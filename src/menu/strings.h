@@ -25,6 +25,8 @@
 #define DEFINE_STRING(name, value) extern const char __far name[]
 #endif
 
+DEFINE_STRING(s_color, "#%03x");
+
 DEFINE_STRING(s_path_sep, "/");
 DEFINE_STRING(s_dot, ".");
 DEFINE_STRING(s_dotdot, "..");
