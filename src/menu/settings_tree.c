@@ -191,10 +191,12 @@ static const setting_t __far setting_program = {
 };
 
 static void settings_theme_accent_color_on_change(const settings_t *set) {
+    int shade = (math_color_to_greyscale(settings.accent_color) >> 1) ^ 7;
     if (ws_system_is_color_active()) {
         WS_DISPLAY_COLOR_MEM(2)[2] = settings.accent_color;
+        WS_DISPLAY_COLOR_MEM(2)[3] = shade <= 1 ? 0x000 : 0xFFF;
     }
-    outportw(WS_SCR_PAL_2_PORT, (inportw(WS_SCR_PAL_2_PORT) & ~0xF00) | ((math_color_to_greyscale(settings.accent_color) << 7) & 0x700));
+    outportw(WS_SCR_PAL_2_PORT, inportb(WS_SCR_PAL_2_PORT) | (shade << 8) | (shade <= 1 ? 0x7000 : 0x0000));
 }
 
 static const setting_t __far setting_theme_accent_color = {
