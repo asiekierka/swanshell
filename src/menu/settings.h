@@ -43,6 +43,9 @@
 #define SETTING_FILE_VIEW_LARGE 0
 #define SETTING_FILE_VIEW_SMALL 1
 
+#define SETTING_THEME_DARK_MODE_SHIFT 4
+#define SETTING_THEME_DARK_MODE       (1 << SETTING_THEME_DARK_MODE_SHIFT)
+
 #define SETTING_FLAG_COLOR_ONLY 0x01
 
 struct setting;
@@ -87,19 +90,25 @@ typedef struct setting {
 #define SETTING_PROG_FLAG_SRAM_OVERCLOCK_SHIFT 0
 #define SETTING_PROG_FLAG_SRAM_OVERCLOCK (1 << SETTING_PROG_FLAG_SRAM_OVERCLOCK_SHIFT)
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     uint8_t flags;
 } settings_prog_t;
 
 #define SETTING_THEME_ACCENT_COLOR_DEFAULT 0x4A7
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     settings_prog_t prog;
     uint8_t file_flags;
     uint8_t file_sort;
     uint8_t language;
     uint8_t file_view;
-    uint16_t accent_color;
+    union {
+        struct {
+            uint8_t accent_color_low;
+            uint8_t accent_color_high;
+        };
+        uint16_t accent_color;
+    };
 } settings_t;
 
 extern settings_t settings;

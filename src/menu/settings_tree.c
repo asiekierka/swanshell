@@ -31,6 +31,7 @@ DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
 DEFINE_STRING_LOCAL(s_program_fast_sram_key, "ProgFastSRAM");
 DEFINE_STRING_LOCAL(s_language, "Language");
 DEFINE_STRING_LOCAL(s_theme_accent_color_key, "ThemeAccentColor");
+DEFINE_STRING_LOCAL(s_theme_dark_mode_key, "ThemeDarkMode");
 
 settings_t settings;
 
@@ -191,13 +192,44 @@ static const setting_t __far setting_program = {
 };
 
 static void settings_theme_accent_color_on_change(const settings_t *set) {
+    bool dark = settings.accent_color_high & SETTING_THEME_DARK_MODE;
     int shade = (math_color_to_greyscale(settings.accent_color) >> 1) ^ 7;
+    bool dark_titlebar_text = shade <= (dark ? 5 : 1);
     if (ws_system_is_color_active()) {
         WS_DISPLAY_COLOR_MEM(2)[2] = settings.accent_color;
-        WS_DISPLAY_COLOR_MEM(2)[3] = shade <= 1 ? 0x000 : 0xFFF;
+        WS_DISPLAY_COLOR_MEM(2)[3] = dark_titlebar_text ? 0x000 : 0xFFF;
     }
-    outportw(WS_SCR_PAL_2_PORT, inportb(WS_SCR_PAL_2_PORT) | (shade << 8) | (shade <= 1 ? 0x7000 : 0x0000));
+    outportb(WS_SCR_PAL_2_PORT + 1, shade | (dark_titlebar_text ? 0x70 : 0x00));
 }
+
+static void settings_theme_dark_mode_on_change(const settings_t *set) {
+    bool dark = settings.accent_color_high & SETTING_THEME_DARK_MODE;
+    if (ws_system_is_color_active()) {
+        WS_DISPLAY_COLOR_MEM(0)[0] = dark ? 0x000 : 0xFFF;
+        WS_DISPLAY_COLOR_MEM(0)[2] = dark ? 0x000 : 0xFFF;
+        WS_DISPLAY_COLOR_MEM(0)[3] = dark ? 0xFFF : 0x000;
+        WS_DISPLAY_COLOR_MEM(1)[3] = dark ? 0x000 : 0xFFF;
+        WS_DISPLAY_COLOR_MEM(1)[2] = dark ? 0xFFF : 0x000;
+    }
+    outportb(WS_SCR_PAL_0_PORT + 1, dark ? 0x07 : 0x70);
+    outportb(WS_SCR_PAL_1_PORT + 1, dark ? 0x70 : 0x07);
+    outportb(WS_SCR_PAL_2_PORT, dark ? 0x07 : 0x70);
+    settings_theme_accent_color_on_change(set);
+}
+
+static const setting_t __far setting_theme_dark_mode = {
+    s_theme_dark_mode_key,
+    LK_SETTINGS_THEME_DARK_MODE,
+    0,
+    SETTING_TYPE_FLAG,
+    0,
+    settings_theme_dark_mode_on_change,
+    .flag = {
+        &settings.accent_color_high,
+        SETTING_THEME_DARK_MODE_SHIFT,
+        LK_SETTINGS_THEME_LIGHT, LK_SETTINGS_THEME_DARK
+    }
+};
 
 static const setting_t __far setting_theme_accent_color = {
     s_theme_accent_color_key,
@@ -213,8 +245,9 @@ static const setting_category_t __far settings_theme = {
     LK_SETTINGS_THEME_KEY,
     0,
     &settings_root,
-    1,
+    2,
     {
+        &setting_theme_dark_mode,
         &setting_theme_accent_color
     }
 };
