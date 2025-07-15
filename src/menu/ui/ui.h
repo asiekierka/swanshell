@@ -15,8 +15,8 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __UI_H__
-#define __UI_H__
+#ifndef UI_H_
+#define UI_H_
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -37,9 +37,6 @@ void ui_layout_bars(void);
 void ui_draw_centered_status(const char __far* text);
 void ui_draw_titlebar(const char __far* text);
 void ui_draw_statusbar(const char __far* text);
-int ui_bmpview(const char *path);
-int ui_vgmplay(const char *path);
-int ui_wavplay(const char *path);
 
 extern uint16_t bitmap_screen2[];
 
@@ -54,4 +51,4 @@ extern uint16_t bitmap_screen2[];
 #define MAINPAL_COLOR_LIGHT_GREY 14
 #define MAINPAL_COLOR_DARK_GREY 15
 
-#endif /* __UI_H__ */
+#endif /* UI_H_ */

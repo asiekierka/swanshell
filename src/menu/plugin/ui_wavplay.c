@@ -24,7 +24,7 @@
 #include "errors.h"
 #include "lang.h"
 #include "strings.h"
-#include "ui.h"
+#include "../ui/ui.h"
 #include "../util/input.h"
 #include "../main.h"
 #include "ui/bitmap.h"

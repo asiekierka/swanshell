@@ -22,7 +22,7 @@
 #include <ws.h>
 #include <nilefs.h>
 #include "errors.h"
-#include "ui.h"
+#include "../ui/ui.h"
 #include "../util/input.h"
 #include "../main.h"
 

@@ -54,6 +54,7 @@ static inline bool mcu_native_eeprom_read_data(uint8_t *buffer, uint16_t offset,
 }
 
 bool mcu_native_set_mode(uint8_t mode);
+bool mcu_native_hid_update(uint16_t value);
 
 static inline bool mcu_native_finish(void) {
 	return nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);

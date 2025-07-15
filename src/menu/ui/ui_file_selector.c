@@ -34,6 +34,7 @@
 #include "ui_fileops.h"
 #include "ui_selector.h"
 #include "ui_settings.h"
+#include "plugin/plugin.h"
 #include "../util/input.h"
 #include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
@@ -169,7 +170,8 @@ options_start:
     memset(&lst, 0, sizeof(ui_popup_list_config_t));
     lst.option[0] = lang_keys[LK_SUBMENU_OPTION_WITCH];
     lst.option[1] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
-    lst.option[2] = lang_keys[LK_SUBMENU_OPTION_ABOUT];
+    lst.option[2] = lang_keys[LK_SUBMENU_OPTION_CONTROLLER_MODE];
+    lst.option[3] = lang_keys[LK_SUBMENU_OPTION_ABOUT];
     switch (ui_popup_list(&lst)) {
     default:
         return false;
@@ -177,6 +179,9 @@ options_start:
         ui_settings(&settings_root);
         return true;
     case 2:
+        ui_hidctrl();
+        return true;
+    case 3:
         ui_about();
         return true;
     case 0:

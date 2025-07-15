@@ -24,7 +24,7 @@
 #include <ws/system.h>
 #include "errors.h"
 #include "lang.h"
-#include "ui.h"
+#include "../ui/ui.h"
 #include "../util/input.h"
 #include "../util/vgm.h"
 
