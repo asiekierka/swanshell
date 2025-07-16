@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <wonderful.h>
+#include "bootstub.h"
 
 typedef struct __attribute__((packed)) {
     uint8_t jump_command;
@@ -52,6 +53,7 @@ typedef struct {
 int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta);
 int16_t launch_backup_save_data(void);
 int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta);
+int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *entry);
 int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta);
 
 int16_t launch_bfb(const char *path);

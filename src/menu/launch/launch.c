@@ -628,14 +628,20 @@ launch_restore_save_data_return_result:
     return result;
 }
 
-int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta) {
+int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *entry) {
     FILINFO fp;
-    
     int16_t result = f_stat(path, &fp);
     if (result != FR_OK) {
         return result;
     }
-    if (fp.fsize > 16*1024*1024L) {
+    entry->cluster = fp.fclust;
+    entry->size = fp.fsize;
+    return FR_OK;
+}
+
+int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta) {
+    launch_set_bootstub_file_entry(path, &bootstub_data->prog);
+    if (bootstub_data->prog.size > 16*1024*1024L) {
         return ERR_FILE_TOO_LARGE;
     }
 
@@ -649,7 +655,7 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
         ws_system_set_mode(WS_MODE_COLOR);
     }
     wsx_zx0_decompress((void*) 0x3200, gfx_bootstub_tiles);
-
+    
     // Populate bootstub data
     bootstub_data->data_base = fs.database;
     bootstub_data->cluster_table_base = fs.fatbase;
@@ -657,8 +663,6 @@ int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *m
     bootstub_data->fat_entry_count = fs.n_fatent;
     bootstub_data->fs_type = fs.fs_type;
     
-    bootstub_data->prog_cluster = fp.fclust;
-    bootstub_data->prog_size = fp.fsize;
     if (meta != NULL) {
         bootstub_data->rom_banks = meta->rom_banks;
         bootstub_data->prog_sram_mask = (meta->sram_size - 1) >> 16;

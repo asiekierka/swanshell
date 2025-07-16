@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,4 +15,15 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
  
- #include "util.h"
+#ifndef UTIL_H_
+#define UTIL_H_
+
+#include <stdbool.h>
+#include <stdint.h>
+
+/**
+ * @return uint16_t The approximate number of free RAM bytes.
+ */
+uint16_t mem_query_free(void);
+
+#endif /* UTIL_H_ */

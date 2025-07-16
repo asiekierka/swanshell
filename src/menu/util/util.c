@@ -1,7 +1,5 @@
-#ifndef _UTIL_H_
-#define _UTIL_H_
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -16,10 +14,12 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
-#include <stdbool.h>
-#include <stdint.h>
 
-void memcpy_expand_8_16(void *dst, const void *src, uint16_t count, uint16_t fill_value);
+#include <wonderful.h>
+#include "util.h"
 
-#endif
+extern uint8_t __wf_heap_start;
+
+uint16_t mem_query_free(void) {
+    return ia16_get_sp() - (uint16_t) &__wf_heap_start;
+}

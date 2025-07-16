@@ -24,6 +24,11 @@
 #define BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET 0x01
 
 typedef struct {
+    uint32_t cluster; ///< Initial FAT cluster
+    uint32_t size; ///< File size, in bytes
+} bootstub_file_entry_t;
+
+typedef struct {
     // FAT information
     uint8_t fs_type;
     uint32_t cluster_table_base;
@@ -32,9 +37,8 @@ typedef struct {
     uint32_t fat_entry_count;
 
     // Program information
-    uint32_t prog_size; ///< Program size
+    bootstub_file_entry_t prog;
     uint16_t rom_banks; ///< Requested ROM banks
-    uint32_t prog_cluster; ///< Starting cluster for program
     uint8_t prog_sram_mask;
     uint8_t prog_pow_cnt;
     uint8_t prog_emu_cnt;

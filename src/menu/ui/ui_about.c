@@ -27,6 +27,7 @@
 #include "ui/bitmap.h"
 #include "ui/ui.h"
 #include "util/input.h"
+#include "util/util.h"
 #include "ui_about.h"
 
 static const char __far s_name_version[] = "%s " VERSION;
@@ -38,16 +39,22 @@ void ui_about(void) {
     ui_draw_titlebar(lang_keys[LK_SUBMENU_OPTION_ABOUT]);
     ui_draw_statusbar(NULL);
 
-    int y = 28;
+    int y = 24;
     sprintf(buf, s_name_version, lang_keys[LK_NAME]);
     bitmapfont_set_active_font(font16_bitmap);
     bitmapfont_draw_string(&ui_bitmap,
         (WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(buf, 65535)) >> 1,
         y, buf, 65535);
 
-    y += 16;
+    y += 14;
     strcpy(buf, lang_keys[LK_NAME_COPYRIGHT]);
     bitmapfont_set_active_font(font8_bitmap);
+    bitmapfont_draw_string(&ui_bitmap,
+        (WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(buf, 65535)) >> 1,
+        y, buf, 65535);
+
+    y += 11;
+    sprintf(buf, lang_keys[LK_ABOUT_RAM_BYTES_FREE], mem_query_free());
     bitmapfont_draw_string(&ui_bitmap,
         (WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(buf, 65535)) >> 1,
         y, buf, 65535);

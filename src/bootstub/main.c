@@ -25,9 +25,11 @@
 #include "patches.h"
 #include "bootstub.h"
 #include "util/math.h"
-#include "util/util.h"
 
 #define SCREEN ((uint16_t *) 0x2800)
+
+// memcpy_expand_8_16.s
+extern void memcpy_expand_8_16(void *dst, const void *src, uint16_t count, uint16_t fill_value);
 
 /* === Error reporting === */
 
@@ -147,7 +149,7 @@ int main(void) {
 
 	// Read ROM, sector by sector
 	uint8_t result;
-	uint32_t size = bootstub_data->prog_size;
+	uint32_t size = bootstub_data->prog.size;
 	uint32_t rom_size = ((uint32_t) bootstub_data->rom_banks) << 16;
 	if (size > rom_size) {
 		rom_size = size;
@@ -158,9 +160,9 @@ int main(void) {
 	uint16_t total_banks = real_size >> 16;
 
 	outportb(WS_LCD_ICON_PORT, (bootstub_data->prog_flags & 1) ? WS_LCD_ICON_ORIENT_V : WS_LCD_ICON_ORIENT_H);
-	if (bootstub_data->prog_cluster) {
+	if (bootstub_data->prog.cluster) {
 		progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 1 : 0));
-		cluster_open(bootstub_data->prog_cluster);
+		cluster_open(bootstub_data->prog.cluster);
 		outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
 		while (bank < total_banks) {
