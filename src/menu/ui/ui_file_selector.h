@@ -50,6 +50,12 @@ static inline file_selector_entry_t __far *ui_file_selector_open_fno(uint16_t of
 void ui_file_selector(void);
 bool ui_file_selector_default_predicate(const FILINFO __far *fno);
 int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t predicate, uint16_t *count);
+
+// ui_file_selector_options.c
+int ui_file_selector_actions_bfb(void);
+bool ui_file_selector_options(const char __far *filename);
+
+// ui_file_selector_qsort.c
 void ui_file_selector_qsort(size_t nmemb, int (*compar)(const file_selector_entry_t __far*, const file_selector_entry_t __far*, void*), void *userdata);
 
 #endif /* __UI_FILE_SELECTOR_H__ */

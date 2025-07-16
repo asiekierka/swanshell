@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+bool idle_until_vblank(void);
 void wait_for_vblank(void);
 
 #endif /* _MAIN_H_ */

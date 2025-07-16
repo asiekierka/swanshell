@@ -71,7 +71,6 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
     uint8_t selected = 0;
     uint8_t prev_selected = 0xFF;
 
-    wait_for_vblank();
     while (true) {
         if (selected != prev_selected) {
             if (prev_selected != 0xFF) {
@@ -84,7 +83,7 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
             prev_selected = selected;
         }
 
-        wait_for_vblank();
+        idle_until_vblank();
         input_update();
         uint16_t keys_pressed = input_pressed;
 

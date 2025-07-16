@@ -35,6 +35,8 @@ typedef struct ui_selector_config {
     bool (*can_select)(struct ui_selector_config *config, uint16_t idx);
 } ui_selector_config_t;
 
+#define UI_SELECTOR_RELOAD_REQUESTED 0x4001
+
 void ui_selector_clear_selection(ui_selector_config_t *config);
 uint16_t ui_selector(ui_selector_config_t *config);
 

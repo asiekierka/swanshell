@@ -28,7 +28,6 @@
 #include "strings.h"
 #include "ui.h"
 #include "ui/ui_file_selector.h"
-#include "ui/ui_about.h"
 #include "ui/ui_popup_list.h"
 #include "ui_dialog.h"
 #include "ui_fileops.h"
@@ -39,7 +38,6 @@
 #include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
 #include "lang.h"
-#include "ww/ww.h"
 
 #define COMPARE(a, b) (((a) == (b)) ? 0 : (((a) < (b)) ? -1 : 1))
 
@@ -164,64 +162,6 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     }
 }
 
-static bool ui_file_selector_options(const char __far *filename) {
-    ui_popup_list_config_t lst;
-options_start:
-    memset(&lst, 0, sizeof(ui_popup_list_config_t));
-    lst.option[0] = lang_keys[LK_SUBMENU_OPTION_WITCH];
-    lst.option[1] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
-    lst.option[2] = lang_keys[LK_SUBMENU_OPTION_CONTROLLER_MODE];
-    lst.option[3] = lang_keys[LK_SUBMENU_OPTION_ABOUT];
-    switch (ui_popup_list(&lst)) {
-    default:
-        return false;
-    case 1:
-        ui_settings(&settings_root);
-        return true;
-    case 2:
-        ui_hidctrl();
-        return true;
-    case 3:
-        ui_about();
-        return true;
-    case 0:
-        memset(&lst, 0, sizeof(ui_popup_list_config_t));
-        uint8_t i = 0;
-        if (fileops_has_rom_contents(filename)) {
-            lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_BIOS];
-            lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_OS];
-            lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS];
-        }
-        lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_CREATE_IMAGE];
-        switch (ui_popup_list(&lst)) {
-        default:
-            ui_popup_list_clear(&lst);
-            goto options_start;
-        case 0:
-            if (i == 1)
-                ui_dialog_error_check(ww_ui_create_image(), NULL, 0);
-            else
-                ui_dialog_error_check(ww_ui_replace_component(filename, false), NULL, 0);
-            return true;
-        case 1:
-            ui_dialog_error_check(ww_ui_replace_component(filename, true), NULL, 0);
-            return true;
-        case 2:
-            ui_dialog_error_check(ww_ui_extract_from_rom(filename), NULL, 0);
-            return true;
-        case 3:
-            ui_dialog_error_check(ww_ui_create_image(), NULL, 0);
-            return true;
-        }
-    }
-}
-
-static int ui_file_selector_bfb_options(void) {
-    ui_popup_list_config_t lst = {0};
-    lst.option[0] = lang_keys[LK_SUBMENU_OPTION_TEST_BFB];
-    return ui_popup_list(&lst);
-}
-
 void ui_file_selector(void) {
     char path[FF_LFN_BUF + 1];
 
@@ -261,6 +201,11 @@ rescan_directory:
     while (true) {
         uint16_t keys_pressed = ui_selector(&config);
 
+        if (keys_pressed == UI_SELECTOR_RELOAD_REQUESTED) {
+            reinit_ui = true;
+            reinit_dirs = true;
+            goto rescan_directory;
+        }
         if (keys_pressed & WS_KEY_A) {
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
             strncpy(path, fno->fno.fname, sizeof(fno->fno.fname));
@@ -296,7 +241,7 @@ rescan_directory:
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_bfb)) {
                         ui_selector_clear_selection(&config);
-                        int option = ui_file_selector_bfb_options();
+                        int option = ui_file_selector_actions_bfb();
                         if (option == 0) {
                             ui_dialog_error_check(launch_bfb(path), NULL, 0);
                         }

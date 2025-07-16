@@ -203,7 +203,7 @@ int16_t ui_popup_dialog_action(ui_popup_dialog_config_t *config, uint8_t selecte
 
         ui_popup_dialog_draw_buttons(config, selected_button);
         while (true) {
-            wait_for_vblank();
+            idle_until_vblank();
             input_update();
             uint16_t keys_pressed = input_pressed;
 

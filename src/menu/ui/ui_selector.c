@@ -122,7 +122,8 @@ uint16_t ui_selector(ui_selector_config_t *config) {
             full_redraw = false;
         }
 
-        wait_for_vblank();
+        if (idle_until_vblank())
+            return UI_SELECTOR_RELOAD_REQUESTED;
     	input_update();
         uint16_t keys_pressed = input_pressed;
 

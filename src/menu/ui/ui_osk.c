@@ -295,7 +295,7 @@ osk_full_redraw:
     set_osk_xy(state, state->x, state->y, false);
 
     while (true) {
-        wait_for_vblank();
+        idle_until_vblank();
         input_update();
 
         int8_t nx = state->x;

@@ -40,6 +40,18 @@ void __far vblank_int_handler(void) {
 	vblank_input_update();
 }
 
+bool idle_until_vblank(void) {
+	uint16_t vbl_ticks_last = vbl_ticks;
+
+	// TODO: CDC task
+
+	while (vbl_ticks == vbl_ticks_last) {
+		ia16_halt();
+	}
+
+	return false;
+}
+
 void wait_for_vblank(void) {
 	uint16_t vbl_ticks_last = vbl_ticks;
 
