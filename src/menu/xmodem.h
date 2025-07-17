@@ -14,16 +14,14 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
-
-#ifndef _MAIN_H_
-#define _MAIN_H_
+ 
+#ifndef XMODEM_H_
+#define XMODEM_H_
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <wonderful.h>
 
-extern volatile uint16_t vbl_ticks;
+int xmodem_recv_start(uint32_t *size);
 
-bool idle_until_vblank(void);
-void wait_for_vblank(void);
-
-#endif /* _MAIN_H_ */
+#endif /* XMODEM_H_ */

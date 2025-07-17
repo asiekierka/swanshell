@@ -221,7 +221,10 @@ rescan_directory:
                         if (result == FR_OK) {
                             result = launch_restore_save_data(path, &meta);
                             if (result == FR_OK) {
-                                result = launch_rom_via_bootstub(path, &meta);
+                                result = launch_set_bootstub_file_entry(path, &bootstub_data->prog);
+                                if (result == FR_OK) {
+                                    result = launch_rom_via_bootstub(&meta);
+                                }
                             }
                         }
 

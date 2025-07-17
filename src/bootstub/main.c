@@ -122,7 +122,7 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 	progress_pos = 0;
 }
 
-static void progress_tick(void) {
+void progress_tick(void) {
 	if (!bank_count_max) return;
 	uint16_t progress_end = ((uint32_t)(++bank_count) << 7) / bank_count_max;
 	if (progress_end > 128) progress_end = 128;
@@ -135,6 +135,9 @@ static void progress_tick(void) {
 extern void restore_cold_boot_io_state(bool disable_color_mode);
 
 /* === Main boot code === */
+
+// pad_image_in_memory.s
+extern void pad_image_in_memory(uint32_t last_byte, uint16_t last_bank);
 
 __attribute__((noreturn))
 extern void cold_jump(const void __far *ptr);
@@ -155,31 +158,42 @@ int main(void) {
 		rom_size = size;
 	}
 	uint32_t real_size = rom_size < 0x10000 ? 0x10000 : math_next_power_of_two(rom_size);
-	uint16_t offset = (real_size - size);
-	uint16_t bank = (real_size - size) >> 16;
+	uint16_t start_offset = (real_size - size);
+	uint16_t start_bank = (real_size - size) >> 16;
 	uint16_t total_banks = real_size >> 16;
 
 	outportb(WS_LCD_ICON_PORT, (bootstub_data->prog_flags & 1) ? WS_LCD_ICON_ORIENT_V : WS_LCD_ICON_ORIENT_H);
 	if (bootstub_data->prog.cluster) {
-		progress_init(0, (total_banks - bank) * 2 - (offset >= 0x8000 ? 1 : 0));
-		cluster_open(bootstub_data->prog.cluster);
 		outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
-		while (bank < total_banks) {
-			outportw(WS_CART_EXTBANK_RAM_PORT, bank);
-			if (offset < 0x8000) {
+		if (bootstub_data->prog.cluster == BOOTSTUB_CLUSTER_AT_PSRAM) {
+			progress_init(0, total_banks - start_bank);
+			if (size != real_size) {
+				pad_image_in_memory(size - 1, total_banks - 1);	
+			}
+		} else {
+			progress_init(0, (total_banks - start_bank) * 2 - (start_offset >= 0x8000 ? 1 : 0));
+
+			uint16_t bank = start_bank;
+			uint16_t offset = start_offset; 
+
+			cluster_open(bootstub_data->prog.cluster);
+			while (bank < total_banks) {
+				outportw(WS_CART_EXTBANK_RAM_PORT, bank);
+				if (offset < 0x8000) {
+					progress_tick();
+					if ((result = cluster_read(MK_FP(0x1000, offset), 0x8000 - offset)) != FR_OK) {
+						goto error;
+					}
+					offset = 0x8000;
+				}
 				progress_tick();
-				if ((result = cluster_read(MK_FP(0x1000, offset), 0x8000 - offset)) != FR_OK) {
+				if ((result = cluster_read(MK_FP(0x1000, offset), -offset)) != FR_OK) {
 					goto error;
 				}
-				offset = 0x8000;
+				offset = 0x0000;
+				bank++;
 			}
-			progress_tick();
-			if ((result = cluster_read(MK_FP(0x1000, offset), -offset)) != FR_OK) {
-				goto error;
-			}
-			offset = 0x0000;
-			bank++;
 		}
 
 		if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET) {

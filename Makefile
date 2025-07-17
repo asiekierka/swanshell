@@ -115,6 +115,7 @@ all: $(ROM) compile_commands.json
 dist: all athenaos-compatible
 	@echo "  DIST"
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
+	@rm -r dist/NILESWAN/LICENSE || true
 	@cp -R docs/license dist/NILESWAN/LICENSE
 
 athenaos-compatible:

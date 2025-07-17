@@ -154,6 +154,36 @@ static const uint8_t __far eeprom_mcu_control[] = {
     0, 2, 6, 0, 0, 5
 };
 
+int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta) {
+    // TODO: Implement Freya support
+    uint32_t size = bootstub_data->prog.size;
+    if (size < 16)
+        return ERR_FILE_FORMAT_INVALID;
+
+    uint32_t fpos = bootstub_data->prog.size - 16;
+    uint16_t bank = fpos >> 16;
+    uint16_t offset = fpos & 0xFFFF;
+
+    uint16_t rom0_bank = ws_bank_rom0_save(bank);
+    uint16_t rom1_bank = ws_bank_rom1_save(bank + 1);
+
+    memcpy(&meta->footer, MK_FP(0x2000 + (offset >> 4), offset & 0xF), 16);
+
+    ws_bank_rom0_restore(rom0_bank);
+    ws_bank_rom1_restore(rom1_bank);
+
+    if (meta->footer.jump_command != 0xEA || meta->footer.jump_segment == 0x0000)
+        return ERR_FILE_FORMAT_INVALID;
+
+    meta->rom_banks = meta->footer.rom_size > 0x0B ? 0 : rom_banks[meta->footer.rom_size];
+    meta->sram_size = sram_sizes[meta->footer.save_type & 0xF] * 1024L;
+    meta->eeprom_size = eeprom_sizes[meta->footer.save_type >> 4];
+    meta->flash_size = 0;
+    meta->freya_found = false;
+
+    return FR_OK;
+}
+
 int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     uint8_t tmp[5];
     uint16_t br;
@@ -639,8 +669,7 @@ int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *
     return FR_OK;
 }
 
-int16_t launch_rom_via_bootstub(const char *path, const launch_rom_metadata_t *meta) {
-    launch_set_bootstub_file_entry(path, &bootstub_data->prog);
+int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     if (bootstub_data->prog.size > 16*1024*1024L) {
         return ERR_FILE_TOO_LARGE;
     }

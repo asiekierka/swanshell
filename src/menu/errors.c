@@ -51,6 +51,10 @@ const char __far *error_to_string(int16_t value) {
         return lang_keys[LK_ERROR_FILE_TOO_LARGE];
     case ERR_FILE_FORMAT_INVALID:
         return lang_keys[LK_ERROR_FILE_FORMAT_INVALID];
+    case ERR_DATA_TRANSFER_TIMEOUT:
+        return lang_keys[LK_ERROR_DATA_TRANSFER_TIMEOUT];
+    case ERR_DATA_TRANSFER_CANCEL:
+        return lang_keys[LK_ERROR_DATA_TRANSFER_CANCEL];
     default:
         return NULL;
     }

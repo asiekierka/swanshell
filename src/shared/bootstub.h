@@ -22,6 +22,7 @@
 #include <stdint.h>
 
 #define BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET 0x01
+#define BOOTSTUB_CLUSTER_AT_PSRAM 0xFFFFFFF8
 
 typedef struct {
     uint32_t cluster; ///< Initial FAT cluster

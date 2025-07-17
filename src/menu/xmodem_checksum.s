@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,15 +15,33 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#include <wonderful.h>
+#include <ws.h>
 
-#include <stdbool.h>
-#include <stdint.h>
+    .arch   i186
+    .code16
+    .intel_syntax noprefix
 
-extern volatile uint16_t vbl_ticks;
+    .section .text, "ax"
+    .global xmodem_checksum
+xmodem_checksum:
+    push si
 
-bool idle_until_vblank(void);
-void wait_for_vblank(void);
+    mov si, ax
+    mov al, 0x00
+    mov cx, 16
 
-#endif /* _MAIN_H_ */
+1:
+    add al, [si]
+    add al, [si+1]
+    add al, [si+2]
+    add al, [si+3]
+    add al, [si+4]
+    add al, [si+5]
+    add al, [si+6]
+    add al, [si+7]
+    add si, 8
+    loop 1b
+
+    pop si
+    IA16_RET

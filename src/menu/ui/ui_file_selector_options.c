@@ -18,8 +18,10 @@
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
+#include "bootstub.h"
 #include "lang.h"
 #include "lang_gen.h"
+#include "launch/launch.h"
 #include "settings.h"
 #include "ui_about.h"
 #include "ui_dialog.h"
@@ -28,6 +30,7 @@
 #include "ui_settings.h"
 #include "../plugin/plugin.h"
 #include "../ww/ww.h"
+#include "../xmodem.h"
 
 int ui_file_selector_actions_bfb(void) {
     ui_popup_list_config_t lst = {0};
@@ -72,18 +75,33 @@ static bool ui_file_selector_tools_witch(ui_popup_list_config_t *lst, const char
 static bool ui_file_selector_tools(ui_popup_list_config_t *lst, const char __far *filename) {
     while (true) {
         memset(lst, 0, sizeof(ui_popup_list_config_t));
-        lst->option[0] = lang_keys[LK_SUBMENU_OPTION_WITCH];
-        lst->option[1] = lang_keys[LK_SUBMENU_OPTION_CONTROLLER_MODE];
+        lst->option[0] = lang_keys[LK_SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM];
+        lst->option[1] = lang_keys[LK_SUBMENU_OPTION_WITCH];
+        lst->option[2] = lang_keys[LK_SUBMENU_OPTION_CONTROLLER_MODE];
 
         switch (ui_popup_list(lst)) {
         default:
             ui_popup_list_clear(lst);
             return false;
-        case 0:
+        case 0: {
+            launch_rom_metadata_t meta;
+            int16_t result = xmodem_recv_start(&bootstub_data->prog.size);
+            if (result == FR_OK) {
+                result = launch_get_rom_metadata_psram(&meta);
+                if (result == FR_OK) {
+                    bootstub_data->prog.cluster = BOOTSTUB_CLUSTER_AT_PSRAM;
+                    result = launch_rom_via_bootstub(&meta);
+                }
+            }
+
+            ui_dialog_error_check(result, lang_keys[LK_SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM], 0);
+            return true;
+        }
+        case 1:
             if (ui_file_selector_tools_witch(lst, filename))
                 return true;
             break;
-        case 1:
+        case 2:
             ui_hidctrl();
             return true;
         }
