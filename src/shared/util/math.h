@@ -26,5 +26,6 @@
 
 uint32_t math_next_power_of_two(uint32_t value);
 uint16_t math_color_to_greyscale(uint16_t rgb12);
+uint16_t math_popcount16(uint16_t value);
 
 #endif /* _MATH_H_ */

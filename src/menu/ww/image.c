@@ -78,7 +78,7 @@ static bool ww_is_raw_os_file(const FILINFO __far *fno) {
 #define WW_UI_SELECT_BIOSATHN -2
 
 static int16_t get_ui_select_file_offset(uint16_t flags, uint16_t offset) {
-    uint16_t extra_entries = __builtin_popcount(flags);
+    uint16_t extra_entries = math_popcount16(flags);
     if (offset >= extra_entries) {
         return offset - extra_entries;
     }
@@ -159,7 +159,7 @@ static bool ww_ui_select_file_inner(
             flags |= WW_UI_SELECT_HAS_BIOSATHN;
     }
     config.userdata = (void*) flags;
-    config.count += __builtin_popcount(flags);
+    config.count += math_popcount16(flags);
 
     if (config.count <= 0)
         return false;

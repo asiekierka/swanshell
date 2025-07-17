@@ -190,7 +190,6 @@ bool mcu_native_spi_set_speed(uint16_t speed) {
 	return true;
 }
 
-
 bool mcu_native_save_id_get(uint32_t *id, uint16_t target) {
         if (!(target & 0x1FF)) {
 		*id = SAVE_ID_NONE;

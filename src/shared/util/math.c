@@ -32,3 +32,11 @@ uint16_t math_color_to_greyscale(uint16_t rgb12) {
     return (((rgb12 >> 8) & 0xF) * 77 + ((rgb12 >> 4) & 0xF) * 150 + (rgb12 & 0xF) * 29) >> 8;
 }
 
+uint16_t math_popcount16(uint16_t v) {
+    uint16_t result = 0;
+    while (v) {
+        result++;
+        v &= v - 1;
+    }
+    return result;
+}
