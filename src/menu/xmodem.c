@@ -139,6 +139,9 @@ int xmodem_recv_start(uint32_t *size) {
                     }
                 }
             }
+
+            // on failure, respond with NAK
+            data[0] = NAK; SEND_DATA(1);
         } else if (data[0] == CAN) {
             // CAN: cancel transfer
             result = ERR_DATA_TRANSFER_CANCEL; goto finish;
