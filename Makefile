@@ -112,9 +112,10 @@ DEPS		:= $(OBJS:.o=.d)
 
 all: $(ROM) compile_commands.json
 
-dist: all athenaos-compatible
+dist: all athenaos-compatible athenaos-native
 	@echo "  DIST"
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
+	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw dist/NILESWAN/BIOSATHN.RAW
 	@rm -r dist/NILESWAN/LICENSE || true
 	@cp -R docs/license dist/NILESWAN/LICENSE
 
