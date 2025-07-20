@@ -181,15 +181,6 @@ bool mcu_native_save_id_set(uint32_t id, uint16_t target) {
 	return true;
 }
 
-bool mcu_native_spi_set_speed(uint16_t speed) {
-	uint8_t tmp;
-	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x02, speed), NULL, 0))
-		return false;
-	if (nile_mcu_native_recv_cmd(&tmp, 1) < 1)
-		return false;
-	return true;
-}
-
 bool mcu_native_save_id_get(uint32_t *id, uint16_t target) {
         if (!(target & 0x1FF)) {
 		*id = SAVE_ID_NONE;

@@ -33,8 +33,6 @@
 int16_t mcu_reset(bool flash);
 bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen);
 
-bool mcu_native_spi_set_speed(uint16_t speed);
-
 bool mcu_native_save_id_set(uint32_t id, uint16_t target);
 bool mcu_native_save_id_get(uint32_t *id, uint16_t target);
 
