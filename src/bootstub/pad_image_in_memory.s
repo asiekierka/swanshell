@@ -51,13 +51,17 @@ pad_image_in_memory:
     // CX = number of bytes to transfer at once
     mov cx, si
     cmp cx, di
-    jae 2f
+    jb 2f
     mov cx, di
 
 2:
+    movsb
     rep movsb
     cmp si, 0xFFFF
     jne 2f
+
+    test dx, dx
+    jz 9f
 
     dec dx
     mov ax, dx
@@ -66,9 +70,6 @@ pad_image_in_memory:
 2:
     cmp di, 0xFFFF
     jne 1b
-
-    test bp, bp
-    jz 9f
 
     dec bp
     mov ax, bp

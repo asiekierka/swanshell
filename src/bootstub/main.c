@@ -153,10 +153,7 @@ int main(void) {
 	// Read ROM, sector by sector
 	uint8_t result;
 	uint32_t size = bootstub_data->prog.size;
-	uint32_t rom_size = ((uint32_t) bootstub_data->rom_banks) << 16;
-	if (size > rom_size) {
-		rom_size = size;
-	}
+	uint32_t rom_size = MAX(size, ((uint32_t) bootstub_data->rom_banks) << 16);
 	uint32_t real_size = rom_size < 0x10000 ? 0x10000 : math_next_power_of_two(rom_size);
 	uint16_t start_offset = (real_size - size);
 	uint16_t start_bank = (real_size - size) >> 16;
@@ -169,7 +166,7 @@ int main(void) {
 		if (bootstub_data->prog.cluster == BOOTSTUB_CLUSTER_AT_PSRAM) {
 			progress_init(0, total_banks - start_bank);
 			if (size != real_size) {
-				pad_image_in_memory(size - 1, total_banks - 1);	
+				pad_image_in_memory(size - 1, total_banks - 1);
 			}
 		} else {
 			progress_init(0, (total_banks - start_bank) * 2 - (start_offset >= 0x8000 ? 1 : 0));

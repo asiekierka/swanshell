@@ -42,6 +42,7 @@ restore_cold_boot_io_state:
     push ds
     pop es
 
+    cld
     // clear memory from 0x2000 onwards
     mov di, 0x2000
     mov cx, (0x2000 >> 1)
