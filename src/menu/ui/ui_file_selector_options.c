@@ -87,10 +87,16 @@ static bool ui_file_selector_tools(ui_popup_list_config_t *lst, const char __far
             launch_rom_metadata_t meta;
             int16_t result = xmodem_recv_start(&bootstub_data->prog.size);
             if (result == FR_OK) {
+                // Try reading as ROM
                 result = launch_get_rom_metadata_psram(&meta);
                 if (result == FR_OK) {
                     bootstub_data->prog.cluster = BOOTSTUB_CLUSTER_AT_PSRAM;
                     result = launch_rom_via_bootstub(&meta);
+                }
+
+                // Try reading as BFB
+                if (bootstub_data->prog.size <= 65536) {
+                    launch_bfb_in_psram();
                 }
             }
 

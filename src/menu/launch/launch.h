@@ -58,5 +58,6 @@ int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta);
 
 int16_t launch_bfb(const char *path);
+int16_t launch_bfb_in_psram(void);
 
 #endif /* _LAUNCH_H_ */

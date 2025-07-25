@@ -83,3 +83,39 @@ int16_t launch_bfb(const char *path) {
     asm volatile("push %0\npush %1\nlret" :: "g" (segment), "g" (offset));
     return 0;
 }
+
+int16_t launch_bfb_in_psram(void) {
+    FIL fp;
+    uint16_t header[2];
+
+    if (!ws_system_is_color_active()) {
+        return FR_INT_ERR;
+    }
+
+    ws_bank_with_rom0(0, {
+        const uint16_t __far* header = MK_FP(0x2000, 0x0000);
+
+        if (header[0] != 0x4662 || header[1] < MIN_SUPPORTED_ADDRESS) {
+            return ERR_FILE_FORMAT_INVALID;
+        }
+
+        uint16_t segment = 0;
+        uint16_t offset = header[1];
+        if (offset == 0xFFFF) {
+            segment = (MIN_SUPPORTED_ADDRESS >> 4);
+            offset = 0x0000;
+        }
+        uint16_t max_size = 0xFE00 - (segment * 16 + offset);
+        void __far* ptr = MK_FP(segment, offset);
+
+        // Disable IRQs - avoid other code interfering/overwriting memory
+        ia16_disable_irq();
+        outportw(WS_DISPLAY_CTRL_PORT, 0);
+        memcpy(ptr, MK_FP(0x2000, 0x0004), max_size);
+
+        outportb(0x60, 0x80);
+        asm volatile("push %0\npush %1\nlret" :: "g" (segment), "g" (offset));
+    });
+
+    return 0;
+}
