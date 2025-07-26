@@ -148,7 +148,10 @@ reload_menu:
             }
         }
         if (keys_pressed & WS_KEY_B) {
-            if (config.category != root_category && config.category->parent) {
+            if (config.category == root_category) {
+                break;
+            }
+            if (config.category->parent) {
                 config.category = config.category->parent;
                 goto reload_menu;
             }
