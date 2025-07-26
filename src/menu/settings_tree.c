@@ -65,7 +65,7 @@ static void settings_file_sort_order_name(uint16_t value, char *buf, int buf_len
 static const setting_t __far setting_file_sort_order = {
     s_file_sort_order_key,
     LK_SETTINGS_FILE_SORT_KEY,
-    0,
+    LK_SETTINGS_FILE_SORT_HELP,
     SETTING_TYPE_CHOICE_BYTE,
     0,
     NULL,
@@ -89,7 +89,7 @@ static void settings_file_view_name(uint16_t value, char *buf, int buf_len) {
 static const setting_t __far setting_file_view = {
     s_file_view_key,
     LK_SETTINGS_FILE_VIEW_KEY,
-    0,
+    LK_SETTINGS_FILE_VIEW_HELP,
     SETTING_TYPE_CHOICE_BYTE,
     0,
     NULL,
