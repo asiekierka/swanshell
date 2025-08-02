@@ -1,6 +1,6 @@
 ---
 title: 'Witch support'
-weight: 45
+weight: 20
 ---
 
 {{< hint type=important >}}
