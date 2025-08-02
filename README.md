@@ -2,6 +2,8 @@
 
 The primary and official file selector/launcher program for [nileswan](https://49bitcat.com/docs/nileswan/).
 
+Documentation is available [here](https://docs.asie.pl/swanshell/).
+
 ## Building
 
 ### Requirements
