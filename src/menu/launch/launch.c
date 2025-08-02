@@ -388,6 +388,12 @@ DEFINE_STRING_LOCAL(s_save_ini_flash, "Flash");
 DEFINE_STRING_LOCAL(s_save_ini_entry, "%s=%ld|%s%s\n");
 DEFINE_STRING_LOCAL(s_save_ini_id_entry, "ID=%ld\n");
 
+static void launch_backup_progress_update(ui_popup_dialog_config_t *dlg, uint32_t step, uint32_t max) {
+    dlg->progress_step = step >> 7;
+    dlg->progress_max = max >> 7;
+    ui_popup_dialog_draw_update(dlg);
+}
+
 int16_t launch_backup_save_data(void) {
     FIL fp, save_fp;
     char buffer[FF_LFN_BUF + 4];
@@ -407,6 +413,7 @@ int16_t launch_backup_save_data(void) {
         return result;
 
     dlg.title = lang_keys[LK_DIALOG_STORE_SAVE];
+    dlg.progress_max = 1;
     ui_popup_dialog_draw(&dlg);
     ui_show();
 
@@ -450,9 +457,10 @@ int16_t launch_backup_save_data(void) {
                     goto launch_backup_save_data_return_result;
                 }
 
+                ui_popup_dialog_clear_progress(&dlg);
                 if (file_type == SAVE_ID_FOR_SRAM) {
                     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
-                    result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), NULL);
+                    result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), (fbanked_progress_callback_t) launch_backup_progress_update, &dlg);
                 } else if (file_type == SAVE_ID_FOR_EEPROM) {
                     result = launch_write_eeprom(&save_fp, buffer, value_num >> 1);
                 } else if (file_type == SAVE_ID_FOR_FLASH) {
@@ -465,7 +473,7 @@ int16_t launch_backup_save_data(void) {
                     // FIXME: This skips the ROM footer to avoid losing the original entrypoint
                     // for runtime patches, which is not ideal.
                     if (((uint8_t) buffer[0]) == 0xEA && ((uint8_t) buffer[4]) >= 0x10) {
-                        result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp) - 16, NULL);
+                        result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp) - 16, (fbanked_progress_callback_t) launch_backup_progress_update, &dlg);
                     } else {
                         result = ERR_SAVE_PSRAM_CORRUPT;
                     }
@@ -525,7 +533,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
         // copy data to SRAM
         outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
-        result = f_read_sram_banked(&fp, 0, f_size(&fp), NULL);
+        result = f_read_sram_banked(&fp, 0, f_size(&fp), NULL, NULL);
         if (result != FR_OK) {
             f_close(&fp);
             goto launch_restore_save_data_return_result;

@@ -63,12 +63,11 @@ FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode) {
     return f_open(fp, local_path, mode);
 }
 
-int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
+int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata) {
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
     
     uint16_t lbr;
-    if (br != NULL)
-        *br = 0;
+    uint32_t br = 0;
 
     while (btr) {
         outportw(WS_CART_EXTBANK_RAM_PORT, bank++);
@@ -78,8 +77,8 @@ int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
         int16_t result = f_read(fp, MK_FP(0x1000, 0x0000), to_read_part, &lbr);
         if (result != FR_OK)
             return result;
-        if (br != NULL)
-            *br += lbr;
+        br += lbr;
+        if (cb) cb(userdata, br, btr);
 
         to_read_part = btr >= 0x8000 ? 0x8000 : btr;
         if (to_read_part) {
@@ -87,8 +86,8 @@ int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
             result = f_read(fp, MK_FP(0x1000, 0x8000), to_read_part, &lbr);
             if (result != FR_OK)
                 return result;
-            if (br != NULL)
-                *br += lbr;
+            br += lbr;
+            if (cb) cb(userdata, br, btr);
         }
     }
 
@@ -96,11 +95,10 @@ int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br) {
     return FR_OK;
 }
 
-int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
+int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata) {
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_ROM0_PORT);
     uint16_t lbw;
-    if (bw != NULL)
-        *bw = 0;
+    uint32_t bw = 0;
 
     while (btw) {
         outportw(WS_CART_EXTBANK_ROM0_PORT, bank++);
@@ -110,8 +108,8 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
         int16_t result = f_write(fp, MK_FP(0x2000, 0x0000), to_read_part, &lbw);
         if (result != FR_OK)
             return result;
-        if (bw != NULL)
-            *bw += lbw;
+        bw += lbw;
+        if (cb != NULL) cb(userdata, bw, btw);
 
         to_read_part = btw >= 0x8000 ? 0x8000 : btw;
         if (to_read_part) {
@@ -119,8 +117,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
             result = f_write(fp, MK_FP(0x2000, 0x8000), to_read_part, &lbw);
             if (result != FR_OK)
                 return result;
-            if (bw != NULL)
-                *bw += lbw;
+            bw += lbw;
         }
     }
 
@@ -128,7 +125,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
     return FR_OK;
 }
 
-int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) {
+int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata) {
     // Reading directly from SRAM would conflict with the SPI buffer.
     uint8_t stack_buffer[CONFIG_MEMLAYOUT_STACK_BUFFER_SIZE];
     uint8_t *buffer;
@@ -144,8 +141,7 @@ int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) 
     }
 
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
-    if (bw != NULL)
-        *bw = 0;
+    uint32_t bw = 0;
 
     for (uint32_t i = 0; btw > 0; i += buffer_size, btw -= buffer_size) {
         outportw(WS_CART_EXTBANK_RAM_PORT, bank + (i >> 16));
@@ -156,8 +152,8 @@ int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw) 
         uint8_t result = f_write(fp, buffer, len, &lbw);
         if (result != FR_OK)
             return result;
-        if (bw != NULL)
-            *bw += lbw;
+        bw += lbw;
+        if (cb) cb(userdata, bw, lbw);
     }
 
     outportw(WS_CART_EXTBANK_RAM_PORT, prev_bank);

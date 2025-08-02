@@ -48,6 +48,15 @@ void ui_popup_dialog_clear(ui_popup_dialog_config_t *config) {
     }
 }
 
+void ui_popup_dialog_clear_progress(ui_popup_dialog_config_t *config) {
+    if (config->progress_max) {
+        config->progress_step = 0;
+        uint16_t p_width = config->width - 16;
+        bitmap_rect_fill(&ui_bitmap, config->x + 8, config->progress_y, p_width, 1,
+            BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
+    }
+}
+
 // -1 = full redraw
 static inline void ui_popup_dialog_draw_buttons(ui_popup_dialog_config_t *config, int16_t selected) {
     uint16_t button_x[UI_POPUP_DIALOG_MAX_BUTTON_COUNT];

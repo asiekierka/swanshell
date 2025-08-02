@@ -38,8 +38,10 @@ bool f_anymatch(filinfo_predicate_t predicate, const char __far* path);
 
 bool f_exists_far(const char __far* path);
 FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode);
-int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, uint32_t *br);
-int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw);
-int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, uint32_t *bw);
+
+typedef void (*fbanked_progress_callback_t)(void *userdata, uint32_t step, uint32_t max);
+int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata);
+int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata);
+int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata);
 
 #endif /* _FILE_H_ */

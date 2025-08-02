@@ -40,6 +40,7 @@ typedef struct ui_popup_dialog_config {
 
 void ui_popup_dialog_reset(ui_popup_dialog_config_t *config);
 void ui_popup_dialog_clear(ui_popup_dialog_config_t *config);
+void ui_popup_dialog_clear_progress(ui_popup_dialog_config_t *config);
 void ui_popup_dialog_draw(ui_popup_dialog_config_t *config);
 void ui_popup_dialog_draw_update(ui_popup_dialog_config_t *config);
 int16_t ui_popup_dialog_action(ui_popup_dialog_config_t *config, uint8_t selected_button);
