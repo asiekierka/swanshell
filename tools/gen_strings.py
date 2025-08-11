@@ -109,7 +109,8 @@ with (
 	for k, vv in properties.items():
 		for lang_key, v in vv.items():
 			if v not in property_strings:
-				print(f"const char __far lk_entry_{property_string_idx}[] = \"{v}\";", file = fp_c)
+				v_escaped = v.replace("\"", "\\\"")
+				print(f"const char __far lk_entry_{property_string_idx}[] = \"{v_escaped}\";", file = fp_c)
 				property_strings[v] = property_string_idx
 				property_string_idx += 1
 
