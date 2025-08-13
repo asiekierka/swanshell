@@ -124,7 +124,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     if (fno->fno.fattrib & AM_DIR) {
         icon_idx = 0;
         bitmapfont_draw_char(&ui_bitmap, x + BITMAPFONT_CHAR_GAP, y, '/');
-    } else {
+    } else if (fno->extension_loc < 255) {
         const char __far* ext = fno->fno.fname + fno->extension_loc;
         if (ext != NULL) {
             if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
@@ -213,7 +213,7 @@ rescan_directory:
                 f_chdir(path);
             } else {
                 ui_selector_clear_selection(&config);
-                if (fno->extension_loc != 255) {
+                if (fno->extension_loc < 255) {
                     const char __far* ext = fno->fno.fname + fno->extension_loc;
                     if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
                         launch_rom_metadata_t meta;
