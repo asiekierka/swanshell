@@ -26,4 +26,6 @@
  */
 uint16_t mem_query_free(void);
 
+void lcd_set_vtotal(uint8_t vtotal);
+
 #endif /* UTIL_H_ */

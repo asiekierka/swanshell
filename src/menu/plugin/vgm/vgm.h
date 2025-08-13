@@ -60,6 +60,32 @@ typedef struct vgm_state {
             uint8_t flags;
             uint8_t stereo;
         } sn76489;
+        struct {
+            uint8_t c_sweep;
+            uint8_t c_envelope[4];
+            uint8_t c_len[4];
+            uint8_t c_volume[4];
+
+            uint8_t sweep1;
+            uint8_t len[4];
+            uint8_t en[4];
+            union {
+                struct {
+                    uint8_t period1lo;
+                    uint8_t period1hi;
+                    uint8_t period2lo;
+                    uint8_t period2hi;
+                    uint8_t period3lo;
+                    uint8_t period3hi;
+                };
+                uint16_t period[3];
+            };
+            uint8_t level3;
+            uint8_t go4;
+            uint8_t pan;
+            uint8_t mvol;
+            uint8_t tick;
+        } dmg;
     };
 
 #ifdef VGM_USE_PCM

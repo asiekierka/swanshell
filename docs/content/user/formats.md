@@ -29,7 +29,8 @@ Only one chip at a time is supported, from the following list:
 
 | Chip | Notes |
 | ---- | ----- |
-| SN76489 | |
+| DMG (GB/GBC) | |
+| PSG (SN76489) | |
 | WonderSwan | |
 
 ### .wav support limitations

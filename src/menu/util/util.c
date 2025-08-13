@@ -16,10 +16,18 @@
  */
 
 #include <wonderful.h>
+#include <ws.h>
 #include "util.h"
 
 extern uint8_t __wf_heap_start;
 
 uint16_t mem_query_free(void) {
     return ia16_get_sp() - (uint16_t) &__wf_heap_start;
+}
+
+void lcd_set_vtotal(uint8_t vtotal) {
+    while (inportb(WS_DISPLAY_LINE_PORT) >= 96);
+    while (inportb(WS_DISPLAY_LINE_PORT) < 16);
+    outportb(WS_LCD_VTOTAL_PORT, vtotal);
+    outportb(WS_LCD_STN_VSYNC_PORT, vtotal - 3);
 }

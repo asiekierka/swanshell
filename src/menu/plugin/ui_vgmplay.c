@@ -26,6 +26,7 @@
 #include "lang.h"
 #include "../ui/ui.h"
 #include "../util/input.h"
+#include "../util/util.h"
 #include "vgm/vgm.h"
 
 static vgm_state_t *vgm_state;
@@ -54,6 +55,8 @@ void  __attribute__((interrupt, assume_ss_data)) vgm_interrupt_handler(void) {
 int ui_vgmplay(const char *path) {
     vgm_state_t local_vgm_state;
     FIL fp;
+
+    uint8_t vtotal_initial = inportb(WS_LCD_VTOTAL_PORT);
 
     ui_layout_bars();
 
@@ -121,10 +124,14 @@ int ui_vgmplay(const char *path) {
         }
     }
 
-    ws_int_disable(WS_INT_ENABLE_HBL_TIMER);
+    ws_int_disable(WS_INT_ENABLE_HBL_TIMER | WS_INT_ENABLE_LINE_MATCH);
     outportw(WS_TIMER_CTRL_PORT, 0);
     outportb(WS_SOUND_OUT_CTRL_PORT, 0);
     outportb(WS_SOUND_CH_CTRL_PORT, 0);
+
+    if (inportb(WS_LCD_VTOTAL_PORT) != vtotal_initial) {
+        lcd_set_vtotal(vtotal_initial);
+    }
 
     ui_init();
 

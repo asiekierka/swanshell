@@ -118,6 +118,17 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
         detected_systems++;
     }
 
+    if (version >= 0x161) {
+        uint32_t dmg_clock = ((uint32_t __far*) ptr)[32];
+        if (dmg_clock) {
+            state->clock = dmg_clock;
+            state->cmd_driver = vgm_cmd_driver_dmg;
+
+            if (!vgm_init_dmg(state, ptr)) { error = true; goto on_error; }
+            detected_systems++;
+        }
+    }
+
     if (version >= 0x171) {
         uint32_t ws_clock = ((uint32_t __far*) ptr)[48];
         if (ws_clock) {
@@ -146,7 +157,6 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
     if (version >= 0x151 && ((uint32_t __far*) ptr)[27]) { error = true; goto on_error; }
     if (version >= 0x151 && ((uint32_t __far*) ptr)[28]) { error = true; goto on_error; }
     if (version >= 0x151 && ((uint32_t __far*) ptr)[29]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[32]) { error = true; goto on_error; }
     if (version >= 0x161 && ((uint32_t __far*) ptr)[33]) { error = true; goto on_error; }
     if (version >= 0x161 && ((uint32_t __far*) ptr)[34]) { error = true; goto on_error; }
     if (version >= 0x161 && ((uint32_t __far*) ptr)[35]) { error = true; goto on_error; }

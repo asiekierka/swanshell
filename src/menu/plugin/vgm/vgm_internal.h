@@ -29,6 +29,9 @@
 
 #define VGM_SAMPLES_TO_LINES(x) (((((uint32_t) (x)) * 120) + 440) / 441)
 
+bool vgm_init_dmg(vgm_state_t *state, uint8_t __far *header);
+uint16_t vgm_cmd_driver_dmg(vgm_state_t *state, uint8_t cmd);
+
 bool vgm_init_sn76489(vgm_state_t *state, uint8_t __far *header);
 uint16_t vgm_cmd_driver_sn76489(vgm_state_t *state, uint8_t cmd);
 

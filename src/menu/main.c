@@ -22,6 +22,7 @@
 #include <nilefs.h>
 #include "lang.h"
 #include "lang_gen.h"
+#include "main.h"
 #include "mcu.h"
 #include "settings.h"
 #include "ui/ui.h"
