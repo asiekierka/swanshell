@@ -131,7 +131,7 @@ static int16_t settings_save_category(FIL *fp, const setting_category_t __far *c
 int16_t settings_save(void) {
     FIL fp;
     int16_t result;
-    char tmp_buf[20];
+    char tmp_buf[24];
 
     strcpy(tmp_buf, s_path_config_ini);
     result = f_open(&fp, tmp_buf, FA_CREATE_ALWAYS | FA_WRITE);
@@ -139,8 +139,10 @@ int16_t settings_save(void) {
         return result;
 
     result = settings_save_category(&fp, &settings_root);
-    if (result != FR_OK)
+    if (result != FR_OK) {
+        f_close(&fp);
         return result;
+    }
 
     return f_close(&fp);
 }
