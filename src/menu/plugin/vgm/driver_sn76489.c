@@ -30,6 +30,10 @@
 
 #define SN_TO_WS_CHANNEL(x) (x)
 
+static const uint8_t __far volume_table[16] = {
+    15, 12, 10, 8, 6, 4, 3, 2, 2, 2, 1, 1, 1, 1, 0
+};
+
 bool vgm_init_sn76489(vgm_state_t *state, uint8_t __far *header) {
     outportb(WS_SOUND_CH_CTRL_PORT, 0x0F);
     outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_100);
@@ -87,7 +91,7 @@ uint16_t vgm_cmd_driver_sn76489(vgm_state_t *state, uint8_t cmd) {
             switch ((target >> 4) & 7) {
                 case 1: case 3: case 5: case 7: {
                     // volume
-                    state->sn76489.volume[channel] = (data & 0xF) ^ 0xF;
+                    state->sn76489.volume[channel] = volume_table[data & 0xF];
                     // update volume on relevant channel
                     outportb(0x88 + SN_TO_WS_CHANNEL(channel), state->sn76489.volume[channel] * ((state->sn76489.stereo >> channel) & 0x11));
                 } break;
