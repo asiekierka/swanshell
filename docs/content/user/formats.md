@@ -10,7 +10,7 @@ swanshell currently supports the following file formats:
 | .ws, .wsc, .pc2 | Cartridge images |
 | .bfb | [BootFriend](https://wiki.asie.pl/doku.php?id=project:homebrew:wsbootfriend) programs (testing only) |
 | .bmp | Bitmap images (up to 16 colors, 224x144) |
-| .vgm | Music files (WonderSwan only) |
+| .vgm | Music files (see below) |
 | .wav | Music files (see below) |
 
 ### Cartridge save data
@@ -22,6 +22,15 @@ The cartridge save data follows the ares emulator's naming scheme:
 - `.flash` - NOR flash cartridge data.
 
 For NOR flash cartridges (WW), if a `.flash` file exists, its contents are preferred to the `.ws`/`.wsc` file.
+
+### .vgm support limitations
+
+Only one chip at a time is supported, from the following list:
+
+| Chip | Notes |
+| ---- | ----- |
+| SN76489 | |
+| WonderSwan | |
 
 ### .wav support limitations
 

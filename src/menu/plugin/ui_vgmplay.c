@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2024, 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -26,15 +26,15 @@
 #include "lang.h"
 #include "../ui/ui.h"
 #include "../util/input.h"
-#include "../util/vgm.h"
+#include "vgm/vgm.h"
 
-static vgmswan_state_t *vgm_state;
+static vgm_state_t *vgm_state;
 
 void  __attribute__((interrupt, assume_ss_data)) vgm_interrupt_handler(void) {
     while (true) {
-        uint16_t result = vgmswan_play(vgm_state);
+        uint16_t result = vgm_play(vgm_state);
         if (result > 1) {
-            if (result != VGMSWAN_PLAYBACK_FINISHED) {
+            if (result != VGM_PLAYBACK_FINISHED) {
                 outportw(WS_TIMER_CTRL_PORT, 0);
                 outportw(WS_TIMER_HBL_RELOAD_PORT, result);
                 outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
@@ -48,7 +48,7 @@ void  __attribute__((interrupt, assume_ss_data)) vgm_interrupt_handler(void) {
 }
 
 int ui_vgmplay(const char *path) {
-    vgmswan_state_t local_vgm_state;
+    vgm_state_t local_vgm_state;
     FIL fp;
 
     ui_layout_bars();
@@ -88,18 +88,20 @@ int ui_vgmplay(const char *path) {
     f_close(&fp);
     
     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
-    outportw(WS_CART_EXTBANK_ROM0_PORT, 0);
-    if (*((const uint32_t __far*) MK_FP(0x2000, 0x0000)) != 0x206d6756) {
-        return ERR_FILE_FORMAT_INVALID;
-    }
 
     ui_draw_statusbar(NULL);
     ui_draw_titlebar(path);
 
     vgm_state = &local_vgm_state;
-    vgmswan_init(&local_vgm_state, 0, 0);
+
+    ws_sound_reset();
     outportb(WS_SOUND_WAVE_BASE_PORT, WS_SOUND_WAVE_BASE_ADDR(0x3FC0));
     outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_100);
+
+    if (!vgm_init(&local_vgm_state, 0, 0)) {
+        return ERR_FILE_FORMAT_INVALID;
+    }
+
     outportw(WS_TIMER_HBL_RELOAD_PORT, 2);
     outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
 
