@@ -35,6 +35,8 @@ bool vgm_init_sn76489(vgm_state_t *state, uint8_t __far *header) {
     outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_100);
     outportb(WS_SOUND_NOISE_CTRL_PORT, WS_SOUND_NOISE_CTRL_LENGTH_1953 | WS_SOUND_NOISE_CTRL_ENABLE | WS_SOUND_NOISE_CTRL_RESET);
 
+    state->sn76489.stereo = 0xFF;
+
     uint8_t __far *noise_wavetable_data = MK_FP(0x0000, (inportb(WS_SOUND_WAVE_BASE_PORT) << 6) + (SN_TO_WS_CHANNEL(3) << 4));
     for (int i = 0; i < 16; i++) {
         noise_wavetable_data[i] = (i & 7) ? 0x00 : 0x0F;
@@ -64,6 +66,13 @@ static inline void update_noise_freq(vgm_state_t *state) {
 
 uint16_t vgm_cmd_driver_sn76489(vgm_state_t *state, uint8_t cmd) {
     switch (cmd) {
+        case 0x4F: {
+            state->sn76489.stereo = *(state->ptr++);
+            // update volume on all channels
+            for (int channel = 0; channel < 4; channel++) {
+                outportb(0x88 + SN_TO_WS_CHANNEL(channel), state->sn76489.volume[channel] * ((state->sn76489.stereo >> channel) & 0x11));
+            }
+        } return 0;
         case 0x50: {
             uint8_t data = *(state->ptr++);
             uint8_t target;
@@ -80,7 +89,7 @@ uint16_t vgm_cmd_driver_sn76489(vgm_state_t *state, uint8_t cmd) {
                     // volume
                     state->sn76489.volume[channel] = (data & 0xF) ^ 0xF;
                     // update volume on relevant channel
-                    outportb(0x88 + SN_TO_WS_CHANNEL(channel), state->sn76489.volume[channel] * 0x11);
+                    outportb(0x88 + SN_TO_WS_CHANNEL(channel), state->sn76489.volume[channel] * ((state->sn76489.stereo >> channel) & 0x11));
                 } break;
                 case 6: {
                     // noise
@@ -123,6 +132,6 @@ uint16_t vgm_cmd_driver_sn76489(vgm_state_t *state, uint8_t cmd) {
                 } break;
             }
         } return 0;
-        default: while(1);
+        default: return VGM_PLAYBACK_FINISHED;
     }
 }

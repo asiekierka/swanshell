@@ -52,8 +52,12 @@ static void vgm_jump_to_start_point(vgm_state_t *state) {
     state->pos = state->start_pos;
 
     uint8_t __far* ptr = vgm_state_to_ptr(state, &bank_backup);
-
-    uint16_t offset = *((uint16_t __far*) (ptr + 0x34)) + 0x34;
+    
+    uint32_t version = ((uint32_t __far*) ptr)[2];
+    uint16_t offset = 0x40;
+    if (version >= 0x150) {
+        offset = *((uint16_t __far*) (ptr + 0x34)) + 0x34;
+    }
     state->pos += offset;
     
     outportw(WS_CART_BANK_ROM0_PORT, bank_backup);

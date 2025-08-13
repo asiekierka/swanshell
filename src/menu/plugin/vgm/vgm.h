@@ -58,6 +58,7 @@ typedef struct vgm_state {
             uint8_t noise;
             uint8_t latch;
             uint8_t flags;
+            uint8_t stereo;
         } sn76489;
     };
 

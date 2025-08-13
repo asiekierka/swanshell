@@ -32,18 +32,22 @@ static vgm_state_t *vgm_state;
 
 void  __attribute__((interrupt, assume_ss_data)) vgm_interrupt_handler(void) {
     while (true) {
+        outportw(WS_TIMER_HBL_RELOAD_PORT, 65535);
+        outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
         uint16_t result = vgm_play(vgm_state);
-        if (result > 1) {
-            if (result != VGM_PLAYBACK_FINISHED) {
-                outportw(WS_TIMER_CTRL_PORT, 0);
-                outportw(WS_TIMER_HBL_RELOAD_PORT, result);
-                outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
-            } else {
-                vgm_state->bank = 0xFF;
-            }
-            ws_int_ack(WS_INT_ACK_HBL_TIMER);
-            return;
+        uint16_t ticks_elapsed = inportw(WS_TIMER_HBL_COUNTER_PORT) ^ 65535;
+        if (result == VGM_PLAYBACK_FINISHED) {
+            vgm_state->bank = 0xFF;
+        } else if (result > (ticks_elapsed + 1)) {
+            outportw(WS_TIMER_CTRL_PORT, 0);
+            outportw(WS_TIMER_HBL_RELOAD_PORT, result - ticks_elapsed);
+            outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
+        } else {
+            continue;
         }
+
+        ws_int_ack(WS_INT_ACK_HBL_TIMER);
+        return;
     }
 }
 
@@ -101,6 +105,8 @@ int ui_vgmplay(const char *path) {
     if (!vgm_init(&local_vgm_state, 0, 0)) {
         return ERR_FILE_FORMAT_INVALID;
     }
+
+    input_wait_clear();
 
     outportw(WS_TIMER_HBL_RELOAD_PORT, 2);
     outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
