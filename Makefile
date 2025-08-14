@@ -108,7 +108,7 @@ DEPS		:= $(OBJS:.o=.d)
 # Targets
 # -------
 
-.PHONY: all clean dist athenaos-compatible athenaos-native libnile-bootfriend libnile-medium
+.PHONY: all clean dist fonts athenaos-compatible athenaos-native libnile-bootfriend libnile-medium
 
 all: $(ROM) compile_commands.json
 
@@ -118,6 +118,15 @@ dist: all athenaos-compatible athenaos-native
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw dist/NILESWAN/BIOSATHN.RAW
 	@rm -r dist/NILESWAN/LICENSE || true
 	@cp -R docs/license dist/NILESWAN/LICENSE
+
+fonts: assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf
+
+assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf:
+	@echo "  UV      $@"
+	$(_V)uv --directory vendor/modified-ark-pixel-font venv --clear
+	$(_V)uv --directory vendor/modified-ark-pixel-font pip install -r requirements.txt
+	$(_V)uv --directory vendor/modified-ark-pixel-font run python -m tools.cli --cleanup --font-sizes 12 --width-modes proportional --font-formats bdf --attachments release
+	$(_V)cp vendor/modified-ark-pixel-font/build/outputs/$(@F) $@
 
 athenaos-compatible:
 	@$(MAKE) -C $(ATHENAOS_PATH) bios
@@ -146,12 +155,13 @@ $(ELF_STAGE1): $(OBJS)
 
 clean:
 	@echo "  CLEAN"
-	$(V)$(MAKE) -f Makefile.bootstub clean --no-print-directory
-	$(_V)$(RM) $(ELF_STAGE1) $(ELF) dist/ $(BUILDDIR) compile_commands.json
-	cd $(LIBNILE_PATH) && $(MAKE) TARGET=wswan/bootfriend clean
-	cd $(LIBNILE_PATH) && $(MAKE) TARGET=wswan/medium clean
-	cd $(ATHENAOS_PATH) && $(MAKE) clean
-	cd $(ATHENAOS_PATH) && $(MAKE) CONFIG=config/config.nileswan.mk clean
+	$(_V)$(MAKE) -f Makefile.bootstub clean --no-print-directory
+	$(_V)$(RM) $(ELF_STAGE1) $(ELF) dist/ $(BUILDDIR) compile_commands.json || true
+	$(_V)cd $(LIBNILE_PATH) && $(MAKE) TARGET=wswan/bootfriend clean
+	$(_V)cd $(LIBNILE_PATH) && $(MAKE) TARGET=wswan/medium clean
+	$(_V)cd $(ATHENAOS_PATH) && $(MAKE) clean
+	$(_V)cd $(ATHENAOS_PATH) && $(MAKE) CONFIG=config/config.nileswan.mk clean
+	$(_V)rm assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf || true
 
 compile_commands.json: $(OBJS) | Makefile
 	@echo "  MERGE   compile_commands.json"
@@ -182,7 +192,7 @@ $(BUILDDIR)/assets/menu/lang_gen.o $(BUILDDIR)/assets/menu/lang_gen.h : $(SOURCE
 	$(_V)$(PYTHON3) tools/gen_strings.py lang $(BUILDDIR)/assets/menu/lang_gen.c $(BUILDDIR)/assets/menu/lang_gen.h
 	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/assets/menu/lang_gen.o $(BUILDDIR)/assets/menu/lang_gen.c
 
-$(BUILDDIR)/%.lua.o : %.lua
+$(BUILDDIR)/%.lua.o : %.lua | fonts
 	@echo "  PROCESS $<"
 	@$(MKDIR) -p $(@D)
 	$(_V)$(WF)/bin/wf-process -o $(BUILDDIR)/$*.s -t $(TARGET) --depfile $(BUILDDIR)/$*.lua.d --depfile-target $(BUILDDIR)/$*.lua.o $<

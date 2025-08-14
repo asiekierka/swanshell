@@ -10,7 +10,7 @@ Documentation is available [here](https://docs.asie.pl/swanshell/).
 
 - [Wonderful Toolchain](https://wonderful.asie.pl/wiki/doku.php?id=getting_started)
   - `wf-pacman -S target-wswan wf-superfamiconv wf-zx0-salvador`
-- Python 3.x (language scripts)
+- Python >= 3.11 + uv
 
 ### Instructions
 
@@ -19,6 +19,10 @@ Documentation is available [here](https://docs.asie.pl/swanshell/).
 To build auxilliary files as well:
 
     make dist
+
+To force a font rebuild:
+
+    make -B fonts
 
 ## Contributing
 
