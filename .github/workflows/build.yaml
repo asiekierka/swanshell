@@ -20,7 +20,10 @@ jobs:
         run: git config --global --add safe.directory `pwd` && git submodule update --init --recursive
 
       - name: Install additional dependencies
-        run: apt-get update && apt-get install -y python3 python3-pil && wf-pacman -Syu --noconfirm && wf-pacman -Su --noconfirm wf-tools wf-superfamiconv wf-zx0-salvador
+        run: apt-get update && apt-get install -y pipx python3 python3-pil && pipx install uv && wf-pacman -Syu --noconfirm && wf-pacman -Su --noconfirm wf-tools wf-superfamiconv wf-zx0-salvador
+
+      - name: Configure PATH
+        run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Build
         run: make dist
