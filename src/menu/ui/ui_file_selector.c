@@ -131,7 +131,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
                 icon_idx = 2;
             } else if (!strcasecmp(ext, s_file_ext_bmp)) {
                 icon_idx = 3;
-            } else if (!strcasecmp(ext, s_file_ext_wav) || !strcasecmp(ext, s_file_ext_vgm)) {
+            } else if (!strcasecmp(ext, s_file_ext_wav) || !strcasecmp(ext, s_file_ext_vgm) || !strcasecmp(ext, s_file_ext_vgz)) {
                 icon_idx = 4;
             } else if (!strcasecmp(ext, s_file_ext_bfb)) {
                 icon_idx = 5;
@@ -238,7 +238,7 @@ rescan_directory:
                         ui_dialog_error_check(ui_wavplay(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
-                    } else if (!strcasecmp(ext, s_file_ext_vgm)) {
+                    } else if (!strcasecmp(ext, s_file_ext_vgm) || !strcasecmp(ext, s_file_ext_vgz)) {
                         ui_dialog_error_check(ui_vgmplay(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;

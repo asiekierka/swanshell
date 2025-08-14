@@ -37,6 +37,7 @@ DEFINE_STRING(s_file_ext_bin, ".bin");
 DEFINE_STRING(s_file_ext_pc2, ".pc2");
 DEFINE_STRING(s_file_ext_raw, ".raw");
 DEFINE_STRING(s_file_ext_vgm, ".vgm");
+DEFINE_STRING(s_file_ext_vgz, ".vgz");
 DEFINE_STRING(s_file_ext_wav, ".wav");
 DEFINE_STRING(s_file_ext_ws, ".ws");
 DEFINE_STRING(s_file_ext_wsc, ".wsc");

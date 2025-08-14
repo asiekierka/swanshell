@@ -25,7 +25,7 @@ CBINDIRS	:= data/menu
 # Defines passed to all files
 # ---------------------------
 
-DEFINES		:= -DVERSION=\"$(VERSION)\"
+DEFINES		:= -DVERSION=\"$(VERSION)\" -DLIBWS_USE_EXTBANK
 
 # Libraries
 # ---------

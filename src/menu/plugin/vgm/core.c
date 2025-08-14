@@ -99,6 +99,8 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
     memset(state, 0, sizeof(vgm_state_t));
     state->start_bank = bank;
     state->start_pos = pos;
+    state->bank = bank;
+    state->pos = pos;
 
     uint16_t detected_systems = 0;
     bool error = false;

@@ -15,12 +15,13 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _FILE_H_
-#define _FILE_H_
+#ifndef UTIL_FILE_H_
+#define UTIL_FILE_H_
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <wonderful.h>
+#include <ws/ports.h>
 #include <nilefs.h>
 #include "config.h"
 
@@ -40,8 +41,15 @@ bool f_exists_far(const char __far* path);
 FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode);
 
 typedef void (*fbanked_progress_callback_t)(void *userdata, uint32_t step, uint32_t max);
+
 int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata);
+static inline int16_t f_read_rom_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata) {
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
+    f_read_sram_banked(fp, bank, btr, cb, userdata);
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
+}
+
 int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata);
 int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata);
 
-#endif /* _FILE_H_ */
+#endif /* UTIL_FILE_H_ */
