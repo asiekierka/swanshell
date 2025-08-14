@@ -62,7 +62,6 @@ int16_t memops_unpack_psram_data_if_gzip(uint16_t *bank, uint16_t dest_bank) {
 
         *bank = dest_bank;
         int16_t result = FR_OK;
-        uint8_t flash = inportb(WS_CART_BANK_FLASH_PORT);
         outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
         ws_bank_with_ram(dest_bank, {
             if (puff(

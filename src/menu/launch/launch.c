@@ -48,52 +48,6 @@ extern FATFS fs;
 
 #define NILE_IPC_SAVE_ID ((volatile uint32_t __far*) MK_FP(0x1000, 512 - sizeof(uint32_t)))
 
-/*
-void ui_boot(const char *path) {
-    FIL fp;
-    
-	uint8_t result = f_open(&fp, path, FA_READ);
-	if (result != FR_OK) {
-        // TODO
-        return;
-	}
-
-    outportw(WS_DISPLAY_CTRL_PORT, 0);
-	outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
-
-    uint32_t size = f_size(&fp);
-    if (size > 4L*1024*1024) {
-        return;
-    }
-    if (size < 65536L) {
-        size = 65536L;
-    }
-    uint32_t real_size = round2(size);
-    uint16_t offset = (real_size - size);
-    uint16_t bank = (real_size - size) >> 16;
-    uint16_t total_banks = real_size >> 16;
-
-	while (bank < total_banks) {
-		outportw(WS_CART_EXTBANK_RAM_PORT, bank);
-		if (offset < 0x8000) {
-			if ((result = f_read(&fp, MK_FP(0x1000, offset), 0x8000 - offset, NULL)) != FR_OK) {
-                ui_init();
-				return;
-			}
-			offset = 0x8000;
-		}
-		if ((result = f_read(&fp, MK_FP(0x1000, offset), -offset, NULL)) != FR_OK) {
-            ui_init();
-			return;
-		}
-		offset = 0x0000;
-		bank++;
-	}
-    
-    clear_registers(true);
-    launch_ram_asm(MK_FP(0xFFFF, 0x0000), );
-} */
-
 uint32_t launch_get_save_id(uint16_t target) {
     uint32_t save_id = SAVE_ID_NONE;
 

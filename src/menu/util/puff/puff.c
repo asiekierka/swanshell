@@ -82,11 +82,14 @@
  */
 
 #include <stddef.h>             /* for NULL */
+#include <string.h>             /* for memcpy() */
 #include <setjmp.h>             /* for setjmp(), longjmp(), and jmp_buf */
 #include <ws.h>
 #include "puff.h"               /* prototype for puff() */
 
 #define local static            /* for local function definitions */
+
+#define INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
 
 /*
  * Maximums for allocations and loops.  It is not useful to change these --
@@ -152,26 +155,54 @@ local void put_byte(struct state *s, unsigned char v)
     s->out[s->outcnt++] = v;
 }
 
-local void copy_byte(struct state *s, unsigned long dist)
+local void copy_stored_bytes(struct state *s, int len)
 {
-    if (s->outcnt >= 0x10000)
+    if ((s->incnt + len) < 0x10000 && (s->outcnt + len) < 0x10000)
     {
-        advance_bank(FP_SEG(s->out), s->outcnt >> 16);
-        s->outcnt &= 0xFFFF;
+        memcpy(s->out + s->outcnt, s->in + s->incnt, len);
+        s->incnt += len;
+        s->outcnt += len;
+        return;
     }
-    if (s->outcnt >= dist) {
-        s->out[s->outcnt] = s->out[s->outcnt - dist];
-    } else {
-        if (dist >= 0x10000) {
-            // shouldn't need distances over 65536?
-            while(1);
+
+    while (len--)
+        put_byte(s, get_byte(s));
+}
+
+local void copy_previous_bytes(struct state *s, unsigned dist, int len)
+{
+    if (s->outcnt >= dist && (s->outcnt + len) < 0x10000)
+    {
+        memcpy(s->out + s->outcnt, s->out + s->outcnt - dist, len);
+        s->outcnt += len;
+        return;
+    }
+
+    while (len--)
+    {
+        if (s->outcnt >= 0x10000)
+        {
+            advance_bank(FP_SEG(s->out), s->outcnt >> 16);
+            s->outcnt &= 0xFFFF;
         }
-        advance_bank(FP_SEG(s->out), -1);
-        unsigned char v = s->out[(unsigned) (s->outcnt - dist)];
-        advance_bank(FP_SEG(s->out), 1);
-        s->out[s->outcnt] = v;
+
+        if (s->outcnt >= dist)
+        {
+            s->out[s->outcnt] = s->out[s->outcnt - dist];
+        }
+        else {
+            if (dist >= 0x10000)
+            {
+                // shouldn't need distances over 65536?
+                while(1);
+            }
+            advance_bank(FP_SEG(s->out), -1);
+            unsigned char v = s->out[(unsigned) (s->outcnt - dist)];
+            advance_bank(FP_SEG(s->out), 1);
+            s->out[s->outcnt] = v;
+        }
+        s->outcnt++;
     }
-    s->outcnt++;
 }
 
 /*
@@ -246,8 +277,7 @@ local int stored(struct state *s)
     if (s->out != NULL) {
         if (s->outcnt + len > s->outlen)
             return 1;                           /* not enough output space */
-        while (len--)
-            put_byte(s, get_byte(s));
+        copy_stored_bytes(s, len);
     }
     else {                                      /* just scanning */
         s->outcnt += len;
@@ -553,9 +583,7 @@ local int codes(struct state *s,
             if (s->out != NULL) {
                 if (s->outcnt + len > s->outlen)
                     return 1;
-                while (len--) {
-                    copy_byte(s, dist);
-                }
+                copy_previous_bytes(s, dist, len);
             }
             else
                 s->outcnt += len;
