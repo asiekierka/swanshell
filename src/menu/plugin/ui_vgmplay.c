@@ -114,8 +114,7 @@ int ui_vgmplay(const char *path) {
 
     ws_int_disable(WS_INT_ENABLE_HBL_TIMER | WS_INT_ENABLE_LINE_MATCH);
     outportw(WS_TIMER_CTRL_PORT, 0);
-    outportb(WS_SOUND_OUT_CTRL_PORT, 0);
-    outportb(WS_SOUND_CH_CTRL_PORT, 0);
+    ws_sound_reset();
 
     if (inportb(WS_LCD_VTOTAL_PORT) != vtotal_initial) {
         lcd_set_vtotal(vtotal_initial);
