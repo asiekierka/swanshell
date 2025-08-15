@@ -13,3 +13,5 @@ vertical = false
 # rom_bus_width = 16
 rom_banks = 256
 # rom_last_bank = 127
+
+rom_reserve_bootrom_area = true

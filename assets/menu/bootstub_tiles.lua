@@ -10,4 +10,6 @@ local tileset = superfamiconv.convert_tileset(
 		:no_discard():no_flip()
 )
 
-process.emit_symbol("gfx_bootstub_tiles", zx0.compress(tileset.tiles))
+process.emit_symbol("gfx_bootstub_tiles", tileset.tiles, {
+	["section"]=".rom0_ff.bootstub_tiles"
+})

@@ -641,11 +641,15 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     // Disable IRQs - avoid other code interfering/overwriting memory
     ia16_disable_irq();
 
+    // Set ROM0 to last bank to read bootstub data
+    outportw(WS_CART_EXTBANK_ROM0_PORT, 0x00FF);
+
     // Initialize bootstub graphics
     if (ws_system_is_color_active()) {
         ws_system_set_mode(WS_MODE_COLOR);
     }
-    wsx_zx0_decompress((void*) 0x3200, gfx_bootstub_tiles);
+    // wsx_zx0_decompress((void*) 0x3200, gfx_bootstub_tiles);
+    memcpy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
     
     // Populate bootstub data
     bootstub_data->data_base = fs.database;
