@@ -146,46 +146,47 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
             detected_systems++;
         }
     }
+    uint16_t offset = vgm_get_offset(ptr);
     // check unsupported clocks
     if (((uint32_t __far*) ptr)[4]) { error = true; goto on_error; }
     if (version >= 0x110 && ((uint32_t __far*) ptr)[11]) { error = true; goto on_error; }
     if (version >= 0x110 && ((uint32_t __far*) ptr)[12]) { error = true; goto on_error; }
     if (version >= 0x151 && ((uint32_t __far*) ptr)[14]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[16]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[17]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[18]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[19]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[20]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[21]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[22]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[23]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[24]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[25]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[26]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[27]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[28]) { error = true; goto on_error; }
-    if (version >= 0x151 && ((uint32_t __far*) ptr)[29]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[33]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[34]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[35]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[36]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[38]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[39]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[40]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[41]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[42]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[43]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[44]) { error = true; goto on_error; }
-    if (version >= 0x161 && ((uint32_t __far*) ptr)[45]) { error = true; goto on_error; }
-    if (version >= 0x171 && ((uint32_t __far*) ptr)[46]) { error = true; goto on_error; }
-    if (version >= 0x171 && ((uint32_t __far*) ptr)[49]) { error = true; goto on_error; }
-    if (version >= 0x171 && ((uint32_t __far*) ptr)[50]) { error = true; goto on_error; }
-    if (version >= 0x171 && ((uint32_t __far*) ptr)[51]) { error = true; goto on_error; }
-    if (version >= 0x171 && ((uint32_t __far*) ptr)[52]) { error = true; goto on_error; }
-    if (version >= 0x171 && ((uint32_t __far*) ptr)[54]) { error = true; goto on_error; }
-    if (version >= 0x171 && ((uint32_t __far*) ptr)[55]) { error = true; goto on_error; }
-    if (version >= 0x171 && ((uint32_t __far*) ptr)[56]) { error = true; goto on_error; }
-    if (version >= 0x172 && ((uint32_t __far*) ptr)[57]) { error = true; goto on_error; }
+    if (offset > 16*4 && version >= 0x151 && ((uint32_t __far*) ptr)[16]) { error = true; goto on_error; }
+    if (offset > 17*4 && version >= 0x151 && ((uint32_t __far*) ptr)[17]) { error = true; goto on_error; }
+    if (offset > 18*4 && version >= 0x151 && ((uint32_t __far*) ptr)[18]) { error = true; goto on_error; }
+    if (offset > 19*4 && version >= 0x151 && ((uint32_t __far*) ptr)[19]) { error = true; goto on_error; }
+    if (offset > 20*4 && version >= 0x151 && ((uint32_t __far*) ptr)[20]) { error = true; goto on_error; }
+    if (offset > 21*4 && version >= 0x151 && ((uint32_t __far*) ptr)[21]) { error = true; goto on_error; }
+    if (offset > 22*4 && version >= 0x151 && ((uint32_t __far*) ptr)[22]) { error = true; goto on_error; }
+    if (offset > 23*4 && version >= 0x151 && ((uint32_t __far*) ptr)[23]) { error = true; goto on_error; }
+    if (offset > 24*4 && version >= 0x151 && ((uint32_t __far*) ptr)[24]) { error = true; goto on_error; }
+    if (offset > 25*4 && version >= 0x151 && ((uint32_t __far*) ptr)[25]) { error = true; goto on_error; }
+    if (offset > 26*4 && version >= 0x151 && ((uint32_t __far*) ptr)[26]) { error = true; goto on_error; }
+    if (offset > 27*4 && version >= 0x151 && ((uint32_t __far*) ptr)[27]) { error = true; goto on_error; }
+    if (offset > 28*4 && version >= 0x151 && ((uint32_t __far*) ptr)[28]) { error = true; goto on_error; }
+    if (offset > 29*4 && version >= 0x151 && ((uint32_t __far*) ptr)[29]) { error = true; goto on_error; }
+    if (offset > 33*4 && version >= 0x161 && ((uint32_t __far*) ptr)[33]) { error = true; goto on_error; }
+    if (offset > 34*4 && version >= 0x161 && ((uint32_t __far*) ptr)[34]) { error = true; goto on_error; }
+    if (offset > 35*4 && version >= 0x161 && ((uint32_t __far*) ptr)[35]) { error = true; goto on_error; }
+    if (offset > 36*4 && version >= 0x161 && ((uint32_t __far*) ptr)[36]) { error = true; goto on_error; }
+    if (offset > 38*4 && version >= 0x161 && ((uint32_t __far*) ptr)[38]) { error = true; goto on_error; }
+    if (offset > 39*4 && version >= 0x161 && ((uint32_t __far*) ptr)[39]) { error = true; goto on_error; }
+    if (offset > 40*4 && version >= 0x161 && ((uint32_t __far*) ptr)[40]) { error = true; goto on_error; }
+    if (offset > 41*4 && version >= 0x161 && ((uint32_t __far*) ptr)[41]) { error = true; goto on_error; }
+    if (offset > 42*4 && version >= 0x161 && ((uint32_t __far*) ptr)[42]) { error = true; goto on_error; }
+    if (offset > 43*4 && version >= 0x161 && ((uint32_t __far*) ptr)[43]) { error = true; goto on_error; }
+    if (offset > 44*4 && version >= 0x161 && ((uint32_t __far*) ptr)[44]) { error = true; goto on_error; }
+    if (offset > 45*4 && version >= 0x161 && ((uint32_t __far*) ptr)[45]) { error = true; goto on_error; }
+    if (offset > 46*4 && version >= 0x171 && ((uint32_t __far*) ptr)[46]) { error = true; goto on_error; }
+    if (offset > 49*4 && version >= 0x171 && ((uint32_t __far*) ptr)[49]) { error = true; goto on_error; }
+    if (offset > 50*4 && version >= 0x171 && ((uint32_t __far*) ptr)[50]) { error = true; goto on_error; }
+    if (offset > 51*4 && version >= 0x171 && ((uint32_t __far*) ptr)[51]) { error = true; goto on_error; }
+    if (offset > 52*4 && version >= 0x171 && ((uint32_t __far*) ptr)[52]) { error = true; goto on_error; }
+    if (offset > 54*4 && version >= 0x171 && ((uint32_t __far*) ptr)[54]) { error = true; goto on_error; }
+    if (offset > 55*4 && version >= 0x171 && ((uint32_t __far*) ptr)[55]) { error = true; goto on_error; }
+    if (offset > 56*4 && version >= 0x171 && ((uint32_t __far*) ptr)[56]) { error = true; goto on_error; }
+    if (offset > 57*4 && version >= 0x172 && ((uint32_t __far*) ptr)[57]) { error = true; goto on_error; }
 
     vgm_jump_to_start_point(state);
 

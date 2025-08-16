@@ -17,8 +17,6 @@
 
 #include <nilefs/ff.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <ws.h>
 #include <wsx/zx0.h>
@@ -26,12 +24,7 @@
 #include <nilefs.h>
 #include "errors.h"
 #include "launch.h"
-#include "bootstub.h"
-#include "mcu.h"
-#include "strings.h"
 #include "ui/ui.h"
-#include "../../build/menu/build/bootstub_bin.h"
-#include "util/file.h"
 
 extern FATFS fs;
 
@@ -85,9 +78,6 @@ int16_t launch_bfb(const char *path) {
 }
 
 int16_t launch_bfb_in_psram(void) {
-    FIL fp;
-    uint16_t header[2];
-
     if (!ws_system_is_color_active()) {
         return FR_INT_ERR;
     }

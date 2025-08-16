@@ -91,13 +91,14 @@ int ui_vgmplay(const char *path) {
 
     ws_sound_reset();
     outportb(WS_SOUND_WAVE_BASE_PORT, WS_SOUND_WAVE_BASE_ADDR(0x3FC0));
-    outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_100);
 
     if (!vgm_init(&local_vgm_state, vgm_bank, 0)) {
+        ws_sound_reset();
         return ERR_FILE_FORMAT_INVALID;
     }
 
     input_wait_clear();
+    outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_100);
 
     outportw(WS_TIMER_HBL_RELOAD_PORT, 2);
     outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
