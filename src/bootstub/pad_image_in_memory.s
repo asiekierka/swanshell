@@ -31,8 +31,6 @@ pad_image_in_memory:
     push ds
     push es
 
-    push 0x2000
-    pop ds
     push 0x1000
     pop es
 
@@ -44,8 +42,15 @@ pad_image_in_memory:
 
     mov ax, dx
     out WS_CART_EXTBANK_ROM0_PORT, ax
+3:
     mov ax, bp
     out WS_CART_EXTBANK_RAM_PORT, ax
+
+    push ss
+    pop ds
+    IA16_CALL progress_tick
+    push 0x2000
+    pop ds
 
 1:
     // CX = number of bytes to transfer at once
@@ -72,16 +77,8 @@ pad_image_in_memory:
     jne 1b
 
     dec bp
-    mov ax, bp
-    out WS_CART_EXTBANK_RAM_PORT, ax
 
-    push ss
-    pop ds
-    IA16_CALL progress_tick
-    push 0x2000
-    pop ds
-
-    jmp 1b
+    jmp 3b
 
 9:
     pop es
