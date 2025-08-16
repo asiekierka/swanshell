@@ -51,7 +51,7 @@ uint16_t vgm_cmd_driver_ws(vgm_state_t *state, uint8_t cmd) {
             uint8_t ofshi = *(state->ptr++);
             uint8_t ofslo = *(state->ptr++);
             uint8_t data = *(state->ptr++);
-            uint16_t addr = ((ofshi << 8) | ofslo) + (inportb(WS_SOUND_WAVE_BASE_PORT) << 6);
+            uint16_t addr = (((ofshi << 8) | ofslo) & 0x3F) + (inportb(WS_SOUND_WAVE_BASE_PORT) << 6);
             *((uint8_t*) addr) = data;
         } return 0;
         default: return VGM_PLAYBACK_FINISHED;

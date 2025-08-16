@@ -111,6 +111,8 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
     // check supported version
     uint32_t version = ((uint32_t __far*) ptr)[2];
     if (version > 0x172) { error = true; goto on_error; }
+    uint16_t offset = vgm_get_offset(ptr);
+
     // check clocks
     uint32_t sn76489_clock = ((uint32_t __far*) ptr)[3];
     if (sn76489_clock) {
@@ -128,7 +130,7 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
 
     if (version >= 0x161) {
         uint32_t dmg_clock = ((uint32_t __far*) ptr)[32];
-        if (dmg_clock) {
+        if (offset > 32*4 && dmg_clock) {
             state->clock = dmg_clock;
             state->cmd_driver = vgm_cmd_driver_dmg;
 
@@ -139,14 +141,14 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
 
     if (version >= 0x171) {
         uint32_t ws_clock = ((uint32_t __far*) ptr)[48];
-        if (ws_clock) {
+        if (offset > 48*4 && ws_clock) {
             state->clock = ws_clock;
             state->cmd_driver = vgm_cmd_driver_ws;
 
             detected_systems++;
         }
     }
-    uint16_t offset = vgm_get_offset(ptr);
+
     // check unsupported clocks
     if (((uint32_t __far*) ptr)[4]) { error = true; goto on_error; }
     if (version >= 0x110 && ((uint32_t __far*) ptr)[11]) { error = true; goto on_error; }
