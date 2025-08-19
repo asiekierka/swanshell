@@ -39,10 +39,8 @@
 #include "util/file.h"
 #include "util/ini.h"
 
-__attribute__((section(".iramx_0040")))
-uint16_t ipl0_initial_regs[16];
 __attribute__((section(".iramCx_c000")))
-uint8_t sector_buffer[2048];
+uint8_t sector_buffer[8192];
 
 extern FATFS fs;
 
