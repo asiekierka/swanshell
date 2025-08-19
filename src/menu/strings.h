@@ -34,6 +34,7 @@ DEFINE_STRING(s_dotdot, "..");
 DEFINE_STRING(s_file_ext_bfb, ".bfb");
 DEFINE_STRING(s_file_ext_bmp, ".bmp");
 DEFINE_STRING(s_file_ext_bin, ".bin");
+DEFINE_STRING(s_file_ext_com, ".com");
 DEFINE_STRING(s_file_ext_pc2, ".pc2");
 DEFINE_STRING(s_file_ext_raw, ".raw");
 DEFINE_STRING(s_file_ext_vgm, ".vgm");

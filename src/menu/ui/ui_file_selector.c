@@ -135,6 +135,8 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
                 icon_idx = 4;
             } else if (!strcasecmp(ext, s_file_ext_bfb)) {
                 icon_idx = 5;
+            } else if (!strcasecmp(ext, s_file_ext_com)) {
+                icon_idx = 6;
             }
         }
     }
@@ -248,6 +250,11 @@ rescan_directory:
                         if (option == 0) {
                             ui_dialog_error_check(launch_bfb(path), NULL, 0);
                         }
+                        reinit_ui = true;
+                        goto rescan_directory;
+                    } else if (!strcasecmp(ext, s_file_ext_com)) {
+                        ui_selector_clear_selection(&config);
+                        ui_dialog_error_check(launch_com(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     }
