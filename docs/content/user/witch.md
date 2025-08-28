@@ -14,12 +14,13 @@ Support for running `.fx` files directly is also in development.
 
 ## Cartridge image support
 
-### Exiting / Saving data
+### Saving file system changes
 
-When using FreyaOS, exiting the OS is required to properly save data to the removable storage card. This is required as while SRAM (used for save data) is
-battery backed, the PSRAM (used for cartridge data) is not. 
+Under FreyaOS, it is **required** to exit the OS in order to save WW file system contents to the removable storage card. This is because, while on-cartridge SRAM
+(save data) is battery backed, on-cartridge PSRAM (file system contents) is not.
 
-To do this, in the main shell menu, press `START` to suspend the shell, then `Y3` to reboot the cartridge. This operation will load swanshell, which will proceed to save data to the card.
+To exit FreyaOS while in the main menu, press `START` to suspend the shell, then `Y3` to reboot.
+This operation will soft reset the cartridge, booting back into swanshell, which will proceed to save data to the card.
 
 ### Understanding Witch components
 
