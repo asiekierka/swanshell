@@ -173,8 +173,15 @@ local void copy_previous_bytes(struct state *s, unsigned dist, int len)
 {
     if (s->outcnt >= dist && (s->outcnt + len) < 0x10000)
     {
-        memcpy(s->out + s->outcnt, s->out + s->outcnt - dist, len);
-        s->outcnt += len;
+        if (dist >= 2)
+        {
+            memcpy(s->out + s->outcnt, s->out + (s->outcnt - dist), len);
+            s->outcnt += len;
+        } else while (len--)
+        {
+            s->out[s->outcnt] = s->out[s->outcnt - dist];
+            s->outcnt++;
+        }
         return;
     }
 
@@ -621,7 +628,7 @@ local int codes(struct state *s,
  */
 local int fixed(struct state *s)
 {
-    static int virgin = 1;
+    static bool virgin = true;
     static short lencnt[MAXBITS+1], lensym[FIXLCODES];
     static short distcnt[MAXBITS+1], distsym[MAXDCODES];
     static struct huffman lencode, distcode;
@@ -654,7 +661,7 @@ local int fixed(struct state *s)
         construct(&distcode, lengths, MAXDCODES);
 
         /* do this just once */
-        virgin = 0;
+        virgin = false;
     }
 
     /* decode data until end-of-block code */
