@@ -108,7 +108,7 @@ DEPS		:= $(OBJS:.o=.d)
 # Targets
 # -------
 
-.PHONY: all clean dist fonts athenaos-compatible athenaos-native libnile-bootfriend libnile-medium
+.PHONY: all clean dist fonts athenaos-compatible athenaos-native libnile-bootfriend libnile-medium usage
 
 all: $(ROM) compile_commands.json
 
@@ -162,6 +162,9 @@ clean:
 	$(_V)cd $(ATHENAOS_PATH) && $(MAKE) clean
 	$(_V)cd $(ATHENAOS_PATH) && $(MAKE) CONFIG=config/config.nileswan.mk clean
 	$(_V)rm assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf || true
+
+usage: $(ELF)
+	$(_V)$(ROMUSAGE) $< -g -C
 
 compile_commands.json: $(OBJS) | Makefile
 	@echo "  MERGE   compile_commands.json"
