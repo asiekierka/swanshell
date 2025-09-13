@@ -90,6 +90,7 @@
 #define local static            /* for local function definitions */
 
 #define INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
+#define CACHE_TABLES
 
 /*
  * Maximums for allocations and loops.  It is not useful to change these --
