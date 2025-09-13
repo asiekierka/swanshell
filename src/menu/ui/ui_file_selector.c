@@ -277,7 +277,7 @@ rescan_directory:
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
 
             ui_selector_clear_selection(&config);
-            if (ui_file_selector_options(fno->fno.fname)) {
+            if (ui_file_selector_options(fno->fno.fname, fno->fno.fattrib)) {
                 reinit_dirs = true;
             }
             reinit_ui = true;

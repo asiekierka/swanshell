@@ -45,4 +45,9 @@ int16_t fileops_delete_file_and_savedata(const char __far *filename);
  */
 int16_t ui_fileops_check_file_overwrite(const char __far *filename);
 
+/**
+ * @brief Perform user-requested file deletion operation.
+ */
+int16_t ui_fileops_check_file_delete_by_user(const char __far *filename);
+
 #endif /* UI_FILEOPS_H__ */

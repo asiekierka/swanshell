@@ -15,6 +15,7 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <nilefs/ff.h>
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
@@ -114,25 +115,55 @@ static bool ui_file_selector_tools(ui_popup_list_config_t *lst, const char __far
     }
 }
 
-bool ui_file_selector_options(const char __far *filename) {
+static bool ui_file_selector_file(ui_popup_list_config_t *lst, const char __far *filename) {
+    while (true) {
+        memset(lst, 0, sizeof(ui_popup_list_config_t));
+        lst->option[0] = lang_keys[LK_SUBMENU_OPTION_FILE_DELETE];
+
+        switch (ui_popup_list(lst)) {
+        default:
+            ui_popup_list_clear(lst);
+            return false;
+        case 0: {
+            int16_t result = ui_fileops_check_file_delete_by_user(filename);
+            ui_dialog_error_check(result, lang_keys[LK_SUBMENU_OPTION_FILE_DELETE], 0);
+            return true;
+        }
+        }
+    }
+}
+
+bool ui_file_selector_options(const char __far *filename, uint8_t attrib) {
     ui_popup_list_config_t lst;
 
     while (true) {
         memset(&lst, 0, sizeof(ui_popup_list_config_t));
-        lst.option[0] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
-        lst.option[1] = lang_keys[LK_SUBMENU_OPTION_TOOLS];
-        lst.option[2] = lang_keys[LK_SUBMENU_OPTION_ABOUT];
-        switch (ui_popup_list(&lst)) {
+        int i = 0;
+        if (!(attrib & AM_DIR)) {
+            lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_FILE];
+        }
+        lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
+        lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_TOOLS];
+        lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_ABOUT];
+        
+        int option = ui_popup_list(&lst);
+        if (i == 3) option++;
+
+        switch (option) {
         default:
             return false;
         case 0:
+            if (ui_file_selector_file(&lst, filename))
+                return true;
+            break;
+        case 1:
             ui_settings(&settings_root);
             return true;
-        case 1:
+        case 2:
             if (ui_file_selector_tools(&lst, filename))
                 return true;
             break;
-        case 2:
+        case 3:
             ui_about();
             return true;
         }

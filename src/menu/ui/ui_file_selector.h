@@ -53,7 +53,7 @@ int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t pr
 
 // ui_file_selector_options.c
 int ui_file_selector_actions_bfb(void);
-bool ui_file_selector_options(const char __far *filename);
+bool ui_file_selector_options(const char __far *filename, uint8_t attrib);
 
 // ui_file_selector_qsort.c
 void ui_file_selector_qsort(size_t nmemb, int (*compar)(const file_selector_entry_t __far*, const file_selector_entry_t __far*, void*), void *userdata);

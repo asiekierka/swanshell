@@ -46,18 +46,18 @@ static int16_t __fileops_delete_path(char *path, bool hide_other_values) {
     return FR_OK;
 }
 
-int16_t fileops_delete_file_and_savedata(const char __far *filename) {
+int16_t fileops_delete_file_and_savedata(const char __far *filename, bool and_savedata) {
     char path[FF_LFN_BUF+1];
     int16_t result;
 
     strcpy(path, filename);
     result = __fileops_delete_path(path,  false);
     if (result != FR_OK) {
-        if (result == FR_NO_FILE || result == FR_NO_PATH) return FR_OK;
+        if (and_savedata && (result == FR_NO_FILE || result == FR_NO_PATH)) return FR_OK;
         return result;
     }
 
-    if (fileops_is_rom(path)) {
+    if (and_savedata && fileops_is_rom(path)) {
         char *path_ext = (char*) strrchr(path, '.');
 
         // Delete save data
@@ -88,8 +88,26 @@ int16_t ui_fileops_check_file_overwrite(const char __far *filename) {
     ui_show();
     
     if (ui_popup_dialog_action(&dlg, 1) == 0) {
-        return fileops_delete_file_and_savedata(filename);
+        return fileops_delete_file_and_savedata(filename, true);
     } else {
         return FR_EXIST;
+    }
+}
+
+int16_t ui_fileops_check_file_delete_by_user(const char __far *filename) {
+    ui_popup_dialog_config_t dlg = {0};
+
+    dlg.title = lang_keys[LK_SUBMENU_OPTION_FILE_DELETE];
+    dlg.description = lang_keys[LK_DIALOG_FILE_DELETE_CONFIRM];
+    dlg.buttons[0] = LK_YES;
+    dlg.buttons[1] = LK_NO;
+
+    ui_popup_dialog_draw(&dlg);
+    ui_show();
+    
+    if (ui_popup_dialog_action(&dlg, 1) == 0) {
+        return fileops_delete_file_and_savedata(filename, false);
+    } else {
+        return FR_OK;
     }
 }
