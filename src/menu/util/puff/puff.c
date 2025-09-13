@@ -101,6 +101,18 @@
 #define MAXCODES (MAXLCODES+MAXDCODES)  /* maximum codes lengths to read */
 #define FIXLCODES 288           /* number of fixed literal/length codes */
 
+/*
+ * Huffman code decoding tables.  count[1..MAXBITS] is the number of symbols of
+ * each length, which for a canonical code are stepped through in order.
+ * symbol[] are the symbol values in canonical order, where the number of
+ * entries is the sum of the counts in count[].  The decoding process can be
+ * seen in the function decode() below.
+ */
+struct huffman {
+    short *count;       /* number of symbols of each length */
+    short *symbol;      /* canonically ordered symbols */
+};
+
 /* input and output state */
 struct state {
     /* output state */
@@ -117,6 +129,13 @@ struct state {
 
     /* input limit error return state for bits() and decode() */
     jmp_buf env;
+
+#ifndef CACHE_TABLES
+    bool initialized;
+    short lencnt[MAXBITS+1], lensym[FIXLCODES];
+    short distcnt[MAXBITS+1], distsym[MAXDCODES];
+    struct huffman lencode, distcode;
+#endif
 };
 
 local void advance_bank(unsigned int segment, unsigned count)
@@ -294,18 +313,6 @@ local int stored(struct state *s)
     /* done with a valid stored block */
     return 0;
 }
-
-/*
- * Huffman code decoding tables.  count[1..MAXBITS] is the number of symbols of
- * each length, which for a canonical code are stepped through in order.
- * symbol[] are the symbol values in canonical order, where the number of
- * entries is the sum of the counts in count[].  The decoding process can be
- * seen in the function decode() below.
- */
-struct huffman {
-    short *count;       /* number of symbols of each length */
-    short *symbol;      /* canonically ordered symbols */
-};
 
 /*
  * Decode a code from the stream s using huffman table h.  Return the symbol or
@@ -628,13 +635,14 @@ local int codes(struct state *s,
  */
 local int fixed(struct state *s)
 {
-    static bool virgin = true;
+#ifdef CACHE_TABLES
+    static bool initialized = false;
     static short lencnt[MAXBITS+1], lensym[FIXLCODES];
     static short distcnt[MAXBITS+1], distsym[MAXDCODES];
     static struct huffman lencode, distcode;
 
     /* build fixed huffman tables if first call (may not be thread safe) */
-    if (virgin) {
+    if (!initialized) {
         int symbol;
         short lengths[FIXLCODES];
 
@@ -661,11 +669,46 @@ local int fixed(struct state *s)
         construct(&distcode, lengths, MAXDCODES);
 
         /* do this just once */
-        virgin = false;
+        initialized = true;
     }
 
     /* decode data until end-of-block code */
     return codes(s, &lencode, &distcode);
+#else
+    /* build fixed huffman tables if first call (may not be thread safe) */
+    if (!s->initialized) {
+        int symbol;
+        short lengths[FIXLCODES];
+
+        /* construct lencode and distcode */
+        s->lencode.count = s->lencnt;
+        s->lencode.symbol = s->lensym;
+        s->distcode.count = s->distcnt;
+        s->distcode.symbol = s->distsym;
+
+        /* literal/length table */
+        for (symbol = 0; symbol < 144; symbol++)
+            lengths[symbol] = 8;
+        for (; symbol < 256; symbol++)
+            lengths[symbol] = 9;
+        for (; symbol < 280; symbol++)
+            lengths[symbol] = 7;
+        for (; symbol < FIXLCODES; symbol++)
+            lengths[symbol] = 8;
+        construct(&s->lencode, lengths, FIXLCODES);
+
+        /* distance table */
+        for (symbol = 0; symbol < MAXDCODES; symbol++)
+            lengths[symbol] = 5;
+        construct(&s->distcode, lengths, MAXDCODES);
+
+        /* do this just once */
+        s->initialized = true;
+    }
+
+    /* decode data until end-of-block code */
+    return codes(s, &s->lencode, &s->distcode);
+#endif
 }
 
 /*
