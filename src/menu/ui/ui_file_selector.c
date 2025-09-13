@@ -208,7 +208,7 @@ rescan_directory:
             reinit_dirs = true;
             goto rescan_directory;
         }
-        if (keys_pressed & WS_KEY_A) {
+        if ((keys_pressed & WS_KEY_A) && config.count) {
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
             strncpy(path, fno->fno.fname, sizeof(fno->fno.fname));
             if (fno->fno.fattrib & AM_DIR) {
@@ -273,7 +273,7 @@ rescan_directory:
         }
 
         // TODO: temporary
-        if (keys_pressed & WS_KEY_START) {
+        if ((keys_pressed & WS_KEY_START) && config.count) {
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
 
             ui_selector_clear_selection(&config);

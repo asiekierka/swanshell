@@ -22,6 +22,8 @@
 #include "../util/input.h"
 #include "../main.h"
 #include "lang.h"
+#include "lang_gen.h"
+#include "ui/ui.h"
 
 #define SELECTOR_Y_OFFSET 8
 
@@ -32,6 +34,10 @@ void ui_selector_clear_selection(ui_selector_config_t *config) {
             ws_screen_put_tile(bitmap_screen2, pal | ((iy + 1) + (ix * 18)), ix, iy + 1);
         }
     }
+}
+
+static inline void ui_selector_set_active_font(ui_selector_config_t *config) {
+    bitmapfont_set_active_font(config->style == UI_SELECTOR_STYLE_16 ? font16_bitmap : font8_bitmap);
 }
 
 #define UI_SELECTOR_OFFSET_TO_BOUNDS() \
@@ -54,12 +60,29 @@ uint16_t ui_selector(ui_selector_config_t *config) {
         row_offset = 0;
     }
 
+    if (config->count == 0) {
+        ui_layout_bars();
+        ui_selector_set_active_font(config);
+        ui_draw_statusbar(lang_keys[LK_UI_FILE_SELECTOR_EMPTY]);
+
+        while (true) {
+            if (idle_until_vblank())
+                return UI_SELECTOR_RELOAD_REQUESTED;
+            input_update();
+            uint16_t keys_pressed = input_pressed;
+
+            // User actions
+            if (keys_pressed & config->key_mask)
+                return keys_pressed & config->key_mask;
+        }
+    }
+
     while (true) {
         if (prev_offset != config->offset) {
             if ((prev_offset / row_count) != (config->offset / row_count)) {
                 bitmap_rect_fill(&ui_bitmap, 0, SELECTOR_Y_OFFSET, 28 * 8, row_height * row_count, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
                 // Draw filenames
-                bitmapfont_set_active_font(config->style == UI_SELECTOR_STYLE_16 ? font16_bitmap : font8_bitmap);
+                ui_selector_set_active_font(config);
                 for (int i = 0; i < row_count; i++) {
                     uint16_t offset = ((config->offset / row_count) * row_count) + i;
                     if (offset >= config->count) break;
