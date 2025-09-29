@@ -108,7 +108,7 @@ DEPS		:= $(OBJS:.o=.d)
 # Targets
 # -------
 
-.PHONY: all clean dist fonts athenaos-compatible athenaos-native libnile-bootfriend libnile-medium usage usage-symbols
+.PHONY: all clean dist distclean fonts athenaos-compatible athenaos-native libnile-bootfriend libnile-medium usage usage-symbols
 
 all: $(ROM) compile_commands.json
 
@@ -119,11 +119,13 @@ dist: all athenaos-compatible athenaos-native
 	@rm -r dist/NILESWAN/LICENSE || true
 	@cp -R docs/license dist/NILESWAN/LICENSE
 
+distclean: clean
+	$(_V)uv --directory vendor/modified-ark-pixel-font venv --clear
+
 fonts: assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf
 
 assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf:
 	@echo "  UV      $@"
-	$(_V)uv --directory vendor/modified-ark-pixel-font venv --clear
 	$(_V)uv --directory vendor/modified-ark-pixel-font pip install -r requirements.txt
 	$(_V)uv --directory vendor/modified-ark-pixel-font run python -m tools.cli --cleanup --font-sizes 12 --width-modes proportional --font-formats bdf --attachments release
 	$(_V)cp vendor/modified-ark-pixel-font/build/outputs/$(@F) $@
