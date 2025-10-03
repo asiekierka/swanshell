@@ -46,9 +46,11 @@ Here's a small comparison to help you decide which BIOS implementation to use:
 |   | Freya | Athena Compatible | Athena Native |
 | - | ----- | ----------------- | ------------- |
 | License | Proprietary | Open | Open |
-| Compatibility | 99.9% | 95% | 94% |
-| Serial communication interface | EXT | EXT | USB |
+| Compatibility | 99.9% | 95% | 92% |
+| Serial communication interface | EXT | EXT | USB (WIP[^1]) |
 | Flash write slowdowns | Yes | Yes | No |
+
+[^1]: Serial port interrupts are currently not emulated. This means that XMODEM transfers work, but TransMagic is not yet supported.
 
 ### Managing cartridge images
 
