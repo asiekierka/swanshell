@@ -1,6 +1,6 @@
 ---
-title: 'Introduction'
-weight: 0
+title: 'Getting started'
+weight: 5
 ---
 
 ## Lists and files
@@ -21,7 +21,7 @@ The following buttons are used in all swanshell list views:
 - `A` is used to select an option. For example, in the file browser, `A` may enter a subdirectory, or launch a `.wsc` file.
 - `B` is used to navigate upwards. For example, in the file browser, `B` will exit a previously entered subdirectory.
 
-Some views may have additional features. For example, `START` in the file browser brings up a menu with additional actions:
+Some views may have additional features. For example, pressing `START` in the file browser brings up a menu with additional actions:
 
 ![The additional action menu.](../../img/intro_action_menu.png)
 
