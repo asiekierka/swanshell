@@ -26,6 +26,7 @@
 #define UI_CENTERED_IN_BOX(xofs,width,inner_width) ((xofs) + (((width) - (inner_width)) >> 1))
 
 #define UI_POPUP_ACTION_BACK -1
+#define UI_POPUP_ACTION_START -2
 
 extern bitmap_t ui_bitmap;
 

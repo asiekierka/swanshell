@@ -106,5 +106,8 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
         if (keys_pressed & WS_KEY_B) {
             return UI_POPUP_ACTION_BACK;
         }
+        if (keys_pressed & WS_KEY_START) {
+            return UI_POPUP_ACTION_START;
+        }
     }
 }

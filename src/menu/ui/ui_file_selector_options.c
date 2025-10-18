@@ -24,6 +24,7 @@
 #include "lang_gen.h"
 #include "launch/launch.h"
 #include "settings.h"
+#include "ui/ui.h"
 #include "ui_about.h"
 #include "ui_dialog.h"
 #include "ui_fileops.h"
@@ -33,13 +34,19 @@
 #include "../ww/ww.h"
 #include "../xmodem.h"
 
+enum tristate {
+    TRISTATE_FALSE,
+    TRISTATE_TRUE,
+    TRISTATE_NONE
+};
+
 int ui_file_selector_actions_bfb(void) {
     ui_popup_list_config_t lst = {0};
     lst.option[0] = lang_keys[LK_SUBMENU_OPTION_TEST_BFB];
     return ui_popup_list(&lst);
 }
 
-static bool ui_file_selector_tools_witch(ui_popup_list_config_t *lst, const char __far *filename) {
+static enum tristate ui_file_selector_tools_witch(ui_popup_list_config_t *lst, const char __far *filename) {
     while (true) {
         memset(lst, 0, sizeof(ui_popup_list_config_t));
         uint8_t i = 0;
@@ -51,29 +58,31 @@ static bool ui_file_selector_tools_witch(ui_popup_list_config_t *lst, const char
         lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_CREATE_IMAGE];
 
         switch (ui_popup_list(lst)) {
+        case UI_POPUP_ACTION_START:
+            return TRISTATE_FALSE;
         default:
             ui_popup_list_clear(lst);
-            return false;
+            return TRISTATE_NONE;
         case 0:
             if (i == 1)
                 ui_dialog_error_check(ww_ui_create_image(), NULL, 0);
             else
                 ui_dialog_error_check(ww_ui_replace_component(filename, false), NULL, 0);
-            return true;
+            return TRISTATE_TRUE;
         case 1:
             ui_dialog_error_check(ww_ui_replace_component(filename, true), NULL, 0);
-            return true;
+            return TRISTATE_TRUE;
         case 2:
             ui_dialog_error_check(ww_ui_extract_from_rom(filename), NULL, 0);
-            return true;
+            return TRISTATE_TRUE;
         case 3:
             ui_dialog_error_check(ww_ui_create_image(), NULL, 0);
-            return true;
+            return TRISTATE_TRUE;
         }
     }
 }
 
-static bool ui_file_selector_tools(ui_popup_list_config_t *lst, const char __far *filename) {
+static enum tristate ui_file_selector_tools(ui_popup_list_config_t *lst, const char __far *filename) {
     while (true) {
         memset(lst, 0, sizeof(ui_popup_list_config_t));
         lst->option[0] = lang_keys[LK_SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM];
@@ -81,9 +90,11 @@ static bool ui_file_selector_tools(ui_popup_list_config_t *lst, const char __far
         lst->option[2] = lang_keys[LK_SUBMENU_OPTION_CONTROLLER_MODE];
 
         switch (ui_popup_list(lst)) {
+        case UI_POPUP_ACTION_START:
+            return TRISTATE_FALSE;
         default:
             ui_popup_list_clear(lst);
-            return false;
+            return TRISTATE_NONE;
         case 0: {
             launch_rom_metadata_t meta;
             int16_t result = xmodem_recv_start(&bootstub_data->prog.size);
@@ -102,32 +113,36 @@ static bool ui_file_selector_tools(ui_popup_list_config_t *lst, const char __far
             }
 
             ui_dialog_error_check(result, lang_keys[LK_SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM], 0);
-            return true;
+            return TRISTATE_TRUE;
         }
-        case 1:
-            if (ui_file_selector_tools_witch(lst, filename))
-                return true;
+        case 1: {
+            enum tristate result = ui_file_selector_tools_witch(lst, filename);
+            if (result != TRISTATE_NONE)
+                return result;
             break;
+        }
         case 2:
             ui_hidctrl();
-            return true;
+            return TRISTATE_TRUE;
         }
     }
 }
 
-static bool ui_file_selector_file(ui_popup_list_config_t *lst, const char __far *filename) {
+static enum tristate ui_file_selector_file(ui_popup_list_config_t *lst, const char __far *filename) {
     while (true) {
         memset(lst, 0, sizeof(ui_popup_list_config_t));
         lst->option[0] = lang_keys[LK_SUBMENU_OPTION_FILE_DELETE];
 
         switch (ui_popup_list(lst)) {
+        case UI_POPUP_ACTION_START:
+            return TRISTATE_FALSE;
         default:
             ui_popup_list_clear(lst);
-            return false;
+            return TRISTATE_NONE;
         case 0: {
             int16_t result = ui_fileops_check_file_delete_by_user(filename);
             ui_dialog_error_check(result, lang_keys[LK_SUBMENU_OPTION_FILE_DELETE], 0);
-            return true;
+            return TRISTATE_TRUE;
         }
         }
     }
@@ -147,25 +162,30 @@ bool ui_file_selector_options(const char __far *filename, uint8_t attrib) {
         lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_ABOUT];
         
         int option = ui_popup_list(&lst);
-        if (i == 3) option++;
+        if (i == 3 && option >= 0) option++;
 
+        enum tristate result = TRISTATE_NONE;
         switch (option) {
         default:
-            return false;
+            result = TRISTATE_FALSE;
+            break;
         case 0:
-            if (ui_file_selector_file(&lst, filename))
-                return true;
+            result = ui_file_selector_file(&lst, filename);
             break;
         case 1:
             ui_settings(&settings_root);
-            return true;
+            result = TRISTATE_TRUE;
+            break;
         case 2:
-            if (ui_file_selector_tools(&lst, filename))
-                return true;
+            result = ui_file_selector_tools(&lst, filename);
             break;
         case 3:
             ui_about();
-            return true;
+            result = TRISTATE_TRUE;
+            break;
         }
+
+        if (result != TRISTATE_NONE)
+            return result != TRISTATE_FALSE;
     }
 }
