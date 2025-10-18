@@ -31,6 +31,9 @@ static const uint16_t __far count_width_mask[17] = {
     0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF,
     0x1FF, 0x3FF, 0x7FF, 0xFFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF
 };
+static const uint8_t __far count_width_mask8[9] = {
+    0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF
+};
 
 static const uint16_t __far color_mask[4] = {
     0x0000,
@@ -212,7 +215,8 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
     uint16_t pixel_fifo_left = 16;
     font_data += 2;
 
-    for (uint16_t iy = 0; iy < h; iy++, tile += bitmap->bpp) {
+    uint8_t *tile_end = tile + (bitmap->bpp * h);
+    while (tile < tile_end) {
         uint8_t *dst = tile;
         int16_t px_total_left = w;
         uint16_t px_row_offset = xofs ^ 7;
@@ -226,7 +230,7 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
                 pixel_fifo_left += 8;
             }
 
-            uint8_t mask = count_width_mask[px_row_left] << px_row_offset;
+            uint8_t mask = count_width_mask8[px_row_left] << px_row_offset;
             uint8_t src = (pixel_fifo << px_row_offset) & mask;
             *dst = (*dst & (~mask)) | src;
 
@@ -237,6 +241,8 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
 
             px_row_offset = 0;
         }
+        
+        tile += bitmap->bpp;
     }
 }
 
