@@ -30,6 +30,7 @@
 #include "ui/ui_file_selector.h"
 #include "launch/launch.h"
 #include "util/input.h"
+#include "shell/shell.h"
 
 volatile uint16_t vbl_ticks;
 
@@ -44,8 +45,7 @@ void __far vblank_int_handler(void) {
 bool idle_until_vblank(void) {
 	uint16_t vbl_ticks_last = vbl_ticks;
 
-	// TODO: CDC task
-
+	shell_tick();
 	while (vbl_ticks == vbl_ticks_last) {
 		ia16_halt();
 	}
@@ -77,6 +77,8 @@ void main(void) {
 	ia16_enable_irq();
 
 	settings_reset();
+
+	shell_init();
 
 	ui_init();
 	ui_layout_clear(0);

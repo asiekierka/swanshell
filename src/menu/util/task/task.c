@@ -27,23 +27,31 @@ void task_return(task_t *task);
 #define TASK_STACK_RESERVE 4
 #endif
 
-task_t *task_allocate(uint16_t stack_size, task_func_t func) {
-    stack_size += TASK_STACK_RESERVE;
-    
-    size_t task_size = stack_size + sizeof(task_t);
+task_t *task_init(void *ptr, size_t len, task_func_t func) {
+    len &= ~1;
+
+    task_t *task = (task_t*) ptr;
+    uint16_t stack_size = len - sizeof(task_t);
     uint16_t stack_end = stack_size >> 1;
-    task_t *task = malloc(task_size);
-    if (task != NULL) {
-        task->sp = (uint16_t) task + task_size - TASK_STACK_RESERVE;
-        task->stack[stack_end - 1] = (uint16_t) task;
+
+    task->sp = (uint16_t) task + len - TASK_STACK_RESERVE;
+    task->stack[stack_end - 1] = (uint16_t) task;
 #ifdef __IA16_CMODEL_IS_FAR_TEXT
-        task->stack[stack_end - 2] = FP_SEG(task_return);
-        task->stack[stack_end - 3] = FP_OFF(task_return);
+    task->stack[stack_end - 2] = FP_SEG(task_return);
+    task->stack[stack_end - 3] = FP_OFF(task_return);
 #else
-        task->stack[stack_end - 2] = (uint16_t) task_return;
+    task->stack[stack_end - 2] = (uint16_t) task_return;
 #endif
-        task->jmp_ptr = func;
-    }
+    task->jmp_ptr = func;
+
+    return task;
+}
+
+task_t *task_allocate(uint16_t stack_size, task_func_t func) {
+    size_t task_size = stack_size + TASK_STACK_RESERVE + sizeof(task_t);
+    task_t *task = malloc(task_size);
+    if (task != NULL)
+        task_init(task, task_size, func);
     return task;
 }
 

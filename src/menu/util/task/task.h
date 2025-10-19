@@ -52,6 +52,16 @@ typedef int (*task_func_t)(task_t *task);
 task_t *task_allocate(uint16_t stack_size, task_func_t func);
 
 /**
+ * @brief Create a new task instance on static memory.
+ * 
+ * @param ptr The structure.
+ * @param len The size of the structure.
+ * @param func The function to call inside the task.
+ * @return task_t* The pointer to the task instance.
+ */
+task_t *task_init(void *ptr, size_t len, task_func_t func);
+
+/**
  * @brief Join a task, looping indefinitely until it completes.
  * 
  * @param task Task instance pointer.
