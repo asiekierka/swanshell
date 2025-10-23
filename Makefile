@@ -125,9 +125,8 @@ fonts: assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf
 
 assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf:
 	@echo "  UV      $@"
-	$(_V)uv --directory vendor/modified-ark-pixel-font venv --clear
-	$(_V)uv --directory vendor/modified-ark-pixel-font pip install -r requirements.txt
-	$(_V)uv --directory vendor/modified-ark-pixel-font run python -m tools.cli --cleanup --font-sizes 12 --width-modes proportional --font-formats bdf --attachments release
+	$(_V)uv --directory vendor/modified-ark-pixel-font sync
+	$(_V)uv --directory vendor/modified-ark-pixel-font run -m tools.cli --cleanup --font-sizes 12 --width-modes proportional --font-formats bdf --attachments release
 	$(_V)cp vendor/modified-ark-pixel-font/build/outputs/$(@F) $@
 
 athenaos-compatible:
