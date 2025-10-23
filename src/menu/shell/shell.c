@@ -16,28 +16,100 @@
  */
 
 #include <nile.h>
+#include <string.h>
 #include "shell.h"
+#include "lang_gen.h"
+#include "strings.h"
 #include "util/task/task.h"
+#include "lang.h"
 
 uint8_t shell_task_mem[512];
 #define shell_task ((task_t*) shell_task_mem)
 
-int shell_func(task_t *task) {
-    // TODO
+#define SHELL_LINE_LENGTH 128
+char shell_line[SHELL_LINE_LENGTH + 1];
+uint8_t shell_line_pos;
 
-    /* uint8_t buffer[1];
+DEFINE_STRING_LOCAL(s_line_too_long, "\r\nLine too long");
+DEFINE_STRING_LOCAL(s_new_line, "\r\n");
+DEFINE_STRING_LOCAL(s_new_prompt, "\r\n> ");
+DEFINE_STRING_LOCAL(s_about, "about");
+DEFINE_STRING_LOCAL(s_unknown_command, "Unknown command");
+static const char __far s_version_suffix[] = " " VERSION;
 
+#define nile_mcu_native_cdc_write_string_const(s) nile_mcu_native_cdc_write_sync(s, sizeof(s)-1)
+static void nile_mcu_native_cdc_write_string(const char __far* s) {
+    int last_pos = 0;
+    int pos = 0;
     while (true) {
-        int bytes_read = nile_mcu_native_cdc_read_sync(buffer, 1);
-        if (bytes_read > 0)
-            nile_mcu_native_cdc_write_sync(buffer, 1);
-        
+        if (s[pos] == 0 || s[pos] == 10) {
+            if (last_pos != pos) {
+                nile_mcu_native_cdc_write_sync(s + last_pos, pos - last_pos);
+            }
+            last_pos = pos + 1;
+            if (s[pos] == 10) {
+                nile_mcu_native_cdc_write_string_const(s_new_line);
+            } else {
+                break;
+            }
+        }
+        pos++;
+    }
+}
+
+static void shell_new_prompt(void) {
+    shell_line_pos = 0;
+    nile_mcu_native_cdc_write_string_const(s_new_prompt);
+}
+
+static void shell_about(void) {
+    nile_mcu_native_cdc_write_string(lang_keys_en[LK_NAME]);
+    nile_mcu_native_cdc_write_string_const(s_version_suffix);
+    nile_mcu_native_cdc_write_string_const(s_new_line);
+
+    nile_mcu_native_cdc_write_string(lang_keys_en[LK_NAME_COPYRIGHT]);
+    nile_mcu_native_cdc_write_string_const(s_new_line);
+    nile_mcu_native_cdc_write_string_const(s_new_line);
+
+    nile_mcu_native_cdc_write_string(lang_keys_en[LK_NAME_COPYRIGHT_INFO]);
+}
+
+int shell_func(task_t *task) {
+    while (true) {
+        int bytes_read = nile_mcu_native_cdc_read_sync(shell_line + shell_line_pos, 1);
+        if (bytes_read > 0) {
+            if (shell_line[shell_line_pos] == 13) {
+                // ENTER pressed, parse line
+                shell_line[shell_line_pos] = 0;
+                nile_mcu_native_cdc_write_string_const(s_new_line);
+
+                if (!strcmp(shell_line, s_about)) {
+                    shell_about();
+                } else {
+                    nile_mcu_native_cdc_write_string_const(s_unknown_command);
+                }
+
+                shell_new_prompt();
+            } else {
+                // Echo byte back
+                nile_mcu_native_cdc_write_sync(shell_line + shell_line_pos, 1);
+                
+                if (shell_line_pos == SHELL_LINE_LENGTH) {
+                    // line too long
+                    nile_mcu_native_cdc_write_string_const(s_line_too_long);
+                    shell_new_prompt();
+                } else {
+                    shell_line_pos++;
+                }
+            }
+        }
+
         task_yield(task, 0);
-    } */
-    return 0;
+    }
 }
 
 void shell_init(void) {
+    shell_line_pos = 0;
     task_init(shell_task_mem, sizeof(shell_task_mem), shell_func);
 }
 
