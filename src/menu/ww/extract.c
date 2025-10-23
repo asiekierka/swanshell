@@ -57,6 +57,8 @@ static int16_t find_target_filename(
         buffer = saved_context.buffer;
         buffer_size = 64;
     }
+    if (buffer_size > 2048)
+        buffer_size = 2048;
 
     dlg.title = lang_keys[lang_key];
     dlg.progress_max = 65536 >> PROGRESS_DIALOG_SHIFT;
@@ -69,7 +71,7 @@ static int16_t find_target_filename(
     while (true) {
         uint32_t bytes_to_read = hash->size ? hash->size : 65536;
         while (bytes_read < bytes_to_read) {
-            uint16_t bytes_read_now = 0;
+            unsigned int bytes_read_now = 0;
             uint16_t bytes_to_read_now = MIN(bytes_to_read - bytes_read, buffer_size);
 
             int16_t result = f_read(fp, buffer, bytes_to_read_now, &bytes_read_now);
@@ -85,18 +87,19 @@ static int16_t find_target_filename(
 
         memcpy(&saved_context, &context, sizeof(SHA1_CTX));
         SHA1_Final(&context, sha_result);
-        
+
         if (!memcmp(sha_result, hash->hash, SHA1_DIGEST_SIZE)) {
             *result = hash;
             ui_popup_dialog_clear(&dlg);
             return 0;
         }
-        memcpy(&context, &saved_context, sizeof(SHA1_CTX));
 
         if (hash->flags & WW_HASH_ENTRY_IS_LAST) {
             ui_popup_dialog_clear(&dlg);
             return 0;
         }
+
+        memcpy(&context, &saved_context, sizeof(SHA1_CTX));
         hash++;
     }
 }
@@ -146,7 +149,7 @@ static int16_t ww_copy_to_file(FIL *fp, const char __far* filename, uint16_t _si
 
     while (size) {
         uint16_t to_copy = MIN(size, buffer_size);
-        uint16_t copied;
+        unsigned int copied;
         if ((result = f_read(fp, buffer, to_copy, &copied)) != FR_OK) {
             f_close(&outfp);
             return result;
@@ -210,7 +213,7 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
     ui_draw_statusbar(NULL);
 
     // seek to OS location
-    if ((result = f_lseek(&fp, f_size(&fp) - 131072)) != FR_OK) {
+    if ((result = f_lseek(&fp, f_size(&fp) - 131072L)) != FR_OK) {
         f_close(&fp);
         return result;
     }
@@ -220,14 +223,14 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
     }
 
     if (found_entry != NULL) {
-        if ((result = f_lseek(&fp, f_size(&fp) - 131072)) != FR_OK) {
+        if ((result = f_lseek(&fp, f_size(&fp) - 131072L)) != FR_OK) {
             f_close(&fp);
             return result;
         }
 
         ww_copy_to_file(&fp, found_entry->name, found_entry->size, LK_WITCH_EXTRACT_PROGRESS_OS_EXTRACTING);
     } else {
-        if ((result = f_lseek(&fp, f_size(&fp) - 65536 - 16)) != FR_OK) {
+        if ((result = f_lseek(&fp, f_size(&fp) - 65536L - 16)) != FR_OK) {
             f_close(&fp);
             return result;
         }
@@ -240,7 +243,7 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
     }
 
     // seek to BIOS location
-    if ((result = f_lseek(&fp, f_size(&fp) - 65536)) != FR_OK) {
+    if ((result = f_lseek(&fp, f_size(&fp) - 65536L)) != FR_OK) {
         f_close(&fp);
         return result;
     }
@@ -250,7 +253,7 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
     }
 
     if (found_entry != NULL) {
-        if ((result = f_lseek(&fp, f_size(&fp) - 65536)) != FR_OK) {
+        if ((result = f_lseek(&fp, f_size(&fp) - 65536L)) != FR_OK) {
             f_close(&fp);
             return result;
         }
