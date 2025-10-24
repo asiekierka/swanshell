@@ -35,6 +35,7 @@ DEFINE_STRING_LOCAL(s_new_line, "\r\n");
 DEFINE_STRING_LOCAL(s_new_prompt, "\r\n> ");
 DEFINE_STRING_LOCAL(s_about, "about");
 DEFINE_STRING_LOCAL(s_unknown_command, "Unknown command");
+DEFINE_STRING_LOCAL(s_backspace, "\x08 \x08");
 static const char __far s_version_suffix[] = " " VERSION;
 
 #define nile_mcu_native_cdc_write_string_const(s) nile_mcu_native_cdc_write_sync(s, sizeof(s)-1)
@@ -78,19 +79,28 @@ int shell_func(task_t *task) {
     while (true) {
         int bytes_read = nile_mcu_native_cdc_read_sync(shell_line + shell_line_pos, 1);
         if (bytes_read > 0) {
-            if (shell_line[shell_line_pos] == 13) {
-                // ENTER pressed, parse line
-                shell_line[shell_line_pos] = 0;
-                nile_mcu_native_cdc_write_string_const(s_new_line);
+            char c = shell_line[shell_line_pos];
+            if (c == 13) {
+                if (shell_line_pos > 0) {
+                    // ENTER pressed, parse line
+                    shell_line[shell_line_pos] = 0;
+                    nile_mcu_native_cdc_write_string_const(s_new_line);
 
-                if (!strcmp(shell_line, s_about)) {
-                    shell_about();
-                } else {
-                    nile_mcu_native_cdc_write_string_const(s_unknown_command);
+                    if (!strcmp(shell_line, s_about)) {
+                        shell_about();
+                    } else {
+                        nile_mcu_native_cdc_write_string_const(s_unknown_command);
+                    }
                 }
 
                 shell_new_prompt();
-            } else {
+            } else if (c == 8) {
+                // Backspace
+                if (shell_line_pos > 0) {
+                    nile_mcu_native_cdc_write_string_const(s_backspace);
+                    shell_line_pos--;
+                }
+            } else if (c >= 32 && c <= 126) {
                 // Echo byte back
                 nile_mcu_native_cdc_write_sync(shell_line + shell_line_pos, 1);
                 
