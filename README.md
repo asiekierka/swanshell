@@ -34,4 +34,5 @@ The process has not been well-tested yet. Feel free to open an issue for any fur
 
 ## License
 
-GPLv3
+- `docs/`: CC BY-SA 4.0
+- `src/`: GPLv3
