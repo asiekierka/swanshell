@@ -373,7 +373,6 @@ int16_t launch_backup_save_data(void) {
         ini_result = ini_next(&fp, buffer, sizeof(buffer), &key, &value);
         if (ini_result == INI_NEXT_ERROR) {
             result = FR_INT_ERR;
-            f_close(&fp);
             goto launch_backup_save_data_return_result;
         } else if (ini_result == INI_NEXT_FINISHED) {
             break;
@@ -405,7 +404,6 @@ int16_t launch_backup_save_data(void) {
                 result = f_open(&save_fp, value, FA_OPEN_EXISTING | FA_WRITE);
                 if (result != FR_OK) {
                     // TODO: Handle FR_NO_FILE by preallocating a new file?
-                    f_close(&fp);
                     goto launch_backup_save_data_return_result;
                 }
 
@@ -433,17 +431,16 @@ int16_t launch_backup_save_data(void) {
 
                 f_close(&save_fp);
                 if (result != FR_OK) {
-                    f_close(&fp);
                     goto launch_backup_save_data_return_result;
                 }
             }
         }
     }
 
+launch_backup_save_data_return_result:
     f_close(&fp);
     strcpy(buffer, s_path_save_ini);
     f_unlink(buffer);
-launch_backup_save_data_return_result:
     // Clear save ID
     launch_set_save_id(SAVE_ID_NONE, 0);
 
