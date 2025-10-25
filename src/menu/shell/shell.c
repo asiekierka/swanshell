@@ -30,6 +30,9 @@ uint8_t shell_task_mem[512];
 char shell_line[SHELL_LINE_LENGTH + 1];
 uint8_t shell_line_pos;
 
+#define SHELL_FLAG_INTERACTIVE 0x01
+uint8_t shell_flags;
+
 DEFINE_STRING_LOCAL(s_line_too_long, "\r\nLine too long");
 DEFINE_STRING_LOCAL(s_new_line, "\r\n");
 DEFINE_STRING_LOCAL(s_new_prompt, "\r\n> ");
@@ -60,7 +63,7 @@ static void nile_mcu_native_cdc_write_string(const char __far* s) {
 
 static void shell_new_prompt(void) {
     shell_line_pos = 0;
-    nile_mcu_native_cdc_write_string_const(s_new_prompt);
+    nile_mcu_native_cdc_write_string(shell_flags & SHELL_FLAG_INTERACTIVE ? s_new_prompt : s_new_line);
 }
 
 static void shell_about(void) {
@@ -91,19 +94,25 @@ int shell_func(task_t *task) {
                     } else {
                         nile_mcu_native_cdc_write_string_const(s_unknown_command);
                     }
+                } else {
+                    shell_flags |= SHELL_FLAG_INTERACTIVE;
                 }
 
                 shell_new_prompt();
             } else if (c == 8) {
                 // Backspace
                 if (shell_line_pos > 0) {
-                    nile_mcu_native_cdc_write_string_const(s_backspace);
+                    if (shell_flags & SHELL_FLAG_INTERACTIVE) {
+                        nile_mcu_native_cdc_write_string_const(s_backspace);
+                    }
                     shell_line_pos--;
                 }
             } else if (c >= 32 && c <= 126) {
                 // Echo byte back
-                nile_mcu_native_cdc_write_sync(shell_line + shell_line_pos, 1);
-                
+                if (shell_flags & SHELL_FLAG_INTERACTIVE) {
+                    nile_mcu_native_cdc_write_sync(shell_line + shell_line_pos, 1);
+                }
+
                 if (shell_line_pos == SHELL_LINE_LENGTH) {
                     // line too long
                     nile_mcu_native_cdc_write_string_const(s_line_too_long);
@@ -120,6 +129,7 @@ int shell_func(task_t *task) {
 
 void shell_init(void) {
     shell_line_pos = 0;
+    shell_flags = 0;
     task_init(shell_task_mem, sizeof(shell_task_mem), shell_func);
 }
 
