@@ -19,9 +19,9 @@
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
+#include "bootstub.h"
 #include "../patches.h"
 
-extern void __far* start_pointer;
 extern uint8_t freya_soft_reset;
 extern uint8_t freya_soft_reset_end;
 
@@ -39,7 +39,7 @@ void patch_apply_freya_soft_reset(void) {
     }
 
     memcpy(MK_FP(0x1000, FREYA_SOFT_RESET_START), &freya_soft_reset, ((uint16_t) &freya_soft_reset_end) - ((uint16_t) &freya_soft_reset));
-    memcpy(&start_pointer, MK_FP(0x1000, 0xFFF1), 4);
+    memcpy(&bootstub_data->start_pointer, MK_FP(0x1000, 0xFFF1), 4);
     *((uint16_t __far*) MK_FP(0x1000, 0xFFF1)) = FREYA_SOFT_RESET_START;
     *((uint16_t __far*) MK_FP(0x1000, 0xFFF3)) = 0xF000;
 

@@ -131,7 +131,7 @@ int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta) {
     meta->sram_size = sram_sizes[meta->footer.save_type & 0xF] * 1024L;
     meta->eeprom_size = eeprom_sizes[meta->footer.save_type >> 4];
     meta->flash_size = 0;
-    meta->freya_found = false;
+    meta->rom_type = ROM_TYPE_UNKNOWN;
 
     return FR_OK;
 }
@@ -139,7 +139,6 @@ int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta) {
 int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     uint8_t tmp[5];
     uint16_t br;
-    bool elisa_found = false;
 
     FIL f;
     int16_t result = f_open(&f, path, FA_OPEN_EXISTING | FA_READ);
@@ -149,47 +148,69 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     meta->id = f.obj.sclust;
 
     uint32_t size = f_size(&f);
-    if (size < 16)
+    if (size < 16) {
+        f_close(&f);
         return ERR_FILE_FORMAT_INVALID;
-
-    if (size == 0x80000) {
-        result = f_lseek(&f, 0x70000);
-        if (result != FR_OK)
-            return result;
-
-        result = f_read(&f, tmp, sizeof(elisa_font_string), &br);
-        if (result != FR_OK)
-            return result;
-
-        elisa_found = !_fmemcmp(elisa_font_string, tmp, sizeof(elisa_font_string));
     }
 
     result = f_lseek(&f, size - 16);
-    if (result != FR_OK)
+    if (result != FR_OK) {
+        f_close(&f);
         return result;
+    }
 
     result = f_read(&f, &(meta->footer), sizeof(rom_footer_t), &br);
-    if (result != FR_OK)
+    if (result != FR_OK) {
+        f_close(&f);
         return result;
+    }
 
-    if (meta->footer.jump_command != 0xEA || meta->footer.jump_segment == 0x0000)
+    if (meta->footer.jump_command != 0xEA || meta->footer.jump_segment == 0x0000) {
+        f_close(&f);
         return ERR_FILE_FORMAT_INVALID;
+    }
 
     meta->rom_banks = meta->footer.rom_size > 0x0B ? 0 : rom_banks[meta->footer.rom_size];
     meta->sram_size = sram_sizes[meta->footer.save_type & 0xF] * 1024L;
     meta->eeprom_size = eeprom_sizes[meta->footer.save_type >> 4];
     meta->flash_size = 0;
-    meta->freya_found = false;
-    if (elisa_found
-        && meta->footer.publisher_id == 0x00
+
+    meta->rom_type = ROM_TYPE_UNKNOWN;
+    if (meta->footer.publisher_id == 0x00
         && meta->footer.game_id == 0x00
         && meta->footer.save_type == 0x04
-        && meta->footer.mapper == 0x01) {
+        && meta->footer.mapper == 0x01
+        && size == 0x80000) {
+        
+        // Freya image test
+        result = f_lseek(&f, 0x70000);
+        if (result != FR_OK) {
+            f_close(&f);
+            return result;
+        }
 
-        meta->flash_size = 0x80000;
-        meta->freya_found = true;
+        result = f_read(&f, tmp, sizeof(elisa_font_string), &br);
+        if (result != FR_OK) {
+            f_close(&f);
+            return result;
+        }
+
+        if (!_fmemcmp(elisa_font_string, tmp, sizeof(elisa_font_string))) {
+            meta->flash_size = 0x80000;
+            meta->rom_type = ROM_TYPE_FREYA;
+        }
+    } else {
+        const char __far *ext = strrchr(path, '.');
+        if (ext != NULL) {
+            if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc)) {
+                meta->rom_type = ROM_TYPE_WS;
+            } else if (!strcasecmp(ext, s_file_ext_pc2)) {
+                meta->rom_type = ROM_TYPE_PCV2;
+            }
+        }
     }
 
+    f_close(&f);
     return FR_OK;
 }
 
@@ -666,24 +687,33 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
             | ((meta->footer.mapper != 1 && meta->eeprom_size) ? NILE_POW_IO_2001 : 0)
             | (meta->footer.mapper != 0 ? NILE_POW_IO_2003 : 0);
         bootstub_data->prog_flags = meta->footer.flags;
+        bootstub_data->prog_rom_type = meta->rom_type;
     } else {
         bootstub_data->rom_banks = 0;
         bootstub_data->prog_sram_mask = 7;
         bootstub_data->prog_emu_cnt = 0;
         bootstub_data->prog_pow_cnt = inportb(IO_NILE_POW_CNT);
         bootstub_data->prog_flags = 0x04;
+        bootstub_data->prog_rom_type = ROM_TYPE_UNKNOWN;
     }
     bootstub_data->prog_flags2 = (settings.prog.flags & SETTING_PROG_FLAG_SRAM_OVERCLOCK) ? 0x00 : 0x0A;
-    bootstub_data->prog_patches = meta->freya_found ? BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET : 0;
+    bootstub_data->prog_patches = bootstub_data->prog_rom_type == ROM_TYPE_FREYA ? BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET : 0;
+    if (bootstub_data->prog_rom_type == ROM_TYPE_PCV2) {
+        bootstub_data->start_pointer = MK_FP(0x4000, 0x0010);
+    } else if (bootstub_data->prog_rom_type == ROM_TYPE_UNKNOWN) {
+        bootstub_data->start_pointer = MK_FP(0x2FFF, 0x0000);
+    } else {
+        bootstub_data->start_pointer = MK_FP(0xFFFF, 0x0000);
+    }
 
     // Lock IEEPROM
-    if (!(meta->footer.game_version & 0x80)) {
+    if (meta != NULL && !(meta->footer.game_version & 0x80)) {
         outportw(WS_IEEP_CTRL_PORT, WS_IEEP_CTRL_PROTECT);
     }
 
     // Switch MCU to RTC mode
-    if (!meta->eeprom_size) {
-        if (meta->footer.mapper == 1) {
+    if (meta == NULL || !meta->eeprom_size) {
+        if (meta != NULL && meta->footer.mapper == 1) {
             outportb(IO_NILE_IRQ_ENABLE, NILE_IRQ_MCU);
             mcu_native_set_mode(2);
         } else {
@@ -691,6 +721,7 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
             mcu_native_set_mode(0xFF);
         }
     }
+
     outportb(IO_NILE_IRQ_STATUS, 0xFF);
     mcu_native_finish();
 

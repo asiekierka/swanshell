@@ -33,8 +33,6 @@ extern void memcpy_expand_8_16(void *dst, const void *src, uint16_t count, uint1
 
 /* === Error reporting === */
 
-void __far* start_pointer = MK_FP(0xFFFF, 0x0000);
-
 static const char fatfs_error_header[] = "TF card read failed (  )";
 static const uint8_t hexchars[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
@@ -134,6 +132,28 @@ void progress_tick(void) {
 // main_asm.s
 extern void restore_cold_boot_io_state(bool disable_color_mode);
 
+void init_launch_io_state(void) {
+	restore_cold_boot_io_state(true);
+
+	if (bootstub_data->prog_rom_type != ROM_TYPE_UNKNOWN) {
+		bool expected_post_bios_init = bootstub_data->prog_rom_type != ROM_TYPE_PCV2;
+		bool actual_post_bios_init = (inportb(WS_SYSTEM_CTRL_PORT) & WS_SYSTEM_CTRL_IPL_LOCK) != 0;
+
+		if (expected_post_bios_init && !actual_post_bios_init) {
+			// Adjust some I/O port values to mimic a BIOS boot
+			outportb(0x07, 0);
+			outportw(0x10, 0);
+			outportw(0x12, 0);
+			for (int i = 0x80; i <= 0x8C; i++) outportb(i, 0);
+			outportb(0x8F, 0);
+			outportb(0x94, 0);
+			outportb(0xA0, inportb(0xA0) | 0x1);
+			outportw(0xBA, 0);
+			outportb(0xBE, 0);
+		}
+	}
+}
+
 /* === Main boot code === */
 
 // pad_image_in_memory.s
@@ -212,7 +232,7 @@ int main(void) {
 	if (!(bootstub_data->prog_pow_cnt & NILE_POW_TF)) {
 		MEM_NILE_IPC->tf_card_status = 0;
 	}
-	restore_cold_boot_io_state(true);
+	init_launch_io_state();
 	outportb(WS_SYSTEM_CTRL_PORT, (inportb(WS_SYSTEM_CTRL_PORT) & ~0xC) | (bootstub_data->prog_flags & 0xC));
 	outportb(WS_SYSTEM_CTRL_COLOR_PORT, bootstub_data->prog_flags2);
 	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
@@ -221,7 +241,7 @@ int main(void) {
 	outportb(IO_NILE_POW_CNT, (inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET) | bootstub_data->prog_pow_cnt);
 	// jump to cartridge
 	outportb(WS_INT_ACK_PORT, 0xFF);
-	cold_jump(start_pointer);
+	cold_jump(bootstub_data->start_pointer);
 
 error:
 	report_fatfs_error(result);

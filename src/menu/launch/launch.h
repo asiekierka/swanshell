@@ -47,7 +47,7 @@ typedef struct {
     uint32_t sram_size;
     uint16_t eeprom_size;
     uint32_t flash_size;
-    bool freya_found;
+    uint8_t rom_type;
 } launch_rom_metadata_t;
 
 int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta);
