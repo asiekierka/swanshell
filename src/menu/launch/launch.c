@@ -214,7 +214,7 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     return FR_OK;
 }
 
-static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path) {
+static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path, uint16_t lk) {
     uint8_t stack_buffer[CONFIG_MEMLAYOUT_STACK_BUFFER_SIZE];
     uint8_t *buffer;
     uint16_t buffer_size;
@@ -230,7 +230,7 @@ static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, ui
         buffer_size = sizeof(stack_buffer);
     }
 
-    dlg.title = lang_keys[LK_DIALOG_PREPARE_SAVE];
+    dlg.title = lang_keys[lk];
     dlg.progress_max = (file_size + buffer_size - 1) / buffer_size;
 
     result = f_open(fp, path, FA_READ | FA_WRITE | FA_OPEN_ALWAYS);
@@ -497,7 +497,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     // restore or create data
     if (meta->sram_size != 0) {
         strcpy(ext_loc, s_file_ext_sram);
-        result = preallocate_file(dst_path, &fp, 0xFF, meta->sram_size, NULL);
+        result = preallocate_file(dst_path, &fp, 0xFF, meta->sram_size, NULL, LK_DIALOG_PREPARE_SAVE);
         if (result != FR_OK)
             goto launch_restore_save_data_return_result;
 
@@ -515,7 +515,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     }
     if (meta->eeprom_size != 0) {
         strcpy(ext_loc, s_file_ext_eeprom);
-        result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL);
+        result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL, LK_DIALOG_PREPARE_SAVE);
         if (result != FR_OK)
             goto launch_restore_save_data_return_result;
 
@@ -548,7 +548,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     }
     if (meta->flash_size != 0) {
         strcpy(ext_loc, s_file_ext_flash);
-        result = preallocate_file(dst_path, &fp, 0xFF, meta->flash_size, path);
+        result = preallocate_file(dst_path, &fp, 0xFF, meta->flash_size, path, LK_DIALOG_PREPARE_FLASH);
         if (result != FR_OK)
             goto launch_restore_save_data_return_result;
 
