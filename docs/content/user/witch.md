@@ -6,7 +6,7 @@ weight: 20
 {{< hint type=important >}}
 WonderWitch is a product of Qute Corporation. swanshell is not endorsed or supported by Qute Corporation.
 
-**Please refrain** from contacting Qute Corporation with any inquiries regarding running WonderWitch software on nileswan.
+Please **refrain** from contacting Qute Corporation with any inquiries regarding running WonderWitch software on nileswan.
 {{< /hint >}}
 
 swanshell has extensive support for running the WW operating system, referred to as Freya in this document, using cartridge images.
@@ -34,6 +34,8 @@ swanshell has extensive support for running the WW operating system, referred to
 6. To preserve any `rom0` file system changes (added/removed files), you *must* exit FreyaOS first. Press `START` to suspend the shell, then `Y3` to reboot.
 7. To update/replace the BIOS or OS, press `B` and select *Tools -> Witch -> Replace BIOS* or *Replace OS*. New versions of swanshell contain updated AthenaBIOS versions, but they are not installed automatically.
 
+Note that, being a reimplementation, AthenaBIOS may have compatibility issues compared to FreyaBIOS. If you run into any issues, please report them [here](https://github.com/OpenWitch/AthenaOS/issues). You can also swap between the two BIOSes at any time.
+
 ### Saving file system changes
 
 Under FreyaOS, it is **required** to exit the OS in order to save WW file system contents to the removable storage card. This is because, while on-cartridge SRAM
@@ -58,7 +60,7 @@ Managing cartridge images is done in the *Tools -> Witch* menu:
 The WW operating system consists of two components:
 
 - FreyaBIOS (last 64 KiB) - startup/recovery code, hardware abstraction layer, utility functions
-- FreyaOS (second-last 64 KiB) - file system/process libraries, shell software
+- FreyaOS (second-to-last 64 KiB) - file system/process libraries, shell software
 
 These components are copyrighted by Qute Corporation and cannot be distributed by the project. However, they can be extracted from
 a legal backup of a WW cartridge image using the *Tools -> Witch -> Extract BIOS/OS* option. By doing so, one can use them
@@ -83,8 +85,8 @@ Here's a small comparison to help you decide which BIOS implementation to use:
 
 ## Limitations
 
-There are a few caveats with regards to WW hardware support. You should not run into them as a standard user, however:
+There are a few caveats with regards to the limitations of WW hardware support on nileswan. These should not affect standard usage.
 
-- The NOR flash emulation is only tested with regards to FreyaBIOS and AthenaBIOS's requirements.
-  - If an user-provided program tries to write to NOR flash directly (unlikely), the specific commands it uses may not be supported.
-  - Flash erases do not actually set the data behind them to `0xFF`. This does not affect the FreyaOS file system driver; it is also re-implemented using RAM writes by the Native variant of AthenaBIOS.
+- The NOR flash emulation is only tested to the extent required by FreyaBIOS and AthenaBIOS's calls (INT 18h).
+  - If an user-provided program tries to write to NOR flash directly, skipping the BIOS and going past these limitations, it may not behave correctly. For a variety of reasons, this is unlikely to occur in practice.
+  - NOR flash erase operations do not actually set the data behind it to `0xFF`. This does not affect the FreyaOS file system in practice. This behaviour is also properly emulated by the Native variant of AthenaBIOS for its BIOS calls.
