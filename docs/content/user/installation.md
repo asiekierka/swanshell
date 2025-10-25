@@ -8,10 +8,7 @@ Before installing swanshell, make sure to format the removable storage card, som
 {{< hint type=warning >}}
 By default, Windows and macOS operating systems will format cards larger than 32 GB as exFAT, which is *not* supported.
 
-To solve this, you can use the following workarounds:
-
-- On Windows, use the Command Prompt and type `format X: /FS:FAT32`, where `X:` refers to the drive letter of the card.
-- On macOS, use Disk Utility to format the card, then select the *MS-DOS* partition type.
+To solve this, follow the [storage card formatting](https://49bitcat.com/docs/nileswan/user/troubleshooting/storage-card-formatting/) guide.
 {{< /hint >}}
 
 After formatting the removable storage card, download the latest swanshell ZIP from [GitHub releases](github.com/asiekierka/swanshell/releases) and extract its contents to the root directory of the card. After doing so, you should have a `NILESWAN` directory on the drive.
