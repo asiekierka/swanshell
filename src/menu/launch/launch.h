@@ -62,4 +62,6 @@ int16_t launch_bfb_in_psram(void);
 
 int16_t launch_com(const char *path);
 
+int16_t launch_in_psram(uint32_t size);
+
 #endif /* _LAUNCH_H_ */

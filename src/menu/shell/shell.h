@@ -25,5 +25,10 @@
 void shell_init(void);
 void shell_tick(void);
 
+typedef enum shell_ret {
+    SHELL_RET_IDLE = 0,
+    SHELL_RET_LAUNCH_IN_PSRAM,
+};
+
 #endif /* SHELL_H_ */
  

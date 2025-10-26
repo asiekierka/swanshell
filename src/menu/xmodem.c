@@ -33,6 +33,7 @@
 #define NAK 21
 #define CAN 24
 #define TIMEOUT_TICKS (75 * 10)
+#define TIMEOUT_PACKET_SECONDS 60
 
 static bool mcu_native_cdc_read_block_sync(void __wf_cram* buffer, uint16_t buflen, uint16_t timeout_ticks) {
     volatile uint16_t target_ticks = vbl_ticks + timeout_ticks;
@@ -84,6 +85,7 @@ int xmodem_recv_start(uint32_t *size) {
     uint16_t bank = 0;
     uint16_t offset = 0;
     int result = 0;
+    bool received_soh = false;
 
     nile_mcu_native_cdc_clear_sync();
 
@@ -101,13 +103,26 @@ int xmodem_recv_start(uint32_t *size) {
     nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
 #endif
 
+    uint16_t timeout_ticks = 0;
     data[0] = NAK; SEND_DATA(1);
     *size = 0;
     
     while (true) {
-        RECV_DATA(1);
+        if (!mcu_native_cdc_read_block_sync(data, 1, 75)) {
+            timeout_ticks++;
+            if (timeout_ticks >= TIMEOUT_PACKET_SECONDS) {
+                result = ERR_DATA_TRANSFER_TIMEOUT; goto finish;
+            }
+            if (!received_soh) {
+                data[0] = NAK; SEND_DATA(1);
+            }
+            continue;
+        }
 
         if (data[0] == SOH) {
+            timeout_ticks = 0;
+            received_soh = true;
+
             // SOH: receive block
             RECV_DATA(131);
 

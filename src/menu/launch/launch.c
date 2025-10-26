@@ -730,3 +730,24 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     asm volatile("ljmp $0x0000,$0x00c0\n");
     return true;
 }
+
+int16_t launch_in_psram(uint32_t size) {
+    int16_t result;
+    launch_rom_metadata_t meta;
+    
+    bootstub_data->prog.size = size;
+
+    // Try reading as ROM
+    result = launch_get_rom_metadata_psram(&meta);
+    if (result == FR_OK) {
+        bootstub_data->prog.cluster = BOOTSTUB_CLUSTER_AT_PSRAM;
+        result = launch_rom_via_bootstub(&meta);
+    }
+
+    // Try reading as BFB
+    if (bootstub_data->prog.size <= 65536) {
+        launch_bfb_in_psram();
+    }
+
+    return FR_INT_ERR;
+}

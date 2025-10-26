@@ -16,12 +16,15 @@
  */
 
 #include <nile.h>
+#include <nilefs.h>
 #include <string.h>
 #include "shell.h"
-#include "lang_gen.h"
 #include "strings.h"
 #include "util/task/task.h"
+#include "errors.h"
 #include "lang.h"
+#include "launch/launch.h"
+#include "xmodem.h"
 
 uint8_t shell_task_mem[512];
 #define shell_task ((task_t*) shell_task_mem)
@@ -37,8 +40,11 @@ DEFINE_STRING_LOCAL(s_line_too_long, "\r\nLine too long");
 DEFINE_STRING_LOCAL(s_new_line, "\r\n");
 DEFINE_STRING_LOCAL(s_new_prompt, "\r\n> ");
 DEFINE_STRING_LOCAL(s_about, "about");
+DEFINE_STRING_LOCAL(s_launch, "launch");
 DEFINE_STRING_LOCAL(s_unknown_command, "Unknown command");
 DEFINE_STRING_LOCAL(s_backspace, "\x08 \x08");
+DEFINE_STRING_LOCAL(s_awaiting_xmodem_transfer, "Awaiting XMODEM transfer");
+
 static const char __far s_version_suffix[] = " " VERSION;
 
 #define nile_mcu_native_cdc_write_string_const(s) nile_mcu_native_cdc_write_sync(s, sizeof(s)-1)
@@ -78,6 +84,24 @@ static void shell_about(void) {
     nile_mcu_native_cdc_write_string(lang_keys_en[LK_NAME_COPYRIGHT_INFO]);
 }
 
+static void shell_launch(void) {
+    // TODO: Support argument
+
+    if (shell_flags & SHELL_FLAG_INTERACTIVE) {
+        nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
+    }
+    uint32_t size = 0;
+    int16_t result = xmodem_recv_start(&size);
+    if (result == FR_OK) {
+        bootstub_data->prog.size = size;
+        task_yield(shell_task, SHELL_RET_LAUNCH_IN_PSRAM);
+    }
+    if (result != FR_OK) {
+        nile_mcu_native_cdc_write_string_const(s_new_line);
+        nile_mcu_native_cdc_write_string(error_to_string(result));
+    }
+}
+
 int shell_func(task_t *task) {
     while (true) {
         int bytes_read = nile_mcu_native_cdc_read_sync(shell_line + shell_line_pos, 1);
@@ -91,6 +115,8 @@ int shell_func(task_t *task) {
 
                     if (!strcmp(shell_line, s_about)) {
                         shell_about();
+                    } else if (!strcmp(shell_line, s_launch)) {
+                        shell_launch();
                     } else {
                         nile_mcu_native_cdc_write_string_const(s_unknown_command);
                     }
@@ -123,7 +149,7 @@ int shell_func(task_t *task) {
             }
         }
 
-        task_yield(task, 0);
+        task_yield(task, SHELL_RET_IDLE);
     }
 }
 
@@ -135,5 +161,9 @@ void shell_init(void) {
 
 void shell_tick(void) {
     if (!task_is_joined(shell_task))
-        task_resume(shell_task);
+        switch (task_resume(shell_task)) {
+            case SHELL_RET_LAUNCH_IN_PSRAM: {
+                launch_in_psram(bootstub_data->prog.size);
+            } break;
+        }
 }

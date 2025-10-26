@@ -96,20 +96,10 @@ static enum tristate ui_file_selector_tools(ui_popup_list_config_t *lst, const c
             ui_popup_list_clear(lst);
             return TRISTATE_NONE;
         case 0: {
-            launch_rom_metadata_t meta;
-            int16_t result = xmodem_recv_start(&bootstub_data->prog.size);
+            uint32_t size = 0;
+            int16_t result = xmodem_recv_start(&size);
             if (result == FR_OK) {
-                // Try reading as ROM
-                result = launch_get_rom_metadata_psram(&meta);
-                if (result == FR_OK) {
-                    bootstub_data->prog.cluster = BOOTSTUB_CLUSTER_AT_PSRAM;
-                    result = launch_rom_via_bootstub(&meta);
-                }
-
-                // Try reading as BFB
-                if (bootstub_data->prog.size <= 65536) {
-                    launch_bfb_in_psram();
-                }
+                result = launch_in_psram(size);
             }
 
             ui_dialog_error_check(result, lang_keys[LK_SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM], 0);
