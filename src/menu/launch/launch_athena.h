@@ -50,4 +50,6 @@ int16_t launch_athena_romfile_begin(void);
  */
 int16_t launch_athena_romfile_add(const char *path, bool is_main_executable);
 
+int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name);
+
 #endif /* LAUNCH_ATHENA_H_ */

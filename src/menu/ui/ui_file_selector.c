@@ -24,6 +24,7 @@
 #include "bitmap.h"
 #include "lang_gen.h"
 #include "launch/launch.h"
+#include "launch/launch_athena.h"
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
@@ -238,16 +239,20 @@ rescan_directory:
                         ui_dialog_error_check(result, NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
-                    } else if (!strcasecmp(ext, s_file_ext_bmp)) {
-                        ui_dialog_error_check(ui_bmpview(path), NULL, 0);
-                    } else if (!strcasecmp(ext, s_file_ext_wav)) {
-                        ui_dialog_error_check(ui_wavplay(path), NULL, 0);
+                    } else if (!strcasecmp(ext, s_file_ext_fx)) {
+                        ui_dialog_error_check(launch_athena_boot_curdir_as_rom_wip(fno->fno.fname), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_vgm) || !strcasecmp(ext, s_file_ext_vgz)) {
                         ui_dialog_error_check(ui_vgmplay(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
+                    } else if (!strcasecmp(ext, s_file_ext_wav)) {
+                        ui_dialog_error_check(ui_wavplay(path), NULL, 0);
+                        reinit_ui = true;
+                        goto rescan_directory;
+                    } else if (!strcasecmp(ext, s_file_ext_bmp)) {
+                        ui_dialog_error_check(ui_bmpview(path), NULL, 0);
                     } else if (!strcasecmp(ext, s_file_ext_bfb)) {
                         ui_selector_clear_selection(&config);
                         int option = ui_file_selector_actions_bfb();

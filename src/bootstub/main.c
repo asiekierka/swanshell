@@ -214,7 +214,7 @@ int main(void) {
 		}
 
 		if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET) {
-			patch_apply_freya_soft_reset();
+			patch_apply_freya_soft_reset(total_banks - 1);
 		}
 
 		outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);

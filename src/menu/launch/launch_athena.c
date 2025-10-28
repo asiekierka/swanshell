@@ -15,15 +15,15 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <nilefs/ff.h>
+#include "launch_athena.h"
 #include <stdbool.h>
 #include <ws.h>
 #include <nile.h>
 #include <nilefs.h>
 #include "errors.h"
-#include "../../build/menu/build/bootstub_bin.h"
-#include "../../build/menu/assets/menu/bootstub_tiles.h"
-#include "launch_athena.h"
+#include "lang.h"
+#include "strings.h"
+#include "ui/ui_popup_dialog.h"
 
 #define DIR_SEGMENT 0x4000
 // TODO: Remove out of global allocation
@@ -64,7 +64,9 @@ typedef struct {
     uint16_t file_exec_idx;
 } athena_os_footer_t;
 
-#define ATHENA_OS_FOOTER (*((athena_os_footer_t __far*) MK_FP(0x1000, 0xFFF0)))
+#define ATHENA_OS_FOOTER (*((athena_os_footer_t __far*) MK_FP(0x1000, 0xFFE0)))
+#define ATHENA_OS_FOOTER_BANK 0x0E
+#define ATHENA_BIOS_FOOTER_BANK 0x0F
 
 int16_t launch_athena_jump(void) {
     launch_rom_metadata_t meta = {0};
@@ -72,7 +74,7 @@ int16_t launch_athena_jump(void) {
     meta.rom_banks = 16;
     meta.sram_size = 262144L;
 
-    outportw(WS_CART_BANK_ROM0_PORT, 0x0F);
+    outportw(WS_CART_BANK_ROM0_PORT, ATHENA_BIOS_FOOTER_BANK);
     memcpy(&meta.footer, MK_FP(0x2FFF, 0x0000), 16);
 
     bootstub_data->prog.size = 1048576L;
@@ -83,7 +85,7 @@ int16_t launch_athena_jump(void) {
 
 int16_t launch_athena_romfile_begin(void) {
     ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
-        ws_bank_with_ram(0x0F, {
+        ws_bank_with_ram(ATHENA_OS_FOOTER_BANK, {
             ATHENA_OS_FOOTER.magic = 0x5AA5;
             ATHENA_OS_FOOTER.dir_segment = DIR_SEGMENT;
             ATHENA_OS_FOOTER.file_count = 0;
@@ -100,12 +102,12 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
     uint16_t file_count;
     int16_t result;
     FIL fp;
-    char buffer[64];
+    uint8_t buffer[64];
     uint32_t br;
 
     ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
         uint16_t prev_ram = inportw(WS_CART_EXTBANK_RAM_PORT);
-        outportw(WS_CART_EXTBANK_RAM_PORT, 0x0F);
+        outportw(WS_CART_EXTBANK_RAM_PORT, ATHENA_OS_FOOTER_BANK);
 
         file_count = ATHENA_OS_FOOTER.file_count++;
 
@@ -127,10 +129,10 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
         }
 
         result = f_read(&fp, buffer, 64, &br);
-        if (result != FR_OK) goto launch_athena_romfile_add_done;
-
-        if (*((uint32_t*) buffer) != 0x73772123) {
-            result = ERR_FILE_FORMAT_INVALID;
+        if (result != FR_OK || *((uint32_t*) buffer) != 0x73772123) {
+            if (is_main_executable) {
+                result = ERR_FILE_FORMAT_INVALID;
+            }
             goto launch_athena_romfile_add_done;
         }
 
@@ -146,6 +148,7 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
         // Read file
         uint32_t file_size = f_size(&fp) - 128;
         while (file_size) {
+            
             uint16_t file_to_read = file_size > 512 ? 512 : file_size;
 
             outportw(WS_CART_EXTBANK_RAM_PORT, file_segment >> 12);
@@ -155,10 +158,51 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
             file_segment += 512 >> 4;
             file_size -= file_to_read;
         }
+        
+        if (file_segment >= 0xE000) {
+            result = ERR_FILE_TOO_LARGE;
+        }
 
 launch_athena_romfile_add_done:
         f_close(&fp);
         outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
         return result;
     });
+}
+
+int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
+    FILINFO fi;
+    DIR dp;
+    uint8_t buffer[2];
+    buffer[0] = '.';
+    buffer[1] = 0;
+    int16_t result;
+
+    ui_popup_dialog_config_t dlg = {0};
+    dlg.title = lang_keys[LK_DIALOG_PREPARE_ROM];
+    ui_popup_dialog_draw(&dlg);
+
+    result = launch_athena_begin(s_path_athenaos_fx);
+    if (result != FR_OK) return result;
+
+    result = launch_athena_romfile_begin();
+    if (result != FR_OK) return result;
+
+    result = f_opendir(&dp, buffer);
+    if (result != FR_OK) return result;
+
+    while (true) {
+        result = f_readdir(&dp, &fi);
+        if (result != FR_OK) return result;
+        if (!fi.fname[0]) break;
+
+        result = launch_athena_romfile_add(fi.fname, !strcmp(name, fi.fname));
+        if (result != FR_OK) {
+            f_closedir(&dp);
+            return result;
+        }
+    }
+
+    f_closedir(&dp);
+    return launch_athena_jump();
 }

@@ -7,6 +7,8 @@ TARGET = wswan/medium
 include $(WONDERFUL_TOOLCHAIN)/target/$(TARGET)/makedefs.mk
 
 PYTHON3		?= python3
+UV		?= uv
+
 VERSION		?= $(shell git rev-parse --short=8 HEAD)
 
 # Metadata
@@ -116,6 +118,7 @@ dist: all athenaos-compatible athenaos-native
 	@echo "  DIST"
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw dist/NILESWAN/BIOSATHN.RAW
+	@$(PYTHON3) $(ATHENAOS_PATH)/tools/build_rom.py -s 128 dist/NILESWAN/ATHENAFX.BIN $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw $(ATHENAOS_PATH)/dist/AthenaOS-*-nileswan.raw
 	@rm -r dist/NILESWAN/LICENSE || true
 	@cp -R docs/license dist/NILESWAN/LICENSE
 
@@ -125,15 +128,15 @@ fonts: assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf
 
 assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf:
 	@echo "  UV      $@"
-	$(_V)uv --directory vendor/modified-ark-pixel-font sync
-	$(_V)uv --directory vendor/modified-ark-pixel-font run -m tools.cli --cleanup --font-sizes 12 --width-modes proportional --font-formats bdf --attachments release
+	$(_V)$(UV) --directory vendor/modified-ark-pixel-font sync
+	$(_V)$(UV) --directory vendor/modified-ark-pixel-font run -m tools.cli --cleanup --font-sizes 12 --width-modes proportional --font-formats bdf --attachments release
 	$(_V)cp vendor/modified-ark-pixel-font/build/outputs/$(@F) $@
 
 athenaos-compatible:
 	@$(MAKE) -C $(ATHENAOS_PATH) bios
 
 athenaos-native:
-	@$(MAKE) -C $(ATHENAOS_PATH) CONFIG=config/config.nileswan.mk bios
+	@$(MAKE) -C $(ATHENAOS_PATH) CONFIG=config/config.nileswan.mk
 
 libnile-bootfriend:
 	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/bootfriend install

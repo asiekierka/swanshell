@@ -27,8 +27,8 @@ extern uint8_t freya_soft_reset_end;
 
 #define FREYA_SOFT_RESET_START 0xFFC8
 
-void patch_apply_freya_soft_reset(void) {
-    outportw(WS_CART_EXTBANK_RAM_PORT, 0x07);
+void patch_apply_freya_soft_reset(uint16_t last_bank) {
+    outportw(WS_CART_EXTBANK_RAM_PORT, last_bank);
     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
     // Check if the preceding area is unused.

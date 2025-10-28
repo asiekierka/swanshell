@@ -18,4 +18,4 @@
 #include <wonderful.h>
 #include <ws.h>
 
-void patch_apply_freya_soft_reset(void);
+void patch_apply_freya_soft_reset(uint16_t last_bank);
