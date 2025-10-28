@@ -101,8 +101,10 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 	// Initialize screen 1
 	outportw(WS_SCR1_SCRL_X_PORT, 0);
 	ws_screen_fill_tiles(SCREEN, 0x120, 0, 0, 28, 18);
-	for (int i = 0; i < 12; i++) {
-		ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i, (i & 3) + 12, (i >> 2) + 7);
+	if (graphic != 0xFFFF) {
+		for (int i = 0; i < 12; i++) {
+			ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i, (i & 3) + 12, (i >> 2) + 7);
+		}
 	}
 
 	// Initialize screen 2
@@ -184,9 +186,11 @@ int main(void) {
 		outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
 		if (bootstub_data->prog.cluster == BOOTSTUB_CLUSTER_AT_PSRAM) {
-			progress_init(0, total_banks - start_bank);
 			if (size != real_size) {
+				progress_init(0, total_banks - start_bank);
 				pad_image_in_memory(size - 1, total_banks - 1);
+			} else {
+				progress_init(0xFFFF, total_banks - start_bank);
 			}
 		} else {
 			progress_init(0, (total_banks - start_bank) * 2 - (start_offset >= 0x8000 ? 1 : 0));
