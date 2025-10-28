@@ -148,7 +148,6 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
         // Read file
         uint32_t file_size = f_size(&fp) - 128;
         while (file_size) {
-            
             uint16_t file_to_read = file_size > 512 ? 512 : file_size;
 
             outportw(WS_CART_EXTBANK_RAM_PORT, file_segment >> 12);
@@ -195,6 +194,7 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
         result = f_readdir(&dp, &fi);
         if (result != FR_OK) return result;
         if (!fi.fname[0]) break;
+        if (fi.fattrib & AM_DIR) continue;
 
         result = launch_athena_romfile_add(fi.fname, !strcmp(name, fi.fname));
         if (result != FR_OK) {
