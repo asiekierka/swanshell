@@ -98,6 +98,7 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 		outportw(WS_SCR_PAL_0_PORT, 0x2570);
 	}
 
+	outportb(WS_SCR_BASE_PORT, WS_SCR_BASE_ADDR1(SCREEN) | WS_SCR_BASE_ADDR2(SCREEN));
 	// Initialize screen 1
 	outportw(WS_SCR1_SCRL_X_PORT, 0);
 	ws_screen_fill_tiles(SCREEN, 0x120, 0, 0, 28, 18);
@@ -105,17 +106,18 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 		for (int i = 0; i < 12; i++) {
 			ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i, (i & 3) + 12, (i >> 2) + 7);
 		}
+
+		// Initialize screen 2
+		ws_screen_fill_tiles(SCREEN, ((uint8_t) '-') | 0x100, 0, 31, 28, 1);
+		outportw(WS_SCR2_SCRL_X_PORT, ((31 - PROGRESS_BAR_Y) << 11));
+		outportw(WS_SCR2_WIN_X1_PORT, (6 | (PROGRESS_BAR_Y << 8)) << 3);
+		outportw(WS_SCR2_WIN_X2_PORT, ((6 | ((PROGRESS_BAR_Y + 1) << 8)) << 3) - 0x101);
+
+		// Show screens
+		outportw(WS_DISPLAY_CTRL_PORT, WS_DISPLAY_CTRL_SCR1_ENABLE | WS_DISPLAY_CTRL_SCR2_ENABLE | WS_DISPLAY_CTRL_SCR2_WIN_INSIDE);
+	} else {
+		outportw(WS_DISPLAY_CTRL_PORT, WS_DISPLAY_CTRL_SCR1_ENABLE);
 	}
-
-	// Initialize screen 2
-	ws_screen_fill_tiles(SCREEN, ((uint8_t) '-') | 0x100, 0, 31, 28, 1);
-	outportw(WS_SCR2_SCRL_X_PORT, ((31 - PROGRESS_BAR_Y) << 11));
-	outportw(WS_SCR2_WIN_X1_PORT, (6 | (PROGRESS_BAR_Y << 8)) << 3);
-	outportw(WS_SCR2_WIN_X2_PORT, ((6 | ((PROGRESS_BAR_Y + 1) << 8)) << 3) - 0x101);
-
-	// Show screens
-	outportb(WS_SCR_BASE_PORT, WS_SCR_BASE_ADDR1(SCREEN) | WS_SCR_BASE_ADDR2(SCREEN));
-	outportw(WS_DISPLAY_CTRL_PORT, WS_DISPLAY_CTRL_SCR1_ENABLE | WS_DISPLAY_CTRL_SCR2_ENABLE | WS_DISPLAY_CTRL_SCR2_WIN_INSIDE);
 
 	bank_count = 0;
 	bank_count_max = max_value;
