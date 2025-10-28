@@ -7,7 +7,7 @@ weight: 5
 
 After successfully launching swanshell, the first screen displayed is the *file browser* view.
 
-![The file browser view.](../../img/intro_file_browser.png)
+![The file browser view.](/swanshell/img/intro_file_browser.png)
 
 This view is the primary method of interacting with data on the nileswan's storage card:
 
@@ -19,7 +19,7 @@ To start using swanshell, use the `X` pad to navigate as described above, then p
 
 To exit a directory, press `B`. If you want to access additional features, you can press `START` to open a special submenu:
 
-![The additional action menu.](../../img/intro_action_menu.png)
+![The additional action menu.](/swanshell/img/intro_action_menu.png)
 
 Many of these functions are explained on other pages of the swanshell documentation.
 

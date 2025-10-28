@@ -15,8 +15,8 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef _LAUNCH_H_
-#define _LAUNCH_H_
+#ifndef LAUNCH_H_
+#define LAUNCH_H_
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -64,4 +64,4 @@ int16_t launch_com(const char *path);
 
 int16_t launch_in_psram(uint32_t size);
 
-#endif /* _LAUNCH_H_ */
+#endif /* LAUNCH_H_ */

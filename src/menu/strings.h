@@ -57,6 +57,7 @@ DEFINE_STRING(s_error_unknown, "Error %d");
 DEFINE_STRING(s_path_fbin, "/NILESWAN/fbin");
 DEFINE_STRING(s_path_athenabios_compatible, "/NILESWAN/BIOSATHC.RAW");
 DEFINE_STRING(s_path_athenabios_native, "/NILESWAN/BIOSATHN.RAW");
+DEFINE_STRING(s_path_athenaos_fx, "/NILESWAN/ATHENAFX.BIN");
 DEFINE_STRING(s_bios, "bios");
 DEFINE_STRING(s_freya, "freya");
 DEFINE_STRING(s_athenabios_tpl, "AthenaBIOS ");
