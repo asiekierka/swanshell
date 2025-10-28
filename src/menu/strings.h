@@ -35,6 +35,7 @@ DEFINE_STRING(s_file_ext_bfb, ".bfb");
 DEFINE_STRING(s_file_ext_bmp, ".bmp");
 DEFINE_STRING(s_file_ext_bin, ".bin");
 DEFINE_STRING(s_file_ext_com, ".com");
+DEFINE_STRING(s_file_ext_fx, ".fx");
 DEFINE_STRING(s_file_ext_pc2, ".pc2");
 DEFINE_STRING(s_file_ext_raw, ".raw");
 DEFINE_STRING(s_file_ext_vgm, ".vgm");
@@ -42,6 +43,7 @@ DEFINE_STRING(s_file_ext_vgz, ".vgz");
 DEFINE_STRING(s_file_ext_wav, ".wav");
 DEFINE_STRING(s_file_ext_ws, ".ws");
 DEFINE_STRING(s_file_ext_wsc, ".wsc");
+DEFINE_STRING(s_file_ext_zip, ".zip");
 
 // Follow ares convention on save filenames.
 DEFINE_STRING(s_file_ext_sram, ".ram");
