@@ -10,7 +10,6 @@ Please **refrain** from contacting Qute Corporation with any inquiries regarding
 {{< /hint >}}
 
 swanshell has extensive support for running the WW operating system, referred to as Freya in this document, using cartridge images.
-(Support for running `.fx` files directly is in development.)
 
 ## Cartridge image operation
 
@@ -52,6 +51,15 @@ Managing cartridge images is done in the *Tools -> Witch* menu:
 - *Replace OS*: upgrade/downgrade the OS on the selected cartridge image.
 - *Create image*: creates a new WW cartridge image (requires a copy of the BIOS and OS).
 - *Extract BIOS/OS*: extract BIOS/OS data from the selected cartridge image, which can be used when replacing them in other images or creating new ones.
+
+## Direct .fx loading
+
+Support for running `.fx` files directly is currently in development. Compatibility is very limited.
+
+To test it, perform the following steps (no cartridge dumps are required):
+
+1. Create a new folder, containing *only* the `.fx` program and any required `.il`/`.fr`/etc. files.
+2. Open the folder in swanshell and launch the `.fx` program.
 
 ## Technical details
 
