@@ -29,26 +29,52 @@
 // TODO: Remove out of global allocation
 static uint16_t file_segment;
 
-int16_t launch_athena_begin(const char __far *path) {
+typedef struct {
+    uint8_t jump_command;
+    uint16_t jump_offset;
+    uint16_t jump_segment;
+    uint8_t maintenance;
+    uint16_t count;
+} ww_os_footer_t;
+
+int16_t launch_athena_begin(const char __far *bios_path, const char __far *os_path) {
     char buffer[64];
     FIL fp;
     uint32_t br;
-
-    strcpy(buffer, path);
-    int16_t result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
-    if (result != FR_OK) return result;
+    int16_t result;
 
     ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
+        strcpy(buffer, bios_path);
+        result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
+        if (result != FR_OK) return result;
+
+        ws_bank_with_ram(0x0F, {
+            result = f_read(&fp, MK_FP(0x1000, 0x0000), 32768, &br);
+            if (result != FR_OK) goto launch_athena_begin_done;
+            result = f_read(&fp, MK_FP(0x1000, 0x8000), 32768, &br);
+            if (result != FR_OK) goto launch_athena_begin_done;
+        });
+
+        f_close(&fp);
+
+        strcpy(buffer, os_path);
+        result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
+        if (result != FR_OK) return result;
+
         ws_bank_with_ram(0x0E, {
             result = f_read(&fp, MK_FP(0x1000, 0x0000), 32768, &br);
             if (result != FR_OK) goto launch_athena_begin_done;
-            result = f_read(&fp, MK_FP(0x1000, 0x8000), 32768, &br);
-            if (result != FR_OK) goto launch_athena_begin_done;
-            outportw(WS_CART_EXTBANK_RAM_PORT, 0x0F);
-            result = f_read(&fp, MK_FP(0x1000, 0x0000), 32768, &br);
-            if (result != FR_OK) goto launch_athena_begin_done;
-            result = f_read(&fp, MK_FP(0x1000, 0x8000), 32768, &br);
-            if (result != FR_OK) goto launch_athena_begin_done;
+            if (!f_eof(&fp)) {
+                result = f_read(&fp, MK_FP(0x1000, 0x8000), 32768, &br);
+                if (result != FR_OK) goto launch_athena_begin_done;
+            }
+
+            ww_os_footer_t __far* footer = MK_FP(0x1000, 0xFFF0);
+            footer->jump_command = 0xEA;
+            footer->jump_offset = 0x0000;
+            footer->jump_segment = 0xE000;
+            footer->maintenance = 0x00;
+            footer->count = (f_size(&fp) + 127) >> 7;
         });
     });
 
@@ -181,7 +207,7 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
     dlg.title = lang_keys[LK_DIALOG_PREPARE_ROM];
     ui_popup_dialog_draw(&dlg);
 
-    result = launch_athena_begin(s_path_athenaos_fx);
+    result = launch_athena_begin(s_path_athenabios_native, s_path_athenaos_fx);
     if (result != FR_OK) return result;
 
     result = launch_athena_romfile_begin();

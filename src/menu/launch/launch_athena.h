@@ -23,10 +23,11 @@
 /**
  * @brief Start loading AthenaOS environment.
  * 
- * @param path Path to .bin file containing AthenaOS.
+ * @param bios_path Path to .bin file containing AthenaBIOS.
+ * @param os_path Path to .bin file containing AthenaOS.
  * @return int16_t Error code, if any.
  */
-int16_t launch_athena_begin(const char __far *path);
+int16_t launch_athena_begin(const char __far *bios_path, const char __far *os_path);
 
 /**
  * @brief Launch AthenaOS environment.
