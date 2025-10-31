@@ -86,7 +86,7 @@ Here's a small comparison to help you decide which BIOS implementation to use:
 
 |   | Freya | Athena Compatible | Athena Native |
 | - | ----- | ----------------- | ------------- |
-| License | Proprietary | [Open](github.com/OpenWitch/AthenaOS) | [Open](github.com/OpenWitch/AthenaOS) |
+| License | Proprietary | [Open](https://github.com/OpenWitch/AthenaOS) | [Open](https://github.com/OpenWitch/AthenaOS) |
 | Compatibility | 99.9% | 95% | 95% |
 | Serial communication interface | EXT | EXT | USB |
 | Flash write slowdowns | Yes | Yes | No |

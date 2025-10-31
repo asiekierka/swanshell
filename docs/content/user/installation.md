@@ -11,7 +11,7 @@ By default, Windows and macOS operating systems will format cards larger than 32
 To solve this, follow the [storage card formatting](https://49bitcat.com/docs/nileswan/user/troubleshooting/storage-card-formatting/) guide.
 {{< /hint >}}
 
-After formatting the removable storage card, download the latest swanshell ZIP from [GitHub releases](github.com/asiekierka/swanshell/releases) and extract its contents to the root directory of the card. After doing so, you should have a `NILESWAN` directory on the drive.
+After formatting the removable storage card, download the latest swanshell ZIP from [GitHub releases](https://github.com/asiekierka/swanshell/releases) and extract its contents to the root directory of the card. After doing so, you should have a `NILESWAN` directory on the drive.
 
 Finally, eject the card from your computer and insert it into the nileswan cartridge. From here, you may follow to the [Getting started](../introduction) guide.
 
