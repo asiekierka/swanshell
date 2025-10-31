@@ -15,15 +15,15 @@ This view is the primary method of interacting with data on the nileswan's stora
 - The bottom bar displays the currently displayed page, as well as the total number of pages. The contents of directories can span multiple pages. You can navigate between those pages by using the `X4` and `X2` buttons.
 - The middle area displays the list of files on the current page of the current directory. You can use `X1` and `X3` to navigate between them.
 
-To start using swanshell, use the `X` pad to navigate as described above, then press `A` to navigate into a directory or launch a file.
+To start using swanshell, use the `X` pad to navigate as described above, then press `A` to navigate into a directory or launch a file. To exit back to the parent directory, press `B`.
 
-To exit a directory, press `B`. If you want to access additional features, you can press `START` to open a special submenu:
+The menu also offers additional options, which can be accessed by pressing `START` to open a sub-menu:
 
 ![The additional action menu.](/swanshell/img/intro_action_menu.png)
 
-Many of these functions are explained on other pages of the swanshell documentation.
+Many of these functions are explained in greater detail on later pages of the swanshell documentation.
 
-## Technical details
+## List interface details
 
 ### File browser limitations
 
@@ -32,7 +32,7 @@ The maximum amount of supported files per directory is slightly over 1500.
 Unicode file names are supported and will be displayed to the best of the font's
 ability - the large font offering better support for non-English languages at this time.
 
-### List navigations
+### Navigating lists
 
 The following buttons are used in all swanshell list views:
 
