@@ -118,7 +118,7 @@ dist: all athenaos-compatible athenaos-native
 	@echo "  DIST"
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw dist/NILESWAN/BIOSATHN.RAW
-	@$(PYTHON3) $(ATHENAOS_PATH)/tools/build_rom.py -s 128 dist/NILESWAN/ATHENAFX.BIN $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw $(ATHENAOS_PATH)/dist/AthenaOS-*-nileswan.raw
+	@cp $(ATHENAOS_PATH)/dist/AthenaOS-*-nileswan.raw dist/NILESWAN/ATHENAFX.RAW
 	@rm -r dist/NILESWAN/LICENSE || true
 	@cp -R docs/license dist/NILESWAN/LICENSE
 
