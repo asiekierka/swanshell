@@ -8,6 +8,7 @@ swanshell currently supports the following file formats:
 | Format | Description |
 | ------ | ----------- |
 | .ws, .wsc, .pc2 | Cartridge images |
+| .fx | [WW programs](../witch) |
 | .bfb | [BootFriend](https://wiki.asie.pl/doku.php?id=project:homebrew:wsbootfriend) programs (testing only) |
 | .bmp | Bitmap images (up to 16 colors, 224x144) |
 | .vgm, .vgz | Music files (see below) |
