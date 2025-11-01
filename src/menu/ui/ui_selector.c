@@ -79,7 +79,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
     while (true) {
         if (prev_offset != config->offset) {
-            if ((prev_offset / row_count) != (config->offset / row_count)) {
+            if (prev_offset == 0xFFFF || ((prev_offset / row_count) != (config->offset / row_count))) {
                 bitmap_rect_fill(&ui_bitmap, 0, SELECTOR_Y_OFFSET, 28 * 8, row_height * row_count, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
                 // Draw filenames
                 ui_selector_set_active_font(config);
@@ -97,7 +97,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                     bitmapfont_draw_string(&ui_bitmap, WS_DISPLAY_WIDTH_PIXELS - 2 - bitmapfont_get_string_width(info_str, WS_DISPLAY_WIDTH_PIXELS), WS_DISPLAY_HEIGHT_PIXELS-8, info_str, WS_DISPLAY_WIDTH_PIXELS);
                 }
             }
-            if ((prev_offset % row_count) != (config->offset % row_count)) {
+            if (prev_offset == 0xFFFF || ((prev_offset % row_count) != (config->offset % row_count))) {
                 // Draw highlights
 #if 0
                 if (full_redraw) {
