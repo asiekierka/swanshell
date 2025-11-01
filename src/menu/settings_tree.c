@@ -29,6 +29,7 @@ DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
 DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
 DEFINE_STRING_LOCAL(s_program_fast_sram_key, "ProgFastSRAM");
+DEFINE_STRING_LOCAL(s_program_fx_bios_key, "ProgFxCmptBios");
 DEFINE_STRING_LOCAL(s_language, "Language");
 DEFINE_STRING_LOCAL(s_theme_accent_color_key, "ThemeAccentColor");
 DEFINE_STRING_LOCAL(s_theme_dark_mode_key, "ThemeDarkMode");
@@ -165,9 +166,22 @@ static const setting_t __far setting_program_fast_sram = {
     SETTING_TYPE_FLAG,
     0,
     .flag = {
-        &settings.file_flags,
-        SETTING_FILE_SHOW_HIDDEN_SHIFT,
+        &settings.prog.flags,
+        SETTING_PROG_FLAG_SRAM_OVERCLOCK_SHIFT,
         LK_NO, LK_YES
+    }
+};
+
+static const setting_t __far setting_program_fx_bios = {
+    s_program_fx_bios_key,
+    LK_SETTINGS_PROG_FX_BIOS,
+    LK_SETTINGS_PROG_FX_BIOS_HELP,
+    SETTING_TYPE_FLAG,
+    0,
+    .flag = {
+        &settings.prog.flags,
+        SETTING_PROG_FLAG_FX_COMPATIBLE_BIOS_SHIFT,
+        LK_ATHENABIOS_SUFFIX_NATIVE, LK_ATHENABIOS_SUFFIX_COMPATIBLE
     }
 };
 
@@ -175,9 +189,10 @@ static const setting_category_t __far settings_program = {
     LK_SETTINGS_PROG_KEY,
     0,
     &settings_root,
-    1,
+    2,
     {
-        &setting_program_fast_sram
+        &setting_program_fast_sram,
+        &setting_program_fx_bios
     }
 };
 

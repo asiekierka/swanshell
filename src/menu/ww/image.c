@@ -72,10 +72,10 @@ static bool ww_is_raw_os_file(const FILINFO __far *fno) {
     return ww_is_raw_file(fno) && memcmp(fno->fname, s_bios, 4);
 }
 
-#define WW_UI_SELECT_HAS_BIOSATHC 0x0001
-#define WW_UI_SELECT_HAS_BIOSATHN 0x0002
-#define WW_UI_SELECT_BIOSATHC -1
-#define WW_UI_SELECT_BIOSATHN -2
+#define WW_UI_SELECT_HAS_BIOSATHC 0x0002
+#define WW_UI_SELECT_HAS_BIOSATHN 0x0001
+#define WW_UI_SELECT_BIOSATHC -2
+#define WW_UI_SELECT_BIOSATHN -1
 
 static int16_t get_ui_select_file_offset(uint16_t flags, uint16_t offset) {
     uint16_t extra_entries = math_popcount16(flags);
@@ -83,13 +83,13 @@ static int16_t get_ui_select_file_offset(uint16_t flags, uint16_t offset) {
         return offset - extra_entries;
     }
 
-    if (flags & WW_UI_SELECT_HAS_BIOSATHC) {
-        if (!offset) return WW_UI_SELECT_BIOSATHC;
+    if (flags & WW_UI_SELECT_HAS_BIOSATHN) {
+        if (!offset) return WW_UI_SELECT_BIOSATHN;
         offset--;
     }
 
-    if (flags & WW_UI_SELECT_HAS_BIOSATHN) {
-        if (!offset) return WW_UI_SELECT_BIOSATHN;
+    if (flags & WW_UI_SELECT_HAS_BIOSATHC) {
+        if (!offset) return WW_UI_SELECT_BIOSATHC;
         offset--;
     }
 
@@ -124,8 +124,7 @@ static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t
         if (!name[0]) strcpy(name, fno->fno.fname);
     } else {
         // TODO: Implement version information
-        strcpy(name, s_athenabios_tpl);
-        strcat(name, lang_keys[offset == WW_UI_SELECT_BIOSATHC ? LK_ATHENABIOS_SUFFIX_COMPATIBLE : LK_ATHENABIOS_SUFFIX_NATIVE]);
+        sprintf(name, s_athenabios_tpl, lang_keys[offset == WW_UI_SELECT_BIOSATHC ? LK_ATHENABIOS_SUFFIX_COMPATIBLE : LK_ATHENABIOS_SUFFIX_NATIVE]);
     }
     bitmapfont_draw_string(&ui_bitmap, 2, y, name, WS_DISPLAY_WIDTH_PIXELS - 2);
 }

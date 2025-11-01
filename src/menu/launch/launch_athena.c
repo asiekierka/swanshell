@@ -22,6 +22,7 @@
 #include <nilefs.h>
 #include "errors.h"
 #include "lang.h"
+#include "settings.h"
 #include "strings.h"
 #include "ui/ui_popup_dialog.h"
 
@@ -228,7 +229,9 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
     dlg.title = lang_keys[LK_DIALOG_PREPARE_ROM];
     ui_popup_dialog_draw(&dlg);
 
-    result = launch_athena_begin(s_path_athenabios_native, s_path_athenaos_fx);
+    result = launch_athena_begin(
+        settings.prog.flags & SETTING_PROG_FLAG_FX_COMPATIBLE_BIOS ? s_path_athenabios_compatible : s_path_athenabios_native, 
+        s_path_athenaos_fx);
     if (result != FR_OK) return result;
 
     result = launch_athena_romfile_begin();

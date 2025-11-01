@@ -64,7 +64,7 @@ DEFINE_STRING(s_path_athenabios_native, "/NILESWAN/BIOSATHN.RAW");
 DEFINE_STRING(s_path_athenaos_fx, "/NILESWAN/ATHENAFX.RAW");
 DEFINE_STRING(s_bios, "bios");
 DEFINE_STRING(s_freya, "freya");
-DEFINE_STRING(s_athenabios_tpl, "AthenaBIOS ");
+DEFINE_STRING(s_athenabios_tpl, "AthenaBIOS (%s)");
 DEFINE_STRING(s_freyabios_tpl, "FreyaBIOS %c.%c.%s");
 DEFINE_STRING(s_freyaos_tpl, "FreyaOS %c.%c.%s");
 

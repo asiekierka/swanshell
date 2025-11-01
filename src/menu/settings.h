@@ -90,6 +90,9 @@ typedef struct setting {
 #define SETTING_PROG_FLAG_SRAM_OVERCLOCK_SHIFT 0
 #define SETTING_PROG_FLAG_SRAM_OVERCLOCK (1 << SETTING_PROG_FLAG_SRAM_OVERCLOCK_SHIFT)
 
+#define SETTING_PROG_FLAG_FX_COMPATIBLE_BIOS_SHIFT 1
+#define SETTING_PROG_FLAG_FX_COMPATIBLE_BIOS (1 << SETTING_PROG_FLAG_FX_COMPATIBLE_BIOS_SHIFT)
+
 typedef struct __attribute__((packed)) {
     uint8_t flags;
 } settings_prog_t;
