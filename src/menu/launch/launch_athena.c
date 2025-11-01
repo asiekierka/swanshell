@@ -48,6 +48,11 @@ int16_t launch_athena_begin(const char __far *bios_path, const char __far *os_pa
         result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
         if (result != FR_OK) return result;
 
+        if (f_size(&fp) != 65536L) {
+            result = ERR_FILE_FORMAT_INVALID;
+            goto launch_athena_begin_done;
+        }
+
         ws_bank_with_ram(0x0F, {
             result = f_read(&fp, MK_FP(0x1000, 0x0000), 32768, &br);
             if (result != FR_OK) goto launch_athena_begin_done;
@@ -61,13 +66,14 @@ int16_t launch_athena_begin(const char __far *bios_path, const char __far *os_pa
         result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
         if (result != FR_OK) return result;
 
+        if (f_size(&fp) == 0L || f_size(&fp) > 65520L) {
+            result = ERR_FILE_FORMAT_INVALID;
+            goto launch_athena_begin_done;
+        }
+
         ws_bank_with_ram(0x0E, {
-            result = f_read(&fp, MK_FP(0x1000, 0x0000), 32768, &br);
+            result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), &br);
             if (result != FR_OK) goto launch_athena_begin_done;
-            if (!f_eof(&fp)) {
-                result = f_read(&fp, MK_FP(0x1000, 0x8000), 32768, &br);
-                if (result != FR_OK) goto launch_athena_begin_done;
-            }
 
             ww_os_footer_t __far* footer = MK_FP(0x1000, 0xFFF0);
             footer->jump_command = 0xEA;
@@ -129,7 +135,7 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
     int16_t result;
     FIL fp;
     uint8_t buffer[64];
-    uint32_t br;
+    uint16_t br;
 
     ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
         uint16_t prev_ram = inportw(WS_CART_EXTBANK_RAM_PORT);
@@ -173,22 +179,36 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
         memcpy(MK_FP(0x1000, ((DIR_SEGMENT & 0xFFF) << 4) + (file_count * 64)), buffer, 64);
 
         // Read file
+        uint16_t sector_count = *((uint16_t*) (buffer + 48));
+        uint16_t expected_end_segment = file_segment + (sector_count << 3);
+
         uint32_t file_size = f_size(&fp) - 128;
         while (file_size) {
-            uint16_t file_to_read = file_size > 512 ? 512 : file_size;
+            uint16_t file_offset = (file_segment << 4);
+            uint16_t file_max_read = (file_offset == 0) ? 32768 : -file_offset; 
 
             outportw(WS_CART_EXTBANK_RAM_PORT, file_segment >> 12);
-            result = f_read(&fp, MK_FP(0x1000, file_segment << 4), file_to_read, &br);
+            result = f_read(&fp, MK_FP(0x1000, file_offset), file_max_read, &br);
             if (result != FR_OK) goto launch_athena_romfile_add_done;
 
-            file_segment += 512 >> 4;
-            file_size -= file_to_read;
-        }
-        
-        if (file_segment >= 0xE000) {
-            result = ERR_FILE_TOO_LARGE;
+            file_size -= br;
+            if ((br & 15) && file_size) {
+                result = FR_INT_ERR;
+                goto launch_athena_romfile_add_done;
+            }
+
+            file_segment += br >> 4;
         }
 
+        // align to 128 bytes
+        file_segment = (file_segment + 7) & ~7;
+        if (file_segment < expected_end_segment)
+            file_segment = expected_end_segment;
+
+        if (file_segment > 0xE000) {
+            result = ERR_FILE_TOO_LARGE;
+        }
+        
 launch_athena_romfile_add_done:
         f_close(&fp);
         outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
@@ -199,7 +219,7 @@ launch_athena_romfile_add_done:
 int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
     FILINFO fi;
     DIR dp;
-    uint8_t buffer[FF_LFN_BUF + 1];
+    char buffer[FF_LFN_BUF + 1];
     buffer[0] = '.';
     buffer[1] = 0;
     int16_t result;
@@ -258,5 +278,6 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
 
         f_closedir(&dp);
     }
+
     return launch_athena_jump();
 }
