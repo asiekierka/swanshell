@@ -131,9 +131,11 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
             if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
                 icon_idx = 2;
             } else if (!strcasecmp(ext, s_file_ext_fx)) {
-                icon_idx = 7;
+                icon_idx = 9;
             } else if (!strcasecmp(ext, s_file_ext_zip)) {
                 icon_idx = 8;
+            } else if (!strcasecmp(ext, s_file_ext_fr) || !strcasecmp(ext, s_file_ext_il)) {
+                icon_idx = 7;
             } else if (!strcasecmp(ext, s_file_ext_wav) || !strcasecmp(ext, s_file_ext_vgm) || !strcasecmp(ext, s_file_ext_vgz)) {
                 icon_idx = 4;
             } else if (!strcasecmp(ext, s_file_ext_bmp)) {

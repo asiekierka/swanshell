@@ -156,7 +156,7 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
 
         result = f_read(&fp, buffer, 64, &br);
         if (result != FR_OK || *((uint32_t*) buffer) != 0x73772123) {
-            if (is_main_executable) {
+            if (result == FR_OK && is_main_executable) {
                 result = ERR_FILE_FORMAT_INVALID;
             }
             goto launch_athena_romfile_add_done;
@@ -164,6 +164,7 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
 
         // Read header
         result = f_read(&fp, buffer, 64, &br);
+        if (result != FR_OK) goto launch_athena_romfile_add_done;
         // Edit location
         *((uint16_t*) (buffer + 40)) = 0x0000;
         *((uint16_t*) (buffer + 42)) = file_segment;
@@ -178,7 +179,7 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
 
             outportw(WS_CART_EXTBANK_RAM_PORT, file_segment >> 12);
             result = f_read(&fp, MK_FP(0x1000, file_segment << 4), file_to_read, &br);
-            if (result != FR_OK) return result;
+            if (result != FR_OK) goto launch_athena_romfile_add_done;
 
             file_segment += 512 >> 4;
             file_size -= file_to_read;
@@ -198,7 +199,7 @@ launch_athena_romfile_add_done:
 int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
     FILINFO fi;
     DIR dp;
-    uint8_t buffer[2];
+    uint8_t buffer[FF_LFN_BUF + 1];
     buffer[0] = '.';
     buffer[1] = 0;
     int16_t result;
@@ -213,6 +214,7 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
     result = launch_athena_romfile_begin();
     if (result != FR_OK) return result;
 
+    // Read current directory for .fx/.fr/.il files
     result = f_opendir(&dp, buffer);
     if (result != FR_OK) return result;
 
@@ -230,5 +232,31 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
     }
 
     f_closedir(&dp);
+
+    // Read /NILESWAN/fbin for .il files
+    int fbin_len = strlen(s_path_fbin);
+    strcpy(buffer, s_path_fbin);
+    result = f_opendir(&dp, buffer);
+    if (result == FR_OK) {
+        while (true) {
+            result = f_readdir(&dp, &fi);
+            if (result != FR_OK) return result;
+            if (!fi.fname[0]) break;
+            if (fi.fattrib & AM_DIR) continue;
+
+            int len = strlen(fi.fname);
+            if (len >= 4 && !strcasecmp(fi.fname + len - 3, s_file_ext_il)) {
+                buffer[fbin_len] = '/';
+                strcpy(buffer + fbin_len + 1, fi.fname);
+                result = launch_athena_romfile_add(buffer, false);
+                if (result != FR_OK) {
+                    f_closedir(&dp);
+                    return result;
+                }
+            }
+        }
+
+        f_closedir(&dp);
+    }
     return launch_athena_jump();
 }
