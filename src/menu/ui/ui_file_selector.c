@@ -22,6 +22,7 @@
 #include <ws.h>
 #include <nilefs.h>
 #include "bitmap.h"
+#include "config.h"
 #include "lang_gen.h"
 #include "launch/launch.h"
 #include "launch/launch_athena.h"
@@ -29,14 +30,9 @@
 #include "strings.h"
 #include "ui.h"
 #include "ui/ui_file_selector.h"
-#include "ui/ui_popup_list.h"
 #include "ui_dialog.h"
-#include "ui_fileops.h"
 #include "ui_selector.h"
-#include "ui_settings.h"
 #include "plugin/plugin.h"
-#include "../util/input.h"
-#include "../main.h"
 #include "../../../build/menu/assets/menu/icons.h"
 #include "lang.h"
 
@@ -178,6 +174,9 @@ void ui_file_selector(void) {
     bool reinit_ui = true;
     bool reinit_dirs = true;
 
+    uint16_t path_depth[CONFIG_FILESELECT_PATH_MEMORY_DEPTH] = {0};
+    uint8_t path_depth_pos = 255;
+
 rescan_directory:
     config.draw = ui_file_selector_draw;
     config.key_mask = WS_KEY_A | WS_KEY_B | WS_KEY_START;
@@ -190,17 +189,24 @@ rescan_directory:
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
     ui_show();
     if (reinit_dirs) {
-        config.offset = 0;
+        config.offset = path_depth_pos >= CONFIG_FILESELECT_PATH_MEMORY_DEPTH ? 0 : path_depth[path_depth_pos];
         strcpy(path, s_dot);
         int16_t result = ui_file_selector_scan_directory(path, ui_file_selector_default_predicate, &config.count);
         if (ui_dialog_error_check(result, NULL, 0)) {
             strcpy(path, s_dotdot);
             f_chdir(path);
+            if (path_depth_pos) path_depth_pos--;
             goto rescan_directory;
         }
     }
     if (reinit_ui || reinit_dirs) {
         f_getcwd(path, sizeof(path) - 1);
+        path_depth_pos = 255;
+        char *p = path;
+        while (*p) {
+            if (*p == '/') path_depth_pos++;
+            p++;
+        }
         ui_draw_titlebar(path);
     }
 
@@ -219,6 +225,7 @@ rescan_directory:
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
             strncpy(path, fno->fno.fname, sizeof(fno->fno.fname));
             if (fno->fno.fattrib & AM_DIR) {
+                path_depth[path_depth_pos++] = config.offset;
                 f_chdir(path);
             } else {
                 ui_selector_clear_selection(&config);
@@ -278,6 +285,7 @@ rescan_directory:
         if (keys_pressed & WS_KEY_B) {
             strcpy(path, s_dotdot);
             f_chdir(path);
+            if (path_depth_pos) path_depth_pos--;
             reinit_ui = true;
             reinit_dirs = true;
             goto rescan_directory;
