@@ -36,8 +36,18 @@ typedef struct {
 } file_selector_entry_t;
 
 __attribute__((always_inline))
+static inline bool ui_file_selector_fno_direct_same_bank(uint16_t a, uint16_t b) {
+    return (a >> FILE_SELECTOR_ENTRY_SHIFT) == (b >> FILE_SELECTOR_ENTRY_SHIFT);
+}
+
+__attribute__((always_inline))
 static inline file_selector_entry_t __far *ui_file_selector_open_fno_direct(uint16_t offset) {
     outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_RAM_BANK_OFFSET + (offset >> FILE_SELECTOR_ENTRY_SHIFT));
+    return MK_FP(0x1000, offset << FILE_SELECTOR_ENTRY_SHIFT);
+}
+
+__attribute__((always_inline))
+static inline file_selector_entry_t __far *ui_file_selector_open_fno_direct_nobank(uint16_t offset) {
     return MK_FP(0x1000, offset << FILE_SELECTOR_ENTRY_SHIFT);
 }
 

@@ -50,9 +50,15 @@
 #define STACKSIZE 12
 
 static int qsort_compare(int (*compar)(const file_selector_entry_t __far*, const file_selector_entry_t __far*, void *), void *userdata, uint16_t i, uint16_t j) {
-    file_selector_entry_t fno_i;
-    memcpy(&fno_i, ui_file_selector_open_fno_direct(i), sizeof(file_selector_entry_t));
-    int result = compar(&fno_i, ui_file_selector_open_fno_direct(j), userdata);
+    int result;
+    if (ui_file_selector_fno_direct_same_bank(i, j)) {
+        result = compar(ui_file_selector_open_fno_direct(i), ui_file_selector_open_fno_direct_nobank(j), userdata);
+        outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_INDEX_BANK);
+    } else {
+        file_selector_entry_t fno_i;
+        memcpy(&fno_i, ui_file_selector_open_fno_direct(i), sizeof(file_selector_entry_t));
+        result = compar(&fno_i, ui_file_selector_open_fno_direct(j), userdata);
+    }
     outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_INDEX_BANK);
     return result;
 }
