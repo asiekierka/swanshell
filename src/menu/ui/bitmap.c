@@ -18,11 +18,10 @@
 #include <string.h>
 #include <wsx/utf8.h>
 #include "bitmap.h"
+#include "config.h"
 
 #define BITMAP_AT(bitmap, x, y) (((uint8_t*) (bitmap)->start) + ((y) * (bitmap)->y_pitch) + (((x) >> (bitmap)->x_shift) * (bitmap)->x_pitch))
 
-#define FONT_BITMAP_SHIFT 8
-#define FONT_BITMAP_SIZE 256
 extern const uint16_t __far font8_bitmap[];
 extern const uint16_t __far font16_bitmap[];
 const uint16_t __far *font_bitmap = font16_bitmap;
@@ -160,10 +159,8 @@ uint16_t bitmapfont_get_font_height(void) {
 }
 
 static const uint16_t __far* bitmapfont_find_char(uint32_t ch) {
-    if (ch > 0xFFFFFF)
-        return NULL;
     uint16_t ch_high = (ch >> 8) + 1;
-    if (ch_high >= FONT_BITMAP_SIZE)
+    if (ch_high >= CONFIG_FONT_BITMAP_SIZE)
         return NULL;
 
     uint8_t ch_low = ch & 0xFF;
@@ -196,7 +193,7 @@ static const uint16_t __far* bitmapfont_find_char(uint32_t ch) {
 
 static inline uint16_t bitmapfont_get_char_width_a(const uint16_t __far* data16) {
     const uint8_t __far *data = (const uint8_t __far*) data16;
-    if (data == NULL) return 0;
+    if (!FP_SEG(data)) return 0;
     return (data[2] & 0xF) + (data[3] & 0xF);    
 }
 
@@ -205,7 +202,7 @@ uint16_t bitmapfont_get_char_width(uint32_t ch) {
 }
 
 void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint16_t w, uint16_t h, uint16_t bitofs, uint16_t layer, const uint8_t __far* font_data) {
-    if (font_data == NULL) return;
+    if (!FP_SEG(font_data)) return;
 
     xofs += w - 1;
     uint8_t *tile = BITMAP_AT(bitmap, xofs, yofs) + layer;
@@ -247,7 +244,7 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
 }
 
 static inline uint16_t bitmapfont_draw_char_a(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* data) {
-    if (data == NULL) return 0;
+    if (!FP_SEG(data)) return 0;
 
     uint16_t x = data[1] & 0xF;
     uint16_t y = (data[1] >>  4) & 0xF;
@@ -272,12 +269,12 @@ uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width) 
     while ((ch = wsx_utf8_decode_next(&str)) != 0) {
         uint16_t new_width = width + bitmapfont_get_char_width(ch);
         if (new_width > max_width)
-            return width - BITMAPFONT_CHAR_GAP;
+            return width - CONFIG_FONT_CHAR_GAP;
 
-        width = new_width + BITMAPFONT_CHAR_GAP;
+        width = new_width + CONFIG_FONT_CHAR_GAP;
     }
 
-    return width - BITMAPFONT_CHAR_GAP;
+    return width - CONFIG_FONT_CHAR_GAP;
 }
 
 uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t max_width) {
@@ -288,14 +285,14 @@ uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t 
         const uint16_t __far* data = bitmapfont_find_char(ch);
         uint16_t new_width = width + bitmapfont_get_char_width_a(data);
         if (new_width > max_width)
-            return width - BITMAPFONT_CHAR_GAP;
+            return width - CONFIG_FONT_CHAR_GAP;
 
-        uint16_t w = bitmapfont_draw_char_a(bitmap, xofs, yofs, data) + BITMAPFONT_CHAR_GAP;
+        uint16_t w = bitmapfont_draw_char_a(bitmap, xofs, yofs, data) + CONFIG_FONT_CHAR_GAP;
         xofs += w;
         width += w;
     }
 
-    return width - BITMAPFONT_CHAR_GAP;
+    return width - CONFIG_FONT_CHAR_GAP;
 }
 
 void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height) {
@@ -341,7 +338,7 @@ repeat_char:
                 goto repeat_char;
             }
         } else {
-            line_width = new_line_width + BITMAPFONT_CHAR_GAP;
+            line_width = new_line_width + CONFIG_FONT_CHAR_GAP;
         }
     }
 
@@ -376,7 +373,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
             uint16_t local_xofs = xofs;
             while (start_str < break_str) {
                 ch = wsx_utf8_decode_next(&start_str);
-                local_xofs += bitmapfont_draw_char(bitmap, local_xofs, yofs, ch) + BITMAPFONT_CHAR_GAP;
+                local_xofs += bitmapfont_draw_char(bitmap, local_xofs, yofs, ch) + CONFIG_FONT_CHAR_GAP;
             }
             str = break_str;
             start_str = break_str;
@@ -388,7 +385,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
                 break;
             }
         } else {
-            line_width = new_line_width + BITMAPFONT_CHAR_GAP;
+            line_width = new_line_width + CONFIG_FONT_CHAR_GAP;
             prev_str = str;
         }
     }

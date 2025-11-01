@@ -72,8 +72,6 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
 extern const uint16_t __far font8_bitmap[];
 extern const uint16_t __far font16_bitmap[];
 
-#define BITMAPFONT_CHAR_GAP 1
-
 void bitmapfont_set_active_font(const uint16_t __far *font);
 uint16_t bitmapfont_get_font_height(void);
 uint16_t bitmapfont_get_char_width(uint32_t ch);
