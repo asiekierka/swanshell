@@ -38,6 +38,54 @@ typedef struct {
     uint16_t count;
 } ww_os_footer_t;
 
+typedef struct {
+	/**
+	 * File name, encoded in Shift-JIS
+	 */
+	char name[16];
+
+	/**
+	 * File description, encoded in Shift-JIS
+	 */
+	char info[24];
+
+	/**
+	 * Location of file in file system
+	 */
+	void __far* loc;
+
+	/**
+	 * Length of file, in bytes
+	 */
+	uint32_t len;
+
+	/**
+	 * File: 128-byte (XMODEM) chunk count, rounded up.
+	 * Directory: Number of total entries in directory.
+	 * (-1 = entry not allocated)
+	 */
+	int count;
+
+	/**
+	 * File mode.
+	 */
+	uint16_t mode;
+
+	/**
+	 * Modification time.
+	 */
+	uint32_t mtime;
+
+	void __far *il;
+
+	/**
+	 * Offset of resource data in file, passed via the
+	 * process control block to the program.
+	 * (-1 = resource not present)
+	 */
+	int32_t resource;
+} ww_fent_t;
+
 int16_t launch_athena_begin(const char __far *bios_path, const char __far *os_path) {
     char buffer[64];
     FIL fp;
@@ -137,6 +185,7 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
     FIL fp;
     uint8_t buffer[64];
     uint16_t br;
+    bool read_non_ww_files = true;
 
     ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
         uint16_t prev_ram = inportw(WS_CART_EXTBANK_RAM_PORT);
@@ -161,20 +210,46 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
             return result;
         }
 
-        result = f_read(&fp, buffer, 64, &br);
-        if (result != FR_OK || *((uint32_t*) buffer) != 0x73772123) {
-            if (result == FR_OK && is_main_executable) {
-                result = ERR_FILE_FORMAT_INVALID;
-            }
-            goto launch_athena_romfile_add_done;
-        }
+        ww_fent_t *entry = (ww_fent_t*) buffer;
 
-        // Read header
         result = f_read(&fp, buffer, 64, &br);
         if (result != FR_OK) goto launch_athena_romfile_add_done;
+        if (*((uint32_t*) buffer) == 0x73772123) {
+            // Read header
+            result = f_read(&fp, buffer, 64, &br);
+        } else {
+            if (!read_non_ww_files || f_size(&fp) > 640L*1024L) {
+                result = is_main_executable ? ERR_FILE_FORMAT_INVALID : FR_OK;
+                goto launch_athena_romfile_add_done;
+            }
+
+            // Seek file back to zero
+            result = f_lseek(&fp, 0);
+
+            // Create generic header
+            memset(entry, 0, sizeof(ww_fent_t));
+            const char *filename = (const char*) strrchr(path, '/');
+            if (filename != NULL) {
+                filename++;
+            } else {
+                filename = path;
+            }
+            // Name: full filename
+            strncpy(entry->name, filename, 16);
+            // Info: full filename
+            strncpy(entry->info, filename, 24);
+            entry->len = f_size(&fp);
+            entry->count = (entry->len + 127) >> 7;
+            entry->mode = 0;
+            entry->mtime = 0; // TODO
+            entry->il = NULL;
+            entry->resource = -1;
+        }
+        if (result != FR_OK) goto launch_athena_romfile_add_done;
+
         // Edit location
-        *((uint16_t*) (buffer + 40)) = 0x0000;
-        *((uint16_t*) (buffer + 42)) = file_segment;
+        entry->loc = MK_FP(file_segment, 0x0000);
+        entry->mode = (entry->mode & ~2) | 4; // Clear write flag, set read flag
         // Copy header to file list
         outportw(WS_CART_EXTBANK_RAM_PORT, DIR_SEGMENT >> 12);
         memcpy(MK_FP(0x1000, ((DIR_SEGMENT & 0xFFF) << 4) + (file_count * 64)), buffer, 64);
@@ -183,7 +258,7 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
         uint16_t sector_count = *((uint16_t*) (buffer + 48));
         uint16_t expected_end_segment = file_segment + (sector_count << 3);
 
-        uint32_t file_size = f_size(&fp) - 128;
+        uint32_t file_size = f_size(&fp) - f_tell(&fp);
         while (file_size) {
             uint16_t file_offset = (file_segment << 4);
             uint16_t file_max_read = (file_offset == 0) ? 32768 : -file_offset; 
