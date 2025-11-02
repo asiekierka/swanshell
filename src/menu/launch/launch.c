@@ -648,6 +648,9 @@ int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *
 }
 
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
+    extern const void __bank_bootstub;
+    extern const void __bank_gfx_bootstub_tiles;
+    
     if (bootstub_data->prog.size > 16*1024*1024L) {
         return ERR_FILE_TOO_LARGE;
     }
@@ -657,16 +660,14 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     // Disable IRQs - avoid other code interfering/overwriting memory
     ia16_disable_irq();
 
-    // Set ROM0 to last bank to read bootstub data
-    outportw(WS_CART_EXTBANK_ROM0_PORT, 0x00FF);
-
     // Initialize bootstub graphics
     if (ws_system_is_color_active()) {
         ws_system_set_mode(WS_MODE_COLOR);
     }
     // wsx_zx0_decompress((void*) 0x3200, gfx_bootstub_tiles);
+    outportb(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
     memcpy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
-    
+
     // Populate bootstub data
     bootstub_data->data_base = fs.database;
     bootstub_data->cluster_table_base = fs.fatbase;
@@ -726,6 +727,7 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     mcu_native_finish();
 
     // Jump to bootstub
+    outportb(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_bootstub);
     memcpy((void*) 0x00c0, bootstub, bootstub_size);
     asm volatile("ljmp $0x0000,$0x00c0\n");
     return true;
