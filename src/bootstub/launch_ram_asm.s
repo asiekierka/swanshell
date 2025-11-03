@@ -29,7 +29,9 @@
     .section .fartext.s.cold_jump, "a"
     .align 2
 cold_jump:
-    mov bx, ax
+    // Patch address in jump stub
+    mov [launch_ram_asm_relocated_stub + 1], ax
+    mov [launch_ram_asm_relocated_stub + 3], dx
 
     // Write bank values
     mov ax, 0xFFFF
@@ -46,18 +48,15 @@ cold_jump:
 
     // Copy stub to RAM
     mov si, offset "launch_ram_asm_relocated"
-    mov di, 0x2004
+    mov di, 0x2000
+    // Populate immediate values in jump stub
+    mov ax, [0x40]
+    stosw
+    mov ax, [0x50]
+    stosw
     mov cx, (launch_ram_asm_relocated_end + 1 - launch_ram_asm_relocated)
     shr cx, 1
     rep movsw
-
-    // Populate immediate values in jump stub
-    mov [0x2005 + launch_ram_asm_relocated_stub - launch_ram_asm_relocated], bx
-    mov [0x2007 + launch_ram_asm_relocated_stub - launch_ram_asm_relocated], dx
-    mov ax, [0x40]
-    mov [0x2000], ax
-    mov ax, [0x50]
-    mov [0x2002], ax
 
     // Clear 0x00 - 0x3F
     xor ax, ax

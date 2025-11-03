@@ -701,8 +701,6 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     bootstub_data->prog_patches = bootstub_data->prog_rom_type == ROM_TYPE_FREYA ? BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET : 0;
     if (bootstub_data->prog_rom_type == ROM_TYPE_PCV2) {
         bootstub_data->start_pointer = MK_FP(0x4000, 0x0010);
-    } else if (bootstub_data->prog_rom_type == ROM_TYPE_UNKNOWN) {
-        bootstub_data->start_pointer = MK_FP(0x2FFF, 0x0000);
     } else {
         bootstub_data->start_pointer = MK_FP(0xFFFF, 0x0000);
     }
