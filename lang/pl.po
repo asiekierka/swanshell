@@ -116,10 +116,7 @@ msgid "ERROR_SAVE_PSRAM_CORRUPT"
 msgstr "Stan PSRAM utracony"
 
 msgid "ERROR_MCU_COMM_FAILED"
-msgstr "Błąd kom. MCU"
-
-msgid "ERROR_EEPROM_COMM_FAILED"
-msgstr "Błąd kom. EEPROM"
+msgstr "Błąd komunikacji z MCU"
 
 msgid "ERROR_MCU_BIN_CORRUPT"
 msgstr "Nieznany format MCU.BIN!"
@@ -283,3 +280,5 @@ msgstr "Usuń"
 msgid "DIALOG_FILE_DELETE_CONFIRM"
 msgstr "Czy na pewno chcesz usunąć ten plik?"
 
+msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
+msgstr "Część funkcjonalności będzie niedostępna. Czy chcesz kontynuować?"

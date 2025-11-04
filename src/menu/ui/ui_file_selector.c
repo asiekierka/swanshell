@@ -23,6 +23,7 @@
 #include <nilefs.h>
 #include "bitmap.h"
 #include "config.h"
+#include "errors.h"
 #include "lang_gen.h"
 #include "launch/launch.h"
 #include "launch/launch_athena.h"
@@ -233,9 +234,16 @@ rescan_directory:
                     const char __far* ext = fno->fno.fname + fno->extension_loc;
                     if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
                         launch_rom_metadata_t meta;
+                        bool error_displayed = false;
                         int16_t result = launch_get_rom_metadata(path, &meta);
                         if (result == FR_OK) {
                             result = launch_restore_save_data(path, &meta);
+                            if (result == ERR_MCU_COMM_FAILED) {
+                                if (launch_ui_handle_mcu_comm_error(&meta)) 
+                                    result = FR_OK;
+                                else
+                                    error_displayed = true;
+                            }
                             if (result == FR_OK) {
                                 result = launch_set_bootstub_file_entry(path, &bootstub_data->prog);
                                 if (result == FR_OK) {
@@ -245,7 +253,8 @@ rescan_directory:
                         }
 
                         // Error
-                        ui_dialog_error_check(result, NULL, 0);
+                        if (!error_displayed)
+                            ui_dialog_error_check(result, NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_fx)) {

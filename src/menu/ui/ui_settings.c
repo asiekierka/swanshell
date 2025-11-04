@@ -111,7 +111,7 @@ reload_menu:
                 ui_draw_statusbar(NULL);
                 
                 bitmapfont_set_active_font(font16_bitmap);
-                bitmapfont_draw_string_box(&ui_bitmap, 2, 10, lang_keys[s->help], WS_DISPLAY_WIDTH_PIXELS - 4);
+                bitmapfont_draw_string_box(&ui_bitmap, 2, 10, lang_keys[s->help], WS_DISPLAY_WIDTH_PIXELS - 4, 0);
 
                 input_wait_any_key();
 

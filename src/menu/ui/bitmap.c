@@ -295,7 +295,7 @@ uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t 
     return width - CONFIG_FONT_CHAR_GAP;
 }
 
-void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height) {
+void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height, int linegap) {
     uint32_t ch;
     uint16_t line_width = 0;
     uint16_t max_width = 0;
@@ -331,7 +331,7 @@ repeat_char:
                 max_width = line_width;
             }
             line_width = 0;
-            *height += __bitmapfont_get_font_height();
+            *height += __bitmapfont_get_font_height() + linegap;
             if (!ch) {
                 break;
             } else if (!char_consumed) {
@@ -343,9 +343,10 @@ repeat_char:
     }
 
     *width = max_width;
+    if (*height) *height -= linegap;
 }
 
-uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width) {
+uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width, int linegap) {
     uint32_t ch;
     uint16_t line_width = 0;
     const char __far* start_str = str;
@@ -380,7 +381,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
             prev_str = break_str;
             break_str = NULL;
             line_width = 0;
-            yofs += __bitmapfont_get_font_height();
+            yofs += __bitmapfont_get_font_height() + linegap;
             if (!ch) {
                 break;
             }

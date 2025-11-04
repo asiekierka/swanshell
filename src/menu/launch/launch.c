@@ -315,7 +315,7 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words) {
         int to_read = words > MAX_WRITE_EEPROM_WORDS ? MAX_WRITE_EEPROM_WORDS : words;
         nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
         if (!mcu_native_eeprom_read_data(buffer, i, to_read)) {
-            result = ERR_EEPROM_COMM_FAILED;
+            result = ERR_MCU_COMM_FAILED;
             break;
         }        
          nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
@@ -343,7 +343,7 @@ static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
              break;
          nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
          if (!ws_eeprom_write_word(h, i << 1, w)) {
-             result = ERR_EEPROM_COMM_FAILED;
+             result = ERR_MCU_COMM_FAILED;
              break;
          }
     }
@@ -634,6 +634,27 @@ launch_restore_save_data_ini_end:
     result = result || f_close(&fp);
 launch_restore_save_data_return_result:
     return result;
+}
+
+bool launch_ui_handle_mcu_comm_error(launch_rom_metadata_t *meta) {
+    ui_popup_dialog_config_t dlg = {0};
+
+    dlg.title = lang_keys[LK_ERROR_MCU_COMM_FAILED];
+    dlg.description = lang_keys[LK_PROMPT_FUNCTIONALITY_UNAVAILABLE];
+    dlg.buttons[0] = LK_YES;
+    dlg.buttons[1] = LK_NO;
+
+    ui_popup_dialog_draw(&dlg);
+    ui_show();
+    
+    if (ui_popup_dialog_action(&dlg, 1) == 0) {
+        // Adjust metadata to disable all MCU-reliant features
+        meta->eeprom_size = 0;   // EEPROM
+        meta->footer.mapper = 0; // RTC
+        return true;
+    } else {
+        return false;
+    }
 }
 
 int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *entry) {

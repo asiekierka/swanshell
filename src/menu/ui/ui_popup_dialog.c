@@ -28,8 +28,9 @@
 
 #define INNER_GAP 4
 #define MIN_PROGRESS_BAR_WIDTH 64
-#define BUTTON_X_BORDER 3
+#define BUTTON_X_BORDER 5
 #define BUTTON_Y_BORDER 2
+#define BUTTON_Y_TEXT_OFFSET 1
 
 #define ROUND_TO_8_WITH_BORDER(a) (((a)+23)&(~7))
 #define APPEND_GAP(a) ((a) = (a) + ((a)?INNER_GAP:0))
@@ -88,7 +89,7 @@ static inline void ui_popup_dialog_draw_buttons(ui_popup_dialog_config_t *config
         if (!config->buttons[i]) break;
         bitmap_rect_fill(&ui_bitmap, xofs + button_x[i] + 1, config->buttons_y + 1,
             button_w[i] - 2, button_height - 2, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
-        bitmapfont_draw_string(&ui_bitmap, xofs + button_x[i] + BUTTON_X_BORDER, config->buttons_y + BUTTON_Y_BORDER,
+        bitmapfont_draw_string(&ui_bitmap, xofs + button_x[i] + BUTTON_X_BORDER, config->buttons_y + BUTTON_Y_BORDER + BUTTON_Y_TEXT_OFFSET,
             lang_keys[config->buttons[i]], WS_DISPLAY_WIDTH_PIXELS);  
         if (selected == i) {
             bitmap_rect_fill(&ui_bitmap, xofs + button_x[i] + 1, config->buttons_y + 1,
@@ -119,17 +120,19 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
 
     if (config->title) {
         bitmapfont_set_active_font(font16_bitmap);
-        bitmapfont_get_string_box(config->title, &title_box_width, &title_box_height);
+        bitmapfont_get_string_box(config->title, &title_box_width, &title_box_height, 0);
         APPEND_WITH_GAP(inner_height, title_box_height);
         inner_width = MAX(inner_width, title_box_width);
+        inner_height -= 2;
     } else {
         title_box_width = 0;
     }
     if (config->description) {
         bitmapfont_set_active_font(font8_bitmap);
-        bitmapfont_get_string_box(config->description, &desc_box_width, &desc_box_height);
+        bitmapfont_get_string_box(config->description, &desc_box_width, &desc_box_height, 1);
         APPEND_WITH_GAP(inner_height, desc_box_height);
         inner_width = MAX(inner_width, desc_box_width);
+        inner_height += 3;
     } else {
         desc_box_width = 0;
     }
@@ -169,16 +172,18 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         bitmapfont_draw_string_box(&ui_bitmap,
             UI_CENTERED_IN_BOX(config->x, config->width, title_box_width),
             inner_y + inner_height,
-            config->title, title_box_width);
-            APPEND_INCLUDING_GAP(inner_height, title_box_height);
+            config->title, title_box_width, 0);
+        APPEND_INCLUDING_GAP(inner_height, title_box_height);
+        inner_height -= 2;
     }
     if (config->description) {
         bitmapfont_set_active_font(font8_bitmap);
         bitmapfont_draw_string_box(&ui_bitmap,
             UI_CENTERED_IN_BOX(config->x, config->width, desc_box_width),
             inner_y + inner_height,
-            config->description, desc_box_width);
-            APPEND_INCLUDING_GAP(inner_height, desc_box_height);
+            config->description, desc_box_width, 1);
+        APPEND_INCLUDING_GAP(inner_height, desc_box_height);
+        inner_height += 3;
     }
     if (config->progress_max) {
         config->progress_y = inner_y + inner_height;

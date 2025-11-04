@@ -39,7 +39,7 @@ void ui_about(void) {
     ui_draw_titlebar(lang_keys[LK_SUBMENU_OPTION_ABOUT]);
     ui_draw_statusbar(NULL);
 
-    int y = 24;
+    int y = 22;
     sprintf(buf, s_name_version, lang_keys[LK_NAME]);
     bitmapfont_set_active_font(font16_bitmap);
     bitmapfont_draw_string(&ui_bitmap,
@@ -59,8 +59,8 @@ void ui_about(void) {
         (WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(buf, 65535)) >> 1,
         y, buf, 65535);
 
-    y += 20;
-    bitmapfont_draw_string_box(&ui_bitmap, 4, y, lang_keys[LK_NAME_COPYRIGHT_INFO], WS_DISPLAY_WIDTH_PIXELS - 8);
+    y += 19;
+    bitmapfont_draw_string_box(&ui_bitmap, 4, y, lang_keys[LK_NAME_COPYRIGHT_INFO], WS_DISPLAY_WIDTH_PIXELS - 8, 1);
 
     input_wait_any_key();
 }

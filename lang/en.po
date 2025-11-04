@@ -157,10 +157,7 @@ msgid "ERROR_SAVE_PSRAM_CORRUPT"
 msgstr "PSRAM state corrupted"
 
 msgid "ERROR_MCU_COMM_FAILED"
-msgstr "MCU comm. error"
-
-msgid "ERROR_EEPROM_COMM_FAILED"
-msgstr "EEPROM comm. error"
+msgstr "MCU communication error"
 
 msgid "ERROR_MCU_BIN_CORRUPT"
 msgstr "Invalid MCU.BIN format!"
@@ -291,6 +288,10 @@ msgstr "Press VIEW to exit."
 
 msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "%d IRAM bytes free"
+
+
+msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
+msgstr "Some functionality will be unavailable. Do you want to continue?"
 
 
 msgid "OSK_OK"
