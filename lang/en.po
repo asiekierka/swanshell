@@ -1,0 +1,302 @@
+msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
+msgstr "Page %d/%d"
+
+msgid "UI_FILE_SELECTOR_EMPTY"
+msgstr "Empty"
+
+msgid "UI_STATUS_LOADING"
+msgstr "Loading..."
+
+
+msgid "YES"
+msgstr "Yes"
+
+msgid "NO"
+msgstr "No"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "CANCEL"
+msgstr "Cancel"
+
+
+msgid "SETTINGS_INFO_WS"
+msgstr "Y1: Help"
+
+msgid "SETTINGS_INFO_PC2"
+msgstr "Pass: Help"
+
+
+msgid "SETTINGS_KEY"
+msgstr "Settings"
+
+msgid "SETTINGS_LANGUAGE_KEY"
+msgstr "Language"
+
+msgid "SETTINGS_FILE_KEY"
+msgstr "File browser"
+
+msgid "SETTINGS_PROG_KEY"
+msgstr "Program launching"
+
+msgid "SETTINGS_THEME_KEY"
+msgstr "Theme"
+
+
+msgid "SETTINGS_FILE_SORT_KEY"
+msgstr "File order"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
+msgstr "Show hidden files"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
+msgstr "Shows or hides files with the \"hidden\" attribute."
+
+msgid "SETTINGS_FILE_SORT_DEFAULT"
+msgstr "Default"
+
+msgid "SETTINGS_FILE_SORT_NAME_ASC"
+msgstr "Name ↑"
+
+msgid "SETTINGS_FILE_SORT_NAME_DESC"
+msgstr "Name ↓"
+
+msgid "SETTINGS_FILE_SORT_DATE_ASC"
+msgstr "Date ↑"
+
+msgid "SETTINGS_FILE_SORT_DATE_DESC"
+msgstr "Date ↓"
+
+msgid "SETTINGS_FILE_SORT_SIZE_ASC"
+msgstr "Size ↑"
+
+msgid "SETTINGS_FILE_SORT_SIZE_DESC"
+msgstr "Size ↓"
+
+msgid "SETTINGS_FILE_SORT_HELP"
+msgstr "Selects the order in which files should be listed in the file browser."
+
+msgid "SETTINGS_FILE_VIEW_KEY"
+msgstr "View"
+
+msgid "SETTINGS_FILE_VIEW_LARGE"
+msgstr "Large list"
+
+msgid "SETTINGS_FILE_VIEW_SMALL"
+msgstr "Small list"
+
+msgid "SETTINGS_FILE_VIEW_HELP"
+msgstr "Selects the method of listing files in the file browser."
+
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
+msgstr "Force fast SRAM"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
+msgstr "Enables faster SRAM and I/O speeds on Color models before launching the game.\n\nThis can help alleviate slowdowns in certain programs, but may also hurt compatibility or invalidate speedruns."
+
+msgid "SETTINGS_PROG_FX_BIOS"
+msgstr "BIOS variant for .fx load"
+
+msgid "SETTINGS_PROG_FX_BIOS_HELP"
+msgstr "Selects the BIOS variant used by .fx programs.\n\nFor serial communication, Native uses the USB port, Compatible uses the console EXT port."
+
+
+msgid "SETTINGS_THEME_ACCENT_COLOR"
+msgstr "Accent color"
+
+msgid "SETTINGS_THEME_DARK_MODE"
+msgstr "Dark mode"
+
+msgid "SETTINGS_THEME_DARK"
+msgstr "Dark"
+
+msgid "SETTINGS_THEME_LIGHT"
+msgstr "Light"
+
+
+msgid "DIALOG_UPDATING_MCU"
+msgstr "Updating MCU"
+
+msgid "DIALOG_PREPARE_SAVE"
+msgstr "Creating save data"
+
+msgid "DIALOG_PREPARE_FLASH"
+msgstr "Creating flash image"
+
+msgid "DIALOG_PREPARE_ROM"
+msgstr "Creating ROM image"
+
+msgid "DIALOG_STORE_SAVE"
+msgstr "Storing save data"
+
+
+msgid "ERROR_FR_DISK_ERR"
+msgstr "Storage error"
+
+msgid "ERROR_FR_INT_ERR"
+msgstr "FatFs internal error"
+
+msgid "ERROR_FR_NOT_READY"
+msgstr "Storage not ready"
+
+msgid "ERROR_FR_NO_FILE"
+msgstr "File not found"
+
+msgid "ERROR_FR_NO_PATH"
+msgstr "Path not found"
+
+msgid "ERROR_FR_DENIED"
+msgstr "Access denied"
+
+msgid "ERROR_SAVE_CORRUPT"
+msgstr "Save data corrupted"
+
+msgid "ERROR_SAVE_PSRAM_CORRUPT"
+msgstr "PSRAM state corrupted"
+
+msgid "ERROR_MCU_COMM_FAILED"
+msgstr "MCU comm. error"
+
+msgid "ERROR_EEPROM_COMM_FAILED"
+msgstr "EEPROM comm. error"
+
+msgid "ERROR_MCU_BIN_CORRUPT"
+msgstr "Invalid MCU.BIN format!"
+
+msgid "ERROR_FILE_TOO_LARGE"
+msgstr "File too large"
+
+msgid "ERROR_FILE_FORMAT_INVALID"
+msgstr "File format invalid"
+
+msgid "ERROR_DATA_TRANSFER_TIMEOUT"
+msgstr "Data transfer timeout"
+
+msgid "ERROR_DATA_TRANSFER_CANCEL"
+msgstr "Data transfer cancelled"
+
+msgid "ERROR_DATA_CORRUPT"
+msgstr "Data corrupt"
+
+
+msgid "ERROR_TITLE_FS_INIT"
+msgstr "Could not mount storage!"
+
+msgid "ERROR_TITLE_MCU_INIT"
+msgstr "Could not initialize MCU!"
+
+msgid "ERROR_TITLE_SETTINGS_LOAD"
+msgstr "Could not load settings!"
+
+msgid "ERROR_TITLE_SAVE_STORE"
+msgstr "Could not store save data!"
+
+
+msgid "SUBMENU_OPTION_SETTINGS"
+msgstr "Settings"
+
+msgid "SUBMENU_OPTION_TOOLS"
+msgstr "Tools"
+
+msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
+msgstr "Launch via XMODEM"
+
+msgid "SUBMENU_OPTION_TEST_BFB"
+msgstr "Test"
+
+msgid "SUBMENU_OPTION_ABOUT"
+msgstr "About"
+
+msgid "SUBMENU_OPTION_WITCH"
+msgstr "Witch..."
+
+msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
+msgstr "Extract BIOS/OS"
+
+msgid "SUBMENU_OPTION_FILE"
+msgstr "File..."
+
+msgid "SUBMENU_OPTION_FILE_DELETE"
+msgstr "Delete"
+
+msgid "DIALOG_FILE_DELETE_CONFIRM"
+msgstr "Are you sure you want to delete this file?"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
+msgstr "Scanning for BIOS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
+msgstr "Extracting BIOS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
+msgstr "Scanning for OS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
+msgstr "Extracting OS..."
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
+msgstr "Replace BIOS"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_OS"
+msgstr "Replace OS"
+
+msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
+msgstr "Create image"
+
+msgid "INPUT_TARGET_FILENAME"
+msgstr "Input target filename"
+
+msgid "SELECT_FILE"
+msgstr "Select file"
+
+msgid "PROGRESS_COPYING_DATA"
+msgstr "Copying data..."
+
+msgid "SUBMENU_OPTION_CONTROLLER_MODE"
+msgstr "Controller mode"
+
+
+msgid "ERROR_WITCH_NO_BIOS_FOUND"
+msgstr "No BIOS file found!"
+
+msgid "ERROR_WITCH_NO_OS_FOUND"
+msgstr "No OS file found!"
+
+
+msgid "DIALOG_FILE_ALREADY_EXISTS"
+msgstr "File already exists."
+
+msgid "DIALOG_OVERWRITE_CONFIRM"
+msgstr "Are you sure you want to overwrite this file?"
+
+
+msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
+msgstr "Compatible"
+
+msgid "ATHENABIOS_SUFFIX_NATIVE"
+msgstr "Native"
+
+
+msgid "CONTROLLER_MODE_ACTIVE"
+msgstr "Controller mode active."
+
+msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
+msgstr "Press SOUND to exit."
+
+msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
+msgstr "Press VIEW to exit."
+
+
+msgid "ABOUT_RAM_BYTES_FREE"
+msgstr "%d IRAM bytes free"
+
+
+msgid "OSK_OK"
+msgstr "OK"
+
+msgid "OSK_ALPHA"
+msgstr "Aa"
+
+

@@ -1,0 +1,23 @@
+msgid "NAME"
+msgstr "SwanShell"
+
+msgid "NAME_COPYRIGHT"
+msgstr "(c) 2025 Adrian \"asie\" Siekierka"
+
+msgid "NAME_COPYRIGHT_INFO"
+msgstr "License GPLv3+: GNU GPL version 3 or later\n<https://gnu.org/licenses/gpl.html>\nThis is free software: you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."
+
+
+msgid "LANG_EN"
+msgstr "English"
+
+msgid "LANG_PL"
+msgstr "Polski"
+
+
+msgid "OSK_ALPHA_SMALL"
+msgstr "1234567890-=\nqwertyuiop[]\nasdfghjkl;\nzxcvbnm,.␣"
+
+msgid "OSK_ALPHA_LARGE"
+msgstr "!@#$%^&'()_+\nQWERTYUIOP{}\nASDFGHJKL;\nZXCVBNM,.␣"
+

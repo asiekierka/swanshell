@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-# Copyright (c) 2020 Adrian Siekierka
+# Copyright (c) 2020, 2025 Adrian Siekierka
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted.
@@ -14,61 +14,20 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 from pathlib import Path
-import glob, os, re, sys, unicodedata
+import ast, glob, json, os, re, sys, unicodedata
 
 def strip_accents(txt):
 	return unicodedata.normalize("NFD", txt).encode("ascii", "ignore").decode("utf-8")
-
-transforms = {}
-not_found_chars = {}
-
-# with open("lang/font_transforms.txt") as fp_i:
-#	for i in fp_i:
-#		i: str = i.rstrip("\n")
-#		if i.startswith("#"):
-#			continue
-#		data = i.split("\t")
-#		from_idx = int(data[0], 16)
-#		to_idx = int(data[1], 16)
-#		at_idx = int(data[2], 16)
-#		locales = data[3].split(",")
-#		# TODO: support locales
-#		for i in range(from_idx, to_idx+1):
-#			transforms[i] = i - from_idx + at_idx
-
-#def c_chr(i):
-#	if (i >= 0x20 and i <= 0x7E):
-#		return chr(i)
-#	else:
-#		return ("\\{0:03o}".format(i))
-
-def transform_string(s, loc):
-#	so = ""
-#	for c in s:
-#		if len(c) == 0:
-#			continue
-#		if ord(c) in transforms:
-#			so += c_chr(transforms[ord(c)])
-#		else:
-#			if ord(c) not in not_found_chars:
-#				print("Warning: character '%s' (%X) not available (locale %s)!" % (c, ord(c), loc), file = sys.stderr)
-#				not_found_chars[ord(c)] = True
-#			c = strip_accents(c)
-#			if (len(c) > 0) and (ord(c) in transforms):
-#				so += c_chr(transforms[ord(c)])
-#			else:
-#				so += '?'
-#	return so
-	return s
 
 properties = {}
 property_langs = {}
 property_idx = 0
 property_keys = {}
 
-for fn in glob.glob("lang//*.properties"):
+for fn in glob.glob("lang//*.po"):
 	lang_key = Path(fn).stem
 	with open(fn) as fp_i:
+		msg_id = None
 		for i in fp_i:
 			if lang_key == "_global":
 				lang_key = "en"
@@ -76,15 +35,19 @@ for fn in glob.glob("lang//*.properties"):
 			i: str = i.rstrip("\n")
 			if i.startswith("#"):
 				continue
-			if "=" in i:
-				kv = i.split("=", maxsplit=1)
-				if kv[0] not in properties:
-					properties[kv[0]] = {}
-				val = transform_string(kv[1], lang_key)
-				properties[kv[0]][lang_key] = val
-				if lang_key == "en":
-					property_keys[kv[0]] = property_idx
-					property_idx += 1
+			if " " in i:
+				kv = i.split(" ", maxsplit=1)
+				kv_key = kv[0].strip()
+				kv_value = ast.literal_eval(kv[1])
+				if kv_key == "msgid":
+					msg_id = kv_value
+				elif kv_key == "msgstr":
+					if msg_id not in properties:
+						properties[msg_id] = {}
+					properties[msg_id][lang_key] = kv_value
+					if lang_key == "en":
+						property_keys[msg_id] = property_idx
+						property_idx += 1
 
 with (
 	open(sys.argv[2], "w") as fp_c,
@@ -109,8 +72,8 @@ with (
 	for k, vv in properties.items():
 		for lang_key, v in vv.items():
 			if v not in property_strings:
-				v_escaped = v.replace("\"", "\\\"")
-				print(f"const char __far lk_entry_{property_string_idx}[] = \"{v_escaped}\";", file = fp_c)
+				v_escaped = json.dumps(v)
+				print(f"const char __far lk_entry_{property_string_idx}[] = {v_escaped};", file = fp_c)
 				property_strings[v] = property_string_idx
 				property_string_idx += 1
 

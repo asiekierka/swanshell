@@ -1,0 +1,285 @@
+msgid "YES"
+msgstr "Tak"
+
+msgid "NO"
+msgstr "Nie"
+
+msgid "CANCEL"
+msgstr "Anuluj"
+
+msgid "UI_STATUS_LOADING"
+msgstr "Ładowanie..."
+
+msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
+msgstr "Strona %d/%d"
+
+msgid "SETTINGS_INFO_WS"
+msgstr "Y1: Pomoc"
+
+msgid "SETTINGS_INFO_PC2"
+msgstr "Pass: Pomoc"
+
+msgid "SETTINGS_KEY"
+msgstr "Ustawienia"
+
+msgid "SETTINGS_LANGUAGE_KEY"
+msgstr "Język"
+
+msgid "SETTINGS_FILE_KEY"
+msgstr "Przeglądarka plików"
+
+msgid "SETTINGS_PROG_KEY"
+msgstr "Uruchamianie programów"
+
+msgid "SETTINGS_FILE_SORT_KEY"
+msgstr "Kolejność"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
+msgstr "Wyświetlaj ukryte"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
+msgstr "Wyświetla lub ukrywa pliki posiadające atrybut \"ukryty\"."
+
+msgid "SETTINGS_FILE_SORT_DEFAULT"
+msgstr "Domyślna"
+
+msgid "SETTINGS_FILE_SORT_NAME_ASC"
+msgstr "Nazwa ↑"
+
+msgid "SETTINGS_FILE_SORT_NAME_DESC"
+msgstr "Nazwa ↓"
+
+msgid "SETTINGS_FILE_SORT_DATE_ASC"
+msgstr "Data ↑"
+
+msgid "SETTINGS_FILE_SORT_DATE_DESC"
+msgstr "Data ↓"
+
+msgid "SETTINGS_FILE_SORT_SIZE_ASC"
+msgstr "Rozmiar ↑"
+
+msgid "SETTINGS_FILE_SORT_SIZE_DESC"
+msgstr "Rozmiar ↓"
+
+msgid "SETTINGS_FILE_VIEW_KEY"
+msgstr "Widok"
+
+msgid "SETTINGS_FILE_VIEW_LARGE"
+msgstr "Duża lista"
+
+msgid "SETTINGS_FILE_VIEW_SMALL"
+msgstr "Mała lista"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
+msgstr "Wymuś szybki SRAM"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
+msgstr "Włącza szybsze prędkości dostępu do pamieci SRAM i I/O kartridża na modelach konsoli Color przed włączeniem programu.\n\nOpcja ta może zmniejszyć spowolnienie niektórych programów, lecz może również negatywnie wpłynąć na kompatybilność czy unieważnić czas speedrunu."
+
+msgid "SETTINGS_PROG_FX_BIOS"
+msgstr "Wariant BIOS dla .fx"
+
+msgid "SETTINGS_PROG_FX_BIOS_HELP"
+msgstr "Wybiera wariant BIOSu używany przez programy .fx.\n\nDo komunikacji serial, Natywny używa port USB, Kompatybilny zaś portu EXT konsoli."
+
+msgid "DIALOG_UPDATING_MCU"
+msgstr "Aktualizacja MCU"
+
+msgid "DIALOG_PREPARE_SAVE"
+msgstr "Tworzenie danych zapisu"
+
+msgid "DIALOG_PREPARE_FLASH"
+msgstr "Tworzenie obrazu flash"
+
+msgid "DIALOG_PREPARE_ROM"
+msgstr "Tworzenie obrazu ROM"
+
+msgid "DIALOG_STORE_SAVE"
+msgstr "Zachowywanie danych zapisu"
+
+msgid "ERROR_FR_DISK_ERR"
+msgstr "Błąd nośnika danych"
+
+msgid "ERROR_FR_INT_ERR"
+msgstr "Błąd wewn. FatFs"
+
+msgid "ERROR_FR_NO_FILE"
+msgstr "Nie znaleziono pliku"
+
+msgid "ERROR_FR_NO_PATH"
+msgstr "Nie znaleziono ścieżki"
+
+msgid "ERROR_SAVE_CORRUPT"
+msgstr "Dane zapisu uszkodzone"
+
+msgid "ERROR_SAVE_PSRAM_CORRUPT"
+msgstr "Stan PSRAM utracony"
+
+msgid "ERROR_MCU_COMM_FAILED"
+msgstr "Błąd kom. MCU"
+
+msgid "ERROR_EEPROM_COMM_FAILED"
+msgstr "Błąd kom. EEPROM"
+
+msgid "ERROR_MCU_BIN_CORRUPT"
+msgstr "Nieznany format MCU.BIN!"
+
+msgid "ERROR_FILE_TOO_LARGE"
+msgstr "Zbyt duży plik"
+
+msgid "ERROR_FILE_FORMAT_INVALID"
+msgstr "Niepoprawny format pliku"
+
+msgid "ERROR_TITLE_SAVE_STORE"
+msgstr "Błąd zachowywania zapisu!"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "ERROR_FR_NOT_READY"
+msgstr "Nośnik nie jest gotowy"
+
+msgid "SUBMENU_OPTION_SETTINGS"
+msgstr "Ustawienia"
+
+msgid "ERROR_TITLE_FS_INIT"
+msgstr "Błąd montowania nośnika!"
+
+msgid "ERROR_TITLE_MCU_INIT"
+msgstr "Błąd inicjalizacji MCU!"
+
+msgid "ERROR_TITLE_SETTINGS_LOAD"
+msgstr "Błąd ładowania ustawień!"
+
+msgid "SUBMENU_OPTION_TEST_BFB"
+msgstr "Test"
+
+msgid "SUBMENU_OPTION_WITCH"
+msgstr "Witch..."
+
+msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
+msgstr "Wydobądź BIOS/OS"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
+msgstr "Poszukiwanie BIOS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
+msgstr "Wydobywanie BIOS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
+msgstr "Poszukiwanie OS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
+msgstr "Wydobywanie OS..."
+
+msgid "OSK_OK"
+msgstr "OK"
+
+msgid "OSK_ALPHA"
+msgstr "Aa"
+
+msgid "ERROR_FR_DENIED"
+msgstr "Brak dostępu"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
+msgstr "Wymień BIOS"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_OS"
+msgstr "Wymień OS"
+
+msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
+msgstr "Utwórz obraz"
+
+msgid "INPUT_TARGET_FILENAME"
+msgstr "Podaj docelową nazwę pliku"
+
+msgid "SELECT_FILE"
+msgstr "Wybierz plik"
+
+msgid "PROGRESS_COPYING_DATA"
+msgstr "Kopiowanie danych..."
+
+msgid "DIALOG_FILE_ALREADY_EXISTS"
+msgstr "Plik już istnieje."
+
+msgid "DIALOG_OVERWRITE_CONFIRM"
+msgstr "Czy na pewno chcesz nadpisać ten plik?"
+
+msgid "SUBMENU_OPTION_ABOUT"
+msgstr "O programie"
+
+msgid "ERROR_WITCH_NO_BIOS_FOUND"
+msgstr "Nie znaleziono pliku BIOS!"
+
+msgid "ERROR_WITCH_NO_OS_FOUND"
+msgstr "Nie znaleziono pliku OS!"
+
+msgid "ATHENABIOS_SUFFIX_NATIVE"
+msgstr "Natywny"
+
+msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
+msgstr "Kompatybilny"
+
+msgid "SETTINGS_THEME_DARK"
+msgstr "Ciemny"
+
+msgid "SETTINGS_THEME_LIGHT"
+msgstr "Jasny"
+
+msgid "SETTINGS_THEME_KEY"
+msgstr "Motyw"
+
+msgid "SETTINGS_THEME_ACCENT_COLOR"
+msgstr "Kolor akcentu"
+
+msgid "SETTINGS_THEME_DARK_MODE"
+msgstr "Tryb nocny"
+
+msgid "ERROR_DATA_TRANSFER_TIMEOUT"
+msgstr "Przekroczono czas transferu danych"
+
+msgid "ERROR_DATA_TRANSFER_CANCEL"
+msgstr "Anulowano transfer danych"
+
+msgid "ERROR_DATA_CORRUPT"
+msgstr "Dane uszkodzone"
+
+msgid "SUBMENU_OPTION_TOOLS"
+msgstr "Narzędzia"
+
+msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
+msgstr "Uruchom przez XMODEM"
+
+msgid "SUBMENU_OPTION_CONTROLLER_MODE"
+msgstr "Tryb kontrolera"
+
+msgid "CONTROLLER_MODE_ACTIVE"
+msgstr "Tryb kontrolera aktywny."
+
+msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
+msgstr "Wciśnij SOUND, aby wyjść."
+
+msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
+msgstr "Wciśnij VIEW, aby wyjść."
+
+msgid "ABOUT_RAM_BYTES_FREE"
+msgstr "%d bajtów IRAM wolne"
+
+msgid "SETTINGS_FILE_SORT_HELP"
+msgstr "Wybiera kolejność wyświetlania plików w przeglądarce plików."
+
+msgid "SETTINGS_FILE_VIEW_HELP"
+msgstr "Wybiera sposób przedstawiania plików w przeglądarce plików."
+
+msgid "UI_FILE_SELECTOR_EMPTY"
+msgstr "Pusty"
+
+msgid "SUBMENU_OPTION_FILE"
+msgstr "Plik..."
+
+msgid "SUBMENU_OPTION_FILE_DELETE"
+msgstr "Usuń"
+
+msgid "DIALOG_FILE_DELETE_CONFIRM"
+msgstr "Czy na pewno chcesz usunąć ten plik?"
+
