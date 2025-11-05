@@ -43,13 +43,19 @@ int16_t launch_athena_jump(void);
  */
 int16_t launch_athena_romfile_begin(void);
 
+typedef enum {
+    ATHENA_ROMFILE_TYPE_ROM0,
+    ATHENA_ROMFILE_TYPE_ROM0_BOOT,
+    ATHENA_ROMFILE_TYPE_RAM0
+} athena_romfile_type_t;
+
 /**
  * @brief Add file to ROM layout.
  * 
  * @param path File path.
  * @return int16_t Error code, if any.
  */
-int16_t launch_athena_romfile_add(const char *path, bool is_main_executable);
+int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type);
 
 int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name);
 

@@ -16,6 +16,7 @@
  */
 
 #include "launch_athena.h"
+#include <nilefs/ff.h>
 #include <stdbool.h>
 #include <ws.h>
 #include <nile.h>
@@ -25,6 +26,7 @@
 #include "settings.h"
 #include "strings.h"
 #include "ui/ui_popup_dialog.h"
+#include "util/file.h"
 
 #define DIR_SEGMENT 0x4000
 // TODO: Remove out of global allocation
@@ -143,6 +145,7 @@ typedef struct {
     uint16_t dir_segment;
     uint16_t file_count;
     uint16_t file_exec_idx;
+    uint16_t ram0_file_count;
 } athena_os_footer_t;
 
 #define ATHENA_OS_FOOTER (*((athena_os_footer_t __far*) MK_FP(0x1000, 0xFFE0)))
@@ -171,6 +174,7 @@ int16_t launch_athena_romfile_begin(void) {
             ATHENA_OS_FOOTER.dir_segment = DIR_SEGMENT;
             ATHENA_OS_FOOTER.file_count = 0;
             ATHENA_OS_FOOTER.file_exec_idx = 0;
+            ATHENA_OS_FOOTER.ram0_file_count = 0;
         });
     });
 
@@ -179,7 +183,7 @@ int16_t launch_athena_romfile_begin(void) {
     return FR_OK;
 }
 
-int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
+int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) {
     uint16_t file_count;
     int16_t result;
     FIL fp;
@@ -191,16 +195,28 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
         uint16_t prev_ram = inportw(WS_CART_EXTBANK_RAM_PORT);
         outportw(WS_CART_EXTBANK_RAM_PORT, ATHENA_OS_FOOTER_BANK);
 
-        file_count = ATHENA_OS_FOOTER.file_count++;
+        if (type == ATHENA_ROMFILE_TYPE_RAM0) {
+            file_count = ATHENA_OS_FOOTER.ram0_file_count++;
 
-        if (file_count >= 128) {
-            // TODO: Custom error message?
-            outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
-            return FR_TOO_MANY_OPEN_FILES;
-        }
+            if (file_count >= 64) {
+                // TODO: Custom error message?
+                outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
+                return FR_TOO_MANY_OPEN_FILES;
+            }
 
-        if (is_main_executable) {
-            ATHENA_OS_FOOTER.file_exec_idx = file_count;
+            file_count += ATHENA_OS_FOOTER.file_count;
+        } else {
+            file_count = ATHENA_OS_FOOTER.file_count++;
+
+            if (file_count >= 128) {
+                // TODO: Custom error message?
+                outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
+                return FR_TOO_MANY_OPEN_FILES;
+            }
+
+            if (type == ATHENA_ROMFILE_TYPE_ROM0_BOOT) {
+                ATHENA_OS_FOOTER.file_exec_idx = file_count;
+            }
         }
 
         // Read file
@@ -219,7 +235,7 @@ int16_t launch_athena_romfile_add(const char *path, bool is_main_executable) {
             result = f_read(&fp, buffer, 64, &br);
         } else {
             if (!read_non_ww_files || f_size(&fp) > 640L*1024L) {
-                result = is_main_executable ? ERR_FILE_FORMAT_INVALID : FR_OK;
+                result = type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? ERR_FILE_FORMAT_INVALID : FR_OK;
                 goto launch_athena_romfile_add_done;
             }
 
@@ -292,13 +308,24 @@ launch_athena_romfile_add_done:
     });
 }
 
+static const char __far path_ram0_0[] = "../ram0";
+static const char __far path_ram0_1[] = "../ram";
+static const char __far path_ram0_2[] = "ram0";
+static const char __far path_ram0_3[] = "ram";
+static const char __far * const __far path_ram0[] = {
+    path_ram0_0, path_ram0_1, path_ram0_2, path_ram0_3
+};
+#define PATH_RAM0_COUNT (sizeof(path_ram0) / sizeof(void __far*))
+
 int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
     FILINFO fi;
     DIR dp;
     char buffer[FF_LFN_BUF + 1];
+    int16_t result;
+    FILINFO fno;
+
     buffer[0] = '.';
     buffer[1] = 0;
-    int16_t result;
 
     ui_popup_dialog_config_t dlg = {0};
     dlg.title = lang_keys[LK_DIALOG_PREPARE_ROM];
@@ -313,48 +340,65 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
     if (result != FR_OK) return result;
 
     // Read current directory for .fx/.fr/.il files
-    result = f_opendir(&dp, buffer);
-    if (result != FR_OK) return result;
-
-    while (true) {
-        result = f_readdir(&dp, &fi);
-        if (result != FR_OK) return result;
-        if (!fi.fname[0]) break;
-        if (fi.fattrib & AM_DIR) continue;
-
-        result = launch_athena_romfile_add(fi.fname, !strcmp(name, fi.fname));
-        if (result != FR_OK) {
-            f_closedir(&dp);
-            return result;
-        }
-    }
-
-    f_closedir(&dp);
-
-    // Read /NILESWAN/fbin for .il files
+    // Order:
+    // i = 0 => .
+    // i = 1 => /fbin
+    // i = 2..N >= ../ram0, ../ram, etc.
     int fbin_len = strlen(s_path_fbin);
-    strcpy(buffer, s_path_fbin);
-    result = f_opendir(&dp, buffer);
-    if (result == FR_OK) {
+    for (int i = 0; i <= PATH_RAM0_COUNT+1; i++) {
+        athena_romfile_type_t type = i < 2 ? ATHENA_ROMFILE_TYPE_ROM0 : ATHENA_ROMFILE_TYPE_RAM0;
+        if (i >= 2) {
+            // Check for ram0 path candidate
+            strcpy(buffer, path_ram0[i - 2]);
+            result = f_stat(buffer, &fno);
+            if (result != FR_OK) continue;
+            if (!(fno.fattrib & AM_DIR)) continue;
+
+            // Found ram0 path
+            result = f_chdir(buffer);
+            if (result != FR_OK) return result;
+        } else if (i == 1) {
+            strcpy(buffer, s_path_fbin);
+        }
+
+        result = f_opendir(&dp, buffer);
+        if (result != FR_OK) return result;
+
         while (true) {
             result = f_readdir(&dp, &fi);
-            if (result != FR_OK) return result;
+            if (result != FR_OK) {
+                f_closedir(&dp);
+                return result;
+            }
             if (!fi.fname[0]) break;
             if (fi.fattrib & AM_DIR) continue;
 
-            int len = strlen(fi.fname);
-            if (len >= 4 && !strcasecmp(fi.fname + len - 3, s_file_ext_il)) {
-                buffer[fbin_len] = '/';
-                strcpy(buffer + fbin_len + 1, fi.fname);
-                result = launch_athena_romfile_add(buffer, false);
-                if (result != FR_OK) {
-                    f_closedir(&dp);
-                    return result;
+            athena_romfile_type_t f_type = type;
+            if (i == 0) {
+                if (!strcmp(name, fi.fname)) {
+                    f_type = ATHENA_ROMFILE_TYPE_ROM0_BOOT;
                 }
+            }
+            if (i == 1) {
+                int len = strlen(fi.fname);
+                if (len >= 4 && !strcasecmp(fi.fname + len - 3, s_file_ext_il)) {
+                    buffer[fbin_len] = '/';
+                    strcpy(buffer + fbin_len + 1, fi.fname);
+                    result = launch_athena_romfile_add(buffer, false);
+                }
+            } else {
+                result = launch_athena_romfile_add(fi.fname, f_type);
+            }
+            if (result != FR_OK) {
+                f_closedir(&dp);
+                return result;
             }
         }
 
         f_closedir(&dp);
+
+        // Found ram0 directory; exit.
+        if (i >= 2) break;
     }
 
     return launch_athena_jump();
