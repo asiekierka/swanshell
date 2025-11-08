@@ -67,6 +67,7 @@ int ui_vgmplay(const char *path) {
 
     ui_draw_titlebar(NULL);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
     uint32_t size = f_size(&fp);
     if (size > 4L*1024*1024) {
@@ -121,6 +122,7 @@ int ui_vgmplay(const char *path) {
         lcd_set_vtotal(vtotal_initial);
     }
 
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
     ui_init();
 
     return 0;

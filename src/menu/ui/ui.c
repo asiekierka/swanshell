@@ -161,34 +161,36 @@ static inline void load_wallpaper(void) {
     ui_show_inner();
     wallpaper_status = 2;
 
-    result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), &br);
-    f_close(&fp);
-    if (result != FR_OK) return;
+    ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
+        result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), &br);
+        f_close(&fp);
+        if (result != FR_OK) return;
 
-    bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
-    if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
-        bmp->width != WS_DISPLAY_WIDTH_PIXELS || bmp->height != WS_DISPLAY_HEIGHT_PIXELS ||
-        bmp->compression != 0 || bmp->bpp != 4) return;
+        bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
+        if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
+            bmp->width != WS_DISPLAY_WIDTH_PIXELS || bmp->height != WS_DISPLAY_HEIGHT_PIXELS ||
+            bmp->compression != 0 || bmp->bpp != 4) return;
 
-    uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
-    for (int i = 0; i < 16; i++) {
-        uint8_t b = *(palette++);
-        uint8_t g = *(palette++);
-        uint8_t r = *(palette++);
-        palette++;
-        WS_DISPLAY_COLOR_MEM(3)[i] = WS_RGB(r >> 4, g >> 4, b >> 4);
-    }
-    WS_DISPLAY_COLOR_MEM(0)[0] = WS_DISPLAY_COLOR_MEM(3)[0];
-
-    uint8_t __far *data = MK_FP(0x1000, bmp->data_start);
-    uint16_t pitch = (((bmp->width * bmp->bpp) + 31) / 32) << 2;
-    for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
-        uint32_t __far *line_src = (uint32_t __far*) data;
-        uint32_t *line_dst = (uint32_t*) (0x8000 + (((uint16_t)bmp->height - 1 - y) * 4));
-        for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += 18 * 8) {
-            *line_dst = wsx_planar_convert_4bpp_packed_row(*line_src);
+        uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
+        for (int i = 0; i < 16; i++) {
+            uint8_t b = *(palette++);
+            uint8_t g = *(palette++);
+            uint8_t r = *(palette++);
+            palette++;
+            WS_DISPLAY_COLOR_MEM(3)[i] = WS_RGB(r >> 4, g >> 4, b >> 4);
         }
-    }
+        WS_DISPLAY_COLOR_MEM(0)[0] = WS_DISPLAY_COLOR_MEM(3)[0];
+
+        uint8_t __far *data = MK_FP(0x1000, bmp->data_start);
+        uint16_t pitch = (((bmp->width * bmp->bpp) + 31) / 32) << 2;
+        for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
+            uint32_t __far *line_src = (uint32_t __far*) data;
+            uint32_t *line_dst = (uint32_t*) (0x8000 + (((uint16_t)bmp->height - 1 - y) * 4));
+            for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += 18 * 8) {
+                *line_dst = wsx_planar_convert_4bpp_packed_row(*line_src);
+            }
+        }
+    });
 
     wallpaper_status = 1;
 }

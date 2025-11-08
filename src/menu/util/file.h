@@ -21,7 +21,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <wonderful.h>
-#include <ws/ports.h>
+#include <ws.h>
 #include <nilefs.h>
 #include "config.h"
 
@@ -44,10 +44,9 @@ typedef void (*fbanked_progress_callback_t)(void *userdata, uint32_t step, uint3
 
 int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata);
 static inline int16_t f_read_rom_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata) {
-    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
-    int16_t result = f_read_sram_banked(fp, bank, btr, cb, userdata);
-    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
-    return result;
+    ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
+        return f_read_sram_banked(fp, bank, btr, cb, userdata);
+    });
 }
 
 int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata);

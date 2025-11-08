@@ -62,18 +62,18 @@ int16_t memops_unpack_psram_data_if_gzip(uint16_t *bank, uint16_t dest_bank) {
 
         *bank = dest_bank;
         int16_t result = FR_OK;
-        outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
-        ws_bank_with_ram(dest_bank, {
-            if (puff(
-                MK_FP(0x1000, 0x0000),
-                (uint32_t)(0x80 - dest_bank) << 16,
-                MK_FP(0x2000, offset),
-                ((uint32_t)(dest_bank - src_bank) << 16) - offset
-            ) < 0) {
-                result = ERR_MCU_BIN_CORRUPT;
-            }
+        ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
+            ws_bank_with_ram(dest_bank, {
+                if (puff(
+                    MK_FP(0x1000, 0x0000),
+                    (uint32_t)(0x80 - dest_bank) << 16,
+                    MK_FP(0x2000, offset),
+                    ((uint32_t)(dest_bank - src_bank) << 16) - offset
+                ) < 0) {
+                    result = ERR_MCU_BIN_CORRUPT;
+                }
+            });
         });
-        outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
         return result;
     });
 }
