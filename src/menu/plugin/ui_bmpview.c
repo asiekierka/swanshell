@@ -21,6 +21,7 @@
 #include <string.h>
 #include <ws.h>
 #include <nilefs.h>
+#include <ws/system.h>
 #include "errors.h"
 #include "../ui/ui.h"
 #include "../util/input.h"
@@ -64,9 +65,34 @@ int ui_bmpview(const char *path) {
     bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
     if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
         bmp->width <= 0 || bmp->width > WS_DISPLAY_WIDTH_PIXELS || bmp->height <= 0 || bmp->height > WS_DISPLAY_HEIGHT_PIXELS ||
-        bmp->compression != 0 || bmp->color_count > (ws_system_is_color_active() ? 16 : 4) ||
-        (bmp->bpp != 1 && (!ws_system_is_color_active() || bmp->bpp != 4))) {
+        bmp->compression != 0) {
         return ERR_FILE_FORMAT_INVALID;
+    }
+
+    int color_count = bmp->color_count;
+    uint8_t __far *data = MK_FP(0x1000, bmp->data_start);
+    uint16_t pitch = (((bmp->width * bmp->bpp) + 31) / 32) << 2;
+
+    if (!color_count) {
+        color_count = 1 << bmp->bpp;
+    }
+    if (bmp->bpp == 8 && color_count > 16) {
+        color_count = 1;
+        uint8_t __far *data_chk = data;
+        for (uint16_t y = 0; y < bmp->height; y++) {
+            for (uint16_t x = 0; x < bmp->width; x++, data_chk++) {
+                color_count = MAX(color_count, *data_chk + 1);
+            }
+        }
+    }
+    if (ws_system_is_color_active()) {
+        if (color_count > 16 || (bmp->bpp != 1 && bmp->bpp != 4 && bmp->bpp != 8)) {
+            return ERR_FILE_FORMAT_INVALID;
+        }
+    } else {
+        if (bmp->bpp != 1) {
+            return ERR_FILE_FORMAT_INVALID;
+        }
     }
 
     outportw(WS_DISPLAY_CTRL_PORT, 0);
@@ -82,9 +108,9 @@ int ui_bmpview(const char *path) {
     // configure palette
     uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
     if (ws_system_is_color_active()) {
-        ws_system_set_mode(bmp->bpp == 4 ? WS_MODE_COLOR_4BPP_PACKED : WS_MODE_COLOR);
+        ws_system_set_mode(bmp->bpp >= 4 ? WS_MODE_COLOR_4BPP_PACKED : WS_MODE_COLOR);
 
-        for (int i = 0; i < bmp->color_count; i++) {
+        for (int i = 0; i < color_count; i++) {
             uint8_t b = *(palette++);
             uint8_t g = *(palette++);
             uint8_t r = *(palette++);
@@ -95,7 +121,7 @@ int ui_bmpview(const char *path) {
     } else {
         outportw(WS_SCR_PAL_0_PORT, 0x7654);
         uint16_t shades = 0;
-        for (int i = 0; i < bmp->color_count; i++) {
+        for (int i = 0; i < color_count; i++) {
             uint16_t b = *(palette++);
             uint16_t g = *(palette++);
             uint16_t r = *(palette++);
@@ -107,9 +133,23 @@ int ui_bmpview(const char *path) {
     }
 
     // copy data
-    uint8_t __far *data = MK_FP(0x1000, bmp->data_start);
-    uint16_t pitch = (((bmp->width * bmp->bpp) + 31) / 32) << 2;
-    if (bmp->bpp == 4) {
+    if (bmp->bpp == 8) {
+        for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
+            uint16_t __far *line_src = (uint16_t __far*) data;
+            uint8_t *line_dst = (uint8_t*) (0x4000 + (((uint16_t)bmp->height - 1 - y) * 4));
+            for (uint8_t x = 0; x < bmp->width; x += 8, line_dst += 18 * 32 - 4) {
+                uint16_t s;
+                s = *(line_src++);
+                *(line_dst++) = (s << 4) | (s >> 8);
+                s = *(line_src++);
+                *(line_dst++) = (s << 4) | (s >> 8);
+                s = *(line_src++);
+                *(line_dst++) = (s << 4) | (s >> 8);
+                s = *(line_src++);
+                *(line_dst++) = (s << 4) | (s >> 8);
+            }
+        }
+    } else if (bmp->bpp == 4) {
         for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
             uint32_t __far *line_src = (uint32_t __far*) data;
             uint32_t *line_dst = (uint32_t*) (0x4000 + (((uint16_t)bmp->height - 1 - y) * 4));
@@ -119,7 +159,7 @@ int ui_bmpview(const char *path) {
         }
     } else if (bmp->bpp == 1) {
         for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
-            uint8_t __far *line_src = (uint32_t __far*) data;
+            uint8_t __far *line_src = (uint8_t __far*) data;
             uint16_t *line_dst = (uint16_t*) (0x2000 + (((uint16_t)bmp->height - 1 - y) * 2));
             for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += 18 * 8) {
                 *line_dst = *line_src;
@@ -140,6 +180,7 @@ int ui_bmpview(const char *path) {
     input_wait_any_key();
 
     ui_init();
+    ui_layout_clear(0);
 
     return 0;
 }
