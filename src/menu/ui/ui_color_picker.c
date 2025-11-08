@@ -58,17 +58,6 @@ static const uint8_t __far colorbar_mono_gradient[] = {
 };
 
 static void draw_colorbar_mono(uint8_t y, uint8_t start_palette, uint16_t rgb, uint8_t rgb_shift, uint16_t lang_key, bool full_redraw, bool masked) {
-    uint16_t rgb_1 = 0x1 << rgb_shift;
-    uint16_t rgb_mask = 0xF << rgb_shift;
-
-    // Set palette entries
-    for (int i = 0; i < 16; i++) {
-        uint16_t local_rgb = rgb_1 * i;
-        if (masked)
-            local_rgb |= (rgb & ~rgb_mask);
-        WS_DISPLAY_COLOR_MEM(start_palette + (i >> 3))[8 + (i & 7)] = local_rgb;
-    }
-
     // Set rectangle palettes
     if (full_redraw) {
         ws_screen_modify_tiles(bitmap_screen2,
@@ -79,7 +68,6 @@ static void draw_colorbar_mono(uint8_t y, uint8_t start_palette, uint16_t rgb, u
     }
 
     // Draw rectangles
-
     bitmap_rect_fill(&ui_bitmap, COLORBAR_X, full_redraw ? y : y + COLORBAR_SEL_Y,
         COLORBAR_WIDTH, full_redraw ? COLORBAR_ENTRY_HEIGHT : COLORBAR_SEL_HEIGHT, BITMAP_COLOR_2BPP(2));
     for (int i = full_redraw ? 0 : 4; i < (full_redraw ? 16 : 12); i += 4) {
@@ -102,18 +90,7 @@ static void draw_colorbar_mono(uint8_t y, uint8_t start_palette, uint16_t rgb, u
 
 // === Color mode implementation ===
 
-static void draw_colorbar(uint8_t y, uint8_t start_palette, uint16_t rgb, uint8_t rgb_shift, uint16_t lang_key, bool full_redraw, bool masked) {
-    uint16_t rgb_1 = 0x1 << rgb_shift;
-    uint16_t rgb_mask = 0xF << rgb_shift;
-
-    // Set palette entries
-    for (int i = 0; i < 16; i++) {
-        uint16_t local_rgb = rgb_1 * i;
-        if (masked)
-            local_rgb |= (rgb & ~rgb_mask);
-        WS_DISPLAY_COLOR_MEM(start_palette + (i >> 3))[8 + (i & 7)] = local_rgb;
-    }
-
+static void draw_colorbar(uint8_t y, uint8_t start_palette, uint16_t rgb, uint8_t rgb_shift, uint16_t lang_key, bool full_redraw) {
     // Set rectangle palettes
     if (full_redraw) {
         ws_screen_modify_tiles(bitmap_screen2,
@@ -178,6 +155,7 @@ void ui_color_picker(uint16_t *rgb) {
     int redraw_colorbars = 7;
     bool full_redraw_colorbars = true;
     bool colorbars_masked = true;
+    bool color_changed = true;
     int selector_offset = mono ? 3 : 0;
 
     while (true) {
@@ -191,7 +169,24 @@ void ui_color_picker(uint16_t *rgb) {
                     : WS_DISPLAY_MONO_PALETTE(7, 0, 4, 1));
             }
         } else {
-            WS_DISPLAY_COLOR_MEM(10)[5] = new_rgb;
+            if (color_changed) {
+                WS_DISPLAY_COLOR_MEM(10)[5] = new_rgb;
+
+                for (int i = 0; i < 3; i++) {
+                    int start_palette = 10 + (i * 2);
+                    int rgb_shift = 8 - (i * 4);
+                    uint16_t rgb_1 = 0x1 << rgb_shift;
+                    uint16_t rgb_mask = 0xF << rgb_shift;
+
+                    // Set palette entries
+                    for (int i = 0; i < 16; i++) {
+                        uint16_t local_rgb = rgb_1 * i;
+                        if (colorbars_masked)
+                            local_rgb |= (new_rgb & ~rgb_mask);
+                        WS_DISPLAY_COLOR_MEM(start_palette + (i >> 3))[8 + (i & 7)] = local_rgb;
+                    }
+                }
+            }
 
             for (int i = 0; i < 3; i++) {
                 uint16_t outer = selector_offset == i ? 0xFFF : 0x000;
@@ -203,6 +198,7 @@ void ui_color_picker(uint16_t *rgb) {
                 WS_DISPLAY_COLOR_MEM(o+1)[7] = inner;
             }
         }
+        color_changed = false;
 
         // Draw color bars
         if (redraw_colorbars) {
@@ -215,11 +211,11 @@ void ui_color_picker(uint16_t *rgb) {
                     draw_colorbar_mono(112, 11, new_rgb, 0, LK_COLOR_BLUE, full_redraw_colorbars, colorbars_masked);
             } else {
                 if (redraw_colorbars & 1)
-                    draw_colorbar(48, 10, new_rgb, 8, LK_COLOR_RED, full_redraw_colorbars, colorbars_masked);
+                    draw_colorbar(48, 10, new_rgb, 8, LK_COLOR_RED, full_redraw_colorbars);
                 if (redraw_colorbars & 2)
-                    draw_colorbar(80, 12, new_rgb, 4, LK_COLOR_GREEN, full_redraw_colorbars, colorbars_masked);
+                    draw_colorbar(80, 12, new_rgb, 4, LK_COLOR_GREEN, full_redraw_colorbars);
                 if (redraw_colorbars & 4)
-                    draw_colorbar(112, 14, new_rgb, 0, LK_COLOR_BLUE, full_redraw_colorbars, colorbars_masked);
+                    draw_colorbar(112, 14, new_rgb, 0, LK_COLOR_BLUE, full_redraw_colorbars);
             }
 
             redraw_colorbars = 0;
@@ -228,7 +224,7 @@ void ui_color_picker(uint16_t *rgb) {
 
         int component_offset = (8 - ((selector_offset == 3 ? 0 : selector_offset) * 4));
         int component = (new_rgb >> component_offset) & 0xF;
-        int redraw_local = (selector_offset == 3 || (colorbars_masked && !mono)) ? 7 : (1 << selector_offset);
+        int redraw_local = (selector_offset == 3) ? 7 : (1 << selector_offset);
 
         // Fetch input
         idle_until_vblank();
@@ -276,14 +272,16 @@ void ui_color_picker(uint16_t *rgb) {
         }
         if (input_pressed & WS_KEY_Y1) {
             colorbars_masked = !colorbars_masked;
-            redraw_colorbars = 7;
+            color_changed = true;
         }
 
         if (redraw_colorbars) {
+            uint16_t prev_new_rgb = new_rgb;
             if (selector_offset == 3)
                 new_rgb = component * 0x111;
             else
                 new_rgb = (new_rgb & ~(0xF << component_offset)) | (component << component_offset);
+            color_changed = prev_new_rgb != new_rgb;
         }
     }
 
