@@ -15,6 +15,7 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -155,8 +156,7 @@ int ui_wavplay(const char *path) {
 
     uint8_t bytes_per_sample = (fmt.channels * (fmt.bits_per_sample >> 3));
     uint32_t bytes_per_second = (uint32_t) bytes_per_sample * fmt.sample_rate;
-    uint32_t bytes_read_subsecond = WAV_BUFFER_SIZE * 2;
-    uint32_t seconds_current = 0;
+    uint32_t seconds_last = 0;
     uint32_t seconds_in_song = chunk_info[1] / bytes_per_second;
 
     if (ws_system_is_color_active()) {
@@ -265,8 +265,13 @@ int ui_wavplay(const char *path) {
         outportb(WS_SDMA_CTRL_PORT, WS_SDMA_CTRL_ENABLE | rate | WS_SDMA_CTRL_REPEAT | WS_SDMA_CTRL_TARGET_CH2);
     }
     
+    uint32_t data_start = f_tell(&fp);
     uint8_t next_buffer = 0;
+    bool redraw_seek_position = false;
+
     while (true) {
+    	uint16_t vbl_ticks_last = vbl_ticks;
+
         unsigned int bytes_read = 0;
         bool read_next = false;
         if (next_buffer == 1) {
@@ -298,15 +303,12 @@ int ui_wavplay(const char *path) {
         }
 
         if (ws_system_is_color_active()) {
-            bool update_seconds = false;
-            bytes_read_subsecond += bytes_read;
-            while (bytes_read_subsecond > bytes_per_second) {
-                seconds_current++;
-                bytes_read_subsecond -= bytes_per_second;
-                update_seconds = true;
-            }
+            bool update_seconds = redraw_seek_position;
+            uint32_t seconds_current = (f_tell(&fp) - data_start) / bytes_per_second;
+            update_seconds |= seconds_current != seconds_last;
 
             if (update_seconds) {
+                seconds_last = seconds_current;
                 wait_for_vblank();
 
                 bitmap_rect_fill(&ui_bitmap,
@@ -321,6 +323,13 @@ int ui_wavplay(const char *path) {
                     seconds_buffer, 65535);
 
                 uint16_t bar_width = (((uint32_t) seconds_current) * (UI_WAV_DURATION_BAR_WIDTH - 2)) / seconds_in_song;
+                if (redraw_seek_position) {
+                    bitmap_rect_fill(&ui_bitmap,
+                        UI_WAV_DURATION_BAR_X + 1, UI_WAV_DURATION_BAR_Y + 1,
+                        UI_WAV_DURATION_BAR_WIDTH - 2, UI_WAV_DURATION_BAR_HEIGHT - 2,
+                        BITMAP_COLOR_4BPP(MAINPAL_COLOR_WHITE));
+                    redraw_seek_position = false;
+                }
                 bitmap_rect_fill(&ui_bitmap,
                     UI_WAV_DURATION_BAR_X + 1, UI_WAV_DURATION_BAR_Y + 1,
                     bar_width, UI_WAV_DURATION_BAR_HEIGHT - 2,
@@ -328,9 +337,24 @@ int ui_wavplay(const char *path) {
             }
         }
 
+        while (vbl_ticks == vbl_ticks_last) {
+            ia16_halt();
+        }
         input_update();
-        if (input_pressed) {
+        if (input_pressed & (WS_KEY_B | WS_KEY_START)) {
             break;
+        }
+        int32_t new_pos = INT_MIN;
+        uint32_t seek_distance = bytes_per_second * 3;
+        if (input_pressed & WS_KEY_X4) {
+            new_pos = f_tell(&fp) - seek_distance;
+        } else if (input_pressed & WS_KEY_X2) {
+            new_pos = f_tell(&fp) + seek_distance;
+        }
+        if (new_pos != INT_MIN) {
+            if (new_pos < data_start) new_pos = data_start;
+            f_lseek(&fp, new_pos);
+            redraw_seek_position = true;
         }
     }
 
