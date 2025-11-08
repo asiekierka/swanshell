@@ -54,6 +54,8 @@ typedef struct {
 #define BITMAP_COLOR_MODE_STORE    0x000
 #define BITMAP_COLOR_MODE_XOR      0x100
 #define BITMAP_COLOR(value, mask, mode) ((value) | ((mask) << 4) | (mode)) 
+#define BITMAP_COLOR_2BPP(value) BITMAP_COLOR(value, 3, BITMAP_COLOR_MODE_STORE)
+#define BITMAP_COLOR_4BPP(value) BITMAP_COLOR(value, 15, BITMAP_COLOR_MODE_STORE)
 
 uint32_t bitmap_c2p_4bpp_pixel(uint32_t pixel);
 

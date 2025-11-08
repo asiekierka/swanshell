@@ -285,3 +285,15 @@ msgstr "Czy na pewno chcesz usunąć ten plik?"
 
 msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
 msgstr "Część funkcjonalności będzie niedostępna. Czy chcesz kontynuować?"
+
+msgid "COLOR_RED"
+msgstr "Czerwony"
+
+msgid "COLOR_GREEN"
+msgstr "Zielony"
+
+msgid "COLOR_BLUE"
+msgstr "Niebieski"
+
+msgid "COLOR_PREVIEW"
+msgstr "Podgląd"

@@ -1,3 +1,5 @@
+## Memory layout
+
 |  From  |   To   | Description |
 | ------ | ------ | ----------- |
 | 0x0000 | 0x003F | IRQ vectors |
@@ -11,3 +13,11 @@
 | 0xC000 | 0xDFFF | WSC I/O buffer |
 | 0xE000 | 0xFDFF | Unused |
 | 0xFE00 | 0xFFFF | WSC palettes |
+
+## Menu palette layout
+
+- Palette 0: icon palette
+- Palette 1: icon palette (selected)
+- Palette 2: title bar palette
+- Palette 3: reserved - wallpaper?
+- Palette 8..15: general use

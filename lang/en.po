@@ -304,3 +304,14 @@ msgid "OSK_ALPHA"
 msgstr "Aa"
 
 
+msgid "COLOR_RED"
+msgstr "Red"
+
+msgid "COLOR_GREEN"
+msgstr "Green"
+
+msgid "COLOR_BLUE"
+msgstr "Blue"
+
+msgid "COLOR_PREVIEW"
+msgstr "Preview"

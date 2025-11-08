@@ -22,9 +22,13 @@ This section configures the display of files.
 
 This section configures visuals.
 
-- **Dark mode**: Enables or disables dark mode.
+- **Dark mode**: Enable or disable dark mode.
 
 ![The file list with dark mode enabled.](/swanshell/img/dark_mode.png)
+
+- **Accent color**: Select the main accent color of the theme.
+
+![The color picker.](/swanshell/img/color_picker.png)
 
 ## Language
 

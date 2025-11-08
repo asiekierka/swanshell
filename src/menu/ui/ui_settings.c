@@ -28,6 +28,7 @@
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
+#include "ui/ui_color_picker.h"
 #include "ui/ui_dialog.h"
 #include "ui_selector.h"
 #include "ui_settings.h"
@@ -121,9 +122,11 @@ reload_menu:
         }
 
         if (keys_pressed & WS_KEY_A) {
+            bool reload_required = false;
+            
             if (s->type == SETTING_TYPE_CATEGORY) {
                 config.category = s->category.value;
-                goto reload_menu;
+                reload_required = true;
             } else if (s->type == SETTING_TYPE_FLAG) {
                 *s->flag.value ^= (1 << s->flag.bit);
             } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
@@ -138,14 +141,18 @@ reload_menu:
                     }
                 }
                 *((uint8_t*) s->choice.value) = value;
+            } else if (s->type == SETTING_TYPE_COLOR) {
+                ui_color_picker(s->color.value);
+                reload_required = true;
             }
 
             if (s->on_change) {
                 s->on_change(s);
-
                 // Immediate language changes depend on this
-                goto reload_menu;
+                reload_required = true;
             }
+            if (reload_required)
+                goto reload_menu;
         }
         if (keys_pressed & WS_KEY_B) {
             if (config.category == root_category) {
