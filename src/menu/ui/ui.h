@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "bitmap.h"
+#include "util/math.h"
 
 #define UI_CENTERED_IN_BOX(xofs,width,inner_width) ((xofs) + (((width) - (inner_width)) >> 1))
 
@@ -38,6 +39,10 @@ void ui_layout_bars(void);
 void ui_draw_centered_status(const char __far* text);
 void ui_draw_titlebar(const char __far* text);
 void ui_draw_statusbar(const char __far* text);
+
+static inline uint8_t ui_rgb_to_shade(uint16_t rgb) {
+    return (math_color_to_greyscale(rgb) >> 1) ^ 7;
+}
 
 extern uint16_t bitmap_screen2[];
 

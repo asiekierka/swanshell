@@ -23,7 +23,7 @@
 #include "settings.h"
 #include "lang.h"
 #include "strings.h"
-#include "util/math.h"
+#include "ui/ui.h"
 
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
@@ -208,7 +208,7 @@ static const setting_t __far setting_program = {
 
 static void settings_theme_accent_color_on_change(const settings_t *set) {
     bool dark = settings.accent_color_high & SETTING_THEME_DARK_MODE;
-    int shade = (math_color_to_greyscale(settings.accent_color) >> 1) ^ 7;
+    int shade = ui_rgb_to_shade(settings.accent_color);
     bool dark_titlebar_text = shade <= (dark ? 5 : 1);
     if (ws_system_is_color_active()) {
         WS_DISPLAY_COLOR_MEM(2)[2] = settings.accent_color;

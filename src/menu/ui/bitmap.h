@@ -69,7 +69,7 @@ static inline void bitmap_hline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16
     bitmap_rect_fill(bitmap, x, y, length, 1, color);
 }
 void bitmap_vline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uint16_t color);
-void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint16_t w, uint16_t h, uint16_t bitofs, uint16_t layer, const uint8_t __far* font_data);
+void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint16_t w, uint16_t h, uint16_t layer, const uint8_t __far* font_data);
 
 extern const uint16_t __far font8_bitmap[];
 extern const uint16_t __far font16_bitmap[];
