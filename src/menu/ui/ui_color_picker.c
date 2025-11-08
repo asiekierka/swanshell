@@ -25,6 +25,7 @@
 #include "ui/bitmap.h"
 #include "ui/ui.h"
 #include "main.h"
+#include "settings.h"
 #include "util/input.h"
 
 #define COLORBAR_WIDTH (WS_DISPLAY_WIDTH_PIXELS - 32)
@@ -286,5 +287,7 @@ void ui_color_picker(uint16_t *rgb) {
         }
     }
 
-    bitmap_rect_fill(&ui_bitmap, COLORBAR_X, 8, COLORBAR_WIDTH, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR_4BPP(2));
+    if (!mono)
+        memset(WS_DISPLAY_COLOR_MEM(8) + 1, (settings.accent_color_high & SETTING_THEME_DARK_MODE) ? 0x00 : 0xFF, 254);
+    bitmap_rect_fill(&ui_bitmap, COLORBAR_X - 8, 12, COLORBAR_WIDTH + 16, WS_DISPLAY_HEIGHT_PIXELS - 24, BITMAP_COLOR_4BPP(2));
 }
