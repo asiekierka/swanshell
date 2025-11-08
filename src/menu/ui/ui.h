@@ -42,8 +42,10 @@ void ui_draw_titlebar(const char __far* text);
 void ui_draw_statusbar(const char __far* text);
 #ifdef CONFIG_ENABLE_WALLPAPER
 bool ui_has_wallpaper(void);
+void ui_unload_wallpaper(void);
 #else
 static inline bool ui_has_wallpaper(void) { return false; }
+static inline void ui_unload_wallpaper(void) { }
 #endif
 
 static inline uint8_t ui_rgb_to_shade(uint16_t rgb) {

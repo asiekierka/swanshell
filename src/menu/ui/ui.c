@@ -135,10 +135,11 @@ bool ui_has_wallpaper(void) {
 
 __attribute__((always_inline))
 static inline void ui_show_inner(void) {
+    uint8_t ctrl = inportb(WS_DISPLAY_CTRL_PORT) & ~0x3;
 #ifdef CONFIG_ENABLE_WALLPAPER
-    outportw(WS_DISPLAY_CTRL_PORT, inportw(WS_DISPLAY_CTRL_PORT) | WS_DISPLAY_CTRL_SCR2_ENABLE | (wallpaper_status & 1));
+    outportb(WS_DISPLAY_CTRL_PORT, ctrl | WS_DISPLAY_CTRL_SCR2_ENABLE | (wallpaper_status & 1));
 #else
-    outportw(WS_DISPLAY_CTRL_PORT, inportw(WS_DISPLAY_CTRL_PORT) | WS_DISPLAY_CTRL_SCR2_ENABLE);
+    outportb(WS_DISPLAY_CTRL_PORT, ctrl | WS_DISPLAY_CTRL_SCR2_ENABLE);
 #endif
 }
 
@@ -190,6 +191,12 @@ static inline void load_wallpaper(void) {
     }
 
     wallpaper_status = 1;
+}
+
+void ui_unload_wallpaper(void) {
+    wallpaper_status = 0;
+    WS_DISPLAY_COLOR_MEM(0)[0] = (settings.accent_color_high & SETTING_THEME_DARK_MODE) ? 0x000 : 0xFFF;
+    ui_show_inner();
 }
 #endif
 

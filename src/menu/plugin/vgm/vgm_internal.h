@@ -27,7 +27,7 @@
 #include <ws.h>
 #include "vgm.h"
 
-#define VGM_SAMPLES_TO_LINES(x) (((((uint32_t) (x)) * 120) + 440) / 441)
+#define VGM_SAMPLES_TO_LINES(x) (((((uint32_t) (x)) * 120) + 440L) / 441)
 
 bool vgm_init_dmg(vgm_state_t *state, uint8_t __far *header);
 uint16_t vgm_cmd_driver_dmg(vgm_state_t *state, uint8_t cmd);

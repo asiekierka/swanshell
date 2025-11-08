@@ -29,10 +29,10 @@
 void dprint(const char __far* format, ...);
 
 static uint8_t __far* vgm_state_to_ptr(vgm_state_t *state, uint16_t *backup) {
-    if (backup != NULL) *backup = inportw(WS_CART_BANK_ROM0_PORT);
+    if (backup != NULL) *backup = inportw(WS_CART_EXTBANK_ROM0_PORT);
 
-    outportb(WS_CART_BANK_ROM0_PORT, state->bank);
-    outportb(WS_CART_BANK_ROM1_PORT, state->bank + 1);
+    outportw(WS_CART_EXTBANK_ROM0_PORT, state->bank);
+    outportw(WS_CART_EXTBANK_ROM1_PORT, state->bank + 1);
 
     return MK_FP(0x2000 | (state->pos >> 4), state->pos & 0xF);
 }
@@ -66,7 +66,7 @@ static void vgm_jump_to_start_point(vgm_state_t *state) {
     uint16_t offset = vgm_get_offset(ptr);
     state->pos += offset;
     
-    outportw(WS_CART_BANK_ROM0_PORT, bank_backup);
+    outportw(WS_CART_EXTBANK_ROM0_PORT, bank_backup);
 }
 
 static void vgm_jump_to_loop_point(vgm_state_t *state) {
@@ -90,7 +90,7 @@ static void vgm_jump_to_loop_point(vgm_state_t *state) {
         state->bank = (loop_point >> 16) + state->bank;
     }
     
-    outportw(WS_CART_BANK_ROM0_PORT, bank_backup);
+    outportw(WS_CART_EXTBANK_ROM0_PORT, bank_backup);
 }
 
 bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
@@ -197,7 +197,7 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
 #endif
     
 on_error:
-    outportw(WS_CART_BANK_ROM0_PORT, bank_backup);
+    outportw(WS_CART_EXTBANK_ROM0_PORT, bank_backup);
     return !error && state->cmd_driver && detected_systems == 1;
 }
 
@@ -387,13 +387,13 @@ try_copy_pcm:
         case 0x66: {
             // hblanks = VGM_PLAYBACK_FINISHED;
             vgm_jump_to_loop_point(state);
-            outportw(WS_CART_BANK_ROM0_PORT, bank_backup);
+            outportw(WS_CART_EXTBANK_ROM0_PORT, bank_backup);
             return 0;
         } break;
         }
     }
 
     vgm_ptr_to_state(state, state->ptr);
-    outportw(WS_CART_BANK_ROM0_PORT, bank_backup);
+    outportw(WS_CART_EXTBANK_ROM0_PORT, bank_backup);
     return VGM_SAMPLES_TO_LINES(hblanks);
 }

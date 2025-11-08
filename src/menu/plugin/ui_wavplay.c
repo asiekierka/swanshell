@@ -21,6 +21,7 @@
 #include <string.h>
 #include <ws.h>
 #include <nilefs.h>
+#include <ws/system.h>
 #include "errors.h"
 #include "lang.h"
 #include "strings.h"
@@ -31,7 +32,7 @@
 
 #define WAV_BUFFER_SIZE 4096
 #define WAV_BUFFER_SHIFT 12
-#define WAV_BUFFER_LINEAR0 (!ws_system_is_color_active() ? 0x2000 : 0xA000)
+#define WAV_BUFFER_LINEAR0 (!ws_system_is_color_active() ? 0x2000 : 0xC000)
 #define WAV_BUFFER_LINEAR1 (WAV_BUFFER_LINEAR0 + WAV_BUFFER_SIZE)
 #define WAV_BUFFER0 MK_FP(WAV_BUFFER_LINEAR0 >> 16, WAV_BUFFER_LINEAR0 & 0xFFFF)
 #define WAV_BUFFER1 MK_FP(WAV_BUFFER_LINEAR1 >> 16, WAV_BUFFER_LINEAR1 & 0xFFFF)
@@ -189,6 +190,10 @@ int ui_wavplay(const char *path) {
             UI_WAV_DURATION_TEXT2_X, UI_WAV_DURATION_TEXT_Y,
             seconds_buffer, 65535);
 
+        bitmap_rect_fill(&ui_bitmap,
+            UI_WAV_DURATION_BAR_X, UI_WAV_DURATION_BAR_Y,
+            UI_WAV_DURATION_BAR_WIDTH, UI_WAV_DURATION_BAR_HEIGHT,
+            BITMAP_COLOR_4BPP(MAINPAL_COLOR_WHITE));
         bitmap_rect_draw(&ui_bitmap,
             UI_WAV_DURATION_BAR_X, UI_WAV_DURATION_BAR_Y,
             UI_WAV_DURATION_BAR_WIDTH, UI_WAV_DURATION_BAR_HEIGHT,
@@ -340,7 +345,9 @@ int ui_wavplay(const char *path) {
 
 ui_wavplay_end:
     f_close(&fp);
-    ui_init();
+
+    if (!ws_system_is_color_active())
+        ui_init();
 
     return 0;
 }

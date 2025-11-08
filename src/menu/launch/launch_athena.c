@@ -158,7 +158,7 @@ int16_t launch_athena_jump(void) {
     meta.rom_banks = 16;
     meta.sram_size = 262144L;
 
-    outportw(WS_CART_BANK_ROM0_PORT, ATHENA_BIOS_FOOTER_BANK);
+    outportw(WS_CART_EXTBANK_ROM0_PORT, ATHENA_BIOS_FOOTER_BANK);
     memcpy(&meta.footer, MK_FP(0x2FFF, 0x0000), 16);
 
     bootstub_data->prog.size = 1048576L;

@@ -36,15 +36,13 @@ static vgm_state_t *vgm_state;
 void  __attribute__((interrupt, assume_ss_data)) vgm_interrupt_handler(void) {
     while (true) {
         outportw(WS_TIMER_HBL_RELOAD_PORT, 65535);
-        outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
         uint16_t result = vgm_play(vgm_state);
         uint16_t ticks_elapsed = inportw(WS_TIMER_HBL_COUNTER_PORT) ^ 65535;
         if (result == VGM_PLAYBACK_FINISHED) {
             vgm_state->bank = 0xFF;
+            outportb(WS_TIMER_CTRL_PORT, 0);
         } else if (result > (ticks_elapsed + 1)) {
-            outportw(WS_TIMER_CTRL_PORT, 0);
             outportw(WS_TIMER_HBL_RELOAD_PORT, result - ticks_elapsed);
-            outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
         } else {
             continue;
         }
@@ -92,6 +90,8 @@ int ui_vgmplay(const char *path) {
     ws_sound_reset();
     outportb(WS_SOUND_WAVE_BASE_PORT, WS_SOUND_WAVE_BASE_ADDR(0x3FC0));
 
+    ui_unload_wallpaper();
+
     if (!vgm_init(&local_vgm_state, vgm_bank, 0)) {
         ws_sound_reset();
         return ERR_FILE_FORMAT_INVALID;
@@ -101,7 +101,7 @@ int ui_vgmplay(const char *path) {
     outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_100);
 
     outportw(WS_TIMER_HBL_RELOAD_PORT, 2);
-    outportw(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_ONESHOT);
+    outportb(WS_TIMER_CTRL_PORT, WS_TIMER_CTRL_HBL_REPEAT);
 
     ws_int_set_handler(WS_INT_HBL_TIMER, (ia16_int_handler_t) vgm_interrupt_handler);
     ws_int_enable(WS_INT_ENABLE_HBL_TIMER);
@@ -114,7 +114,7 @@ int ui_vgmplay(const char *path) {
     }
 
     ws_int_disable(WS_INT_ENABLE_HBL_TIMER | WS_INT_ENABLE_LINE_MATCH);
-    outportw(WS_TIMER_CTRL_PORT, 0);
+    outportb(WS_TIMER_CTRL_PORT, 0);
     ws_sound_reset();
 
     if (inportb(WS_LCD_VTOTAL_PORT) != vtotal_initial) {
