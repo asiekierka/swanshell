@@ -105,10 +105,10 @@ void ui_init(void) {
 
         // palette 0 - icon palette
         WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
-        memcpy(WS_DISPLAY_COLOR_MEM(0) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
+        ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(0) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
 
         // palette 1 - icon palette (selected)
-        memcpy(WS_DISPLAY_COLOR_MEM(1) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
+        ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(1) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
         WS_DISPLAY_COLOR_MEM(1)[2] ^= 0xFFF;
         WS_DISPLAY_COLOR_MEM(1)[3] ^= 0xFFF;
 

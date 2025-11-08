@@ -148,15 +148,15 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     uint16_t i = y >> 3;
     if (config->style == UI_SELECTOR_STYLE_16) {
         if (ws_system_is_color_active()) {
-            memcpy(WS_TILE_4BPP_MEM(i), gfx_icons_16color + (icon_idx * 128), 64);
-            memcpy(WS_TILE_4BPP_MEM(i + 18), gfx_icons_16color + (icon_idx * 128) + 64, 64);
+            ws_gdma_copy(WS_TILE_4BPP_MEM(i), gfx_icons_16color + (icon_idx * 128), 64);
+            ws_gdma_copy(WS_TILE_4BPP_MEM(i + 18), gfx_icons_16color + (icon_idx * 128) + 64, 64);
         } else {
             memcpy(WS_TILE_MEM(i), gfx_icons_16mono + (icon_idx * 64), 32);
             memcpy(WS_TILE_MEM(i + 18), gfx_icons_16mono + (icon_idx * 64) + 32, 32);
         }
     } else {
         if (ws_system_is_color_active()) {
-            memcpy(WS_TILE_4BPP_MEM(i), gfx_icons_8color + (icon_idx * 32), 32);
+            ws_gdma_copy(WS_TILE_4BPP_MEM(i), gfx_icons_8color + (icon_idx * 32), 32);
         } else {
             memcpy(WS_TILE_MEM(i), gfx_icons_8mono + (icon_idx * 16), 16);
         }
