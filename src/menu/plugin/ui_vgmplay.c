@@ -29,6 +29,7 @@
 #include "../util/input.h"
 #include "../util/memops.h"
 #include "../util/util.h"
+#include "settings.h"
 #include "ui/bitmap.h"
 #include "vgm/vgm.h"
 
@@ -158,6 +159,7 @@ int ui_vgmplay(const char *path) {
 
     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
     ui_init();
+    settings_load();
 
     return 0;
 }

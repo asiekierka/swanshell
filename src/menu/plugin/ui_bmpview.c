@@ -23,6 +23,7 @@
 #include <nilefs.h>
 #include <ws/system.h>
 #include "errors.h"
+#include "settings.h"
 #include "ui/ui.h"
 #include "util/input.h"
 #include "main.h"
@@ -165,6 +166,7 @@ int ui_bmpview(const char *path) {
     input_wait_any_key();
 
     ui_init();
+    settings_load();
     ui_layout_clear(0);
 
     return 0;

@@ -24,6 +24,7 @@
 #include <nilefs.h>
 #include "errors.h"
 #include "launch.h"
+#include "settings.h"
 #include "ui/ui.h"
 
 extern FATFS fs;
@@ -67,6 +68,7 @@ int16_t launch_bfb(const char *path) {
     result = f_read(&fp, ptr, max_size, &br);
 	if (result != FR_OK) {
         ui_init();
+        settings_load();
         return result;
     }
 

@@ -25,6 +25,7 @@
 #include <ws/system.h>
 #include "errors.h"
 #include "lang.h"
+#include "settings.h"
 #include "strings.h"
 #include "../ui/ui.h"
 #include "../util/input.h"
@@ -370,8 +371,10 @@ int ui_wavplay(const char *path) {
 ui_wavplay_end:
     f_close(&fp);
 
-    if (!ws_system_is_color_active())
+    if (!ws_system_is_color_active()) {
         ui_init();
+        settings_load();
+    }
 
     return 0;
 }
