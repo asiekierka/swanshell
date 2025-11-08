@@ -81,9 +81,9 @@ void ui_draw_centered_status(const char __far* text) {
     bitmapfont_draw_string(&ui_bitmap, (WS_DISPLAY_WIDTH_PIXELS - width) >> 1, (WS_DISPLAY_HEIGHT_PIXELS - 12) >> 1, text, WS_DISPLAY_WIDTH_PIXELS);
 }
 
-#define INIT_SCREEN_PATTERN(screen_loc, pal) \
+#define INIT_SCREEN_PATTERN(screen_loc, pal, ofs) \
     { \
-        int ip = 0; \
+        int ip = (ofs); \
         for (int ix = 0; ix < 28; ix++) { \
             for (int iy = 0; iy < 18; iy++) { \
                 ws_screen_put_tile(screen_loc, (pal) | (ip++), ix, iy); \
@@ -148,10 +148,10 @@ void ui_layout_clear(uint16_t pal) {
     } else {
         bitmap_rect_clear(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS);
     }
-    INIT_SCREEN_PATTERN(bitmap_screen2, pal);
+    INIT_SCREEN_PATTERN(bitmap_screen2, pal, 0);
 }
 
 void ui_layout_bars(void) {
     bitmap_rect_fill(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
-    INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0);
+    INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
 }

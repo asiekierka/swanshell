@@ -23,6 +23,15 @@ local palette_color = gen_palette_color({
 	0x1D6, 0x169, 0x219, 0x22F,
 	0x27F, 0x5DF, 0xAAA, 0x555
 })
+local function swap_rows(data, bpp)
+	data = process.to_data(data).data
+	local new_data = ""
+	for i=1,#data,(bpp*32) do
+		-- swap rows and columns of a 16x16xNbpp tile
+		new_data = new_data .. data:sub(i, i+(bpp*8)-1) .. data:sub(i+(bpp*16), i+(bpp*24)-1) .. data:sub(i+(bpp*8), i+(bpp*16)-1) .. data:sub(i+(bpp*24), i+(bpp*32)-1)
+	end
+	return new_data
+end
 
 process.emit_symbol("gfx_icons_palmono", palette_mono)
 process.emit_symbol("gfx_icons_8mono", superfamiconv.tiles(
@@ -32,13 +41,13 @@ process.emit_symbol("gfx_icons_8mono", superfamiconv.tiles(
 		:color_zero("#ffffff")
 		:no_discard():no_flip()
 ))
-process.emit_symbol("gfx_icons_16mono", superfamiconv.tiles(
+process.emit_symbol("gfx_icons_16mono", swap_rows(superfamiconv.tiles(
 	"icons/16mono.png", palette_mono,
 	superfamiconv.config()
 		:mode("ws"):bpp(2)
 		:color_zero("#ffffff")
 		:no_discard():no_flip()
-))
+), 2))
 
 process.emit_symbol("gfx_icons_palcolor", palette_color)
 process.emit_symbol("gfx_icons_8color", superfamiconv.tiles(
@@ -48,11 +57,11 @@ process.emit_symbol("gfx_icons_8color", superfamiconv.tiles(
 		:color_zero("#ffffff")
 		:no_discard():no_flip()
 ))
-process.emit_symbol("gfx_icons_16color", superfamiconv.tiles(
+process.emit_symbol("gfx_icons_16color", swap_rows(superfamiconv.tiles(
 	"icons/16color.png", palette_color,
 	superfamiconv.config()
 		:mode("wsc"):bpp(4)
 		:color_zero("#ffffff")
 		:no_discard():no_flip()
-))
+), 4))
 

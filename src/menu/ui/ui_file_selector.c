@@ -147,17 +147,12 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
 
     uint16_t i = y >> 3;
     if (config->style == UI_SELECTOR_STYLE_16) {
-        // TODO: swap rows and colums in 16-high icons
         if (ws_system_is_color_active()) {
-            memcpy(WS_TILE_4BPP_MEM(i), gfx_icons_16color + (icon_idx * 128), 32);
-            memcpy(WS_TILE_4BPP_MEM(i + 1), gfx_icons_16color + (icon_idx * 128) + 64, 32);
-            memcpy(WS_TILE_4BPP_MEM(i + 18), gfx_icons_16color + (icon_idx * 128) + 32, 32);
-            memcpy(WS_TILE_4BPP_MEM(i + 19), gfx_icons_16color + (icon_idx * 128) + 96, 32);
+            memcpy(WS_TILE_4BPP_MEM(i), gfx_icons_16color + (icon_idx * 128), 64);
+            memcpy(WS_TILE_4BPP_MEM(i + 18), gfx_icons_16color + (icon_idx * 128) + 64, 64);
         } else {
-            memcpy(WS_TILE_MEM(i), gfx_icons_16mono + (icon_idx * 64), 16);
-            memcpy(WS_TILE_MEM(i + 1), gfx_icons_16mono + (icon_idx * 64) + 32, 16);
-            memcpy(WS_TILE_MEM(i + 18), gfx_icons_16mono + (icon_idx * 64) + 16, 16);
-            memcpy(WS_TILE_MEM(i + 19), gfx_icons_16mono + (icon_idx * 64) + 48, 16);
+            memcpy(WS_TILE_MEM(i), gfx_icons_16mono + (icon_idx * 64), 32);
+            memcpy(WS_TILE_MEM(i + 18), gfx_icons_16mono + (icon_idx * 64) + 32, 32);
         }
     } else {
         if (ws_system_is_color_active()) {
