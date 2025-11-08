@@ -156,7 +156,9 @@ static inline void load_wallpaper(void) {
     INIT_SCREEN_PATTERN(bitmap_screen1, WS_SCREEN_ATTR_PALETTE(3), WS_SCREEN_ATTR_BANK(1));
     // memset(WS_TILE_4BPP_MEM(512), 0, 28 * 18 * 32);
 
+    wallpaper_status = 1;
     ui_show_inner();
+    wallpaper_status = 2;
 
     result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), &br);
     f_close(&fp);
