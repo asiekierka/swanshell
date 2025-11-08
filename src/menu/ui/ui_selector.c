@@ -56,9 +56,11 @@ void ui_selector_clear_selection(ui_selector_config_t *config) {
         ui_selector_set_active_font(config);
         UI_SELECTOR_ROW_CONFIG();
 
-        uint16_t prev_sel = (config->offset % row_count);
-        bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(0));
-        config->draw(config, config->offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+        if (config->offset < config->count) {
+            uint16_t prev_sel = (config->offset % row_count);
+            bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(0));
+            config->draw(config, config->offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+        }
     }
 }
 
@@ -144,12 +146,14 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                 if (ui_has_wallpaper()) {
                     ui_selector_set_active_font(config);
                     // Redraw previous and current selected filename
-                    if (!full_redraw) {
+                    if (!draw_filenames && prev_offset < config->count) {
                         bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(0));
                         config->draw(config, prev_offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset);
                     }
-                    bitmap_rect_fill(&ui_bitmap, 0, sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(2));
-                    config->draw(config, config->offset, sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+                    if (config->offset < config->count) {
+                        bitmap_rect_fill(&ui_bitmap, 0, sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(2));
+                        config->draw(config, config->offset, sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+                    }
                 }
             }
 
