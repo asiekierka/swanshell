@@ -84,6 +84,7 @@ void main(void) {
 	ui_layout_clear(0);
 
 	fs_init();
+	outportw(WS_CART_EXTBANK_RAM_PORT,0 );
 
 	ui_dialog_error_check(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
 	ui_dialog_error_check(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);

@@ -19,5 +19,5 @@
 - Palette 0: icon palette
 - Palette 1: icon palette (selected)
 - Palette 2: title bar palette
-- Palette 3: reserved - wallpaper?
+- Palette 3: wallpaper
 - Palette 8..15: general use

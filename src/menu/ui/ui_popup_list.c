@@ -36,7 +36,7 @@ void ui_popup_list_clear(ui_popup_list_config_t *config) {
     uint16_t list_y = (WS_DISPLAY_HEIGHT_PIXELS - list_height) >> 1;
 
     bitmap_rect_fill(&ui_bitmap, list_x, list_y, list_width, list_height,
-        BITMAP_COLOR_2BPP(2));
+        BITMAP_COLOR_2BPP(ui_has_wallpaper() ? 0 : 2));
 }
 
 int16_t ui_popup_list(ui_popup_list_config_t *config) {

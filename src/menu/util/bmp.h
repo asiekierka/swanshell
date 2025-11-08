@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2025 Adrian Siekierka
+ * Copyright (c) 2023, 2024, 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,20 +15,28 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef UTIL_BMP_H_
+#define UTIL_BMP_H_
 
-// #define CONFIG_DEBUG_FORCE_MONO
-// #define CONFIG_DEBUG_FORCE_DISABLE_SECTOR_BUFFER
-#define CONFIG_ENABLE_WALLPAPER
+#include <stdbool.h>
+#include <stdint.h>
+#include <wonderful.h>
 
-#define CONFIG_MEMLAYOUT_SECTOR_BUFFER_SIZE 8192
-#define CONFIG_MEMLAYOUT_STACK_BUFFER_SIZE 64
+typedef struct {
+    uint16_t magic;
+    uint32_t size;
+    uint16_t res0, res1;
+    uint32_t data_start;
+    uint32_t header_size;
+    int32_t width;
+    int32_t height;
+    uint16_t colorplanes;
+    uint16_t bpp;
+    uint32_t compression;
+    uint32_t data_size;
+    uint32_t hres, vres;
+    uint32_t color_count;
+    uint32_t important_color_count;
+} bmp_header_t;
 
-#define CONFIG_FILESELECT_PATH_MEMORY_DEPTH 12
-
-#define CONFIG_FONT_BITMAP_SHIFT 8
-#define CONFIG_FONT_BITMAP_SIZE 256
-#define CONFIG_FONT_CHAR_GAP 1
-
-#endif /* CONFIG_H_ */
+#endif /* UTIL_BMP_H_ */

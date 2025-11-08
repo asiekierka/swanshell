@@ -329,6 +329,7 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words) {
 
 static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
     uint16_t w;
+    uint16_t br;
     int16_t result;
 
     ws_eeprom_handle_t h = ws_eeprom_handle_cartridge(eeprom_bits[mode]);
@@ -338,7 +339,7 @@ static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
     ws_eeprom_write_unlock(h);
     for (uint16_t i = 0; i < words; i++) {
          nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
-         result = f_read(fp, &w, 2, NULL);
+         result = f_read(fp, &w, 2, &br);
          if (result != FR_OK)
              break;
          nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);

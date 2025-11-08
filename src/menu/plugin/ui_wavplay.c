@@ -83,6 +83,7 @@ int ui_wavplay(const char *path) {
     char seconds_buffer[6];
     FIL fp;
     wave_fmt_t fmt;
+    uint16_t br;
 
     ui_layout_bars();
 
@@ -98,7 +99,7 @@ int ui_wavplay(const char *path) {
     fmt.channels = 0;
 
     uint32_t chunk_info[3];
-    if ((result = f_read(&fp, chunk_info, 12, NULL)) != FR_OK) {
+    if ((result = f_read(&fp, chunk_info, 12, &br)) != FR_OK) {
         return result;
     }
     if (chunk_info[0] != RIFF_CHUNK_RIFF || chunk_info[2] != RIFF_CHUNK_WAVE) {
@@ -106,7 +107,7 @@ int ui_wavplay(const char *path) {
     }
 
     while (true) {
-        if ((result = f_read(&fp, chunk_info, 8, NULL)) != FR_OK) {
+        if ((result = f_read(&fp, chunk_info, 8, &br)) != FR_OK) {
             f_close(&fp);
             return result;
         }
@@ -120,7 +121,7 @@ int ui_wavplay(const char *path) {
             }
             break;
         } else if (chunk_info[0] == RIFF_CHUNK_fmt) {
-            if ((result = f_read(&fp, &fmt, sizeof(fmt), NULL)) != FR_OK) {
+            if ((result = f_read(&fp, &fmt, sizeof(fmt), &br)) != FR_OK) {
                 f_close(&fp);
                 return result;
             }
@@ -146,7 +147,7 @@ int ui_wavplay(const char *path) {
         ui_hide();
     }
 
-    if ((result = f_read(&fp, WAV_BUFFER0, WAV_BUFFER_SIZE * 2, NULL)) != FR_OK) {
+    if ((result = f_read(&fp, WAV_BUFFER0, WAV_BUFFER_SIZE * 2, &br)) != FR_OK) {
         // TODO
         goto ui_wavplay_end;
     }

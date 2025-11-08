@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2024, 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -23,29 +23,14 @@
 #include <nilefs.h>
 #include <ws/system.h>
 #include "errors.h"
-#include "../ui/ui.h"
-#include "../util/input.h"
-#include "../main.h"
-
-typedef struct {
-    uint16_t magic;
-    uint32_t size;
-    uint16_t res0, res1;
-    uint32_t data_start;
-    uint32_t header_size;
-    int32_t width;
-    int32_t height;
-    uint16_t colorplanes;
-    uint16_t bpp;
-    uint32_t compression;
-    uint32_t data_size;
-    uint32_t hres, vres;
-    uint32_t color_count;
-    uint32_t important_color_count;
-} bmp_header_t;
+#include "ui/ui.h"
+#include "util/input.h"
+#include "main.h"
+#include "util/bmp.h"
 
 int ui_bmpview(const char *path) {
     FIL fp;
+    uint16_t br;
     uint8_t result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
     if (result != FR_OK) {
         return result;
@@ -56,7 +41,7 @@ int ui_bmpview(const char *path) {
         return ERR_FILE_TOO_LARGE;
     }
 
-    result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), NULL);
+    result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), &br);
     f_close(&fp);
     if (result != FR_OK) {
         return result;

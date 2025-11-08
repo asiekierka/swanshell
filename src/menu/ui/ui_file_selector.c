@@ -184,6 +184,9 @@ rescan_directory:
     ui_draw_titlebar(NULL);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
     ui_show();
+    if (ui_has_wallpaper()) {
+        ui_layout_bars();
+    }
     if (reinit_dirs) {
         config.offset = path_depth_pos >= CONFIG_FILESELECT_PATH_MEMORY_DEPTH ? 0 : path_depth[path_depth_pos];
         strcpy(path, s_dot);

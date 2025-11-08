@@ -220,7 +220,8 @@ static void settings_theme_accent_color_on_change(const settings_t *set) {
 static void settings_theme_dark_mode_on_change(const settings_t *set) {
     bool dark = settings.accent_color_high & SETTING_THEME_DARK_MODE;
     if (ws_system_is_color_active()) {
-        WS_DISPLAY_COLOR_MEM(0)[0] = dark ? 0x000 : 0xFFF;
+        if (!ui_has_wallpaper())
+            WS_DISPLAY_COLOR_MEM(0)[0] = dark ? 0x000 : 0xFFF;
         WS_DISPLAY_COLOR_MEM(0)[2] = dark ? 0x000 : 0xFFF;
         WS_DISPLAY_COLOR_MEM(0)[3] = dark ? 0xFFF : 0x000;
         WS_DISPLAY_COLOR_MEM(1)[3] = dark ? 0x000 : 0xFFF;

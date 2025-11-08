@@ -19,13 +19,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <ws.h>
+#include <wsx/planar_convert.h>
 #include "bitmap.h"
-#include "launch/launch.h"
 #include "strings.h"
 #include "ui.h"
-#include "ui_selector.h"
-#include "../util/input.h"
-#include "../main.h"
+#include "util/bmp.h"
+#include "util/file.h"
+#include "util/input.h"
+#include "main.h"
 #include "settings.h"
 #include "../../../build/menu/assets/menu/icons.h"
 #include "lang.h"
@@ -36,28 +37,12 @@ uint16_t bitmap_screen2[32 * 18 - 4];
 
 __attribute__((section(".iramx_2000")))
 ws_display_tile_t bitmap_tiles[512];
+#define bitmap_screen1 ((uint16_t ws_iram*) 0x3800)
 
 __attribute__((section(".iramCx_4000")))
 ws_display_tile_t bitmap_tiles_c1[512];
 
 bitmap_t ui_bitmap;
-
-typedef struct {
-    uint16_t magic;
-    uint32_t size;
-    uint16_t res0, res1;
-    uint32_t data_start;
-    uint32_t header_size;
-    int32_t width;
-    int32_t height;
-    uint16_t colorplanes;
-    uint16_t bpp;
-    uint32_t compression;
-    uint32_t data_size;
-    uint32_t hres, vres;
-    uint32_t color_count;
-    uint32_t important_color_count;
-} bmp_header_t;
 
 void ui_draw_titlebar(const char __far* text) {
     bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR_2BPP(2));
@@ -105,10 +90,12 @@ void ui_init(void) {
 
         // palette 0 - icon palette
         WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
-        ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(0) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
+        ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(0) + 2, gfx_icons_palcolor + 4, gfx_icons_palcolor_size - 4);
+        WS_DISPLAY_COLOR_MEM(0)[1] = 0x000;
 
         // palette 1 - icon palette (selected)
-        ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(1) + 1, gfx_icons_palcolor + 2, gfx_icons_palcolor_size - 2);
+        ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(1) + 2, gfx_icons_palcolor + 4, gfx_icons_palcolor_size - 4);
+        WS_DISPLAY_COLOR_MEM(1)[1] = 0xFFF;
         WS_DISPLAY_COLOR_MEM(1)[2] ^= 0xFFF;
         WS_DISPLAY_COLOR_MEM(1)[3] ^= 0xFFF;
 
@@ -137,13 +124,84 @@ void ui_hide(void) {
     outportw(WS_DISPLAY_CTRL_PORT, 0);
 }
 
-void ui_show(void) {
-    // TODO: wallpaper support
+#ifdef CONFIG_ENABLE_WALLPAPER
+// 0 - not checked, 2 - checked, not found; 1 - checked, found
+static uint8_t wallpaper_status = 0;
+
+bool ui_has_wallpaper(void) {
+    return wallpaper_status == 1;
+}
+#endif
+
+__attribute__((always_inline))
+static inline void ui_show_inner(void) {
+#ifdef CONFIG_ENABLE_WALLPAPER
+    outportw(WS_DISPLAY_CTRL_PORT, inportw(WS_DISPLAY_CTRL_PORT) | WS_DISPLAY_CTRL_SCR2_ENABLE | (wallpaper_status & 1));
+#else
     outportw(WS_DISPLAY_CTRL_PORT, inportw(WS_DISPLAY_CTRL_PORT) | WS_DISPLAY_CTRL_SCR2_ENABLE);
+#endif
+}
+
+#ifdef CONFIG_ENABLE_WALLPAPER
+static inline void load_wallpaper(void) {
+    FIL fp;
+    uint16_t br;
+
+    wallpaper_status = 2;
+    if (ws_system_get_mode() != WS_MODE_COLOR_4BPP) return;
+
+    int16_t result = f_open_far(&fp, s_path_wallpaper_bmp, FA_READ | FA_OPEN_EXISTING);
+    if (result != FR_OK || f_size(&fp) > 65535) return;
+
+    INIT_SCREEN_PATTERN(bitmap_screen1, WS_SCREEN_ATTR_PALETTE(3), WS_SCREEN_ATTR_BANK(1));
+    // memset(WS_TILE_4BPP_MEM(512), 0, 28 * 18 * 32);
+
+    ui_show_inner();
+
+    result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), &br);
+    f_close(&fp);
+    if (result != FR_OK) return;
+
+    bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
+    if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
+        bmp->width != WS_DISPLAY_WIDTH_PIXELS || bmp->height != WS_DISPLAY_HEIGHT_PIXELS ||
+        bmp->compression != 0 || bmp->bpp != 4) return;
+
+    uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
+    for (int i = 0; i < 16; i++) {
+        uint8_t b = *(palette++);
+        uint8_t g = *(palette++);
+        uint8_t r = *(palette++);
+        palette++;
+        WS_DISPLAY_COLOR_MEM(3)[i] = WS_RGB(r >> 4, g >> 4, b >> 4);
+    }
+    WS_DISPLAY_COLOR_MEM(0)[0] = WS_DISPLAY_COLOR_MEM(3)[0];
+
+    uint8_t __far *data = MK_FP(0x1000, bmp->data_start);
+    uint16_t pitch = (((bmp->width * bmp->bpp) + 31) / 32) << 2;
+    for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
+        uint32_t __far *line_src = (uint32_t __far*) data;
+        uint32_t *line_dst = (uint32_t*) (0x8000 + (((uint16_t)bmp->height - 1 - y) * 4));
+        for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += 18 * 8) {
+            *line_dst = wsx_planar_convert_4bpp_packed_row(*line_src);
+        }
+    }
+
+    wallpaper_status = 1;
+}
+#endif
+
+void ui_show(void) {
+#ifdef CONFIG_ENABLE_WALLPAPER
+    if (!wallpaper_status) {
+        load_wallpaper();
+    }
+#endif
+    ui_show_inner();
 }
 
 void ui_layout_clear(uint16_t pal) {
-    if (pal == 0) {
+    if (pal == 0 && !ui_has_wallpaper()) {
         bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS, BITMAP_COLOR_4BPP(2));
     } else {
         bitmap_rect_clear(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS);
@@ -152,6 +210,10 @@ void ui_layout_clear(uint16_t pal) {
 }
 
 void ui_layout_bars(void) {
-    bitmap_rect_fill(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR_4BPP(2));
+    if (!ui_has_wallpaper()) {
+        bitmap_rect_fill(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR_4BPP(2));
+    } else {
+        bitmap_rect_clear(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16);
+    }
     INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
 }

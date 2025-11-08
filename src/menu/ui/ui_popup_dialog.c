@@ -45,7 +45,7 @@ void ui_popup_dialog_reset(ui_popup_dialog_config_t *config) {
 void ui_popup_dialog_clear(ui_popup_dialog_config_t *config) {
     if (config->width && config->height) {
         bitmap_rect_fill(&ui_bitmap, config->x, config->y, config->width, config->height,
-            BITMAP_COLOR_4BPP(2));
+            BITMAP_COLOR_4BPP(ui_has_wallpaper() ? 0 : 2));
     }
 }
 
@@ -163,7 +163,8 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
     uint16_t inner_y = UI_CENTERED_IN_BOX(config->y, config->height, inner_height);
     inner_height = 0;
 
-    ui_popup_dialog_clear(config);
+    bitmap_rect_fill(&ui_bitmap, config->x, config->y, config->width, config->height,
+        BITMAP_COLOR_4BPP(2));
     bitmap_rect_draw(&ui_bitmap, config->x, config->y, config->width, config->height,
         BITMAP_COLOR_2BPP(MAINPAL_COLOR_BLACK), false);
 

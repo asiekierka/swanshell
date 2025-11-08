@@ -18,6 +18,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <ws.h>
+#include <ws/display.h>
 #include "ui_selector.h"
 #include "../util/input.h"
 #include "../main.h"
@@ -27,6 +28,22 @@
 
 #define SELECTOR_Y_OFFSET 8
 
+static inline void ui_selector_set_active_font(ui_selector_config_t *config) {
+    bitmapfont_set_active_font(config->style == UI_SELECTOR_STYLE_16 ? font16_bitmap : font8_bitmap);
+}
+
+#define UI_SELECTOR_ROW_CONFIG() \
+    uint16_t row_count, row_height, row_offset; \
+    if (config->style == UI_SELECTOR_STYLE_16) { \
+        row_count = 8; \
+        row_height = 16; \
+        row_offset = 3; \
+    } else { \
+        row_count = 16; \
+        row_height = 8; \
+        row_offset = 0; \
+    }
+
 void ui_selector_clear_selection(ui_selector_config_t *config) {
     for (int ix = 0; ix < 28; ix++) {
         for (int iy = 0; iy < 16; iy++) {
@@ -34,10 +51,15 @@ void ui_selector_clear_selection(ui_selector_config_t *config) {
             ws_screen_put_tile(bitmap_screen2, pal | ((iy + 1) + (ix * 18)), ix, iy + 1);
         }
     }
-}
 
-static inline void ui_selector_set_active_font(ui_selector_config_t *config) {
-    bitmapfont_set_active_font(config->style == UI_SELECTOR_STYLE_16 ? font16_bitmap : font8_bitmap);
+    if (ui_has_wallpaper()) {
+        ui_selector_set_active_font(config);
+        UI_SELECTOR_ROW_CONFIG();
+
+        uint16_t prev_sel = (config->offset % row_count);
+        bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(0));
+        config->draw(config, config->offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+    }
 }
 
 #define UI_SELECTOR_OFFSET_TO_BOUNDS() \
@@ -49,16 +71,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
     bool full_redraw = true;
     uint16_t prev_offset = 0xFFFF;
 
-    uint16_t row_count, row_height, row_offset;
-    if (config->style == UI_SELECTOR_STYLE_16) {
-        row_count = 8;
-        row_height = 16;
-        row_offset = 3;
-    } else {
-        row_count = 16;
-        row_height = 8;
-        row_offset = 0;
-    }
+    UI_SELECTOR_ROW_CONFIG();
 
     if (config->count == 0) {
         ui_layout_bars();
@@ -79,10 +92,11 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
     while (true) {
         if (prev_offset != config->offset) {
-            if (prev_offset == 0xFFFF || ((prev_offset / row_count) != (config->offset / row_count))) {
-                bitmap_rect_fill(&ui_bitmap, 0, SELECTOR_Y_OFFSET, 28 * 8, row_height * row_count, BITMAP_COLOR_4BPP(2));
-                // Draw filenames
+            bool draw_filenames = prev_offset == 0xFFFF || ((prev_offset / row_count) != (config->offset / row_count));
+            bool draw_highlights = prev_offset == 0xFFFF || ((prev_offset % row_count) != (config->offset % row_count));
+            if (draw_filenames) {
                 ui_selector_set_active_font(config);
+                bitmap_rect_fill(&ui_bitmap, 0, SELECTOR_Y_OFFSET, 28 * 8, row_height * row_count, BITMAP_COLOR_4BPP(ui_has_wallpaper() ? 0 : 2));
                 for (int i = 0; i < row_count; i++) {
                     uint16_t offset = ((config->offset / row_count) * row_count) + i;
                     if (offset >= config->count) break;
@@ -96,23 +110,10 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                     const char __far* info_str = lang_keys[config->info_key];
                     bitmapfont_draw_string(&ui_bitmap, WS_DISPLAY_WIDTH_PIXELS - 2 - bitmapfont_get_string_width(info_str, WS_DISPLAY_WIDTH_PIXELS), WS_DISPLAY_HEIGHT_PIXELS-8, info_str, WS_DISPLAY_WIDTH_PIXELS);
                 }
+                draw_highlights |= ui_has_wallpaper();
             }
-            if (prev_offset == 0xFFFF || ((prev_offset % row_count) != (config->offset % row_count))) {
-                // Draw highlights
-#if 0
-                if (full_redraw) {
-                    for (int iy = 0; iy < row_count; iy++) {
-                        uint16_t pal = 0;
-                        if (iy == (config->offset % row_count)) pal = 2;
-                        bitmap_rect_fill(&ui_bitmap, 0, iy * row_height + SELECTOR_Y_OFFSET, WS_DISPLAY_WIDTH_PIXELS, row_height, BITMAP_COLOR(pal, 2, BITMAP_COLOR_MODE_STORE));
-                    }
-                } else {
-                    int iy1 = (prev_file_offset % row_count);
-                    int iy2 = (config->offset % row_count);
-                    bitmap_rect_fill(&ui_bitmap, 0, iy1 * row_height + SELECTOR_Y_OFFSET, WS_DISPLAY_WIDTH_PIXELS, row_height, BITMAP_COLOR(0, 2, BITMAP_COLOR_MODE_STORE));
-                    bitmap_rect_fill(&ui_bitmap, 0, iy2 * row_height + SELECTOR_Y_OFFSET, WS_DISPLAY_WIDTH_PIXELS, row_height, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
-                }
-#else
+            if (draw_highlights) {
+                uint16_t prev_sel = (prev_offset % row_count);
                 uint16_t sel = (config->offset % row_count);
                 if (full_redraw) {
                     for (int ix = 0; ix < 28; ix++) {
@@ -123,22 +124,33 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                         }
                     }
                 } else {
-                    uint16_t prev_sel = (prev_offset % row_count);
+                    uint16_t prev_sel_tile = prev_sel;
+                    uint16_t sel_tile = sel;
                     if (row_height > 8) {
-                        prev_sel <<= 1;
-                        sel <<= 1;
+                        prev_sel_tile <<= 1;
+                        sel_tile <<= 1;
                     }
                     for (int ix = 0; ix < 28; ix++) {
-                        ws_screen_put_tile(bitmap_screen2, ((prev_sel + 1) + (ix * 18)), ix, prev_sel + 1);
-                        ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel + 1) + (ix * 18)), ix, sel + 1);
+                        ws_screen_put_tile(bitmap_screen2, ((prev_sel_tile + 1) + (ix * 18)), ix, prev_sel_tile + 1);
+                        ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel_tile + 1) + (ix * 18)), ix, sel_tile + 1);
                         
                         if (row_height > 8) {
-                            ws_screen_put_tile(bitmap_screen2, ((prev_sel + 2) + (ix * 18)), ix, prev_sel + 2);
-                            ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel + 2) + (ix * 18)), ix, sel + 2);
+                            ws_screen_put_tile(bitmap_screen2, ((prev_sel_tile + 2) + (ix * 18)), ix, prev_sel_tile + 2);
+                            ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel_tile + 2) + (ix * 18)), ix, sel_tile + 2);
                         }
                     }
                 }
-#endif
+
+                if (ui_has_wallpaper()) {
+                    ui_selector_set_active_font(config);
+                    // Redraw previous and current selected filename
+                    if (!full_redraw) {
+                        bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(0));
+                        config->draw(config, prev_offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+                    }
+                    bitmap_rect_fill(&ui_bitmap, 0, sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(2));
+                    config->draw(config, config->offset, sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+                }
             }
 
             prev_offset = config->offset;
