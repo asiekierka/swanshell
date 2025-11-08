@@ -127,6 +127,9 @@ msgstr "Zbyt duży plik"
 msgid "ERROR_FILE_FORMAT_INVALID"
 msgstr "Niepoprawny format pliku"
 
+msgid "ERROR_FILE_NOT_EXECUTABLE"
+msgstr "Plik nie jest wykonywalny"
+
 msgid "ERROR_TITLE_SAVE_STORE"
 msgstr "Błąd zachowywania zapisu!"
 

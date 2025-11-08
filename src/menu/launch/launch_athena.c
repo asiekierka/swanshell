@@ -266,6 +266,15 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
         // Edit location
         entry->loc = MK_FP(file_segment, 0x0000);
         entry->mode = (entry->mode & ~2) | 4; // Clear write flag, set read flag
+
+        // Check if executed file marked as executable
+        if (type == ATHENA_ROMFILE_TYPE_ROM0_BOOT) {
+            if (!(entry->mode & 1)) {
+                result = ERR_FILE_NOT_EXECUTABLE;
+                goto launch_athena_romfile_add_done;
+            }
+        }
+
         // Copy header to file list
         outportw(WS_CART_EXTBANK_RAM_PORT, DIR_SEGMENT >> 12);
         memcpy(MK_FP(0x1000, ((DIR_SEGMENT & 0xFFF) << 4) + (file_count * 64)), buffer, 64);
@@ -384,7 +393,7 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
                 if (len >= 4 && !strcasecmp(fi.fname + len - 3, s_file_ext_il)) {
                     buffer[fbin_len] = '/';
                     strcpy(buffer + fbin_len + 1, fi.fname);
-                    result = launch_athena_romfile_add(buffer, false);
+                    result = launch_athena_romfile_add(buffer, f_type);
                 }
             } else {
                 result = launch_athena_romfile_add(fi.fname, f_type);

@@ -53,6 +53,8 @@ const char __far *error_to_string(int16_t value) {
         return lang_keys[LK_ERROR_DATA_TRANSFER_TIMEOUT];
     case ERR_DATA_TRANSFER_CANCEL:
         return lang_keys[LK_ERROR_DATA_TRANSFER_CANCEL];
+    case ERR_FILE_NOT_EXECUTABLE:
+        return lang_keys[LK_ERROR_FILE_NOT_EXECUTABLE];
     default:
         return NULL;
     }

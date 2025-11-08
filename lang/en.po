@@ -168,6 +168,9 @@ msgstr "File too large"
 msgid "ERROR_FILE_FORMAT_INVALID"
 msgstr "File format invalid"
 
+msgid "ERROR_FILE_NOT_EXECUTABLE"
+msgstr "File not executable"
+
 msgid "ERROR_DATA_TRANSFER_TIMEOUT"
 msgstr "Data transfer timeout"
 

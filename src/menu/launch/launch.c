@@ -125,7 +125,7 @@ int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta) {
     ws_bank_rom1_restore(rom1_bank);
 
     if (meta->footer.jump_command != 0xEA || meta->footer.jump_segment == 0x0000)
-        return ERR_FILE_FORMAT_INVALID;
+        return ERR_FILE_NOT_EXECUTABLE;
 
     meta->rom_banks = meta->footer.rom_size > 0x0B ? 0 : rom_banks[meta->footer.rom_size];
     meta->sram_size = sram_sizes[meta->footer.save_type & 0xF] * 1024L;

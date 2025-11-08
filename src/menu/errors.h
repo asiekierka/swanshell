@@ -31,13 +31,13 @@
 // Positive error codes >= 0x80 are for swanshell
 #define ERR_MCU_COMM_FAILED 0x80
 #define ERR_SAVE_CORRUPT 0x81
-#define ERR_EEPROM_COMM_FAILED 0x82
-#define ERR_MCU_BIN_CORRUPT 0x83
-#define ERR_SAVE_PSRAM_CORRUPT 0x84
-#define ERR_FILE_TOO_LARGE 0x85
-#define ERR_FILE_FORMAT_INVALID 0x86
-#define ERR_DATA_TRANSFER_TIMEOUT 0x87
-#define ERR_DATA_TRANSFER_CANCEL 0x88
+#define ERR_MCU_BIN_CORRUPT 0x82
+#define ERR_SAVE_PSRAM_CORRUPT 0x83
+#define ERR_FILE_TOO_LARGE 0x84
+#define ERR_FILE_FORMAT_INVALID 0x85
+#define ERR_DATA_TRANSFER_TIMEOUT 0x86
+#define ERR_DATA_TRANSFER_CANCEL 0x87
+#define ERR_FILE_NOT_EXECUTABLE 0x88
 
 const char __far* error_to_string(int16_t value);
 void error_to_string_buffer(int16_t value, char *buffer, size_t buflen);
