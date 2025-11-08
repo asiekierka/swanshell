@@ -271,6 +271,9 @@ msgstr "Wybiera kolejność wyświetlania plików w przeglądarce plików."
 msgid "SETTINGS_FILE_VIEW_HELP"
 msgstr "Wybiera sposób przedstawiania plików w przeglądarce plików."
 
+msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
+msgstr "Ukryj ikony"
+
 msgid "UI_FILE_SELECTOR_EMPTY"
 msgstr "Pusty"
 

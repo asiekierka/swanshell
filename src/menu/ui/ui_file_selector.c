@@ -114,7 +114,11 @@ int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t pr
 }
 
 static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
-    int x_offset = config->style == UI_SELECTOR_STYLE_16 ? 16 : 10;
+    int x_offset;
+    if (settings.file_flags & SETTING_FILE_HIDE_ICONS)
+        x_offset = 2;
+    else
+        x_offset = config->style == UI_SELECTOR_STYLE_16 ? 16 : 10;
 
     file_selector_entry_t __far *fno = ui_file_selector_open_fno(offset);
     uint16_t x = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, fno->fno.fname, WS_DISPLAY_WIDTH_PIXELS - x_offset);
@@ -145,20 +149,22 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
         }
     }
 
-    uint16_t i = y >> 3;
-    if (config->style == UI_SELECTOR_STYLE_16) {
-        if (ws_system_is_color_active()) {
-            ws_gdma_copy(WS_TILE_4BPP_MEM(i), gfx_icons_16color + (icon_idx * 128), 64);
-            ws_gdma_copy(WS_TILE_4BPP_MEM(i + 18), gfx_icons_16color + (icon_idx * 128) + 64, 64);
+    if (!(settings.file_flags & SETTING_FILE_HIDE_ICONS)) {
+        uint16_t i = y >> 3;
+        if (config->style == UI_SELECTOR_STYLE_16) {
+            if (ws_system_is_color_active()) {
+                ws_gdma_copy(WS_TILE_4BPP_MEM(i), gfx_icons_16color + (icon_idx * 128), 64);
+                ws_gdma_copy(WS_TILE_4BPP_MEM(i + 18), gfx_icons_16color + (icon_idx * 128) + 64, 64);
+            } else {
+                memcpy(WS_TILE_MEM(i), gfx_icons_16mono + (icon_idx * 64), 32);
+                memcpy(WS_TILE_MEM(i + 18), gfx_icons_16mono + (icon_idx * 64) + 32, 32);
+            }
         } else {
-            memcpy(WS_TILE_MEM(i), gfx_icons_16mono + (icon_idx * 64), 32);
-            memcpy(WS_TILE_MEM(i + 18), gfx_icons_16mono + (icon_idx * 64) + 32, 32);
-        }
-    } else {
-        if (ws_system_is_color_active()) {
-            ws_gdma_copy(WS_TILE_4BPP_MEM(i), gfx_icons_8color + (icon_idx * 32), 32);
-        } else {
-            memcpy(WS_TILE_MEM(i), gfx_icons_8mono + (icon_idx * 16), 16);
+            if (ws_system_is_color_active()) {
+                ws_gdma_copy(WS_TILE_4BPP_MEM(i), gfx_icons_8color + (icon_idx * 32), 32);
+            } else {
+                memcpy(WS_TILE_MEM(i), gfx_icons_8mono + (icon_idx * 16), 16);
+            }
         }
     }
 }

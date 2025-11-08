@@ -17,6 +17,7 @@ This section configures the display of files.
 
 - **File order**: Choose the sorting order of files and directories (by name, by date, or by size).
 - **Show hidden files**: Toggle whether files with the "hidden" attribute are visible or hidden on the file list.
+- **Hide icons**: Toggle whether icons to the left of each file are visible or hidden.
 
 ## Theme
 

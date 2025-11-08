@@ -28,6 +28,7 @@
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
 DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
+DEFINE_STRING_LOCAL(s_file_hide_icons_key, "FileHideIcons");
 DEFINE_STRING_LOCAL(s_program_fast_sram_key, "ProgFastSRAM");
 DEFINE_STRING_LOCAL(s_program_fx_bios_key, "ProgFxCmptBios");
 DEFINE_STRING_LOCAL(s_language, "Language");
@@ -45,6 +46,19 @@ static const setting_t __far setting_file_show_hidden = {
     .flag = {
         &settings.file_flags,
         SETTING_FILE_SHOW_HIDDEN_SHIFT,
+        LK_NO, LK_YES
+    }
+};
+
+static const setting_t __far setting_file_hide_icons = {
+    s_file_show_hidden_key,
+    LK_SETTINGS_FILE_HIDE_ICONS_KEY,
+    0,
+    SETTING_TYPE_FLAG,
+    0,
+    .flag = {
+        &settings.file_flags,
+        SETTING_FILE_HIDE_ICONS_SHIFT,
         LK_NO, LK_YES
     }
 };
@@ -106,11 +120,12 @@ static const setting_category_t __far settings_file = {
     LK_SETTINGS_FILE_KEY,
     0,
     &settings_root,
-    3,
+    4,
     {
         &setting_file_view,
         &setting_file_sort_order,
-        &setting_file_show_hidden
+        &setting_file_show_hidden,
+        &setting_file_hide_icons
     }
 };
 

@@ -89,6 +89,9 @@ msgstr "Small list"
 msgid "SETTINGS_FILE_VIEW_HELP"
 msgstr "Selects the method of listing files in the file browser."
 
+msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
+msgstr "Hide icons"
+
 
 msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
 msgstr "Force fast SRAM"
