@@ -29,6 +29,7 @@
 #include "../util/input.h"
 #include "../util/memops.h"
 #include "../util/util.h"
+#include "ui/bitmap.h"
 #include "vgm/vgm.h"
 
 static vgm_state_t *vgm_state;
@@ -50,6 +51,12 @@ void  __attribute__((interrupt, assume_ss_data)) vgm_interrupt_handler(void) {
         ws_int_ack(WS_INT_ACK_HBL_TIMER);
         return;
     }
+}
+
+static int strlen16(const uint16_t __far* text) {
+    int i = 0;
+    while (*(text++)) i++;
+    return i;
 }
 
 int ui_vgmplay(const char *path) {
@@ -97,6 +104,33 @@ int ui_vgmplay(const char *path) {
         ws_sound_reset();
         return ERR_FILE_FORMAT_INVALID;
     }
+
+    // parse GD3 data
+    ws_bank_with_rom0(vgm_bank, {
+        uint32_t gd3_offset = *((uint32_t __far*) MK_FP(0x2000, 0x0014));
+        if (gd3_offset != 0) {
+            gd3_offset += 0x20;
+            ws_bank_rom0_set(vgm_bank + (gd3_offset >> 16));
+            ws_bank_rom1_set(vgm_bank + (gd3_offset >> 16) + 1);
+            const uint16_t __far* gd3_data = MK_FP(0x2000 + ((gd3_offset & 0xFFF0) >> 4), (gd3_offset & 0xF));
+
+            int x = 8;
+            int y = 16;
+            for (int i = 0; i < 8; i++) {
+                int len = strlen16(gd3_data);
+
+                if (len > 0 && (i == 0 || i == 2 || i == 4 || i == 6)) {
+                    // Print text
+                    bitmapfont_set_active_font(i == 0 ? font16_bitmap : font8_bitmap);
+                    bitmapfont_draw_string16(&ui_bitmap, x, y, gd3_data, 248);
+                    y += i == 0 ? 16 : 12;
+                }
+
+                gd3_data += len + 1;
+            }
+
+        }
+    });
 
     input_wait_clear();
     outportb(WS_SOUND_OUT_CTRL_PORT, WS_SOUND_OUT_CTRL_SPEAKER_ENABLE | WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_100);

@@ -303,6 +303,24 @@ uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t 
     return width - CONFIG_FONT_CHAR_GAP;
 }
 
+uint16_t bitmapfont_draw_string16(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* str, uint16_t max_width) {
+    // FIXME: UTF-16 support
+    uint16_t width = 0;
+
+    while (*str != 0) {
+        const uint16_t __far* data = bitmapfont_find_char(*(str++));
+        uint16_t new_width = width + bitmapfont_get_char_width_a(data);
+        if (new_width > max_width)
+            return width - CONFIG_FONT_CHAR_GAP;
+
+        uint16_t w = bitmapfont_draw_char_a(bitmap, xofs, yofs, data) + CONFIG_FONT_CHAR_GAP;
+        xofs += w;
+        width += w;
+    }
+
+    return width - CONFIG_FONT_CHAR_GAP;
+}
+
 void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height, int linegap) {
     uint32_t ch;
     uint16_t line_width = 0;
