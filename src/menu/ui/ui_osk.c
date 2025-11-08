@@ -210,7 +210,7 @@ static void redraw_osk_buffer_text(ui_osk_state_t *state, bool clear) {
     CALC_OSK_DIMENSIONS;
 
     if (clear)
-        bitmap_rect_fill(&ui_bitmap, 0, osk_by, WS_DISPLAY_WIDTH_PIXELS, glyph_height, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+        bitmap_rect_fill(&ui_bitmap, 0, osk_by, WS_DISPLAY_WIDTH_PIXELS, glyph_height, BITMAP_COLOR_2BPP(2));
 
     bitmapfont_draw_string(&ui_bitmap, 4, osk_by, state->buffer, WS_DISPLAY_WIDTH_PIXELS - 8);
 }
@@ -223,7 +223,7 @@ static void redraw_osk(ui_osk_state_t *state) {
 
     // draw outline
     bitmap_rect_draw(&ui_bitmap, osk_x - 1, osk_ky - 1, osk_width + 2, osk_kheight + 2,
-        BITMAP_COLOR(3, 3, BITMAP_COLOR_MODE_STORE), true);
+        BITMAP_COLOR_2BPP(3), true);
 
     redraw_osk_buffer_text(state, false);
 

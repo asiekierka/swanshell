@@ -194,5 +194,5 @@ void ui_color_picker(uint16_t *rgb) {
         new_rgb = (new_rgb & ~(0xF << component_offset)) | (component << component_offset);
     }
 
-    bitmap_rect_fill(&ui_bitmap, COLORBAR_X, 8, COLORBAR_WIDTH, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, COLORBAR_X, 8, COLORBAR_WIDTH, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR_4BPP(2));
 }

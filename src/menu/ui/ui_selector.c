@@ -80,7 +80,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
     while (true) {
         if (prev_offset != config->offset) {
             if (prev_offset == 0xFFFF || ((prev_offset / row_count) != (config->offset / row_count))) {
-                bitmap_rect_fill(&ui_bitmap, 0, SELECTOR_Y_OFFSET, 28 * 8, row_height * row_count, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
+                bitmap_rect_fill(&ui_bitmap, 0, SELECTOR_Y_OFFSET, 28 * 8, row_height * row_count, BITMAP_COLOR_4BPP(2));
                 // Draw filenames
                 ui_selector_set_active_font(config);
                 for (int i = 0; i < row_count; i++) {

@@ -60,7 +60,7 @@ typedef struct {
 } bmp_header_t;
 
 void ui_draw_titlebar(const char __far* text) {
-    bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR_2BPP(2));
     if (text != NULL) {
         bitmapfont_set_active_font(font8_bitmap);
         bitmapfont_draw_string(&ui_bitmap, 2, 0, text, WS_DISPLAY_WIDTH_PIXELS - 4);
@@ -68,7 +68,7 @@ void ui_draw_titlebar(const char __far* text) {
 }
 
 void ui_draw_statusbar(const char __far* text) {
-    bitmap_rect_fill(&ui_bitmap, 0, WS_DISPLAY_HEIGHT_PIXELS-8, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 0, WS_DISPLAY_HEIGHT_PIXELS-8, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR_2BPP(2));
     bitmapfont_set_active_font(font8_bitmap);
     if (text != NULL) {
         bitmapfont_draw_string(&ui_bitmap, 2, WS_DISPLAY_HEIGHT_PIXELS-8, text, WS_DISPLAY_WIDTH_PIXELS - 4);
@@ -144,7 +144,7 @@ void ui_show(void) {
 
 void ui_layout_clear(uint16_t pal) {
     if (pal == 0) {
-        bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
+        bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS, BITMAP_COLOR_4BPP(2));
     } else {
         bitmap_rect_clear(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS);
     }
@@ -152,6 +152,6 @@ void ui_layout_clear(uint16_t pal) {
 }
 
 void ui_layout_bars(void) {
-    bitmap_rect_fill(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR_4BPP(2));
     INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
 }

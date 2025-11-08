@@ -36,7 +36,7 @@ void ui_popup_list_clear(ui_popup_list_config_t *config) {
     uint16_t list_y = (WS_DISPLAY_HEIGHT_PIXELS - list_height) >> 1;
 
     bitmap_rect_fill(&ui_bitmap, list_x, list_y, list_width, list_height,
-        BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+        BITMAP_COLOR_2BPP(2));
 }
 
 int16_t ui_popup_list(ui_popup_list_config_t *config) {
@@ -57,9 +57,9 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
     config->height = list_height;
 
     bitmap_rect_fill(&ui_bitmap, list_x, list_y, list_width, list_height,
-        BITMAP_COLOR(2, 3, BITMAP_COLOR_MODE_STORE));
+        BITMAP_COLOR_2BPP(2));
     bitmap_rect_draw(&ui_bitmap, list_x + 1, list_y + 1, list_width - 2, list_height - 2,
-        BITMAP_COLOR(3, 3, BITMAP_COLOR_MODE_STORE), false);
+        BITMAP_COLOR_2BPP(3), false);
 
     for (int i = 0; i < option_count; i++) {
         bitmapfont_draw_string(&ui_bitmap,

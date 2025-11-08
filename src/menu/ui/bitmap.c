@@ -50,7 +50,7 @@ extern void __bitmap_bitop_fill_c(uint16_t value, void *dest, uint16_t _rows);
 
 void bitmap_vline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uint16_t color) {
     if (bitmap->bpp == 1) {
-        color = BITMAP_COLOR(color ? 3 : 0, 3, BITMAP_COLOR_MODE_STORE);
+        color = BITMAP_COLOR_2BPP(color ? 3 : 0);
     }
 
     uint8_t *tile = BITMAP_AT(bitmap, x, y);
@@ -80,7 +80,7 @@ void bitmap_rect_draw(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
 
 void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) {
     if (bitmap->bpp == 1) {
-        color = BITMAP_COLOR(color ? 3 : 0, 3, BITMAP_COLOR_MODE_STORE);
+        color = BITMAP_COLOR_2BPP(color ? 3 : 0);
     }
 
     uint8_t row_width = 1 << bitmap->x_shift;
@@ -126,13 +126,21 @@ void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
             width -= row_width;  
         }
     } else {
-        while (width >= row_width) {
-            __bitmap_bitop_row_c(cxor, color0, height, cmask0, bitmap, tile);
-            if (bitmap->bpp == 4 && cmask1)
+        if (bitmap->bpp == 4 && cmask1) {
+            while (width >= row_width) {
+                __bitmap_bitop_row_c(cxor, color0, height, cmask0, bitmap, tile);
                 __bitmap_bitop_row_c(cxor, color1, height, cmask1, bitmap, tile + 2);
-            tile += bitmap->x_pitch;
-            x += row_width;
-            width -= row_width;  
+                tile += bitmap->x_pitch;
+                x += row_width;
+                width -= row_width;  
+            }
+        } else {
+            while (width >= row_width) {
+                __bitmap_bitop_row_c(cxor, color0, height, cmask0, bitmap, tile);
+                tile += bitmap->x_pitch;
+                x += row_width;
+                width -= row_width;  
+            }
         }
     }
 

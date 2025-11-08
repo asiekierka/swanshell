@@ -63,7 +63,7 @@ void bitmap_clear(const bitmap_t *bitmap);
 void bitmap_rect_draw(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color, bool rounded);
 void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color);
 static inline void bitmap_rect_clear(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-    bitmap_rect_fill(bitmap, x, y, width, height, BITMAP_COLOR(0, 15, BITMAP_COLOR_MODE_STORE));
+    bitmap_rect_fill(bitmap, x, y, width, height, BITMAP_COLOR_4BPP(0));
 }
 static inline void bitmap_hline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uint16_t color) {
     bitmap_rect_fill(bitmap, x, y, length, 1, color);

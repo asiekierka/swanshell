@@ -106,7 +106,7 @@ reload_menu:
         if (keys_pressed & WS_KEY_Y1) {
             if (s->help) {
                 ui_layout_bars();
-                bitmap_rect_fill(&ui_bitmap, 0, 8, 28 * 8, 16 * 8, BITMAP_COLOR(2, 15, BITMAP_COLOR_MODE_STORE));
+                bitmap_rect_fill(&ui_bitmap, 0, 8, 28 * 8, 16 * 8, BITMAP_COLOR_4BPP(2));
 
                 ui_draw_titlebar(lang_keys[s->name]);
                 ui_draw_statusbar(NULL);
