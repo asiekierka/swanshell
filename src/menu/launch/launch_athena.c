@@ -142,6 +142,7 @@ launch_athena_begin_done:
 
 typedef struct {
     uint16_t magic;
+    uint16_t version;
     uint16_t dir_segment;
     uint16_t file_count;
     uint16_t file_exec_idx;
@@ -171,6 +172,7 @@ int16_t launch_athena_romfile_begin(void) {
     ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
         ws_bank_with_ram(ATHENA_OS_FOOTER_BANK, {
             ATHENA_OS_FOOTER.magic = 0x5AA5;
+            ATHENA_OS_FOOTER.version = 0x0001;
             ATHENA_OS_FOOTER.dir_segment = DIR_SEGMENT;
             ATHENA_OS_FOOTER.file_count = 0;
             ATHENA_OS_FOOTER.file_exec_idx = 0;
