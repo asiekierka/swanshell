@@ -20,6 +20,9 @@
 
 #include "launch.h"
 
+// "#!ws" in little-endian
+#define WW_FX_MAGIC 0x73772123
+
 /**
  * @brief Start loading AthenaOS environment.
  * 

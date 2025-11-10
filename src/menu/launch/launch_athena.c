@@ -232,7 +232,7 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
 
         result = f_read(&fp, buffer, 64, &br);
         if (result != FR_OK) goto launch_athena_romfile_add_done;
-        if (*((uint32_t*) buffer) == 0x73772123) {
+        if (*((uint32_t*) buffer) == WW_FX_MAGIC) {
             // Read header
             result = f_read(&fp, buffer, 64, &br);
         } else {
@@ -288,7 +288,7 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
         uint32_t file_size = f_size(&fp) - f_tell(&fp);
         while (file_size) {
             uint16_t file_offset = (file_segment << 4);
-            uint16_t file_max_read = (file_offset == 0) ? 32768 : -file_offset; 
+            uint16_t file_max_read = (file_offset == 0) ? (file_size < 65536 ? file_size : 32768) : -file_offset;
 
             outportw(WS_CART_EXTBANK_RAM_PORT, file_segment >> 12);
             result = f_read(&fp, MK_FP(0x1000, file_offset), file_max_read, &br);

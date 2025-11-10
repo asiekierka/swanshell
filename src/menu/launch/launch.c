@@ -40,7 +40,7 @@
 #include "util/ini.h"
 
 __attribute__((section(".iramCx_c000")))
-uint8_t sector_buffer[8192];
+uint8_t sector_buffer[CONFIG_MEMLAYOUT_SECTOR_BUFFER_SIZE];
 
 extern FATFS fs;
 
