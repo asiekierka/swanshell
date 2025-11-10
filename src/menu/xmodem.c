@@ -87,20 +87,17 @@ int xmodem_recv_start(uint32_t *size) {
     int result = 0;
     bool received_soh = false;
 
+    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
     nile_mcu_native_cdc_clear_sync();
 
 #if defined(XMODEM_SPEED_24MHZ)
-    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
     nile_mcu_native_mcu_spi_set_speed_sync(2);
     nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_MCU);
 #elif defined(XMODEM_SPEED_6MHZ)
-    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
     if (ws_system_is_color_active()) {
         nile_mcu_native_mcu_spi_set_speed_sync(1);
         outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) | WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
     }
-#else
-    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
 #endif
 
     uint16_t timeout_ticks = 0;
@@ -197,7 +194,6 @@ finish:
 
     outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) & ~WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
-
 
 #if defined(XMODEM_SPEED_24MHZ)
     nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);

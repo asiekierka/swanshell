@@ -68,6 +68,11 @@ static void nile_mcu_native_cdc_write_string(const char __far* s) {
     }
 }
 
+static void shell_task_yield(uint16_t ret) {
+    task_yield(shell_task, ret);
+    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
+}
+
 static void shell_new_prompt(void) {
     shell_line_pos = 0;
     nile_mcu_native_cdc_write_string(shell_flags & SHELL_FLAG_INTERACTIVE ? s_new_prompt : s_new_line);
@@ -95,7 +100,7 @@ static void shell_launch(void) {
     int16_t result = xmodem_recv_start(&size);
     if (result == FR_OK) {
         bootstub_data->prog.size = size;
-        task_yield(shell_task, SHELL_RET_LAUNCH_IN_PSRAM);
+        shell_task_yield(SHELL_RET_LAUNCH_IN_PSRAM);
     }
     if (result != FR_OK) {
         nile_mcu_native_cdc_write_string_const(s_new_line);
@@ -105,6 +110,7 @@ static void shell_launch(void) {
 
 int shell_func(task_t *task) {
     while (true) {
+        shell_task_yield(SHELL_RET_IDLE);
         int bytes_read = nile_mcu_native_cdc_read_sync(shell_line + shell_line_pos, 1);
         if (bytes_read > 0) {
             char c = shell_line[shell_line_pos];
@@ -149,8 +155,6 @@ int shell_func(task_t *task) {
                 }
             }
         }
-
-        task_yield(task, SHELL_RET_IDLE);
     }
 }
 
