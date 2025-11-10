@@ -31,6 +31,7 @@ DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
 DEFINE_STRING_LOCAL(s_file_hide_icons_key, "FileHideIcons");
 DEFINE_STRING_LOCAL(s_program_fast_sram_key, "ProgFastSRAM");
 DEFINE_STRING_LOCAL(s_program_fx_bios_key, "ProgFxCmptBios");
+DEFINE_STRING_LOCAL(s_cart_mcu_spi_speed_key, "CartMcuSpiSpeed");
 DEFINE_STRING_LOCAL(s_language, "Language");
 DEFINE_STRING_LOCAL(s_theme_accent_color_key, "ThemeAccentColor");
 DEFINE_STRING_LOCAL(s_theme_dark_mode_key, "ThemeDarkMode");
@@ -221,6 +222,50 @@ static const setting_t __far setting_program = {
     .category = { &settings_program }
 };
 
+static const uint16_t __wf_rom settings_spi_speed_table[] = {
+    LK_SETTINGS_CART_MCU_SPI_SPEED_384KHZ,
+    LK_SETTINGS_CART_MCU_SPI_SPEED_6MHZ,
+    LK_SETTINGS_CART_MCU_SPI_SPEED_24MHZ
+};
+
+static void settings_spi_speed_name(uint16_t value, char *buf, int buf_len) {
+    strncpy(buf, lang_keys[settings_spi_speed_table[value]], buf_len);
+}
+
+static const setting_t __far setting_cart_mcu_spi_speed = {
+    s_cart_mcu_spi_speed_key,
+    LK_SETTINGS_CART_MCU_SPI_SPEED,
+    LK_SETTINGS_CART_MCU_SPI_SPEED_HELP,
+    SETTING_TYPE_CHOICE_BYTE,
+    0,
+    .choice = {
+        &settings.mcu_spi_speed,
+        SETTING_MCU_SPI_SPEED_COUNT - 1,
+        NULL,
+        settings_spi_speed_name
+    }
+};
+
+static const setting_category_t __far settings_cart = {
+    LK_SETTINGS_CART_KEY,
+    0,
+    &settings_root,
+    1,
+    {
+        &setting_cart_mcu_spi_speed
+    }
+};
+
+static const setting_t __far setting_cart = {
+    NULL,
+    LK_SETTINGS_CART_KEY,
+    0,
+    SETTING_TYPE_CATEGORY,
+    0,
+    NULL,
+    .category = { &settings_cart }
+};
+
 static void settings_theme_accent_color_on_change(const settings_t *set) {
     bool dark = settings.accent_color_high & SETTING_THEME_DARK_MODE;
     int shade = ui_rgb_to_shade(settings.accent_color);
@@ -297,11 +342,12 @@ const setting_category_t __far settings_root = {
     LK_SETTINGS_KEY,
     0,
     NULL,
-    4,
+    5,
     {
         &setting_file,
-        &setting_program,
         &setting_theme,
+        &setting_program,
+        &setting_cart,
         &setting_language
     }
 };

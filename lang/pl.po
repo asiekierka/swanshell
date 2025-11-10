@@ -31,6 +31,9 @@ msgstr "Przeglądarka plików"
 msgid "SETTINGS_PROG_KEY"
 msgstr "Uruchamianie programów"
 
+msgid "SETTINGS_CART_KEY"
+msgstr "Kartridż"
+
 msgid "SETTINGS_FILE_SORT_KEY"
 msgstr "Kolejność"
 
@@ -80,7 +83,22 @@ msgid "SETTINGS_PROG_FX_BIOS"
 msgstr "Wariant BIOS dla .fx"
 
 msgid "SETTINGS_PROG_FX_BIOS_HELP"
-msgstr "Wybiera wariant BIOSu używany przez programy .fx.\n\nDo komunikacji serial, Natywny używa port USB, Kompatybilny zaś portu EXT konsoli."
+msgstr "Wariant BIOSu używany przez programy .fx.\n\nDo komunikacji serial, Natywny używa port USB, Kompatybilny zaś portu EXT konsoli."
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED"
+msgstr "Prędkość komunikacji MCU"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
+msgstr "- Niska: 384 KHz\n- Średnia: 6 MHz na WSC, 384 KHz na WS/PCv2\n- Wysoka: 24 MHz"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
+msgstr "Niska"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_6MHZ"
+msgstr "Średnia*"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
+msgstr "Wysoka"
 
 msgid "DIALOG_UPDATING_MCU"
 msgstr "Aktualizacja MCU"

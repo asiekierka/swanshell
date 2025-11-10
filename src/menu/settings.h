@@ -51,6 +51,13 @@
 
 #define SETTING_FLAG_COLOR_ONLY 0x01
 
+enum {
+    SETTING_MCU_SPI_SPEED_384KHZ = 0,
+    SETTING_MCU_SPI_SPEED_6MHZ,
+    SETTING_MCU_SPI_SPEED_24MHZ,
+    SETTING_MCU_SPI_SPEED_COUNT
+};
+
 struct setting;
 
 typedef struct setting_category {
@@ -108,6 +115,7 @@ typedef struct __attribute__((packed)) {
     uint8_t file_sort;
     uint8_t language;
     uint8_t file_view;
+    uint8_t mcu_spi_speed;
     union {
         struct {
             uint8_t accent_color_low;

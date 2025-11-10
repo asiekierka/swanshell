@@ -38,7 +38,10 @@ msgid "SETTINGS_FILE_KEY"
 msgstr "File browser"
 
 msgid "SETTINGS_PROG_KEY"
-msgstr "Program launching"
+msgstr "Program launcher"
+
+msgid "SETTINGS_CART_KEY"
+msgstr "Cartridge"
 
 msgid "SETTINGS_THEME_KEY"
 msgstr "Theme"
@@ -100,10 +103,25 @@ msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
 msgstr "Enables faster SRAM and I/O speeds on Color models before launching the game.\n\nThis can help alleviate slowdowns in certain programs, but may also hurt compatibility or invalidate speedruns."
 
 msgid "SETTINGS_PROG_FX_BIOS"
-msgstr "BIOS variant for .fx load"
+msgstr "BIOS variant for .fx loader"
 
 msgid "SETTINGS_PROG_FX_BIOS_HELP"
-msgstr "Selects the BIOS variant used by .fx programs.\n\nFor serial communication, Native uses the USB port, Compatible uses the console EXT port."
+msgstr "The BIOS variant used by .fx programs.\n\nFor serial communication, Native uses the USB port, Compatible uses the console EXT port."
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED"
+msgstr "MCU communication speed"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
+msgstr "- Low: 384 KHz\n- Medium: 6 MHz on WSC, 384 KHz on WS/PCv2\n- High: 24 MHz"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
+msgstr "Low"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_6MHZ"
+msgstr "Medium*"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
+msgstr "High"
 
 
 msgid "SETTINGS_THEME_ACCENT_COLOR"

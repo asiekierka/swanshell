@@ -25,6 +25,7 @@
 #include "errors.h"
 #include "main.h"
 #include "mcu.h"
+#include "settings.h"
 #include "util/math.h"
 
 #define SOH 1
@@ -73,10 +74,6 @@ static bool mcu_native_cdc_write_block_sync(const void __wf_cram* buffer, uint16
 
 extern uint8_t xmodem_checksum(uint8_t *data);
 
-// #define XMODEM_SPEED_384KHZ
-// #define XMODEM_SPEED_6MHZ
-#define XMODEM_SPEED_24MHZ
-
 int xmodem_recv_start(uint32_t *size) {
     uint8_t data[131];
     uint8_t eot_step = 0;
@@ -89,16 +86,7 @@ int xmodem_recv_start(uint32_t *size) {
 
     nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
     nile_mcu_native_cdc_clear_sync();
-
-#if defined(XMODEM_SPEED_24MHZ)
-    nile_mcu_native_mcu_spi_set_speed_sync(2);
-    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_MCU);
-#elif defined(XMODEM_SPEED_6MHZ)
-    if (ws_system_is_color_active()) {
-        nile_mcu_native_mcu_spi_set_speed_sync(1);
-        outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) | WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
-    }
-#endif
+    mcu_native_enter_speed(settings.mcu_spi_speed);
 
     uint16_t timeout_ticks = 0;
     data[0] = NAK; SEND_DATA(1);
@@ -195,16 +183,7 @@ finish:
     outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) & ~WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
 
-#if defined(XMODEM_SPEED_24MHZ)
-    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
-    nile_mcu_native_mcu_spi_set_speed_sync(0);
-#elif defined(XMODEM_SPEED_6MHZ)
-    if (ws_system_is_color_active()) {
-        nile_mcu_native_mcu_spi_set_speed_sync(0);
-        outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) & ~WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
-    }
-#endif
-
+    mcu_native_exit_speed();
     mcu_native_finish();
 
     return result;

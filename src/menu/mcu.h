@@ -60,4 +60,7 @@ static inline bool mcu_native_finish(void) {
 	return nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
 }
 
+void mcu_native_enter_speed(uint16_t speed);
+void mcu_native_exit_speed(void);
+
 #endif /* _MCU_H_ */

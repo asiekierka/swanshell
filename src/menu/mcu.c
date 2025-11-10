@@ -22,6 +22,7 @@
 #include <ws.h>
 #include <nile.h>
 #include <nilefs.h>
+#include <ws/system.h>
 #include "errors.h"
 #include "lang.h"
 #include "mcu.h"
@@ -195,4 +196,22 @@ bool mcu_native_hid_update(uint16_t value) {
 	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x42, 2), &value, 2))
 		return false;
 	return nile_mcu_native_recv_cmd(NULL, 0) >= 0;
+}
+
+void mcu_native_enter_speed(uint16_t speed) {
+	if (speed > 2 || (speed == 1 && !ws_system_is_color_active()))
+		speed = 0;
+	nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+    nile_mcu_native_mcu_spi_set_speed_sync(speed);
+	if (speed == 2)
+	    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_MCU);
+	else if (speed == 1)
+        outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) | WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
+}
+
+void mcu_native_exit_speed(void) {
+    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+    if (ws_system_is_color_active())
+        outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) & ~WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
+    nile_mcu_native_mcu_spi_set_speed_sync(0);
 }

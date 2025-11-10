@@ -28,6 +28,7 @@ void settings_reset(void) {
     memset(&settings, 0, sizeof(settings));
     lang_keys = lang_keys_en;
     settings.accent_color = SETTING_THEME_ACCENT_COLOR_DEFAULT;
+    settings.mcu_spi_speed = SETTING_MCU_SPI_SPEED_24MHZ;
 }
 
 static int16_t settings_load_category(FIL *fp, const setting_category_t __far *cat, const char *key, const char *value) {
