@@ -82,6 +82,9 @@ void ui_settings(const setting_category_t __far* root_category) {
     ui_settings_config_t config = {{0}, root_category};
     bool reinit_ui = true;
 
+    uint16_t offset_category_stack[4];
+    uint8_t offset_category_stack_pos = 0;
+
     config.config.style = UI_SELECTOR_STYLE_16;
     config.config.draw = ui_settings_draw;
     config.config.can_select = ui_settings_can_select;
@@ -126,6 +129,8 @@ reload_menu:
             
             if (s->type == SETTING_TYPE_CATEGORY) {
                 config.category = s->category.value;
+                offset_category_stack[offset_category_stack_pos++] = config.config.offset;
+                config.config.offset = 0;
                 reload_required = true;
             } else if (s->type == SETTING_TYPE_FLAG) {
                 *s->flag.value ^= (1 << s->flag.bit);
@@ -160,6 +165,8 @@ reload_menu:
             }
             if (config.category->parent) {
                 config.category = config.category->parent;
+                if (offset_category_stack_pos)
+                    config.config.offset = offset_category_stack[--offset_category_stack_pos];
                 goto reload_menu;
             }
         }
