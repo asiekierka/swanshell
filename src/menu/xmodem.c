@@ -50,6 +50,18 @@ static bool mcu_native_cdc_read_block_sync(void __wf_cram* buffer, uint16_t bufl
     return !buflen;
 }
 
+static int16_t mcu_native_cdc_read_sync(void __wf_cram* buffer, uint16_t buflen, uint16_t timeout_ticks) {
+    volatile uint16_t target_ticks = vbl_ticks + timeout_ticks;
+    
+    while (((int16_t) (vbl_ticks - target_ticks)) < 0) {
+        int bytes_read = nile_mcu_native_cdc_read_sync(buffer, MIN(buflen, 256));
+        if (bytes_read > 0)
+            return bytes_read;
+    }
+
+    return -1;
+}
+
 static bool mcu_native_cdc_write_block_sync(const void __wf_cram* buffer, uint16_t buflen, uint16_t timeout_ticks) {
     volatile uint16_t target_ticks = vbl_ticks + timeout_ticks;
     
@@ -75,7 +87,7 @@ static bool mcu_native_cdc_write_block_sync(const void __wf_cram* buffer, uint16
 extern uint8_t xmodem_checksum(uint8_t *data);
 
 int xmodem_recv_start(uint32_t *size) {
-    uint8_t data[131];
+    uint8_t data[132];
     uint8_t eot_step = 0;
     uint8_t xmodem_idx = 0x01;
 
@@ -93,7 +105,8 @@ int xmodem_recv_start(uint32_t *size) {
     *size = 0;
     
     while (true) {
-        if (!mcu_native_cdc_read_block_sync(data, 1, 75)) {
+        int bytes_read = mcu_native_cdc_read_sync(data, 132, 75);
+        if (bytes_read < 1) {
             timeout_ticks++;
             if (timeout_ticks >= TIMEOUT_PACKET_SECONDS) {
                 result = ERR_DATA_TRANSFER_TIMEOUT; goto finish;
@@ -104,57 +117,69 @@ int xmodem_recv_start(uint32_t *size) {
             continue;
         }
 
-        if (data[0] == SOH) {
-            timeout_ticks = 0;
-            received_soh = true;
+        for (int i = 0; i < bytes_read; i++) {
+            if (data[i] == SOH) {
+                timeout_ticks = 0;
+                received_soh = true;
 
-            // SOH: receive block
-            RECV_DATA(131);
-
-            if ((data[0] ^ data[1]) == 0xFF) {
-                if (data[0] == xmodem_idx) {
-                    if (data[130] == xmodem_checksum(data + 2)) {
-                        // respond with ACK
-                        data[0] = ACK; nile_mcu_native_cdc_write_async_start(data, 1);
-
-                        // read next 128 bytes into PSRAM
-                        outportw(WS_CART_EXTBANK_RAM_PORT, bank);
-                        outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
-
-                        memcpy(MK_FP(0x1000, offset), data + 2, 128);
-
-                        if (nile_mcu_native_cdc_write_async_finish() != 1) {
-                            SEND_DATA(1);
-                        }
-
-                        offset += 128;
-                        if (!offset) {
-                            bank++;
-                            if (bank >= 192) {
-                                data[0] = CAN; SEND_DATA(1);
-                                result = ERR_FILE_TOO_LARGE; goto finish;
-                            }
-                        }
-
-                        xmodem_idx++;
-                        continue;
+                // SOH: receive block
+                if (bytes_read < 132) {
+                    if (i > 0) {
+                        // slow path in case SOH was not the first byte; this should never happen
+                        memmove(data, data + i, bytes_read - i);
+                        bytes_read -= i;
+                    }
+                    
+                    if (!mcu_native_cdc_read_block_sync(data + bytes_read, 132 - bytes_read, TIMEOUT_TICKS)) {
+                        result = ERR_DATA_TRANSFER_TIMEOUT; goto finish;
                     }
                 }
-            }
 
-            // on failure, respond with NAK
-            data[0] = NAK; SEND_DATA(1);
-        } else if (data[0] == CAN) {
-            // CAN: cancel transfer
-            result = ERR_DATA_TRANSFER_CANCEL; goto finish;
-        } else if (data[0] == EOT) {
-            // EOT: end of transfer
-            // respond with NAK first, then ACK
-            data[0] = ((eot_step++) == 0) ? NAK : ACK;
-            SEND_DATA(1);
-            if (eot_step == 2) goto finish;
-        } else {
-            // TODO: handle invalid characters
+                if ((data[1] ^ data[2]) == 0xFF) {
+                    if (data[1] == xmodem_idx) {
+                        if (data[131] == xmodem_checksum(data + 3)) {
+                            // respond with ACK
+                            data[0] = ACK; nile_mcu_native_cdc_write_async_start(data, 1);
+
+                            // read next 128 bytes into PSRAM
+                            outportw(WS_CART_EXTBANK_RAM_PORT, bank);
+                            outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
+
+                            memcpy(MK_FP(0x1000, offset), data + 3, 128);
+
+                            if (nile_mcu_native_cdc_write_async_finish() != 1) {
+                                SEND_DATA(1);
+                            }
+
+                            offset += 128;
+                            if (!offset) {
+                                bank++;
+                                if (bank >= 192) {
+                                    data[0] = CAN; SEND_DATA(1);
+                                    result = ERR_FILE_TOO_LARGE; goto finish;
+                                }
+                            }
+
+                            xmodem_idx++;
+                            break;
+                        }
+                    }
+                }
+
+                // on failure, respond with NAK
+                data[0] = NAK; SEND_DATA(1);
+            } else if (data[i] == CAN) {
+                // CAN: cancel transfer
+                result = ERR_DATA_TRANSFER_CANCEL; goto finish;
+            } else if (data[i] == EOT) {
+                // EOT: end of transfer
+                // respond with NAK first, then ACK
+                data[0] = ((eot_step++) == 0) ? NAK : ACK;
+                SEND_DATA(1);
+                if (eot_step == 2) goto finish;
+            } else {
+                // TODO: handle invalid characters
+            }
         }
     }
 
