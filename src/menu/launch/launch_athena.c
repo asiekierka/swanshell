@@ -1,4 +1,4 @@
-/**
+	/**
  * Copyright (c) 2024, 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
@@ -358,6 +358,7 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
 
             // Found ram0 path
             result = f_chdir(buffer);
+            if (result == FR_NO_PATH) continue;
             if (result != FR_OK) return result;
         } else if (i == 1) {
             strcpy(buffer, s_path_fbin);

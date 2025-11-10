@@ -33,8 +33,9 @@ uint8_t shell_task_mem[512];
 char shell_line[SHELL_LINE_LENGTH + 1];
 uint8_t shell_line_pos;
 
+#define SHELL_FLAG_NOT_INITIALIZED 0xFF
 #define SHELL_FLAG_INTERACTIVE 0x01
-uint8_t shell_flags;
+uint8_t shell_flags = SHELL_FLAG_NOT_INITIALIZED;
 
 DEFINE_STRING_LOCAL(s_line_too_long, "\r\nLine too long");
 DEFINE_STRING_LOCAL(s_new_line, "\r\n");
@@ -160,10 +161,12 @@ void shell_init(void) {
 }
 
 void shell_tick(void) {
-    if (!task_is_joined(shell_task))
-        switch (task_resume(shell_task)) {
-            case SHELL_RET_LAUNCH_IN_PSRAM: {
-                launch_in_psram(bootstub_data->prog.size);
-            } break;
-        }
+    if (shell_flags == SHELL_FLAG_NOT_INITIALIZED) return;
+    if (task_is_joined(shell_task)) return;
+
+    switch (task_resume(shell_task)) {
+        case SHELL_RET_LAUNCH_IN_PSRAM: {
+            launch_in_psram(bootstub_data->prog.size);
+        } break;
+    }
 }

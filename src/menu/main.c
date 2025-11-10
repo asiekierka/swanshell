@@ -78,18 +78,17 @@ void main(void) {
 
 	settings_reset();
 
-	shell_init();
-
 	ui_init();
 	ui_layout_clear(0);
 
 	fs_init();
-	outportw(WS_CART_EXTBANK_RAM_PORT,0 );
+	outportw(WS_CART_EXTBANK_RAM_PORT, 0);
 
 	ui_dialog_error_check(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
 	ui_dialog_error_check(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
 	ui_dialog_error_check(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
 
+	shell_init();
 	ui_file_selector();
 
 	while(1);
