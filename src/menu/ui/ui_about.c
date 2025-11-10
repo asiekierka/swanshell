@@ -39,7 +39,7 @@ void ui_about(void) {
     ui_draw_titlebar(lang_keys[LK_SUBMENU_OPTION_ABOUT]);
     ui_draw_statusbar(NULL);
 
-    int y = 22;
+    int y = 23;
     sprintf(buf, s_name_version, lang_keys[LK_NAME]);
     bitmapfont_set_active_font(font16_bitmap);
     bitmapfont_draw_string(&ui_bitmap,
