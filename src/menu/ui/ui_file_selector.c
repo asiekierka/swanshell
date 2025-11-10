@@ -261,7 +261,8 @@ rescan_directory:
                             ui_dialog_error_check(result, NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
-                    } else if (!strcasecmp(ext, s_file_ext_fx)) {
+                    } else if (!strcasecmp(ext, s_file_ext_fx) || !strcasecmp(ext, s_file_ext_bin)) {
+                        // TODO: Do some checks on the .bin file
                         ui_dialog_error_check(launch_athena_boot_curdir_as_rom_wip(fno->fno.fname), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;

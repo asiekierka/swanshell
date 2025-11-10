@@ -258,7 +258,7 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
             strncpy(entry->info, filename, 24);
             entry->len = f_size(&fp);
             entry->count = (entry->len + 127) >> 7;
-            entry->mode = 0;
+            entry->mode = type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? 5 : 4;
             entry->mtime = 0; // TODO
             entry->il = NULL;
             entry->resource = -1;
@@ -268,14 +268,6 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
         // Edit location
         entry->loc = MK_FP(file_segment, 0x0000);
         entry->mode = (entry->mode & ~2) | 4; // Clear write flag, set read flag
-
-        // Check if executed file marked as executable
-        if (type == ATHENA_ROMFILE_TYPE_ROM0_BOOT) {
-            if (!(entry->mode & 1)) {
-                result = ERR_FILE_NOT_EXECUTABLE;
-                goto launch_athena_romfile_add_done;
-            }
-        }
 
         // Copy header to file list
         outportw(WS_CART_EXTBANK_RAM_PORT, DIR_SEGMENT >> 12);
@@ -303,14 +295,13 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
             file_segment += br >> 4;
         }
 
-        // align to 128 bytes
+        // Align to 128 bytes
         file_segment = (file_segment + 7) & ~7;
         if (file_segment < expected_end_segment)
             file_segment = expected_end_segment;
 
-        if (file_segment > 0xE000) {
+        if (file_segment > 0xE000)
             result = ERR_FILE_TOO_LARGE;
-        }
         
 launch_athena_romfile_add_done:
         f_close(&fp);
