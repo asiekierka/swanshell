@@ -146,6 +146,10 @@ mcu_compare_success:
 		ui_popup_dialog_clear(&dlg);
 	}
 
+	// FIXME: Send the first MCU command, that might fail.
+	nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+	nile_mcu_native_mcu_spi_set_speed_sync(0);
+
 	nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
 
 	if (flash) {

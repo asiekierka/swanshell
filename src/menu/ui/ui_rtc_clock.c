@@ -41,6 +41,18 @@
 #define RTC_TIMER_TEXT_X_OFFSET 1
 #define RTC_TIMER_TEXT_Y_OFFSET 2
 
+static const uint8_t __far arrow_up_glyph[] = {
+    0b00011000,
+    0b00111100,
+    0b01111110
+};
+
+static const uint8_t __far arrow_down_glyph[] = {
+    0b01111110,
+    0b00111100,
+    0b00011000
+};
+
 static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool full_redraw) {
     char text[20];
 
@@ -66,7 +78,8 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
     text[19] = 0;
 
     if (full_redraw) {
-        bitmap_rect_draw(&ui_bitmap, RTC_TIMER_TEXT_X - 1, RTC_TIMER_TEXT_Y - 1, RTC_TIMER_WIDTH + 2, RTC_TIMER_GLYPH_HEIGHT + 2, BITMAP_COLOR_4BPP(3), false);
+        bitmap_rect_draw(&ui_bitmap, RTC_TIMER_TEXT_X - 2, RTC_TIMER_TEXT_Y - 1, RTC_TIMER_WIDTH + 3, RTC_TIMER_GLYPH_HEIGHT + 2, BITMAP_COLOR_4BPP(3), false);
+        bitmap_rect_fill(&ui_bitmap, RTC_TIMER_TEXT_X - 1, RTC_TIMER_TEXT_Y, 1, RTC_TIMER_GLYPH_HEIGHT, BITMAP_COLOR_4BPP(2));
     }
 
     int len = strlen(text);
@@ -95,61 +108,78 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
         bitmap_rect_fill(&ui_bitmap, x - RTC_TIMER_TEXT_X_OFFSET, RTC_TIMER_TEXT_Y, RTC_TIMER_GLYPH_WIDTH, RTC_TIMER_GLYPH_HEIGHT, BITMAP_COLOR_4BPP(2));
         bitmapfont_draw_char(&ui_bitmap, x, RTC_TIMER_TEXT_Y + RTC_TIMER_TEXT_Y_OFFSET, text[i]);
     }
+
+    // draw arrows
+    bitmap_rect_fill(&ui_bitmap, RTC_TIMER_TEXT_X, RTC_TIMER_TEXT_Y - 6, RTC_TIMER_WIDTH, 3, BITMAP_COLOR_4BPP(0));
+    bitmap_rect_fill(&ui_bitmap, RTC_TIMER_TEXT_X, RTC_TIMER_TEXT_Y + 19, RTC_TIMER_WIDTH, 3, BITMAP_COLOR_4BPP(0));
+    bitmap_draw_glyph(&ui_bitmap, RTC_TIMER_TEXT_X + (RTC_TIMER_GLYPH_WIDTH * selected_x), RTC_TIMER_TEXT_Y - 6, 8, 3, 0, &arrow_up_glyph);
+    bitmap_draw_glyph(&ui_bitmap, RTC_TIMER_TEXT_X + (RTC_TIMER_GLYPH_WIDTH * selected_x), RTC_TIMER_TEXT_Y + 19, 8, 3, 0, &arrow_down_glyph);
 }
 
-static const uint8_t __far months_in_year_bcd[] = {0x31, 0x29, 0x31, 0x30, 0x31, 0x30, 0x31, 0x31, 0x30, 0x31, 0x30, 0x31};
+static const uint8_t __far days_in_month[] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 static void adjust_component(ws_cart_rtc_datetime_t *dt, int sel_value, int delta) {
-    int min = 0x00;
-    int max = 0x99;
-    int shift = (sel_value & 1) ? 0 : 4;
+    int min = 0;
+    int max = 99;
     uint8_t *ptr = 0;
+    bool high_digit = !(sel_value & 1);
 
     switch (sel_value >> 1) {
     case 0: ptr = &dt->date.year; break;
-    case 1: ptr = &dt->date.month; min = 0x01; max = 0x12; break;
-    case 2: ptr = &dt->date.day; min = 0x01; max = 0x31; break;
-    case 3: ptr = &dt->time.hour; max = 0x23; break;
-    case 4: ptr = &dt->time.minute; max = 0x59; break;
-    case 5: ptr = &dt->time.second; max = 0x59; break;
+    case 1: ptr = &dt->date.month; min = 1; max = 12; break;
+    case 2: ptr = &dt->date.day; min = 1; max = 31; break;
+    case 3: ptr = &dt->time.hour; max = 23; break;
+    case 4: ptr = &dt->time.minute; max = 59; break;
+    case 5: ptr = &dt->time.second; max = 59; break;
     }
     if ((sel_value >> 1) == 2) {
         uint8_t month = wsx_bcd8_to_int(dt->date.month);
         if (month >= 1 && month <= 12)
-            max = months_in_year_bcd[month - 1];
+            max = days_in_month[month - 1];
     }
 
-    uint8_t old_value = *ptr;
-    uint8_t new_value = 0xFF;
-    int component;
-adjust_component_retry:
-    component = (old_value >> shift) & 0xF;
-    component += delta;
-    if (component < 0) {
-        if (shift == 0) {
-            old_value = (old_value & 0xF0) | 9;
-            shift = 4;
-            delta = -1;
-            goto adjust_component_retry;
+    int old_value = wsx_bcd8_to_int(*ptr);
+    if (delta == -999) {
+        if (high_digit) {
+            *ptr = wsx_int_to_bcd8(min);
+            return;
+        } else if ((old_value % 10) > 0) {
+            delta = -(old_value % 10);
         } else {
-            new_value = max;
+            delta = -10;
+        }
+    } else if (delta == 999) {
+        if (high_digit) {
+            *ptr = wsx_int_to_bcd8(max);
+            return;
+        } else if ((old_value % 10) < 9) {
+            delta = 9 - (old_value % 10);
+        } else {
+            delta = 10;
         }
     }
-    else if (component > 9) {
-        if (shift == 0) {
-            old_value = (old_value & 0xF0);
-            shift = 4;
-            delta = 1;
-            goto adjust_component_retry;
-        }
-        component = 9;
+    
+    if (high_digit) {
+        delta *= 10;
     }
 
-    if (new_value == 0xFF) new_value = (old_value & ~(0xF << shift)) | (component << shift);
-    if (new_value < min) new_value = max;
-    else if (new_value > max) new_value = min;
+    int new_value = old_value + delta;
+    if (high_digit) {
+        if (new_value < min) {
+            new_value = (max - (max % 10)) + (old_value % 10);
+            while (new_value > max) new_value -= 10;
+            if (new_value == old_value) new_value = max;
+        } else if (new_value > max) {
+            new_value = (min - (min % 10)) + (old_value % 10);
+            if (new_value < min) new_value = min;
+            if (new_value == old_value) new_value = min;
+        }
+    } else {
+        if (new_value < min) new_value = max;
+        else if (new_value > max) new_value = min;
+    }
 
-    *ptr = new_value;
+    *ptr = wsx_int_to_bcd8(new_value);
 }
 
 int16_t ui_rtc_clock(void) {
@@ -164,9 +194,7 @@ int16_t ui_rtc_clock(void) {
 
     // FIXME: Why does the first RTC transaction fail sometimes? Is it a timeout issue?
     if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_STATUS, NULL, 0, &rtc_status, 1) < 0) {
-        if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_STATUS, NULL, 0, &rtc_status, 1) < 0) {
-            return ERR_MCU_COMM_FAILED;
-        }
+        return ERR_MCU_COMM_FAILED;
     }
 
     if (rtc_status & WS_CART_RTC_STATUS_POWER_LOST) {
@@ -226,7 +254,11 @@ int16_t ui_rtc_clock(void) {
             redraw = true;
         }
         if (input_pressed & WS_KEY_Y2) {
-            sel_value = 11;
+            if (sel_value < 10) {
+                sel_value += 2;
+            } else {
+                sel_value &= 1;
+            }
             redraw = true;
         }
         if (input_pressed & WS_KEY_X4) {
@@ -238,7 +270,11 @@ int16_t ui_rtc_clock(void) {
             redraw = true;
         }
         if (input_pressed & WS_KEY_Y4) {
-            sel_value = 0;
+            if (sel_value > 1) {
+                sel_value -= 2;
+            } else {
+                sel_value = (sel_value & 1) + 10;
+            }
             redraw = true;
         }
         if (input_pressed & WS_KEY_X3) {

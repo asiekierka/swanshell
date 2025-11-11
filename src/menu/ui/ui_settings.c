@@ -147,6 +147,7 @@ reload_menu:
                 }
                 *((uint8_t*) s->choice.value) = value;
             } else if (s->type == SETTING_TYPE_COLOR) {
+                ui_draw_titlebar(lang_keys[s->name]);
                 ui_color_picker(s->color.value);
                 reload_required = true;
             }
