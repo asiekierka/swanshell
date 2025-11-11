@@ -15,21 +15,12 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <wonderful.h>
+#ifndef UI_RTC_CLOCK_H_
+#define UI_RTC_CLOCK_H_
+
 #include <ws.h>
-#include "util.h"
+#include "ui.h"
 
-extern uint8_t __wf_heap_start;
+int16_t ui_rtc_clock(void);
 
-const uint8_t __far util_hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-uint16_t mem_query_free(void) {
-    return ia16_get_sp() - (uint16_t) &__wf_heap_start;
-}
-
-void lcd_set_vtotal(uint8_t vtotal) {
-    while (inportb(WS_DISPLAY_LINE_PORT) >= 96);
-    while (inportb(WS_DISPLAY_LINE_PORT) < 16);
-    outportb(WS_LCD_VTOTAL_PORT, vtotal);
-    outportb(WS_LCD_STN_VSYNC_PORT, vtotal - 3);
-}
+#endif /* UI_RTC_CLOCK_H_ */

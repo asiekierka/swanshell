@@ -20,6 +20,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <wonderful.h>
+
+extern const uint8_t __far util_hex_chars[16];
 
 /**
  * @return uint16_t The approximate number of free RAM bytes.

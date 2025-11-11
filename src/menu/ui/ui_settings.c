@@ -51,7 +51,7 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
     int x_offset = 4;
     int len = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, lang_keys[s->name], WS_DISPLAY_WIDTH_PIXELS - x_offset);
 
-    if (s->type == SETTING_TYPE_CATEGORY) {
+    if (s->type == SETTING_TYPE_CATEGORY || s->type == SETTING_TYPE_ACTION) {
         strcpy(buf, s_arrow);
     } else if (s->type == SETTING_TYPE_FLAG) {
         strcpy(buf, lang_keys[(*s->flag.value & (1 << s->flag.bit)) ? s->flag.name_true : s->flag.name_false]);

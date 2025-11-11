@@ -28,6 +28,7 @@
 #include "ui/ui.h"
 #include "ui/ui_dialog.h"
 #include "ui/ui_file_selector.h"
+#include "ui/ui_rtc_clock.h"
 #include "launch/launch.h"
 #include "util/input.h"
 #include "shell/shell.h"

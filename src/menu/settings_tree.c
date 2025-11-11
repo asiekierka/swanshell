@@ -24,6 +24,8 @@
 #include "lang.h"
 #include "strings.h"
 #include "ui/ui.h"
+#include "ui/ui_dialog.h"
+#include "ui/ui_rtc_clock.h"
 
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
@@ -246,13 +248,31 @@ static const setting_t __far setting_cart_mcu_spi_speed = {
     }
 };
 
+static void setting_cart_set_rtc_time_action(const settings_t *set) {
+    int16_t result = ui_rtc_clock();
+    if (result != 0) {
+        ui_layout_bars();
+        ui_dialog_error_check(result, lang_keys[LK_SETTINGS_CART_SET_RTC_TIME], 0);
+    }
+}
+
+static const setting_t __far setting_cart_set_rtc_time = {
+    NULL,
+    LK_SETTINGS_CART_SET_RTC_TIME,
+    NULL,
+    SETTING_TYPE_ACTION,
+    0,
+    setting_cart_set_rtc_time_action
+};
+
 static const setting_category_t __far settings_cart = {
     LK_SETTINGS_CART_KEY,
     0,
     &settings_root,
-    1,
+    2,
     {
-        &setting_cart_mcu_spi_speed
+        &setting_cart_mcu_spi_speed,
+        &setting_cart_set_rtc_time
     }
 };
 

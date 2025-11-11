@@ -100,6 +100,9 @@ msgstr "Średnia*"
 msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
 msgstr "Wysoka"
 
+msgid "SETTINGS_CART_SET_RTC_TIME"
+msgstr "Data i godzina RTC"
+
 msgid "DIALOG_UPDATING_MCU"
 msgstr "Aktualizacja MCU"
 
@@ -318,3 +321,6 @@ msgstr "Niebieski"
 
 msgid "COLOR_PREVIEW"
 msgstr "Podgląd"
+
+msgid "DIALOG_INITIALIZING_RTC"
+msgstr "Inicjalizacja zegara RTC..."

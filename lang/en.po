@@ -123,6 +123,9 @@ msgstr "Medium*"
 msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
 msgstr "High"
 
+msgid "SETTINGS_CART_SET_RTC_TIME"
+msgstr "RTC date and time"
+
 
 msgid "SETTINGS_THEME_ACCENT_COLOR"
 msgstr "Accent color"
@@ -277,6 +280,9 @@ msgstr "Copying data..."
 
 msgid "SUBMENU_OPTION_CONTROLLER_MODE"
 msgstr "Controller mode"
+
+msgid "DIALOG_INITIALIZING_RTC"
+msgstr "Initializing RTC..."
 
 
 msgid "ERROR_WITCH_NO_BIOS_FOUND"
