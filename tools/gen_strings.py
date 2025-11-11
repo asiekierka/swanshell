@@ -38,10 +38,11 @@ for fn in glob.glob("lang//*.po"):
 			if " " in i:
 				kv = i.split(" ", maxsplit=1)
 				kv_key = kv[0].strip()
-				kv_value = ast.literal_eval(kv[1])
 				if kv_key == "msgid":
+					kv_value = ast.literal_eval(kv[1])
 					msg_id = kv_value
 				elif kv_key == "msgstr":
+					kv_value = ast.literal_eval(kv[1])
 					if msg_id not in properties:
 						properties[msg_id] = {}
 					properties[msg_id][lang_key] = kv_value
