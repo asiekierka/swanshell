@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2025 Adrian Siekierka
+ * Copyright (c) 2024, 2025 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,15 +15,13 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PLUGIN_H_
-#define PLUGIN_H_
+#include <string.h>
+#include "plugin/plugin.h"
+#include "ui/ui.h"
 
-int ui_bmpview(const char *path);
-int ui_hidctrl(void);
-int ui_vgmplay(const char *path);
-int ui_wavplay(const char *path);
+void ui_draw_titlebar_filename(const char *path) {
+    const char *filename_ptr = (const char*) strrchr(path, '/');
+    if (filename_ptr == NULL) filename_ptr = path; else filename_ptr++;
 
-// plugin.c
-void ui_draw_titlebar_filename(const char *path);
-
-#endif /* PLUGIN_H_ */
+    ui_draw_titlebar(filename_ptr);
+}

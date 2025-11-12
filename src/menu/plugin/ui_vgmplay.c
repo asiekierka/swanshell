@@ -73,7 +73,7 @@ int ui_vgmplay(const char *path) {
         return result;
     }
 
-    ui_draw_titlebar(NULL);
+    ui_draw_titlebar_filename(path);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 

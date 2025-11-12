@@ -95,7 +95,7 @@ int ui_wavplay(const char *path) {
         return result;
     }
 
-    ui_draw_titlebar(NULL);
+    ui_draw_titlebar_filename(path);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
 
     memset(WAV_BUFFER0, 0, WAV_BUFFER_SIZE * 2);
