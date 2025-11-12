@@ -223,17 +223,18 @@ int main(void) {
 			patch_apply_freya_soft_reset(total_banks - 1);
 		}
 
-		outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
 		outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 	}
 
+	outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
+	outportw(WS_CART_EXTBANK_RAM_PORT, NILE_SEG_RAM_IPC);
+
 	// wait for vblank before clearing registers
-	while (inportb(WS_DISPLAY_LINE_PORT) != 144)
+	while ((inportb(WS_DISPLAY_LINE_PORT) + 255 - 150) < (144 + 255 - 150))
 		;
 	// disable display and segments first
 	outportw(WS_DISPLAY_CTRL_PORT, 0);
 	outportb(WS_LCD_ICON_PORT, 0);
-	outportw(WS_CART_EXTBANK_RAM_PORT, NILE_SEG_RAM_IPC);
 	// disabling POW_CNT will depower TF card, reflect that in IPC
 	if (!(bootstub_data->prog_pow_cnt & NILE_POW_TF)) {
 		MEM_NILE_IPC->tf_card_status = 0;
@@ -241,6 +242,14 @@ int main(void) {
 	init_launch_io_state();
 	outportb(WS_SYSTEM_CTRL_PORT, (inportb(WS_SYSTEM_CTRL_PORT) & ~0xC) | (bootstub_data->prog_flags & 0xC));
 	outportb(WS_SYSTEM_CTRL_COLOR_PORT, bootstub_data->prog_flags2);
+
+	// deinitialize cartridge
+	if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET) {
+		// FIXME: soft reset patch does not wake up flash, which crashes IPL0
+		// as it expects flash to be ready; therefore, for now, bootstub has to
+		// keep it awake during execution.
+		nile_flash_wake();
+	}
 	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
 	outportb(IO_NILE_EMU_CNT, bootstub_data->prog_emu_cnt);
 	// POW_CNT disables cart registers, so must be last
