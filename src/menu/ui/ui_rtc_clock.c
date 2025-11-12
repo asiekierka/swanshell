@@ -18,6 +18,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ws.h>
+#include <ws/cart/rtc.h>
 #include <wsx/bcd.h>
 #include <nile.h>
 #include "ui_rtc_clock.h"
@@ -116,7 +117,30 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
     bitmap_draw_glyph(&ui_bitmap, RTC_TIMER_TEXT_X + (RTC_TIMER_GLYPH_WIDTH * selected_x), RTC_TIMER_TEXT_Y + 19, 8, 3, 0, &arrow_down_glyph);
 }
 
-static const uint8_t __far days_in_month[] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+static const uint8_t __far days_in_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+static void update_day_of_week(ws_cart_rtc_datetime_t *dt) {
+    uint8_t year = wsx_bcd8_to_int(dt->date.year);
+    uint8_t month = wsx_bcd8_to_int(dt->date.month);
+    uint8_t day = wsx_bcd8_to_int(dt->date.day);
+
+    if (year > 99) year = 99;
+    if (month > 12) month = 12;
+    if (month < 1) month = 1;
+    if (day < 1) day = 1;
+    
+    // 0 days in 2000, 366 days in 2001, 731 days in 2002, ...
+    uint16_t days_before_year = (365 * year) + ((year + 3) / 4);
+    uint16_t days_in_year = 0;
+    for (int i = 0; i < month - 1; i++)
+        days_in_year += days_in_month[i];
+    if (month > 2 && !(year & 3)) days_in_year++;
+    days_in_year += day - 1;
+
+    // January 1st, 2000 is a Saturday
+    uint8_t day_of_week = (days_before_year + days_in_year + 6) % 7;
+    dt->date.wday = day_of_week;
+}
 
 static void adjust_component(ws_cart_rtc_datetime_t *dt, int sel_value, int delta) {
     int min = 0;
@@ -133,8 +157,12 @@ static void adjust_component(ws_cart_rtc_datetime_t *dt, int sel_value, int delt
     case 5: ptr = &dt->time.second; max = 59; break;
     }
     if ((sel_value >> 1) == 2) {
+        // Day: handle days in month and leap years
         uint8_t month = wsx_bcd8_to_int(dt->date.month);
-        if (month >= 1 && month <= 12)
+        uint8_t year = wsx_bcd8_to_int(dt->date.year);
+        if (month == 2 && !(year & 3))
+            max = 29;
+        else if (month >= 1 && month <= 12)
             max = days_in_month[month - 1];
     }
 
@@ -294,6 +322,7 @@ int16_t ui_rtc_clock(void) {
             changed = true;
         }
         if (changed) {
+            update_day_of_week((ws_cart_rtc_datetime_t*) &current_rtc_data);
             if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_WRITE_DATETIME, current_rtc_data, RTC_DATETIME_SIZE, NULL, 0) < 0) {
                 return ERR_MCU_COMM_FAILED;
             }
