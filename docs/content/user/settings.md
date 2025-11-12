@@ -31,6 +31,16 @@ This section configures visuals.
 
 ![The color picker.](/swanshell/img/color_picker.png)
 
+## Cartridge
+
+This section configures the on-cartridge hardware.
+
+- **MCU communication speed**: Configure the maximum speed of communicating with the onboard microcontroller. Affects the speed of XMODEM transfers.
+
+- **RTC date and time**: Set the date and time of the onboard real-time clock.
+
+![The RTC date picker.](/swanshell/img/rtc_date_picker.png)
+
 ## Language
 
 This option allows choosing the menu interface's language. Supported languages include English and Polish.
