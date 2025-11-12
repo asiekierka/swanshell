@@ -68,6 +68,7 @@ int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progres
     
     uint16_t lbr;
     uint32_t br = 0;
+    uint32_t bytes_total = btr;
 
     while (btr) {
         outportw(WS_CART_EXTBANK_RAM_PORT, bank++);
@@ -78,7 +79,7 @@ int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progres
         if (result != FR_OK)
             return result;
         br += lbr;
-        if (cb) cb(userdata, br, btr);
+        if (cb) cb(userdata, br, bytes_total);
 
         to_read_part = btr >= 0x8000 ? 0x8000 : btr;
         if (to_read_part) {
@@ -87,7 +88,7 @@ int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progres
             if (result != FR_OK)
                 return result;
             br += lbr;
-            if (cb) cb(userdata, br, btr);
+            if (cb) cb(userdata, br, bytes_total);
         }
     }
 
@@ -99,6 +100,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progres
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_ROM0_PORT);
     uint16_t lbw;
     uint32_t bw = 0;
+    uint32_t bytes_total = btw;
 
     while (btw) {
         outportw(WS_CART_EXTBANK_ROM0_PORT, bank++);
@@ -109,7 +111,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progres
         if (result != FR_OK)
             return result;
         bw += lbw;
-        if (cb != NULL) cb(userdata, bw, btw);
+        if (cb != NULL) cb(userdata, bw, bytes_total);
 
         to_read_part = btw >= 0x8000 ? 0x8000 : btw;
         if (to_read_part) {
@@ -118,6 +120,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progres
             if (result != FR_OK)
                 return result;
             bw += lbw;
+            if (cb != NULL) cb(userdata, bw, bytes_total);
         }
     }
 
@@ -131,6 +134,7 @@ int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progre
     uint8_t *buffer;
     uint16_t buffer_size;
     uint16_t lbw;
+    uint32_t bytes_total = btw;
 
     if (sector_buffer_is_active()) {
         buffer = sector_buffer;
@@ -153,7 +157,7 @@ int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progre
         if (result != FR_OK)
             return result;
         bw += lbw;
-        if (cb) cb(userdata, bw, lbw);
+        if (cb) cb(userdata, bw, bytes_total);
     }
 
     outportw(WS_CART_EXTBANK_RAM_PORT, prev_bank);
