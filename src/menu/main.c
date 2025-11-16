@@ -73,11 +73,14 @@ void fs_init(void) {
 
 void main(void) {
 	ia16_disable_irq();
-	ws_int_set_handler(WS_INT_VBLANK, vblank_int_handler);
-	ws_int_enable(WS_INT_ENABLE_VBLANK);
-	ia16_enable_irq();
 
 	settings_reset();
+
+	ws_int_set_handler(WS_INT_VBLANK, vblank_int_handler);
+	ws_int_enable(WS_INT_ENABLE_VBLANK);
+	ws_int_ack(0xFF);
+
+	ia16_enable_irq();
 
 	ui_init();
 	ui_layout_clear(0);
