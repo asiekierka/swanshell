@@ -28,7 +28,6 @@
 #include "ui/ui.h"
 #include "ui/ui_dialog.h"
 #include "ui/ui_file_selector.h"
-#include "ui/ui_rtc_clock.h"
 #include "launch/launch.h"
 #include "util/input.h"
 #include "shell/shell.h"
@@ -78,7 +77,7 @@ void main(void) {
 
 	ws_int_set_handler(WS_INT_VBLANK, vblank_int_handler);
 	ws_int_enable(WS_INT_ENABLE_VBLANK);
-	ws_int_ack(0xFF);
+    ws_int_ack_all();
 
 	ia16_enable_irq();
 

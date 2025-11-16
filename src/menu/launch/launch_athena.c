@@ -154,6 +154,11 @@ typedef struct {
 #define ATHENA_BIOS_FOOTER_BANK 0x0F
 
 int16_t launch_athena_jump(void) {
+    // Clear BIOS settings area
+    outportw(WS_CART_EXTBANK_RAM_PORT, 3);
+    memset(MK_FP(0x1000, 0xFFEA), 0, 0x100 - 0xEA);
+
+    // Load created cartridge image
     launch_rom_metadata_t meta = {0};
     meta.rom_type = ROM_TYPE_FREYA;
     meta.rom_banks = 16;

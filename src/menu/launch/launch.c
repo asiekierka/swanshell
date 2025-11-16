@@ -735,21 +735,21 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
         }
     }
 
-    outportb(IO_NILE_IRQ_STATUS, 0xFF);
+    ws_int_ack_all();
     mcu_native_finish();
 
     // Initialize bootstub data
     if (ws_system_is_color_active()) {
         ws_system_set_mode(WS_MODE_COLOR);
-        outportb(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
+        outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
         ws_gdma_copy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
-        outportb(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_bootstub);
+        outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_bootstub);
         ws_gdma_copy((void*) 0x00c0, bootstub, bootstub_size);
     } else {
         ws_system_set_mode(WS_MODE_COLOR);
-        outportb(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
+        outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
         memcpy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
-        outportb(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_bootstub);
+        outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_bootstub);
         memcpy((void*) 0x00c0, bootstub, bootstub_size);
     }
     // Jump to bootstub
