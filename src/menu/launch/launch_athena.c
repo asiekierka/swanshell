@@ -370,7 +370,12 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
         }
 
         result = f_opendir(&dp, buffer);
-        if (result != FR_OK) return result;
+        if (result != FR_OK) {
+            // skip missing /fbin
+            if (result == FR_NO_PATH && i == 1) continue;
+
+            return result;
+        }
 
         while (true) {
             result = f_readdir(&dp, &fi);
