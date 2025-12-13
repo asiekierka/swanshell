@@ -29,6 +29,12 @@
 #include "util/file.h"
 
 #define DIR_SEGMENT 0x4000
+#define OS_SEGMENT 0xE000
+#define FILE_MAX_SIZE ((OS_SEGMENT - DIR_SEGMENT) * 16L)
+
+#define ROM0_MAX_FILES 128
+#define RAM0_MAX_FILES 64
+
 // TODO: Remove out of global allocation
 static uint16_t file_segment;
 
@@ -88,6 +94,8 @@ typedef struct {
 	int32_t resource;
 } ww_fent_t;
 
+#define DIR_FENT(i) (*((ww_fent_t __far*) MK_FP(0x1000, ((DIR_SEGMENT & 0xFFF) << 4) + ((i) * 64))))
+
 int16_t launch_athena_begin(const char __far *bios_path, const char __far *os_path) {
     char buffer[64];
     FIL fp;
@@ -129,7 +137,7 @@ int16_t launch_athena_begin(const char __far *bios_path, const char __far *os_pa
             ww_os_footer_t __far* footer = MK_FP(0x1000, 0xFFF0);
             footer->jump_command = 0xEA;
             footer->jump_offset = 0x0000;
-            footer->jump_segment = 0xE000;
+            footer->jump_segment = OS_SEGMENT;
             footer->maintenance = 0x00;
             footer->count = (f_size(&fp) + 127) >> 7;
         });
@@ -185,13 +193,14 @@ int16_t launch_athena_romfile_begin(void) {
         });
     });
 
-    file_segment = DIR_SEGMENT + (4 * 128);
+    file_segment = DIR_SEGMENT + (4 * 192);
 
     return FR_OK;
 }
 
 int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) {
     uint16_t file_count;
+    uint16_t file_count_first;
     int16_t result;
     FIL fp;
     uint8_t buffer[64];
@@ -203,19 +212,19 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
         outportw(WS_CART_EXTBANK_RAM_PORT, ATHENA_OS_FOOTER_BANK);
 
         if (type == ATHENA_ROMFILE_TYPE_RAM0) {
-            file_count = ATHENA_OS_FOOTER.ram0_file_count++;
+            file_count_first = ATHENA_OS_FOOTER.file_count;
+            file_count = ATHENA_OS_FOOTER.ram0_file_count;
 
-            if (file_count >= 64) {
+            if (file_count >= RAM0_MAX_FILES) {
                 // TODO: Custom error message?
                 outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
                 return FR_TOO_MANY_OPEN_FILES;
             }
-
-            file_count += ATHENA_OS_FOOTER.file_count;
         } else {
-            file_count = ATHENA_OS_FOOTER.file_count++;
+            file_count_first = 0;
+            file_count = ATHENA_OS_FOOTER.file_count;
 
-            if (file_count >= 128) {
+            if (file_count >= ROM0_MAX_FILES) {
                 // TODO: Custom error message?
                 outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
                 return FR_TOO_MANY_OPEN_FILES;
@@ -225,6 +234,8 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
                 ATHENA_OS_FOOTER.file_exec_idx = file_count;
             }
         }
+
+        file_count += file_count_first;
 
         // Read file
         result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
@@ -241,7 +252,7 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
             // Read header
             result = f_read(&fp, buffer, 64, &br);
         } else {
-            if (!read_non_ww_files || f_size(&fp) > 640L*1024L) {
+            if (!read_non_ww_files || f_size(&fp) > FILE_MAX_SIZE) {
                 result = type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? ERR_FILE_FORMAT_INVALID : FR_OK;
                 goto launch_athena_romfile_add_done;
             }
@@ -251,16 +262,15 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
 
             // Create generic header
             memset(entry, 0, sizeof(ww_fent_t));
-            const char *filename = (const char*) strrchr(path, '/');
-            if (filename != NULL) {
-                filename++;
-            } else {
-                filename = path;
-            }
+            const char *path_basename = (const char*) strrchr(path, '/');
+            if (path_basename != NULL)
+                path_basename++;
+            else
+                path_basename = path;
             // Name: full filename
-            strncpy(entry->name, filename, 16);
+            strncpy(entry->name, path_basename, 16);
             // Info: full filename
-            strncpy(entry->info, filename, 24);
+            strncpy(entry->info, path_basename, 24);
             entry->len = f_size(&fp);
             entry->count = (entry->len + 127) >> 7;
             entry->mode = type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? 5 : 4;
@@ -270,13 +280,28 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
         }
         if (result != FR_OK) goto launch_athena_romfile_add_done;
 
+        outportw(WS_CART_EXTBANK_RAM_PORT, DIR_SEGMENT >> 12);
+
+        // Check if file already exists
+        // TODO: Is it okay to assume filename in other files is zero padded?
+        bool file_exists = false;
+        for (int i = file_count_first; i < file_count; i++) {
+            if (!memcmp(DIR_FENT(i).name, entry->name, 16)) {
+                file_exists = true;
+                break;
+            }
+        }
+        if (file_exists) {
+            result = FR_OK;
+            goto launch_athena_romfile_add_done;
+        }
+
         // Edit location
         entry->loc = MK_FP(file_segment, 0x0000);
         entry->mode = (entry->mode & ~2) | 4; // Clear write flag, set read flag
 
         // Copy header to file list
-        outportw(WS_CART_EXTBANK_RAM_PORT, DIR_SEGMENT >> 12);
-        memcpy(MK_FP(0x1000, ((DIR_SEGMENT & 0xFFF) << 4) + (file_count * 64)), buffer, 64);
+        memcpy(&DIR_FENT(file_count), buffer, 64);
 
         // Read file
         uint16_t sector_count = *((uint16_t*) (buffer + 48));
@@ -305,12 +330,19 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
         if (file_segment < expected_end_segment)
             file_segment = expected_end_segment;
 
-        if (file_segment > 0xE000)
+        if (file_segment > OS_SEGMENT)
             result = ERR_FILE_TOO_LARGE;
-        
+
+        outportw(WS_CART_EXTBANK_RAM_PORT, ATHENA_OS_FOOTER_BANK);
+        if (type == ATHENA_ROMFILE_TYPE_RAM0)
+            ATHENA_OS_FOOTER.ram0_file_count++;
+        else
+            ATHENA_OS_FOOTER.file_count++;
+
 launch_athena_romfile_add_done:
         f_close(&fp);
         outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
+
         return result;
     });
 }
