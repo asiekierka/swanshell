@@ -195,6 +195,9 @@ msgstr "Test"
 msgid "SUBMENU_OPTION_WITCH"
 msgstr "Witch..."
 
+msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
+msgstr "Dodaj bibliotekę globalną"
+
 msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
 msgstr "Wydobądź BIOS/OS"
 

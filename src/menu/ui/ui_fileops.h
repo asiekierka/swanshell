@@ -22,6 +22,14 @@
 #include <wonderful.h>
 
 /**
+ * @brief Check if a given file name has the specified extension.
+ * 
+ * @param filename The file name to check.
+ * @param ext The extension to check for.
+ */
+bool fileops_has_extension(const char __far *filename, const char __far *ext);
+
+/**
  * @brief Check if a given file name points to a cartridge image file.
  */
 bool fileops_is_rom(const char __far *filename);

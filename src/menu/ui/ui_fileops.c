@@ -27,6 +27,11 @@
 #include "util/file.h"
 #include "ui/ui_popup_dialog.h"
 
+bool fileops_has_extension(const char __far *filename, const char __far *ext) {
+    const char __far *filename_ext = strrchr(filename, '.');
+    return filename_ext != NULL && !strcasecmp(filename_ext, ext);
+}
+
 bool fileops_is_rom(const char __far *filename) {
     const char __far *filename_ext = strrchr(filename, '.');
     return filename_ext != NULL && (!strcasecmp(filename_ext, s_file_ext_ws) || !strcasecmp(filename_ext, s_file_ext_wsc) || !strcasecmp(filename_ext, s_file_ext_pc2));

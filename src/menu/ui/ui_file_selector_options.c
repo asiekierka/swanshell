@@ -24,6 +24,7 @@
 #include "lang_gen.h"
 #include "launch/launch.h"
 #include "settings.h"
+#include "strings.h"
 #include "ui/ui.h"
 #include "ui_about.h"
 #include "ui_dialog.h"
@@ -50,24 +51,33 @@ static enum tristate ui_file_selector_tools_witch(ui_popup_list_config_t *lst, c
     while (true) {
         memset(lst, 0, sizeof(ui_popup_list_config_t));
         uint8_t i = 0;
+        uint8_t options[4];
         if (fileops_has_rom_contents(filename)) {
+            options[i] = 0;
             lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_BIOS];
+            options[i] = 1;
             lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_REPLACE_OS];
+            options[i] = 2;
             lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS];
+        } else if (fileops_has_extension(filename, s_file_ext_il)) {
+            options[i] = 3;
+            lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY];
         }
+        options[i] = 4;
         lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_WITCH_CREATE_IMAGE];
 
-        switch (ui_popup_list(lst)) {
+        int result = ui_popup_list(lst);
+        if (result >= 0) {
+            result = options[result];
+        }
+        switch (result) {
         case UI_POPUP_ACTION_START:
             return TRISTATE_FALSE;
         default:
             ui_popup_list_clear(lst);
             return TRISTATE_NONE;
         case 0:
-            if (i == 1)
-                ui_dialog_error_check(ww_ui_create_image(), NULL, 0);
-            else
-                ui_dialog_error_check(ww_ui_replace_component(filename, false), NULL, 0);
+            ui_dialog_error_check(ww_ui_replace_component(filename, false), NULL, 0);
             return TRISTATE_TRUE;
         case 1:
             ui_dialog_error_check(ww_ui_replace_component(filename, true), NULL, 0);
@@ -76,6 +86,9 @@ static enum tristate ui_file_selector_tools_witch(ui_popup_list_config_t *lst, c
             ui_dialog_error_check(ww_ui_extract_from_rom(filename), NULL, 0);
             return TRISTATE_TRUE;
         case 3:
+            ui_dialog_error_check(ww_ui_move_to_fbin(filename), NULL, 0);
+            return TRISTATE_TRUE;
+        case 4:
             ui_dialog_error_check(ww_ui_create_image(), NULL, 0);
             return TRISTATE_TRUE;
         }

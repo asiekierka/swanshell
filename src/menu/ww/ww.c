@@ -14,17 +14,32 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
-#ifndef WW_WW_H_
-#define WW_WW_H_
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <nilefs/ff.h>
+#include <stddef.h>
 #include <wonderful.h>
+#include <ws.h>
+#include <nilefs.h>
+#include "strings.h"
 
-int16_t ww_ui_extract_from_rom(const char __far* filename);
-int16_t ww_ui_replace_component(const char __far* filename, bool is_os);
-int16_t ww_ui_create_image(void);
-int16_t ww_ui_move_to_fbin(const char __far *filename);
+int16_t ww_ui_move_to_fbin(const char __far *filename) {
+    char src_fn[FF_LFN_BUF+1];
+    char dst_fn[FF_LFN_BUF+1];
 
-#endif /* WW_WW_H_ */
+    strcpy(dst_fn, s_path_fbin);
+    int result = f_mkdir(dst_fn);
+    if (result != FR_OK && result != FR_EXIST)
+        return result;
+
+    const char __far *basename = strrchr(filename, '/');
+    if (basename == NULL) {
+        basename = filename;
+        strcat(dst_fn, s_path_sep);
+    }
+
+    strncpy(src_fn, filename, sizeof(src_fn) - 1);
+    src_fn[sizeof(src_fn) - 1] = 0;
+
+    strcat(dst_fn, basename);
+    return f_rename(src_fn, dst_fn);
+}
