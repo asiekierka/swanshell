@@ -253,7 +253,7 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
             result = f_read(&fp, buffer, 64, &br);
         } else {
             if (!read_non_ww_files || f_size(&fp) > FILE_MAX_SIZE) {
-                result = type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? ERR_FILE_FORMAT_INVALID : FR_OK;
+                result = FR_OK;
                 goto launch_athena_romfile_add_done;
             }
 
