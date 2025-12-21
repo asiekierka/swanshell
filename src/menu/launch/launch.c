@@ -317,11 +317,12 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words) {
         if (!mcu_native_eeprom_read_data(buffer, i, to_read)) {
             result = ERR_MCU_COMM_FAILED;
             break;
-        }        
-         nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
-         result = f_write(fp, buffer, to_read << 1, NULL);
-         if (result != FR_OK)
-             break;
+        }   
+             
+        nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+        result = f_write(fp, buffer, to_read << 1, NULL);
+        if (result != FR_OK)
+            break;
     }
 
     return result;

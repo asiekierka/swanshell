@@ -45,7 +45,7 @@ static int16_t find_target_filename(
     SHA1_CTX context, saved_context;
     uint8_t sha_result[SHA1_DIGEST_SIZE];
     uint32_t bytes_read = 0;
-	ui_popup_dialog_config_t dlg = {0};
+    ui_popup_dialog_config_t dlg = {0};
 
     uint8_t *buffer;
     uint16_t buffer_size;
@@ -81,8 +81,8 @@ static int16_t find_target_filename(
             SHA1_Update(&context, buffer, bytes_read_now);
             bytes_read += bytes_read_now;
 
-    		dlg.progress_step = bytes_read >> PROGRESS_DIALOG_SHIFT;
-	    	ui_popup_dialog_draw_update(&dlg);
+            dlg.progress_step = bytes_read >> PROGRESS_DIALOG_SHIFT;
+            ui_popup_dialog_draw_update(&dlg);
         }
 
         memcpy(&saved_context, &context, sizeof(SHA1_CTX));
@@ -106,7 +106,7 @@ static int16_t find_target_filename(
 
 static int16_t create_ww_paths(void) {
     char path[32];
-    
+
     strcpy(path, s_path_fbin);
     int16_t result = f_mkdir(path);
     if (result != FR_OK && result != FR_EXIST)
@@ -120,7 +120,7 @@ static int16_t ww_copy_to_file(FIL *fp, const char __far* filename, uint16_t _si
     uint32_t size = _size ? _size : 65536;
     char local_buffer[64];
     int16_t result;
-	ui_popup_dialog_config_t dlg = {0};
+    ui_popup_dialog_config_t dlg = {0};
 
     uint8_t *buffer;
     uint16_t buffer_size;
@@ -159,8 +159,8 @@ static int16_t ww_copy_to_file(FIL *fp, const char __far* filename, uint16_t _si
             return result;
         }
 
-		dlg.progress_step = dlg.progress_max - (size >> PROGRESS_DIALOG_SHIFT);
-		ui_popup_dialog_draw_update(&dlg);
+        dlg.progress_step = dlg.progress_max - (size >> PROGRESS_DIALOG_SHIFT);
+        ui_popup_dialog_draw_update(&dlg);
 
         size -= copied;
     }
@@ -228,16 +228,19 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
             return result;
         }
 
-        ww_copy_to_file(&fp, found_entry->name, found_entry->size, LK_WITCH_EXTRACT_PROGRESS_OS_EXTRACTING);
+        if ((result = ww_copy_to_file(&fp, found_entry->name, found_entry->size, LK_WITCH_EXTRACT_PROGRESS_OS_EXTRACTING)) != FR_OK) {
+            f_close(&fp);
+            return result;
+        }
     } else {
-        if ((result = f_lseek(&fp, f_size(&fp) - 65536L - 16)) != FR_OK) {
+        /* if ((result = f_lseek(&fp, f_size(&fp) - 65536L - 16)) != FR_OK) {
             f_close(&fp);
             return result;
         }
         if ((result = f_read(&fp, &os_footer, 16, &result) != FR_OK)) {
             f_close(&fp);
             return result;
-        }
+        } */
 
         // TODO: handle unknown OS versions
     }
@@ -258,7 +261,10 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
             return result;
         }
 
-        ww_copy_to_file(&fp, found_entry->name, found_entry->size, LK_WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING);
+        if ((result = ww_copy_to_file(&fp, found_entry->name, found_entry->size, LK_WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING)) != FR_OK) {
+            f_close(&fp);
+            return result;
+        }
     } else {
         // TODO: handle unknown BIOS versions
     }
