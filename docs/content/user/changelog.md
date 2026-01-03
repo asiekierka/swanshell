@@ -3,4 +3,6 @@ title: 'Changelog'
 weight: 100
 ---
 
-A release should be made available by mid-November 2025.
+## swanshell 1.0.0 (3rd January 2026)
+
+- Initial release.
