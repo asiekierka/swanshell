@@ -1,2 +1,354 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-01-29 16:18+0000\n"
+"Last-Translator: Kemal Afzal <Kemal-Afzal@outlook.de>\n"
+"Language-Team: German <https://weblate.asie.pl/projects/49bitcat/swanshell/"
+"de/>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.1\n"
+
+msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
+msgstr "Seite %d/%d"
+
+msgid "UI_FILE_SELECTOR_EMPTY"
+msgstr "Leer"
+
+msgid "UI_STATUS_LOADING"
+msgstr "Laden..."
+
+msgid "YES"
+msgstr "Ja"
+
+msgid "NO"
+msgstr "Nein"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "CANCEL"
+msgstr "Abbrechen"
+
+msgid "SETTINGS_INFO_WS"
+msgstr "Y1: Hilfe"
+
+msgid "SETTINGS_KEY"
+msgstr "Einstellungen"
+
+msgid "SETTINGS_LANGUAGE_KEY"
+msgstr "Sprache"
+
+msgid "SETTINGS_FILE_KEY"
+msgstr "Dateibrowser"
+
+msgid "SETTINGS_THEME_KEY"
+msgstr "Farbschema"
+
+msgid "SETTINGS_FILE_SORT_KEY"
+msgstr "Dateireihenfolge"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
+msgstr "Versteckte Dateien anzeigen"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
+msgstr "Dateien mit \"versteckt\" Attribut anzeigen oder ausblenden."
+
+msgid "SETTINGS_FILE_SORT_DEFAULT"
+msgstr "Standard"
+
+msgid "SETTINGS_FILE_SORT_NAME_ASC"
+msgstr "Name ↑"
+
+msgid "SETTINGS_FILE_SORT_NAME_DESC"
+msgstr "Name ↓"
+
+msgid "SETTINGS_FILE_SORT_DATE_ASC"
+msgstr "Datum ↑"
+
+msgid "SETTINGS_FILE_SORT_DATE_DESC"
+msgstr "Datum ↓"
+
+msgid "SETTINGS_FILE_SORT_SIZE_ASC"
+msgstr "Größe ↑"
+
+msgid "SETTINGS_FILE_SORT_SIZE_DESC"
+msgstr "Größe ↓"
+
+msgid "SETTINGS_FILE_SORT_HELP"
+msgstr "Stellt die Reihenfolge in der Dateien im Dateibrowser erscheinen ein."
+
+msgid "SETTINGS_FILE_VIEW_KEY"
+msgstr "Ansicht"
+
+msgid "SETTINGS_FILE_VIEW_LARGE"
+msgstr "Große Liste"
+
+msgid "SETTINGS_FILE_VIEW_SMALL"
+msgstr "Kleine Liste"
+
+msgid "SETTINGS_FILE_VIEW_HELP"
+msgstr "Stellt die Auswahlmethode für Dateien im Dateibrowser ein."
+
+msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
+msgstr "Icons ausblenden"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
+msgstr "Schnellen SRAM erzwingen"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
+msgstr ""
+"Aktiviert schnelleren Zugriff auf SRAM und I/O bei Color-Modellen vor "
+"Starten des Spiels.\n"
+"\n"
+"Dies kann dafür sorgen, dass das Spiel flüssiger läuft, kann aber auch die "
+"korrekte Funktion stören und macht Speedruns ungültig."
+
+msgid "SETTINGS_PROG_FX_BIOS_HELP"
+msgstr ""
+"Die BIOS-Variante die von .fx Programmen verwendet wird.\n"
+"\n"
+"Für die serielle Schnittstelle, verwendet Nativ den USB-Anschluss, "
+"Kompatibel den EXT-Anschluss der Konsole."
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED"
+msgstr "Kommunikationsgeschwindigkeit des Mikrocontroller"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
+msgstr ""
+"- Niedrig: 384 kHz\n"
+"- Medium: 6 MHz bei WSC, 384 kHz bei WS/PCv2\n"
+"- Hoch: 24 MHz"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
+msgstr "Niedrig"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_6MHZ"
+msgstr "Mittel*"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
+msgstr "Hoch"
+
+msgid "SETTINGS_CART_SET_RTC_TIME"
+msgstr "Echtzeituhr Datum und Uhrzeit"
+
+msgid "SETTINGS_THEME_ACCENT_COLOR"
+msgstr "Akzentfarbe"
+
+msgid "SETTINGS_THEME_DARK_MODE"
+msgstr "Dunkelmodus"
+
+msgid "SETTINGS_THEME_DARK"
+msgstr "Dunkel"
+
+msgid "SETTINGS_THEME_LIGHT"
+msgstr "Hell"
+
+msgid "DIALOG_UPDATING_MCU"
+msgstr "Mikrocontroller wird aktualisiert"
+
+msgid "DIALOG_PREPARE_SAVE"
+msgstr "Speicherdaten werden erstellt"
+
+msgid "DIALOG_PREPARE_FLASH"
+msgstr "Flashabbild wird erstellt"
+
+msgid "DIALOG_PREPARE_ROM"
+msgstr "ROM-Abbild wird erstellt"
+
+msgid "DIALOG_STORE_SAVE"
+msgstr "Speicherdaten werden gesichert"
+
+msgid "ERROR_FR_INT_ERR"
+msgstr "FatFs interner Fehler"
+
+msgid "ERROR_FR_NO_FILE"
+msgstr "Datei wurde nicht gefunden"
+
+msgid "ERROR_FR_NO_PATH"
+msgstr "Pfad wurde nicht gefunden"
+
+msgid "ERROR_FR_DENIED"
+msgstr "Zugriff verweigert"
+
+msgid "ERROR_SAVE_CORRUPT"
+msgstr "Speicherdaten beschädigt"
+
+msgid "ERROR_SAVE_PSRAM_CORRUPT"
+msgstr "PSRAM-Zustand beschädigt"
+
+msgid "ERROR_MCU_COMM_FAILED"
+msgstr "Fehler bei Kommunikation mit Mikrokontroller"
+
+msgid "ERROR_MCU_BIN_CORRUPT"
+msgstr "Ungültiges Format von MCU.bin!"
+
+msgid "ERROR_FILE_TOO_LARGE"
+msgstr "Datei zu groß"
+
+msgid "ERROR_FILE_FORMAT_INVALID"
+msgstr "Dateiformat ungültig"
+
+msgid "ERROR_FILE_NOT_EXECUTABLE"
+msgstr "Datei nicht ausführbar"
+
+msgid "ERROR_DATA_TRANSFER_TIMEOUT"
+msgstr "Zeitüberschreitung bei Datenübertragung"
+
+msgid "ERROR_DATA_TRANSFER_CANCEL"
+msgstr "Datenübertragung abgebrochen"
+
+msgid "ERROR_DATA_CORRUPT"
+msgstr "Daten beschädigt"
+
+msgid "ERROR_TITLE_MCU_INIT"
+msgstr "Mikrokontroller konnte nicht initialisiert werden!"
+
+msgid "ERROR_TITLE_SETTINGS_LOAD"
+msgstr "Einstellungen konnten nicht geladen werden!"
+
+msgid "ERROR_TITLE_SAVE_STORE"
+msgstr "Speicherdaten konnten nicht gesichert werden!"
+
+msgid "SUBMENU_OPTION_SETTINGS"
+msgstr "Einstellungen"
+
+msgid "SUBMENU_OPTION_TOOLS"
+msgstr "Werkzeuge"
+
+msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
+msgstr "Mittels XMODEM starten"
+
+msgid "SUBMENU_OPTION_TEST_BFB"
+msgstr "Prüfen"
+
+msgid "SUBMENU_OPTION_ABOUT"
+msgstr "Über"
+
+msgid "SUBMENU_OPTION_WITCH"
+msgstr "Witch..."
+
+msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
+msgstr "Als globale Bibliothek hinzufügen"
+
+msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
+msgstr "BIOS/OS extrahieren"
+
+msgid "SUBMENU_OPTION_FILE"
+msgstr "Datei..."
+
+msgid "SUBMENU_OPTION_FILE_DELETE"
+msgstr "Löschen"
+
+msgid "DIALOG_FILE_DELETE_CONFIRM"
+msgstr "Soll die Datei wirklich gelöscht werden?"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
+msgstr "Nach BIOS suchen..."
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
+msgstr "BIOS wird extrahieren..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
+msgstr "Nach OS wird gesucht..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
+msgstr "OS wird extrahiert..."
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
+msgstr "BIOS ersetzen"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_OS"
+msgstr "OS ersetzen"
+
+msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
+msgstr "Abbild erstellen"
+
+msgid "INPUT_TARGET_FILENAME"
+msgstr "Ziel Dateiname eingeben"
+
+msgid "SELECT_FILE"
+msgstr "Datei auswählen"
+
+msgid "PROGRESS_COPYING_DATA"
+msgstr "Daten werden kopiert..."
+
+msgid "SUBMENU_OPTION_CONTROLLER_MODE"
+msgstr "Controllermodus"
+
+msgid "DIALOG_INITIALIZING_RTC"
+msgstr "Echtzeituhr wird initialisiert..."
+
+msgid "ERROR_WITCH_NO_BIOS_FOUND"
+msgstr "Es wurde keine BIOS-Datei gefunden!"
+
+msgid "ERROR_WITCH_NO_OS_FOUND"
+msgstr "Es wurde keine OS-Datei gefunden!"
+
+msgid "DIALOG_FILE_ALREADY_EXISTS"
+msgstr "Dei Datei existiert bereits."
+
+msgid "DIALOG_OVERWRITE_CONFIRM"
+msgstr "Soll die Datei wirklich überschrieben werden?"
+
+msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
+msgstr "Compatibel"
+
+msgid "ATHENABIOS_SUFFIX_NATIVE"
+msgstr "Nativ"
+
+msgid "CONTROLLER_MODE_ACTIVE"
+msgstr "Controllermodus aktiv."
+
+msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
+msgstr "SOUND drücken zum Verlassen."
+
+msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
+msgstr "VIEW drücken zum Verlassen."
+
+msgid "ABOUT_RAM_BYTES_FREE"
+msgstr "%d IRAM bytes verfügbar"
+
+msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
+msgstr "Einige Funktionen sind dann nicht nutzbar. Fortfahren?"
+
+msgid "OSK_OK"
+msgstr "OK"
+
+msgid "OSK_ALPHA"
+msgstr "Aa"
+
+msgid "COLOR_RED"
+msgstr "Rot"
+
+msgid "COLOR_GREEN"
+msgstr "Grün"
+
+msgid "COLOR_BLUE"
+msgstr "Blau"
+
+msgid "COLOR_PREVIEW"
+msgstr "Vorschau"
+
+msgid "SETTINGS_PROG_KEY"
+msgstr "Programmstarter"
+
+msgid "SETTINGS_CART_KEY"
+msgstr "Spielmodul"
+
+msgid "SETTINGS_INFO_PC2"
+msgstr "Pass: Hilfe"
+
+msgid "SETTINGS_PROG_FX_BIOS"
+msgstr "BIOS-Variante für .fx"
+
+msgid "ERROR_FR_DISK_ERR"
+msgstr "Datenträgerfehler"
+
+msgid "ERROR_FR_NOT_READY"
+msgstr "Datenträger nicht bereit"
+
+msgid "ERROR_TITLE_FS_INIT"
+msgstr "Datenträger konnte nicht eingehängt werden!"
