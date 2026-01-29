@@ -1,2 +1,356 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-01-29 18:12+0000\n"
+"Last-Translator: Zeroballoons <weblate@krohne.me>\n"
+"Language-Team: French <https://weblate.asie.pl/projects/49bitcat/swanshell/"
+"fr/>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.15.1\n"
+
+msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
+msgstr "Page %d/%d"
+
+msgid "UI_FILE_SELECTOR_EMPTY"
+msgstr "Vide"
+
+msgid "UI_STATUS_LOADING"
+msgstr "Chargement..."
+
+msgid "YES"
+msgstr "Oui"
+
+msgid "NO"
+msgstr "Non"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "CANCEL"
+msgstr "Annuler"
+
+msgid "SETTINGS_INFO_WS"
+msgstr "Y1: Aide"
+
+msgid "SETTINGS_INFO_PC2"
+msgstr "Pass: Aide"
+
+msgid "SETTINGS_KEY"
+msgstr "Paramètres"
+
+msgid "SETTINGS_LANGUAGE_KEY"
+msgstr "Langue"
+
+msgid "SETTINGS_FILE_KEY"
+msgstr "Fichiers"
+
+msgid "SETTINGS_PROG_KEY"
+msgstr "Lanceur de programmes"
+
+msgid "SETTINGS_CART_KEY"
+msgstr "Cartouche"
+
+msgid "SETTINGS_THEME_KEY"
+msgstr "Thème"
+
+msgid "SETTINGS_FILE_SORT_KEY"
+msgstr "Ordre des dossiers"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
+msgstr "Afficher les fichiers cachés"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
+msgstr "Permet d'afficher ou de masquer les fichiers cachés."
+
+msgid "SETTINGS_FILE_SORT_DEFAULT"
+msgstr "Par Défaut"
+
+msgid "SETTINGS_FILE_SORT_NAME_ASC"
+msgstr "Nom ↑"
+
+msgid "SETTINGS_FILE_SORT_NAME_DESC"
+msgstr "Nom ↓"
+
+msgid "SETTINGS_FILE_SORT_DATE_ASC"
+msgstr "Date ↑"
+
+msgid "SETTINGS_FILE_SORT_DATE_DESC"
+msgstr "Date ↓"
+
+msgid "SETTINGS_FILE_SORT_SIZE_ASC"
+msgstr "Taille ↑"
+
+msgid "SETTINGS_FILE_SORT_SIZE_DESC"
+msgstr "Taille ↓"
+
+msgid "SETTINGS_FILE_SORT_HELP"
+msgstr "Définit l'ordre d'affichage des fichiers dans l'explorateur."
+
+msgid "SETTINGS_FILE_VIEW_KEY"
+msgstr "Vue"
+
+msgid "SETTINGS_FILE_VIEW_LARGE"
+msgstr "Longue liste"
+
+msgid "SETTINGS_FILE_VIEW_SMALL"
+msgstr "Courte liste"
+
+msgid "SETTINGS_FILE_VIEW_HELP"
+msgstr ""
+"Définit le mode d'affichage des fichiers dans l'explorateur de fichiers."
+
+msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
+msgstr "Masquer les icônes"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
+msgstr "Imposer la SRAM rapide"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
+msgstr ""
+"Accélère les vitesses de la SRAM et des E/S sur les modèles Color avant le "
+"lancement du jeu. \n"
+"\n"
+"Cela peut réduire les ralentissements dans certains programmes, mais risque "
+"de nuire à la compatibilité ou d'invalider les speedruns."
+
+msgid "SETTINGS_PROG_FX_BIOS"
+msgstr "Variante du BIOS pour le chargeur .fx"
+
+msgid "SETTINGS_PROG_FX_BIOS_HELP"
+msgstr ""
+"Variante de BIOS employée par les programmes .fx.\n"
+"\n"
+"Pour la liaison série, le mode Native utilise le port USB, tandis que le "
+"mode Compatible utilise le port EXT de la console."
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED"
+msgstr "Vitesse de communication MCU"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
+msgstr ""
+"- Faible: 384 KHz\n"
+"- Moyen: 6 MHz sur WSC, 384 KHz sur WS/PCv2\n"
+"- Élevé: 24 MHz"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
+msgstr "Faible"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_6MHZ"
+msgstr "Moyen*"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
+msgstr "Élevé"
+
+msgid "SETTINGS_CART_SET_RTC_TIME"
+msgstr "Date et heure RTC"
+
+msgid "SETTINGS_THEME_ACCENT_COLOR"
+msgstr "Couleur d'accentuation"
+
+msgid "SETTINGS_THEME_DARK_MODE"
+msgstr "Mode sombre"
+
+msgid "SETTINGS_THEME_DARK"
+msgstr "Sombre"
+
+msgid "SETTINGS_THEME_LIGHT"
+msgstr "Clair"
+
+msgid "DIALOG_UPDATING_MCU"
+msgstr "Mise à jour MCU"
+
+msgid "DIALOG_PREPARE_SAVE"
+msgstr "Création de la sauvegarde"
+
+msgid "DIALOG_PREPARE_FLASH"
+msgstr "Création de l'image flash"
+
+msgid "DIALOG_PREPARE_ROM"
+msgstr "Création de l'image ROM"
+
+msgid "DIALOG_STORE_SAVE"
+msgstr "Enregistrement de la sauvegarde"
+
+msgid "ERROR_FR_DISK_ERR"
+msgstr "Erreur de stockage"
+
+msgid "ERROR_FR_INT_ERR"
+msgstr "Erreur interne FatFs"
+
+msgid "ERROR_FR_NOT_READY"
+msgstr "Stockage non prêt"
+
+msgid "ERROR_FR_NO_FILE"
+msgstr "Fichier introuvable"
+
+msgid "ERROR_FR_NO_PATH"
+msgstr "Chemin introuvable"
+
+msgid "ERROR_FR_DENIED"
+msgstr "Accès refusé"
+
+msgid "ERROR_SAVE_CORRUPT"
+msgstr "Sauvegarde corrompue"
+
+msgid "ERROR_SAVE_PSRAM_CORRUPT"
+msgstr "État PSRAM corrompu"
+
+msgid "ERROR_MCU_COMM_FAILED"
+msgstr "Erreur de communication MCU"
+
+msgid "ERROR_MCU_BIN_CORRUPT"
+msgstr "Format MCU.BIN invalide!"
+
+msgid "ERROR_FILE_TOO_LARGE"
+msgstr "Fichier trop volumineux"
+
+msgid "ERROR_FILE_FORMAT_INVALID"
+msgstr "Format de fichier invalide"
+
+msgid "ERROR_FILE_NOT_EXECUTABLE"
+msgstr "Fichier non exécutable"
+
+msgid "ERROR_DATA_TRANSFER_TIMEOUT"
+msgstr "Délai de transfert expiré"
+
+msgid "ERROR_DATA_TRANSFER_CANCEL"
+msgstr "Transfert annulé"
+
+msgid "ERROR_DATA_CORRUPT"
+msgstr "Données corrompues"
+
+msgid "ERROR_TITLE_FS_INIT"
+msgstr "Impossible de monter le stockage!"
+
+msgid "ERROR_TITLE_MCU_INIT"
+msgstr "Impossible d'initialiser le MCU!"
+
+msgid "ERROR_TITLE_SETTINGS_LOAD"
+msgstr "Impossible de charger les paramètres!"
+
+msgid "ERROR_TITLE_SAVE_STORE"
+msgstr "Impossible d'enregistrer la sauvegarde!"
+
+msgid "SUBMENU_OPTION_SETTINGS"
+msgstr "Paramètres"
+
+msgid "SUBMENU_OPTION_TOOLS"
+msgstr "Outils"
+
+msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
+msgstr "Lancer via XMODEM"
+
+msgid "SUBMENU_OPTION_TEST_BFB"
+msgstr "Test"
+
+msgid "SUBMENU_OPTION_ABOUT"
+msgstr "À propos"
+
+msgid "SUBMENU_OPTION_WITCH"
+msgstr "Witch..."
+
+msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
+msgstr "Ajouter comme bibliothèque globale"
+
+msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
+msgstr "Extraire BIOS/OS"
+
+msgid "SUBMENU_OPTION_FILE"
+msgstr "Fichier..."
+
+msgid "SUBMENU_OPTION_FILE_DELETE"
+msgstr "Supprimer"
+
+msgid "DIALOG_FILE_DELETE_CONFIRM"
+msgstr "Voulez-vous vraiment supprimer ce fichier?"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
+msgstr "Détection BIOS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
+msgstr "Extraction BIOS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
+msgstr "Recherche de l'OS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
+msgstr "Extraction OS..."
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
+msgstr "Remplacer BIOS"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_OS"
+msgstr "Remplacer OS"
+
+msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
+msgstr "Créer image"
+
+msgid "INPUT_TARGET_FILENAME"
+msgstr "Nom du fichier cible"
+
+msgid "SELECT_FILE"
+msgstr "Sélectionner un fichier"
+
+msgid "PROGRESS_COPYING_DATA"
+msgstr "Copie des données..."
+
+msgid "SUBMENU_OPTION_CONTROLLER_MODE"
+msgstr "Mode manette"
+
+msgid "DIALOG_INITIALIZING_RTC"
+msgstr "Initialisation RTC..."
+
+msgid "ERROR_WITCH_NO_BIOS_FOUND"
+msgstr "Aucun fichier BIOS trouvé!"
+
+msgid "ERROR_WITCH_NO_OS_FOUND"
+msgstr "Aucun fichier OS trouvé!"
+
+msgid "DIALOG_FILE_ALREADY_EXISTS"
+msgstr "Le fichier existe déjà."
+
+msgid "DIALOG_OVERWRITE_CONFIRM"
+msgstr "Voulez-vous vraiment remplacer ce fichier ?"
+
+msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
+msgstr "Compatible"
+
+msgid "ATHENABIOS_SUFFIX_NATIVE"
+msgstr "Natif"
+
+msgid "CONTROLLER_MODE_ACTIVE"
+msgstr "Mode manette actif ."
+
+msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
+msgstr "Appuyez sur SOUND pour quitter."
+
+msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
+msgstr "Appuyez sur VIEW pour quitter."
+
+msgid "ABOUT_RAM_BYTES_FREE"
+msgstr "%d octets IRAM libres"
+
+msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
+msgstr ""
+"Certaines fonctionnalités ne seront pas disponibles. Voulez-vous continuer ?"
+
+msgid "OSK_OK"
+msgstr "OK"
+
+msgid "OSK_ALPHA"
+msgstr "Aa"
+
+msgid "COLOR_RED"
+msgstr "Rouge"
+
+msgid "COLOR_GREEN"
+msgstr "Vert"
+
+msgid "COLOR_BLUE"
+msgstr "Bleu"
+
+msgid "COLOR_PREVIEW"
+msgstr "Aperçu"
