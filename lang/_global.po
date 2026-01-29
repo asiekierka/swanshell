@@ -11,6 +11,9 @@ msgstr "License GPLv3+: GNU GPL version 3 or later\n<https://gnu.org/licenses/gp
 msgid "LANG_EN"
 msgstr "English"
 
+msgid "LANG_DE"
+msgstr "Deutsch"
+
 msgid "LANG_PL"
 msgstr "Polski"
 
