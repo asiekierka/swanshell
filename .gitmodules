@@ -3,7 +3,7 @@
 	url = https://github.com/49bitcat/libnile
 [submodule "vendor/AthenaOS"]
 	path = vendor/AthenaOS
-	url = https://github.com/OpenWitch/AthenaOS
+	url = https://codeberg.org/OpenWitch/AthenaOS.git
 [submodule "vendor/modified-ark-pixel-font"]
 	path = vendor/modified-ark-pixel-font
 	url = https://github.com/asiekierka/modified-ark-pixel-font
