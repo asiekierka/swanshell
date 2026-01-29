@@ -14,6 +14,9 @@ msgstr "English"
 msgid "LANG_DE"
 msgstr "Deutsch"
 
+msgid "LANG_FR"
+msgstr "Français"
+
 msgid "LANG_PL"
 msgstr "Polski"
 
