@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-01-29 18:12+0000\n"
+"PO-Revision-Date: 2026-01-29 20:56+0000\n"
 "Last-Translator: Kemal Afzal <Kemal-Afzal@outlook.de>\n"
 "Language-Team: German <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "de/>\n"
@@ -288,13 +288,13 @@ msgid "ERROR_WITCH_NO_OS_FOUND"
 msgstr "Es wurde keine OS-Datei gefunden!"
 
 msgid "DIALOG_FILE_ALREADY_EXISTS"
-msgstr "Dei Datei existiert bereits."
+msgstr "Die Datei existiert bereits."
 
 msgid "DIALOG_OVERWRITE_CONFIRM"
 msgstr "Soll die Datei wirklich überschrieben werden?"
 
 msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
-msgstr "Compatibel"
+msgstr "Kompatibel"
 
 msgid "ATHENABIOS_SUFFIX_NATIVE"
 msgstr "Nativ"
