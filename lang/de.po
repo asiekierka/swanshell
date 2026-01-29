@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-01-29 16:18+0000\n"
+"PO-Revision-Date: 2026-01-29 18:12+0000\n"
 "Last-Translator: Kemal Afzal <Kemal-Afzal@outlook.de>\n"
 "Language-Team: German <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "de/>\n"
@@ -309,7 +309,7 @@ msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
 msgstr "VIEW drücken zum Verlassen."
 
 msgid "ABOUT_RAM_BYTES_FREE"
-msgstr "%d IRAM bytes verfügbar"
+msgstr "%d Bytes IRAM verfügbar"
 
 msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
 msgstr "Einige Funktionen sind dann nicht nutzbar. Fortfahren?"
