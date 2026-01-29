@@ -397,6 +397,9 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
             result = f_chdir(buffer);
             if (result == FR_NO_PATH) continue;
             if (result != FR_OK) return result;
+
+            buffer[0] = '.';
+            buffer[1] = 0;
         } else if (i == 1) {
             strcpy(buffer, s_path_fbin);
         }
