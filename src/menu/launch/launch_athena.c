@@ -30,13 +30,15 @@
 
 #define DIR_SEGMENT 0x4000
 #define OS_SEGMENT 0xE000
-#define FILE_MAX_SIZE ((OS_SEGMENT - DIR_SEGMENT) * 16L)
 
 #define ROM0_MAX_FILES 128
 #define RAM0_MAX_FILES 64
 
 // TODO: Remove out of global allocation
 static uint16_t file_segment;
+
+#define FILE_MAX_SIZE ((OS_SEGMENT - DIR_SEGMENT) * 16L)
+#define FILE_FREE_SIZE ((OS_SEGMENT - file_segment) * 16L)
 
 typedef struct {
     uint8_t jump_command;
@@ -300,14 +302,20 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
         entry->loc = MK_FP(file_segment, 0x0000);
         entry->mode = (entry->mode & ~2) | 4; // Clear write flag, set read flag
 
-        // Copy header to file list
-        memcpy(&DIR_FENT(file_count), buffer, 64);
-
-        // Read file
+        // Calculate file size
         uint16_t sector_count = *((uint16_t*) (buffer + 48));
         uint16_t expected_end_segment = file_segment + (sector_count << 3);
 
         uint32_t file_size = f_size(&fp) - f_tell(&fp);
+        if (file_size > FILE_FREE_SIZE) {
+            result = ERR_FILE_TOO_LARGE;
+            goto launch_athena_romfile_add_done;
+        }
+
+        // Copy header to file list
+        memcpy(&DIR_FENT(file_count), buffer, 64);
+
+        // Read file
         while (file_size) {
             uint16_t file_offset = (file_segment << 4);
             uint16_t file_max_read = (file_offset == 0) ? (file_size < 65536 ? file_size : 32768) : -file_offset;
@@ -329,9 +337,6 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
         file_segment = (file_segment + 7) & ~7;
         if (file_segment < expected_end_segment)
             file_segment = expected_end_segment;
-
-        if (file_segment > OS_SEGMENT)
-            result = ERR_FILE_TOO_LARGE;
 
         outportw(WS_CART_EXTBANK_RAM_PORT, ATHENA_OS_FOOTER_BANK);
         if (type == ATHENA_ROMFILE_TYPE_RAM0)
