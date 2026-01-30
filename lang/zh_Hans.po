@@ -1,2 +1,144 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-01-30 15:30+0000\n"
+"Last-Translator: PECO <msn451518580@hotmail.com>\n"
+"Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
+"projects/49bitcat/swanshell/zh_Hans/>\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.15.1\n"
+
+msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
+msgstr "第%d/%d页"
+
+msgid "UI_STATUS_LOADING"
+msgstr "加载中..."
+
+msgid "YES"
+msgstr "是"
+
+msgid "NO"
+msgstr "否"
+
+msgid "OK"
+msgstr "好的"
+
+msgid "CANCEL"
+msgstr "取消"
+
+msgid "SETTINGS_INFO_WS"
+msgstr "Y1: 帮助"
+
+msgid "SETTINGS_KEY"
+msgstr "设置"
+
+msgid "SETTINGS_LANGUAGE_KEY"
+msgstr "语言"
+
+msgid "SETTINGS_FILE_KEY"
+msgstr "文件浏览器"
+
+msgid "SETTINGS_CART_KEY"
+msgstr "卡带"
+
+msgid "SETTINGS_THEME_KEY"
+msgstr "主题"
+
+msgid "SETTINGS_FILE_SORT_KEY"
+msgstr "文件顺序"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
+msgstr "显示隐藏文件"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
+msgstr "根据“隐藏”属性显示或隐藏文件"
+
+msgid "SETTINGS_FILE_SORT_DEFAULT"
+msgstr "默认"
+
+msgid "SETTINGS_FILE_SORT_DATE_ASC"
+msgstr "日期 ↑"
+
+msgid "SETTINGS_FILE_SORT_DATE_DESC"
+msgstr "日期 ↓"
+
+msgid "SETTINGS_FILE_SORT_SIZE_ASC"
+msgstr "大小 ↑"
+
+msgid "SETTINGS_FILE_SORT_SIZE_DESC"
+msgstr "大小 ↓"
+
+msgid "SETTINGS_FILE_SORT_HELP"
+msgstr "选择文件在文件浏览器中的排列顺序。"
+
+msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
+msgstr "隐藏图标"
+
+msgid "SETTINGS_CART_SET_RTC_TIME"
+msgstr "RTC 日期和时间"
+
+msgid "SETTINGS_THEME_DARK_MODE"
+msgstr "暗黑模式"
+
+msgid "DIALOG_UPDATING_MCU"
+msgstr "更新 MCU"
+
+msgid "ERROR_FILE_TOO_LARGE"
+msgstr "文件太大"
+
+msgid "ERROR_FILE_FORMAT_INVALID"
+msgstr "文件格式无效"
+
+msgid "ERROR_FILE_NOT_EXECUTABLE"
+msgstr "文件不能执行"
+
+msgid "SUBMENU_OPTION_SETTINGS"
+msgstr "设置"
+
+msgid "SUBMENU_OPTION_TOOLS"
+msgstr "工具"
+
+msgid "SUBMENU_OPTION_TEST_BFB"
+msgstr "测试"
+
+msgid "SUBMENU_OPTION_ABOUT"
+msgstr "关于"
+
+msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
+msgstr "提取 BIOS/OS"
+
+msgid "SUBMENU_OPTION_FILE"
+msgstr "文件..."
+
+msgid "SUBMENU_OPTION_FILE_DELETE"
+msgstr "删除"
+
+msgid "DIALOG_FILE_DELETE_CONFIRM"
+msgstr "你确认要删除这个文件吗？"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
+msgstr "正在提取 BIOS..."
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
+msgstr "替换 BIOS"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_OS"
+msgstr "替换 OS"
+
+msgid "INPUT_TARGET_FILENAME"
+msgstr "输入目标文件名"
+
+msgid "SELECT_FILE"
+msgstr "选择文件"
+
+msgid "DIALOG_FILE_ALREADY_EXISTS"
+msgstr "文件已存在。"
+
+msgid "DIALOG_OVERWRITE_CONFIRM"
+msgstr "你确认要覆盖这个文件吗？"
+
+msgid "OSK_OK"
+msgstr "好的"
