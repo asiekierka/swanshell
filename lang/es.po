@@ -1,0 +1,347 @@
+msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
+msgstr "Página %d/%d"
+
+msgid "UI_FILE_SELECTOR_EMPTY"
+msgstr "Sin datos"
+
+msgid "UI_STATUS_LOADING"
+msgstr "Cargando..."
+
+
+msgid "YES"
+msgstr "Sí"
+
+msgid "NO"
+msgstr "No"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "CANCEL"
+msgstr "Cancelar"
+
+
+msgid "SETTINGS_INFO_WS"
+msgstr "Y1: Ayuda"
+
+msgid "SETTINGS_INFO_PC2"
+msgstr "Pass: Ayuda"
+
+
+msgid "SETTINGS_KEY"
+msgstr "Opciones"
+
+msgid "SETTINGS_LANGUAGE_KEY"
+msgstr "Idioma"
+
+msgid "SETTINGS_FILE_KEY"
+msgstr "Archivos"
+
+msgid "SETTINGS_PROG_KEY"
+msgstr "Programas"
+
+msgid "SETTINGS_CART_KEY"
+msgstr "Cartucho"
+
+msgid "SETTINGS_THEME_KEY"
+msgstr "Tema"
+
+
+msgid "SETTINGS_FILE_SORT_KEY"
+msgstr "Orden"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
+msgstr "Mostrar ocultos"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
+msgstr "Muestra archivos ocultos."
+
+msgid "SETTINGS_FILE_SORT_DEFAULT"
+msgstr "Normal"
+
+msgid "SETTINGS_FILE_SORT_NAME_ASC"
+msgstr "Nombre ↑"
+
+msgid "SETTINGS_FILE_SORT_NAME_DESC"
+msgstr "Nombre ↓"
+
+msgid "SETTINGS_FILE_SORT_DATE_ASC"
+msgstr "Fecha ↑"
+
+msgid "SETTINGS_FILE_SORT_DATE_DESC"
+msgstr "Fecha ↓"
+
+msgid "SETTINGS_FILE_SORT_SIZE_ASC"
+msgstr "Tamaño ↑"
+
+msgid "SETTINGS_FILE_SORT_SIZE_DESC"
+msgstr "Tamaño ↓"
+
+msgid "SETTINGS_FILE_SORT_HELP"
+msgstr "Cambia orden de archivos."
+
+msgid "SETTINGS_FILE_VIEW_KEY"
+msgstr "Vista"
+
+msgid "SETTINGS_FILE_VIEW_LARGE"
+msgstr "Lista grande"
+
+msgid "SETTINGS_FILE_VIEW_SMALL"
+msgstr "Lista pequeña"
+
+msgid "SETTINGS_FILE_VIEW_HELP"
+msgstr "Cambia modo de vista."
+
+msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
+msgstr "Ocultar iconos"
+
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
+msgstr "SRAM rápida"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
+msgstr "Aumenta velocidad de SRAM antes de iniciar el juego.\n\nPuede causar errores o incompatibilidad."
+
+msgid "SETTINGS_PROG_FX_BIOS"
+msgstr "BIOS para .fx"
+
+msgid "SETTINGS_PROG_FX_BIOS_HELP"
+msgstr "BIOS usada por programas .fx.\n\nNativo: USB\nCompatible: EXT"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED"
+msgstr "Velocidad MCU"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
+msgstr "- Baja: 384 KHz\n- Media: 6 MHz (WSC)\n- Alta: 24 MHz"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
+msgstr "Baja"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_6MHZ"
+msgstr "Media"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
+msgstr "Alta"
+
+msgid "SETTINGS_CART_SET_RTC_TIME"
+msgstr "Fecha y hora"
+
+
+msgid "SETTINGS_THEME_ACCENT_COLOR"
+msgstr "Color base"
+
+msgid "SETTINGS_THEME_DARK_MODE"
+msgstr "Modo oscuro"
+
+msgid "SETTINGS_THEME_DARK"
+msgstr "Oscuro"
+
+msgid "SETTINGS_THEME_LIGHT"
+msgstr "Claro"
+
+
+msgid "DIALOG_UPDATING_MCU"
+msgstr "Actualizando MCU"
+
+msgid "DIALOG_PREPARE_SAVE"
+msgstr "Preparando guardado"
+
+msgid "DIALOG_PREPARE_FLASH"
+msgstr "Preparando flash"
+
+msgid "DIALOG_PREPARE_ROM"
+msgstr "Preparando ROM"
+
+msgid "DIALOG_STORE_SAVE"
+msgstr "Guardando datos"
+
+
+msgid "ERROR_FR_DISK_ERR"
+msgstr "Error de memoria"
+
+msgid "ERROR_FR_INT_ERR"
+msgstr "Error interno"
+
+msgid "ERROR_FR_NOT_READY"
+msgstr "Memoria no lista"
+
+msgid "ERROR_FR_NO_FILE"
+msgstr "Archivo no existe"
+
+msgid "ERROR_FR_NO_PATH"
+msgstr "Ruta no válida"
+
+msgid "ERROR_FR_DENIED"
+msgstr "Acceso no permitido"
+
+msgid "ERROR_SAVE_CORRUPT"
+msgstr "Datos dañados"
+
+msgid "ERROR_SAVE_PSRAM_CORRUPT"
+msgstr "PSRAM dañada"
+
+msgid "ERROR_MCU_COMM_FAILED"
+msgstr "Error MCU"
+
+msgid "ERROR_MCU_BIN_CORRUPT"
+msgstr "MCU.BIN inválido"
+
+msgid "ERROR_FILE_TOO_LARGE"
+msgstr "Archivo demasiado grande"
+
+msgid "ERROR_FILE_FORMAT_INVALID"
+msgstr "Formato no válido"
+
+msgid "ERROR_FILE_NOT_EXECUTABLE"
+msgstr "No ejecutable"
+
+msgid "ERROR_DATA_TRANSFER_TIMEOUT"
+msgstr "Tiempo agotado"
+
+msgid "ERROR_DATA_TRANSFER_CANCEL"
+msgstr "Transferencia cancelada"
+
+msgid "ERROR_DATA_CORRUPT"
+msgstr "Datos dañados"
+
+
+msgid "ERROR_TITLE_FS_INIT"
+msgstr "Error de memoria"
+
+msgid "ERROR_TITLE_MCU_INIT"
+msgstr "Error MCU"
+
+msgid "ERROR_TITLE_SETTINGS_LOAD"
+msgstr "Error de opciones"
+
+msgid "ERROR_TITLE_SAVE_STORE"
+msgstr "Error al guardar"
+
+
+msgid "SUBMENU_OPTION_SETTINGS"
+msgstr "Opciones"
+
+msgid "SUBMENU_OPTION_TOOLS"
+msgstr "Herramientas"
+
+msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
+msgstr "Iniciar XMODEM"
+
+msgid "SUBMENU_OPTION_TEST_BFB"
+msgstr "Prueba"
+
+msgid "SUBMENU_OPTION_ABOUT"
+msgstr "Información"
+
+msgid "SUBMENU_OPTION_WITCH"
+msgstr "Witch"
+
+msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
+msgstr "Añadir a global"
+
+msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
+msgstr "Extraer BIOS/SO"
+
+msgid "SUBMENU_OPTION_FILE"
+msgstr "Archivo"
+
+msgid "SUBMENU_OPTION_FILE_DELETE"
+msgstr "Borrar"
+
+msgid "DIALOG_FILE_DELETE_CONFIRM"
+msgstr "¿Borrar archivo?"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
+msgstr "Buscando BIOS"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
+msgstr "Extrayendo BIOS"
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
+msgstr "Buscando SO"
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
+msgstr "Extrayendo SO"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
+msgstr "Cambiar BIOS"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_OS"
+msgstr "Cambiar SO"
+
+msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
+msgstr "Crear imagen"
+
+msgid "INPUT_TARGET_FILENAME"
+msgstr "Nombre archivo"
+
+msgid "SELECT_FILE"
+msgstr "Seleccionar"
+
+msgid "PROGRESS_COPYING_DATA"
+msgstr "Copiando..."
+
+msgid "SUBMENU_OPTION_CONTROLLER_MODE"
+msgstr "Modo mando"
+
+msgid "DIALOG_INITIALIZING_RTC"
+msgstr "Iniciando reloj"
+
+
+msgid "ERROR_WITCH_NO_BIOS_FOUND"
+msgstr "BIOS no encontrada"
+
+msgid "ERROR_WITCH_NO_OS_FOUND"
+msgstr "SO no encontrado"
+
+
+msgid "DIALOG_FILE_ALREADY_EXISTS"
+msgstr "Archivo ya existe"
+
+msgid "DIALOG_OVERWRITE_CONFIRM"
+msgstr "¿Sobrescribir archivo?"
+
+
+msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
+msgstr "Compatible"
+
+msgid "ATHENABIOS_SUFFIX_NATIVE"
+msgstr "Nativo"
+
+
+msgid "CONTROLLER_MODE_ACTIVE"
+msgstr "Modo mando activo"
+
+msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
+msgstr "SOUND: salir"
+
+msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
+msgstr "VIEW: salir"
+
+
+msgid "ABOUT_RAM_BYTES_FREE"
+msgstr "IRAM libre: %d bytes"
+
+
+msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
+msgstr "Algunas funciones no disponibles.\n¿Continuar?"
+
+
+msgid "OSK_OK"
+msgstr "OK"
+
+msgid "OSK_ALPHA"
+msgstr "Aa"
+
+
+msgid "COLOR_RED"
+msgstr "Rojo"
+
+msgid "COLOR_GREEN"
+msgstr "Verde"
+
+msgid "COLOR_BLUE"
+msgstr "Azul"
+
+msgid "COLOR_PREVIEW"
+msgstr "Vista"

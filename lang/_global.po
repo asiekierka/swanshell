@@ -14,12 +14,17 @@ msgstr "English"
 msgid "LANG_DE"
 msgstr "Deutsch"
 
+msgid "LANG_ES"
+msgstr "Español"
+
 msgid "LANG_FR"
 msgstr "Français"
 
 msgid "LANG_PL"
 msgstr "Polski"
 
+msgid "LANG_ZH_HANS"
+msgstr "中文"
 
 msgid "OSK_ALPHA_SMALL"
 msgstr "1234567890-=\nqwertyuiop[]\nasdfghjkl;\nzxcvbnm,.␣"
