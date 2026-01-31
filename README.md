@@ -2,6 +2,8 @@
 
 The primary and official file selector/launcher program for [nileswan](https://49bitcat.com/docs/nileswan/).
 
+The name is a reference to homebrew-friendly launchers that came past and which this project was inspired by: PogoShell and MoonShell.
+
 Documentation is available [here](https://docs.asie.pl/swanshell/).
 
 ## Building
