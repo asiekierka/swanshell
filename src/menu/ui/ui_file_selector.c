@@ -193,6 +193,16 @@ rescan_directory:
     if (ui_has_wallpaper()) {
         ui_layout_bars();
     }
+    if (reinit_ui || reinit_dirs) {
+        f_getcwd(path, sizeof(path) - 1);
+        path_depth_pos = 255;
+        char *p = path;
+        while (*p) {
+            if (*p == '/') path_depth_pos++;
+            p++;
+        }
+        ui_draw_titlebar(path);
+    }
     if (reinit_dirs) {
         config.offset = path_depth_pos >= CONFIG_FILESELECT_PATH_MEMORY_DEPTH ? 0 : path_depth[path_depth_pos];
         strcpy(path, s_dot);
@@ -204,17 +214,6 @@ rescan_directory:
             goto rescan_directory;
         }
     }
-    if (reinit_ui || reinit_dirs) {
-        f_getcwd(path, sizeof(path) - 1);
-        path_depth_pos = 255;
-        char *p = path;
-        while (*p) {
-            if (*p == '/') path_depth_pos++;
-            p++;
-        }
-        ui_draw_titlebar(path);
-    }
-
     reinit_ui = false;
     reinit_dirs = false;
 
@@ -227,10 +226,12 @@ rescan_directory:
             goto rescan_directory;
         }
         if ((keys_pressed & WS_KEY_A) && config.count) {
+            path_depth[path_depth_pos] = config.offset;
+            
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
             strncpy(path, fno->fno.fname, sizeof(fno->fno.fname));
             if (fno->fno.fattrib & AM_DIR) {
-                path_depth[path_depth_pos++] = config.offset;
+                path_depth_pos++;
                 f_chdir(path);
             } else {
                 ui_selector_clear_selection(&config);
@@ -307,6 +308,8 @@ rescan_directory:
 
         // TODO: temporary
         if ((keys_pressed & WS_KEY_START) && config.count) {
+            path_depth[path_depth_pos] = config.offset;
+            
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
 
             ui_selector_clear_selection(&config);
