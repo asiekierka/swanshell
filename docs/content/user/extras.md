@@ -3,11 +3,11 @@ title: 'Additional features'
 weight: 60
 ---
 
-## Controller mode
+## Gamepad mode
 
-The *controller mode* allows using your console as an USB HID controller.
+The *gamepad mode* allows using your console as an USB HID gamepad.
 
-Press `START`, then select `Tools` -> `Controller mode` to activate.
+Press `START`, then select `Tools` -> `Gamepad mode` to activate.
 
 Note that, due to the console's non-standard button layout, only games and programs which support custom controller button bindings should be expected to work correctly.
 

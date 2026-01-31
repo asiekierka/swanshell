@@ -282,7 +282,7 @@ msgid "PROGRESS_COPYING_DATA"
 msgstr "Copying data..."
 
 msgid "SUBMENU_OPTION_CONTROLLER_MODE"
-msgstr "Controller mode"
+msgstr "Gamepad mode"
 
 msgid "DIALOG_INITIALIZING_RTC"
 msgstr "Initializing RTC..."
@@ -310,7 +310,7 @@ msgstr "Native"
 
 
 msgid "CONTROLLER_MODE_ACTIVE"
-msgstr "Controller mode active."
+msgstr "Gamepad mode active."
 
 msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
 msgstr "Press SOUND to exit."
