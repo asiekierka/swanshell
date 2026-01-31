@@ -19,6 +19,7 @@
 #include <wsx/utf8.h>
 #include "bitmap.h"
 #include "config.h"
+#include "util/math.h"
 
 #define BITMAP_AT(bitmap, x, y) (((uint8_t*) (bitmap)->start) + ((y) * (bitmap)->y_pitch) + (((x) >> (bitmap)->x_shift) * (bitmap)->x_pitch))
 
@@ -221,30 +222,44 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
     font_data += 2;
 
     uint8_t *tile_end = tile + (bitmap->bpp * h);
+    uint16_t px_row_offset = xofs ^ 7;
+    uint16_t px_row_left_first = MIN(8 - px_row_offset, w);
+
     while (tile < tile_end) {
         uint8_t *dst = tile;
         int16_t px_total_left = w;
-        uint16_t px_row_offset = xofs ^ 7;
+        uint16_t px_row_left = px_row_left_first;
+
+        if (pixel_fifo_left < px_row_left) {
+            pixel_fifo |= (*(font_data++) << pixel_fifo_left);
+            pixel_fifo_left += 8;
+        }
+
+        uint8_t mask = count_width_mask8[px_row_left] << px_row_offset;
+        uint8_t src = (pixel_fifo << px_row_offset) & mask;
+        *dst = (*dst & (~mask)) | src;
+
+        px_total_left -= px_row_left;
+        dst -= bitmap->x_pitch;
+        pixel_fifo >>= px_row_left;
+        pixel_fifo_left -= px_row_left;
 
         while (px_total_left > 0) {
-            uint16_t px_row_left = 8 - px_row_offset;
-            if (px_row_left > px_total_left) px_row_left = px_total_left;
+            uint16_t px_row_left = MIN(8, px_total_left);
 
             if (pixel_fifo_left < px_row_left) {
                 pixel_fifo |= (*(font_data++) << pixel_fifo_left);
                 pixel_fifo_left += 8;
             }
 
-            uint8_t mask = count_width_mask8[px_row_left] << px_row_offset;
-            uint8_t src = (pixel_fifo << px_row_offset) & mask;
+            uint8_t mask = count_width_mask8[px_row_left];
+            uint8_t src = pixel_fifo & mask;
             *dst = (*dst & (~mask)) | src;
 
             px_total_left -= px_row_left;
             dst -= bitmap->x_pitch;
             pixel_fifo >>= px_row_left;
             pixel_fifo_left -= px_row_left;
-
-            px_row_offset = 0;
         }
         
         tile += bitmap->bpp;
