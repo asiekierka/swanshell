@@ -89,13 +89,20 @@ static uint16_t progress_pos;
 
 static void progress_init(uint16_t graphic, uint16_t max_value) {
 	if (ws_system_is_color_active()) {
-		WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
-		WS_DISPLAY_COLOR_MEM(0)[1] = 0x000;
-		WS_DISPLAY_COLOR_MEM(0)[2] = 0x555;
-		WS_DISPLAY_COLOR_MEM(0)[3] = 0xAAA;
+		for (int i = 0; i < 12; i++) {
+			WS_DISPLAY_COLOR_MEM(i)[0] = 0xFFF;
+			WS_DISPLAY_COLOR_MEM(i)[1] = 0x000;
+			WS_DISPLAY_COLOR_MEM(i)[2] = 0x555;
+			WS_DISPLAY_COLOR_MEM(i)[3] = 0xAAA;
+		}
+		if (graphic == 0) {
+			for (int i = 0; i < 12; i++)
+				WS_DISPLAY_COLOR_MEM(i)[3] = (!(i & 3)) ? 0xCC0 : 0xDD2;
+		}
 	} else {
 		ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT_DEFAULT);
-		outportw(WS_SCR_PAL_0_PORT, 0x2570);
+		for (int i = 0; i < 12; i++)
+			outportw(WS_SCR_PAL_PORT(i), 0x2570);
 	}
 
 	outportb(WS_SCR_BASE_PORT, WS_SCR_BASE_ADDR1(SCREEN) | WS_SCR_BASE_ADDR2(SCREEN));
@@ -104,7 +111,7 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 	ws_screen_fill_tiles(SCREEN, 0x120, 0, 0, 28, 18);
 	if (graphic != 0xFFFF) {
 		for (int i = 0; i < 12; i++) {
-			ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i, (i & 3) + 12, (i >> 2) + 7);
+			ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i + WS_SCREEN_ATTR_PALETTE(i), (i & 3) + 12, (i >> 2) + 7);
 		}
 
 		// Initialize screen 2
