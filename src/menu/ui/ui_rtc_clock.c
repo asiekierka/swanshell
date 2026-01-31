@@ -83,7 +83,8 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
         bitmap_rect_fill(&ui_bitmap, RTC_TIMER_TEXT_X - 1, RTC_TIMER_TEXT_Y, 1, RTC_TIMER_GLYPH_HEIGHT, BITMAP_COLOR_4BPP(2));
     }
 
-    int len = strlen(text);
+    // int len = strlen(text);
+    int len = 19;
     int x = RTC_TIMER_TEXT_X + RTC_TIMER_TEXT_X_OFFSET;
     int selected_x = selected_value + 2;
     if (selected_value >= 2)  selected_x++;
@@ -107,7 +108,7 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
     // write new characters
     for (int i = 0; i < len; i++, x += RTC_TIMER_GLYPH_WIDTH) {
         bitmap_rect_fill(&ui_bitmap, x - RTC_TIMER_TEXT_X_OFFSET, RTC_TIMER_TEXT_Y, RTC_TIMER_GLYPH_WIDTH, RTC_TIMER_GLYPH_HEIGHT, BITMAP_COLOR_4BPP(2));
-        bitmapfont_draw_char(&ui_bitmap, x, RTC_TIMER_TEXT_Y + RTC_TIMER_TEXT_Y_OFFSET, text[i]);
+        bitmapfont_draw_char(&ui_bitmap, x + (text[i] == ':' ? 1 : 0), RTC_TIMER_TEXT_Y + RTC_TIMER_TEXT_Y_OFFSET, text[i]);
     }
 
     // draw arrows
