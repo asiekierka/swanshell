@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-01-29 20:56+0000\n"
+"PO-Revision-Date: 2026-02-08 17:56+0000\n"
 "Last-Translator: Kemal Afzal <Kemal-Afzal@outlook.de>\n"
 "Language-Team: German <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "de/>\n"
@@ -275,6 +275,7 @@ msgstr "Datei auswählen"
 msgid "PROGRESS_COPYING_DATA"
 msgstr "Daten werden kopiert..."
 
+#, fuzzy
 msgid "SUBMENU_OPTION_CONTROLLER_MODE"
 msgstr "Controllermodus"
 
@@ -299,6 +300,7 @@ msgstr "Kompatibel"
 msgid "ATHENABIOS_SUFFIX_NATIVE"
 msgstr "Nativ"
 
+#, fuzzy
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Controllermodus aktiv."
 
