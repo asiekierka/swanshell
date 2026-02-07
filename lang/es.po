@@ -1,3 +1,20 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-08 17:56+0000\n"
+"PO-Revision-Date: 2026-02-08 17:56+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Spanish <https://weblate.asie.pl/projects/49bitcat/swanshell/"
+"es/>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: ENCODING\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.1\n"
+
 msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
 msgstr "Página %d/%d"
 
@@ -6,7 +23,6 @@ msgstr "Sin datos"
 
 msgid "UI_STATUS_LOADING"
 msgstr "Cargando..."
-
 
 msgid "YES"
 msgstr "Sí"
@@ -20,13 +36,11 @@ msgstr "OK"
 msgid "CANCEL"
 msgstr "Cancelar"
 
-
 msgid "SETTINGS_INFO_WS"
 msgstr "Y1: Ayuda"
 
 msgid "SETTINGS_INFO_PC2"
 msgstr "Pass: Ayuda"
-
 
 msgid "SETTINGS_KEY"
 msgstr "Opciones"
@@ -45,7 +59,6 @@ msgstr "Cartucho"
 
 msgid "SETTINGS_THEME_KEY"
 msgstr "Tema"
-
 
 msgid "SETTINGS_FILE_SORT_KEY"
 msgstr "Orden"
@@ -95,7 +108,6 @@ msgstr "Cambia modo de vista."
 msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
 msgstr "Ocultar iconos"
 
-
 msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
 msgstr "SRAM rápida"
 
@@ -126,7 +138,6 @@ msgstr "Alta"
 msgid "SETTINGS_CART_SET_RTC_TIME"
 msgstr "Fecha y hora"
 
-
 msgid "SETTINGS_THEME_ACCENT_COLOR"
 msgstr "Color base"
 
@@ -138,7 +149,6 @@ msgstr "Oscuro"
 
 msgid "SETTINGS_THEME_LIGHT"
 msgstr "Claro"
-
 
 msgid "DIALOG_UPDATING_MCU"
 msgstr "Actualizando MCU"
@@ -154,7 +164,6 @@ msgstr "Preparando ROM"
 
 msgid "DIALOG_STORE_SAVE"
 msgstr "Guardando datos"
-
 
 msgid "ERROR_FR_DISK_ERR"
 msgstr "Error de memoria"
@@ -204,7 +213,6 @@ msgstr "Transferencia cancelada"
 msgid "ERROR_DATA_CORRUPT"
 msgstr "Datos dañados"
 
-
 msgid "ERROR_TITLE_FS_INIT"
 msgstr "Error de memoria"
 
@@ -216,7 +224,6 @@ msgstr "Error de opciones"
 
 msgid "ERROR_TITLE_SAVE_STORE"
 msgstr "Error al guardar"
-
 
 msgid "SUBMENU_OPTION_SETTINGS"
 msgstr "Opciones"
@@ -281,12 +288,12 @@ msgstr "Seleccionar"
 msgid "PROGRESS_COPYING_DATA"
 msgstr "Copiando..."
 
+#, fuzzy
 msgid "SUBMENU_OPTION_CONTROLLER_MODE"
 msgstr "Modo mando"
 
 msgid "DIALOG_INITIALIZING_RTC"
 msgstr "Iniciando reloj"
-
 
 msgid "ERROR_WITCH_NO_BIOS_FOUND"
 msgstr "BIOS no encontrada"
@@ -294,13 +301,11 @@ msgstr "BIOS no encontrada"
 msgid "ERROR_WITCH_NO_OS_FOUND"
 msgstr "SO no encontrado"
 
-
 msgid "DIALOG_FILE_ALREADY_EXISTS"
 msgstr "Archivo ya existe"
 
 msgid "DIALOG_OVERWRITE_CONFIRM"
 msgstr "¿Sobrescribir archivo?"
-
 
 msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
 msgstr "Compatible"
@@ -308,7 +313,7 @@ msgstr "Compatible"
 msgid "ATHENABIOS_SUFFIX_NATIVE"
 msgstr "Nativo"
 
-
+#, fuzzy
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Modo mando activo"
 
@@ -318,21 +323,17 @@ msgstr "SOUND: salir"
 msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
 msgstr "VIEW: salir"
 
-
 msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "IRAM libre: %d bytes"
 
-
 msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
 msgstr "Algunas funciones no disponibles.\n¿Continuar?"
-
 
 msgid "OSK_OK"
 msgstr "OK"
 
 msgid "OSK_ALPHA"
 msgstr "Aa"
-
 
 msgid "COLOR_RED"
 msgstr "Rojo"
