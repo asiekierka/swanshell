@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-01-29 18:12+0000\n"
+"PO-Revision-Date: 2026-02-08 17:56+0000\n"
 "Last-Translator: Zeroballoons <weblate@krohne.me>\n"
 "Language-Team: French <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "fr/>\n"
@@ -297,6 +297,7 @@ msgstr "Sélectionner un fichier"
 msgid "PROGRESS_COPYING_DATA"
 msgstr "Copie des données..."
 
+#, fuzzy
 msgid "SUBMENU_OPTION_CONTROLLER_MODE"
 msgstr "Mode manette"
 
@@ -321,6 +322,7 @@ msgstr "Compatible"
 msgid "ATHENABIOS_SUFFIX_NATIVE"
 msgstr "Natif"
 
+#, fuzzy
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Mode manette actif ."
 
