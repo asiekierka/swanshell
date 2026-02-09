@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-01-30 15:30+0000\n"
-"Last-Translator: PECO <msn451518580@hotmail.com>\n"
+"PO-Revision-Date: 2026-02-10 05:56+0000\n"
+"Last-Translator: kuypan <kuypan@163.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -142,3 +142,9 @@ msgstr "你确认要覆盖这个文件吗？"
 
 msgid "OSK_OK"
 msgstr "好的"
+
+msgid "SETTINGS_FILE_SORT_NAME_ASC"
+msgstr "文件名↑"
+
+msgid "SETTINGS_FILE_SORT_NAME_DESC"
+msgstr "文件名 ↓"
