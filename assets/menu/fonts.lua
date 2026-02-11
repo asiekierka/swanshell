@@ -5,17 +5,19 @@ local ROM_OFFSET_SHIFT = 0
 local bdf = dofile("lib/bdf.lua")
 local process = require("wf.api.v1.process")
 local tablex = require("pl.tablex")
+local unicode_table = dofile("lib/unicode_table.lua")
 
 local function table_to_string(n)
     return string.char(table.unpack(n))
 end
 
-local function build_font(name, height, fonts, x_offset, y_offset, is_allowed_char)
+local function build_font(name, height, fonts, x_offset_tbl, y_offset, is_allowed_char)
     local chars = {}
     local i = 0
     local max_glyph_id = 0
 
-    for _, font in pairs(fonts) do
+    for font_idx, font in pairs(fonts) do
+        local x_offset = x_offset_tbl[font_idx]
         if y_offset == nil then
             local a_char = font.chars[91] -- [
             local a_y = font.ascent - a_char.y - a_char.height
@@ -41,6 +43,7 @@ local function build_font(name, height, fonts, x_offset, y_offset, is_allowed_ch
                 local bitmap_last_nonempty = #char.bitmap
                 local bitmap = char.bitmap
                 local char_start_y = font.ascent - char.y - char.height + y_offset
+                local char_bitwidth = ((char.width + 7) & 0xFFF8)
 
                 for i=1,#char.bitmap do
                     if char.bitmap[i] ~= 0 then
@@ -96,7 +99,7 @@ local function build_font(name, height, fonts, x_offset, y_offset, is_allowed_ch
                 local x = 0
                 local i = 0
                 for iy=1,#bitmap do
-                    local b = bitmap[iy] >> (((char.width + 7) & 0xFFF8) - char.width)
+                    local b = bitmap[iy] >> (char_bitwidth - char.width)
                     local m = 1
                     for ix=1,char.width do
                         if (b & m) ~= 0 then
@@ -231,7 +234,8 @@ end
 local swanshell7 = bdf.parse("fonts/swanshell_7px.bdf")
 local misaki = bdf.parse("fonts/misaki_gothic_2nd.bdf")
 local arkpixel12 = bdf.parse("fonts/ark-pixel-12px-proportional-ja.bdf")
-build_font("font8_bitmap", 8, {swanshell7, misaki}, 0, 0, function(ch, font)
+
+build_font("font8_bitmap", 8, {swanshell7, misaki}, {0, 0}, 0, function(ch, font)
     -- BMP only
     -- if ch >= 0x10000 then return false end
     -- control codes
@@ -242,7 +246,7 @@ build_font("font8_bitmap", 8, {swanshell7, misaki}, 0, 0, function(ch, font)
     if ch >= 0xD800 and ch < 0xF900 then return false end
     return true
 end)
-build_font("font16_bitmap", 16, {arkpixel12}, -1, nil, function(ch, font)
+build_font("font16_bitmap", 16, {arkpixel12}, {-1}, nil, function(ch, font)
     -- BMP only
     -- if ch >= 0x10000 then return false end
     -- control codes

@@ -9,7 +9,7 @@ local stringx = require("pl.stringx")
 
 local M = {}
 
-M.parse = function(filename)
+M.parse = function(filename, trans_table)
     local font = {
         ["chars"] = {}
     }
@@ -71,6 +71,11 @@ M.parse = function(filename)
                 char = {["name"]=value}
             elseif (char ~= nil) and (key == "ENCODING") then
                 char.encoding = tonumber(value)
+                if trans_table ~= nil then
+                    if trans_table[char.encoding] ~= nil then
+                        char.encoding = trans_table[char.encoding]
+                    end
+                end
             elseif (char ~= nil) and (key == "SWIDTH") then
                 value = stringx.split(value, " ")
                 char.swx0 = tonumber(value[1])
