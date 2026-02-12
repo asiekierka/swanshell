@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-11 21:36+0000\n"
-"PO-Revision-Date: 2026-02-08 17:56+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2026-02-13 08:56+0000\n"
+"Last-Translator: Weblate Admin <kontakt@asie.pl>\n"
 "Language-Team: Polish <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "pl/>\n"
 "Language: pl\n"
@@ -291,11 +291,9 @@ msgstr "Narzędzia"
 msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
 msgstr "Uruchom przez XMODEM"
 
-#, fuzzy
 msgid "SUBMENU_OPTION_CONTROLLER_MODE"
 msgstr "Tryb kontrolera"
 
-#, fuzzy
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Tryb kontrolera aktywny."
 
