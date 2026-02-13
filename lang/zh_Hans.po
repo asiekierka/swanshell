@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-02-13 14:35+0000\n"
+"PO-Revision-Date: 2026-02-13 18:31+0000\n"
 "Last-Translator: PECO <msn451518580@hotmail.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
@@ -15,7 +15,7 @@ msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
 msgstr "第%d/%d页"
 
 msgid "UI_STATUS_LOADING"
-msgstr "加载中..."
+msgstr "加载中…"
 
 msgid "YES"
 msgstr "是"
@@ -111,7 +111,7 @@ msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
 msgstr "提取 BIOS/OS"
 
 msgid "SUBMENU_OPTION_FILE"
-msgstr "文件..."
+msgstr "文件…"
 
 msgid "SUBMENU_OPTION_FILE_DELETE"
 msgstr "删除"
@@ -120,7 +120,7 @@ msgid "DIALOG_FILE_DELETE_CONFIRM"
 msgstr "你确认要删除这个文件吗？"
 
 msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
-msgstr "正在提取 BIOS..."
+msgstr "正在提取 BIOS …"
 
 msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
 msgstr "替换 BIOS"
@@ -192,7 +192,7 @@ msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
 msgstr "低"
 
 msgid "SETTINGS_CART_MCU_SPI_SPEED_6MHZ"
-msgstr "中"
+msgstr "中*"
 
 msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
 msgstr "高"
@@ -265,3 +265,87 @@ msgstr "无法初始化 MCU ！"
 
 msgid "ERROR_TITLE_SETTINGS_LOAD"
 msgstr "无法加载设置！"
+
+msgid "ERROR_TITLE_SAVE_STORE"
+msgstr "无法存储存档数据！"
+
+msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
+msgstr "通过 XMODEM 启动"
+
+msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
+msgstr "添加为全局库"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
+msgstr "扫描 BIOS …"
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
+msgstr "扫描 OS …"
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
+msgstr "提取 OS …"
+
+msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
+msgstr "创建镜像"
+
+msgid "PROGRESS_COPYING_DATA"
+msgstr "正在复制数据…"
+
+msgid "SUBMENU_OPTION_CONTROLLER_MODE"
+msgstr "游戏手柄模式"
+
+msgid "DIALOG_INITIALIZING_RTC"
+msgstr "正在初始化 RTC …"
+
+msgid "ERROR_WITCH_NO_BIOS_FOUND"
+msgstr "未找到 BIOS 文件！"
+
+msgid "ERROR_WITCH_NO_OS_FOUND"
+msgstr "未找到 OS 文件！"
+
+msgid "CONTROLLER_MODE_ACTIVE"
+msgstr "游戏手柄模式已激活。"
+
+msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
+msgstr "按 SOUND 键退出。"
+
+msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
+msgstr "按 VIEW 键退出。"
+
+msgid "ABOUT_RAM_BYTES_FREE"
+msgstr "%d IRAM 字节空闲"
+
+msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
+msgstr "某些功能将不可用。你想继续吗？"
+
+msgid "COLOR_RED"
+msgstr "红色"
+
+msgid "COLOR_GREEN"
+msgstr "绿色"
+
+msgid "COLOR_BLUE"
+msgstr "蓝色"
+
+msgid "COLOR_PREVIEW"
+msgstr "预览"
+
+msgid "SETTINGS_INFO_PC2"
+msgstr "Pass: 帮助"
+
+msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
+msgstr "兼容"
+
+msgid "ATHENABIOS_SUFFIX_NATIVE"
+msgstr "原生"
+
+msgid "UI_FILE_SELECTOR_EMPTY"
+msgstr "空"
+
+msgid "SETTINGS_FILE_VIEW_KEY"
+msgstr "视图"
+
+msgid "OSK_ALPHA"
+msgstr "Aa"
+
+msgid "SUBMENU_OPTION_WITCH"
+msgstr "Witch…"
