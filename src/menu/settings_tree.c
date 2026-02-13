@@ -142,14 +142,15 @@ static const setting_t __far setting_file = {
     .category = { &settings_file }
 };
 
-#define LANGUAGE_COUNT 5
+#define LANGUAGE_COUNT 6
 
 static const uint16_t __wf_rom settings_language_name_table[] = {
     LK_LANG_EN,
     LK_LANG_PL,
     LK_LANG_DE,
     LK_LANG_FR,
-    LK_LANG_ES
+    LK_LANG_ES,
+    LK_LANG_ZH_HANS
 };
 
 static const void __far* __far settings_language_table[] = {
@@ -157,7 +158,8 @@ static const void __far* __far settings_language_table[] = {
     lang_keys_pl,
     lang_keys_de,
     lang_keys_fr,
-    lang_keys_es
+    lang_keys_es,
+    lang_keys_zh_Hans
 };
 
 static void settings_language_on_change(const settings_t *set) {
