@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-02-10 05:56+0000\n"
-"Last-Translator: kuypan <kuypan@163.com>\n"
+"PO-Revision-Date: 2026-02-13 14:35+0000\n"
+"Last-Translator: PECO <msn451518580@hotmail.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -54,7 +54,7 @@ msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
 msgstr "显示隐藏文件"
 
 msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
-msgstr "根据“隐藏”属性显示或隐藏文件"
+msgstr "根据“隐藏”属性显示或隐藏文件。"
 
 msgid "SETTINGS_FILE_SORT_DEFAULT"
 msgstr "默认"
@@ -144,7 +144,124 @@ msgid "OSK_OK"
 msgstr "好的"
 
 msgid "SETTINGS_FILE_SORT_NAME_ASC"
-msgstr "文件名↑"
+msgstr "文件名 ↑"
 
 msgid "SETTINGS_FILE_SORT_NAME_DESC"
 msgstr "文件名 ↓"
+
+msgid "SETTINGS_PROG_KEY"
+msgstr "程序启动器"
+
+msgid "SETTINGS_FILE_VIEW_LARGE"
+msgstr "大列表"
+
+msgid "SETTINGS_FILE_VIEW_SMALL"
+msgstr "小列表"
+
+msgid "SETTINGS_FILE_VIEW_HELP"
+msgstr "选择文件在文件浏览器中的排列方法。"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
+msgstr "强制快速 SRAM"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
+msgstr ""
+"提升 Color 机型在游戏启动前的 SRAM 和 I/O 速度。\n"
+"\n"
+"这有助于缓解某些程序中的卡顿，但也可能影响兼容性或使速通无效。"
+
+msgid "SETTINGS_PROG_FX_BIOS"
+msgstr "用于 .fx 加载器的 BIOS 变体"
+
+msgid "SETTINGS_PROG_FX_BIOS_HELP"
+msgstr ""
+".fx 程序使用的BIOS变体。\n"
+"\n"
+"对于串行通信，Native 使用USB端口，Compatible 使用控制台EXT端口。"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED"
+msgstr "MCU 通信速度"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
+msgstr ""
+"- 低：384 KHz\n"
+"- 中：WSC 上 6 MHz，WS/PCv2 上 384 KHz\n"
+"- 高：24 MHz"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
+msgstr "低"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_6MHZ"
+msgstr "中"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
+msgstr "高"
+
+msgid "SETTINGS_THEME_ACCENT_COLOR"
+msgstr "强调色"
+
+msgid "SETTINGS_THEME_DARK"
+msgstr "暗"
+
+msgid "SETTINGS_THEME_LIGHT"
+msgstr "亮"
+
+msgid "DIALOG_PREPARE_SAVE"
+msgstr "正在创建存档数据"
+
+msgid "DIALOG_PREPARE_FLASH"
+msgstr "正在创建 flash 镜像"
+
+msgid "DIALOG_PREPARE_ROM"
+msgstr "正在创建 ROM 镜像"
+
+msgid "DIALOG_STORE_SAVE"
+msgstr "正在存储存档数据"
+
+msgid "ERROR_FR_DISK_ERR"
+msgstr "存储错误"
+
+msgid "ERROR_FR_INT_ERR"
+msgstr "FatFs 内部错误"
+
+msgid "ERROR_FR_NOT_READY"
+msgstr "存储未就绪"
+
+msgid "ERROR_FR_NO_FILE"
+msgstr "文件未找到"
+
+msgid "ERROR_FR_NO_PATH"
+msgstr "路径未找到"
+
+msgid "ERROR_FR_DENIED"
+msgstr "访问被拒绝"
+
+msgid "ERROR_SAVE_CORRUPT"
+msgstr "存档数据损坏"
+
+msgid "ERROR_SAVE_PSRAM_CORRUPT"
+msgstr "PSRAM 状态损坏"
+
+msgid "ERROR_MCU_COMM_FAILED"
+msgstr "MCU 通信错误"
+
+msgid "ERROR_MCU_BIN_CORRUPT"
+msgstr "无效的 MCU.BIN 格式！"
+
+msgid "ERROR_DATA_TRANSFER_TIMEOUT"
+msgstr "数据传输超时"
+
+msgid "ERROR_DATA_TRANSFER_CANCEL"
+msgstr "数据传输已取消"
+
+msgid "ERROR_DATA_CORRUPT"
+msgstr "数据损坏"
+
+msgid "ERROR_TITLE_FS_INIT"
+msgstr "无法挂载存储！"
+
+msgid "ERROR_TITLE_MCU_INIT"
+msgstr "无法初始化 MCU ！"
+
+msgid "ERROR_TITLE_SETTINGS_LOAD"
+msgstr "无法加载设置！"
