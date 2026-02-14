@@ -3,6 +3,18 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.0.2 (14th February 2026)
+
+- Added: Input repeat delay and rate configuration.
+- Added: New translations:
+  - Chinese (Simplified) (PECO)
+- Added: Simple text viewer.
+- Added: Support for Chinese and partial support for Korean characters.
+- Changed: On a new installation, the user is automatically prompted for their preferred language.
+- Changed: Question marks are now used for characters without a matching glyph in the font.
+- Changed: The display fonts are now stored in separate files.
+- Minor performance and reliability improvements.
+
 ## swanshell 1.0.1 (7th February 2026)
 
 - Added: New translations:

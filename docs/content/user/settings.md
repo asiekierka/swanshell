@@ -31,6 +31,13 @@ This section configures visuals.
 
 ![The color picker.](/swanshell/img/color_picker.png)
 
+## Controls
+
+This section configures input controls.
+
+- **Repeat delay**: The delay, in milliseconds, between the press of a button and its first repeat.
+- **Repeat rate**: The rate, in milliseconds, of subsequent button press repeats.
+
 ## Cartridge
 
 This section configures the on-cartridge hardware.
