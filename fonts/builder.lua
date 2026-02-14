@@ -160,6 +160,7 @@ local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y
     local GLYPH_ENTRY_STATIC_LIMIT = 0xCC
 
     local rom_datas = {}
+    local rom_offsets = {}
     local glyph_count_per = {}
 
     for i=0,max_glyph_id+1,GLYPH_TABLE_PER do
@@ -227,6 +228,8 @@ local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y
             header_pos = 3 + ((id & glyph_id_mask) * SMALL_GLYPH_ENTRY_SIZE)
         end
 
+        rom_offsets[id] = header_pos - 1
+
         local v1 = ((rom_offset - header_pos + 1) >> ROM_OFFSET_SHIFT)
         rom_data[header_pos] = v1 & 0xFF
         rom_data[header_pos + 1] = (v1 >> 8) & 0xFF
@@ -234,10 +237,10 @@ local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y
         rom_data[header_pos + 3] = char.width | (char.height << 4)
     end
 
-    return rom_datas
+    return rom_datas, rom_offsets
 end
 
-local function write_font(filename, font_height, tables)
+local function write_font(filename, font_height, tables, offsets)
     local max_codepoint = math.max(table.unpack(tablex.keys(tables)))
     local empty_pointer = string.char(0, 0, 0)
     local file <close> = io.open(filename, "wb")
@@ -248,6 +251,7 @@ local function write_font(filename, font_height, tables)
     file:write(empty_pointer:rep(max_codepoint+1))
     -- TODO: Optimize by populating smaller, empty banks
     pointer_locs = {}
+    qmark_pos = 0
     for i=0,max_codepoint do
         local data = tables[i]
         local fpos = file:seek()
@@ -258,7 +262,12 @@ local function write_font(filename, font_height, tables)
         end
         file:write(string.char(table.unpack(data)))
         pointer_locs[i] = fpos
+        if i == 0 then
+            qmark_pos = fpos + offsets[63]
+        end
     end
+    file:seek("set", 8)
+    file:write(string.pack("<I3", qmark_pos))
     file:seek("set", pointers_fpos)
     for i=0,max_codepoint do
         file:write(string.pack("<I3", pointer_locs[i]))

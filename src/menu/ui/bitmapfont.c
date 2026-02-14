@@ -64,7 +64,10 @@ static const uint16_t __far* __bitmapfont_find_char(uint32_t ch) {
     }
     uint16_t nmemb = *((const uint16_t __far*) (base - 2));
     if (nmemb == 0xFFFF) {
-        return (const uint16_t __far*) (base + (ch_low << 2));
+        const uint16_t __far* ptr = (const uint16_t __far*) (base + (ch_low << 2));
+        if (*ptr == 0)
+            return NULL;
+        return ptr;
     }
 
     const uint8_t __far* pivot;
@@ -87,14 +90,23 @@ static const uint16_t __far* __bitmapfont_find_char(uint32_t ch) {
     return NULL;
 }
 
+static const uint16_t __far* __bitmapfont_get_error_glyph(void) {
+    ws_bank_rom0_set(font_banks[active_font]);
+    bitmapfont_header_t __far* header = bitmapfont_get_header_ptr();
+    return ((const uint16_t __far*) (((const uint8_t __far*) header) + header->error_offset));
+}
+
 static inline uint16_t __bitmapfont_get_char_width(const uint16_t __far* data16) {
+    if (!FP_SEG(data16))
+        data16 = __bitmapfont_get_error_glyph();
+    
     const uint8_t __far *data = (const uint8_t __far*) data16;
-    if (!FP_SEG(data)) return 0;
     return (data[2] & 0xF) + (data[3] & 0xF);    
 }
 
 static inline uint16_t __bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* data) {
-    if (!FP_SEG(data)) return 0;
+    if (!FP_SEG(data))
+        data = __bitmapfont_get_error_glyph();
 
     uint16_t x = data[1] & 0xF;
     uint16_t y = (data[1] >>  4) & 0xF;
