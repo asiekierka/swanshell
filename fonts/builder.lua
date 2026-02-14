@@ -11,6 +11,12 @@ local function table_to_string(n)
     return string.char(table.unpack(n))
 end
 
+local function add_char_gap(font, amount)
+    for id, char in pairs(font.chars) do
+        char.gap = (char.gap or 0) + amount
+    end                
+end
+
 local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y_offset, is_allowed_char)
     local chars = {}
     local i = 0
@@ -89,6 +95,8 @@ local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y
                     print(char.name .. " too wide, skipping")
                     goto nextchar
                 end
+
+                char.width = char.width + (char.gap or 0)
 
                 -- calculate xofs, yofs, width, height
                 local res = {}
@@ -283,6 +291,10 @@ if args[1] == "default8" then
     local boutiquebitmap7 = bdf.parse("fonts/boutique/BoutiqueBitmap7x7_1.7.bdf")
     -- local dalmoori = bdf.parse("fonts/dalmoori/dalmoori.bdf")
 
+    add_char_gap(swanshell7, 1)
+    add_char_gap(misaki, 1)
+    add_char_gap(boutiquebitmap7, 1)
+
     local font_order = {swanshell7, misaki, boutiquebitmap7}
     local font_offsets = {0, 0, 0}
     if stringx.startswith(args[2], "zh_") then
@@ -303,6 +315,9 @@ if args[1] == "default16" then
     end
     local ksx1001table = unicode_table.parse("fonts/tables/KSX1001.TXT")
     local baekmukdotum12 = bdf.parse("fonts/baekmuk/dotum12.bdf", ksx1001table)
+
+    add_char_gap(arkpixel12, 1)
+    add_char_gap(baekmukdotum12, 1)
 
     write_font(args[3], 16, build_font_entry_tables(16, false, {arkpixel12, baekmukdotum12}, {-1, 0}, nil, filter_default))
 end

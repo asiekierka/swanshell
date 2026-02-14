@@ -32,7 +32,9 @@ M.parse = function(filename, trans_table)
             end
         else
             local key, value = table.unpack(stringx.split(stringx.strip(line), " ", 2))
-            if key == "STARTFONT" then
+            if key == nil or #key == 0 then
+                -- Empty line
+            elseif key == "STARTFONT" then
                 if not infont then
                     font.bdf_version = value
                     infont = true
