@@ -195,8 +195,11 @@ rescan_directory:
     }
     if (reinit_ui || reinit_dirs) {
         f_getcwd(path, sizeof(path) - 1);
-        path_depth_pos = 255;
-        char *p = path;
+        // "/" = depth 0
+        // "/a" = depth 1
+        // "/a/b" = depth 2
+        path_depth_pos = (path[0] != 0 && path[1] != 0) ? 1 : 0;
+        char *p = path + 1;
         while (*p) {
             if (*p == '/') path_depth_pos++;
             p++;
@@ -231,7 +234,7 @@ rescan_directory:
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
             strncpy(path, fno->fno.fname, sizeof(fno->fno.fname));
             if (fno->fno.fattrib & AM_DIR) {
-                path_depth_pos++;
+                path_depth[++path_depth_pos] = 0;
                 f_chdir(path);
             } else {
                 ui_selector_clear_selection(&config);
