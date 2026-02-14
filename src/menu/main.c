@@ -15,6 +15,7 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <nilefs/ff.h>
 #include <wonderful.h>
 #include <ws.h>
 #include <ws/display.h>
@@ -31,6 +32,7 @@
 #include "ui/ui_dialog.h"
 #include "ui/ui_file_selector.h"
 #include "launch/launch.h"
+#include "ui/ui_popup_dialog.h"
 #include "util/input.h"
 #include "shell/shell.h"
 
@@ -100,16 +102,29 @@ void main(void) {
 	outportw(WS_CART_EXTBANK_RAM_PORT, 0);
 
 	{
-		int16_t font_result = bitmapfont_load();
-		if (font_result != FR_OK) {
+		int16_t result = bitmapfont_load();
+		if (result != FR_OK) {
 			// Without fonts, all we can definitely display is English. Reset language.
 			settings.language = 0;
 
-			ui_dialog_error_check(font_result, lang_keys[LK_ERROR_TITLE_FONTS_LOAD], 0);
+			ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_FONTS_LOAD], 0);
 		}
 	}
 
-	ui_dialog_error_check(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
+	{
+		int16_t result = settings_load();
+		if (result == FR_NO_FILE || result == FR_NO_PATH) {
+			ui_popup_dialog_config_t cfg = {0};
+			cfg.title = lang_keys[LK_DIALOG_SETTINGS_CREATING_NEW];
+			ui_popup_dialog_draw(&cfg);
+			ui_show();
+			ws_delay_ms(400);
+			settings_save();
+			ws_delay_ms(400);
+		} else {
+			ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
+		}
+	}
 	ui_dialog_error_check(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
 	ui_dialog_error_check(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
 

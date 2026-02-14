@@ -98,9 +98,6 @@ settings_load_error_opened:
     result = result || f_close(&fp);
 
 settings_load_error:
-    if (result != FR_OK) {
-        settings_save();
-    }
     return result;
 }
 

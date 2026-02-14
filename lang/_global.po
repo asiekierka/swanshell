@@ -32,3 +32,6 @@ msgstr "1234567890-=\nqwertyuiop[]\nasdfghjkl;\nzxcvbnm,.␣"
 msgid "OSK_ALPHA_LARGE"
 msgstr "!@#$%^&'()_+\nQWERTYUIOP{}\nASDFGHJKL;\nZXCVBNM,.␣"
 
+#: Will never appear in non-English.
+msgid "DIALOG_SETTINGS_CREATING_NEW"
+msgstr "Creating new settings data..."
