@@ -132,11 +132,13 @@ typedef struct __attribute__((packed)) {
 
 extern settings_t settings;
 extern const setting_category_t __far settings_root;
+extern const setting_t __far setting_language;
 
 void settings_reset(void);
 int16_t settings_load(void);
 int16_t settings_save(void);
 
+void settings_language_update(void);
 bool settings_language_prefer_large_fonts(void);
 
 #endif /* _SETTINGS_H_ */

@@ -33,6 +33,7 @@
 #include "ui/ui_file_selector.h"
 #include "launch/launch.h"
 #include "ui/ui_popup_dialog.h"
+#include "ui/ui_settings.h"
 #include "util/input.h"
 #include "shell/shell.h"
 
@@ -115,12 +116,14 @@ void main(void) {
 		int16_t result = settings_load();
 		if (result == FR_NO_FILE || result == FR_NO_PATH) {
 			ui_popup_dialog_config_t cfg = {0};
-			cfg.title = lang_keys[LK_DIALOG_SETTINGS_CREATING_NEW];
+			cfg.title = lang_keys_en[LK_DIALOG_SETTINGS_CREATING_NEW];
 			ui_popup_dialog_draw(&cfg);
 			ui_show();
-			ws_delay_ms(400);
+			ws_delay_ms(800);
+			settings.language = ui_settings_selector(&setting_language, 0);
+			settings_language_update();
+			ui_layout_clear(0);
 			settings_save();
-			ws_delay_ms(400);
 		} else {
 			ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
 		}

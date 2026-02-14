@@ -166,15 +166,19 @@ static const void __far* __far settings_language_table[] = {
     lang_keys_zh_Hans
 };
 
-static void settings_language_on_change(const struct setting *set) {
+void settings_language_update(void) {
     lang_keys = settings_language_table[settings.language];
+}
+
+static void settings_language_on_change(const struct setting *set) {
+    settings_language_update();
 }
 
 static void settings_language_name(uint16_t value, char *buf, int buf_len) {
     strncpy(buf, lang_keys[settings_language_name_table[value % LANGUAGE_COUNT]], buf_len);
 }
 
-static const setting_t __far setting_language = {
+const setting_t __far setting_language = {
     s_language,
     LK_SETTINGS_LANGUAGE_KEY,
     0,

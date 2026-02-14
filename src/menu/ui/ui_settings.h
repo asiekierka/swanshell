@@ -22,6 +22,7 @@
 #include "settings.h"
 #include "ui.h"
 
+uint16_t ui_settings_selector(const setting_t __far *setting, uint16_t prev_value);
 void ui_settings(const setting_category_t __far* root_category);
 
 #endif /* __UI_SETTINGS_H__ */
