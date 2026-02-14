@@ -333,11 +333,13 @@ end
 
 if args[1] == "tiny8" then
     local font = bdf.parse("fonts/local/swanshell_7px.bdf")
+    add_char_gap(font, 1)
     write_font(args[3], 8, build_font_entry_tables(8, true, {font}, {0}, 0, filter_tiny))
 end
 
 
 if args[1] == "tiny16" then
     local font = bdf.parse("fonts/build/ark-pixel-12px-proportional-ja.bdf")
+    add_char_gap(font, 1)
     write_font(args[3], 16, build_font_entry_tables(16, true, {font}, {-1}, -3, filter_tiny))
 end

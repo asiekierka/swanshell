@@ -17,6 +17,7 @@
 
 #include <wonderful.h>
 #include <ws.h>
+#include <ws/display.h>
 #include <ws/util.h>
 #include <wsx/planar_unpack.h>
 #include <nilefs.h>
@@ -85,10 +86,28 @@ void main(void) {
 	ui_init();
 	ui_layout_clear(0);
 
+	bitmapfont_set_active_font(font16_bitmap);
+	{
+		const char __far *title = lang_keys[LK_NAME];
+		bitmapfont_draw_string(&ui_bitmap,
+			(WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(title, 255)) >> 1,
+			(WS_DISPLAY_HEIGHT_PIXELS - 16) >> 1,
+			title, 255);
+	}
+	ui_show();
+
 	fs_init();
 	outportw(WS_CART_EXTBANK_RAM_PORT, 0);
 
-	bitmapfont_load();
+	{
+		int16_t font_result = bitmapfont_load();
+		if (font_result != FR_OK) {
+			// Without fonts, all we can definitely display is English. Reset language.
+			settings.language = 0;
+
+			ui_dialog_error_check(font_result, lang_keys[LK_ERROR_TITLE_FONTS_LOAD], 0);
+		}
+	}
 
 	ui_dialog_error_check(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
 	ui_dialog_error_check(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);

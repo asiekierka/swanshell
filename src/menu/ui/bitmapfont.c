@@ -296,7 +296,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
     return yofs - start_yofs;
 }
 
-static uint16_t bitmapfont_load_font(uint16_t id, uint16_t end_bank, const char __far *filename) {
+static int16_t bitmapfont_load_font(uint16_t id, uint16_t end_bank, const char __far *filename) {
     char buf[81];
     int16_t result;
     FIL fp;
@@ -315,9 +315,13 @@ static uint16_t bitmapfont_load_font(uint16_t id, uint16_t end_bank, const char 
     return result;
 }
 
-void bitmapfont_load(void) {
+int16_t bitmapfont_load(void) {
+    int16_t result;
     uint16_t system_end_bank = 0xF2;
-    bitmapfont_load_font(font8_bitmap, system_end_bank, s_path_font8);
+
+    result = bitmapfont_load_font(font8_bitmap, system_end_bank, s_path_font8);
+    if (result != FR_OK) return result;
     system_end_bank = MIN(system_end_bank, font_banks[font8_bitmap]);
-    bitmapfont_load_font(font16_bitmap, font_banks[font8_bitmap], s_path_font16);
+    result = bitmapfont_load_font(font16_bitmap, font_banks[font8_bitmap], s_path_font16);
+    return result;
 }

@@ -214,6 +214,9 @@ msgstr "Could not initialize MCU!"
 msgid "ERROR_TITLE_SETTINGS_LOAD"
 msgstr "Could not load settings!"
 
+msgid "ERROR_TITLE_FONTS_LOAD"
+msgstr "Could not load fonts!"
+
 msgid "ERROR_TITLE_SAVE_STORE"
 msgstr "Could not store save data!"
 

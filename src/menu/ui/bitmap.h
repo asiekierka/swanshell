@@ -96,6 +96,6 @@ uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t 
 uint16_t bitmapfont_draw_string16(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* str, uint16_t max_width);
 void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height, int linegap);
 uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width, int linegap);
-void bitmapfont_load(void);
+int16_t bitmapfont_load(void);
 
 #endif /* BITMAP_H__ */
