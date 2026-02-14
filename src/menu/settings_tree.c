@@ -175,7 +175,7 @@ static const setting_t __far setting_language = {
     LK_SETTINGS_LANGUAGE_KEY,
     0,
     SETTING_TYPE_CHOICE_BYTE,
-    0,
+    SETTING_FLAG_CHOICE_LIST,
     settings_language_on_change,
     .choice = {
         &settings.language,

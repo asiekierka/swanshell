@@ -78,6 +78,66 @@ static bool ui_settings_can_select(struct ui_selector_config *config, uint16_t o
     return true;
 }
 
+typedef struct ui_settings_selector_config {
+    ui_selector_config_t config;
+    const setting_t __far* setting;
+} ui_settings_selector_config_t;
+
+static void ui_settings_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
+    char buf[96];
+
+    ui_settings_selector_config_t *sconfig = (ui_settings_selector_config_t*) config;
+    const setting_t __far* s = sconfig->setting;
+
+    int x_offset = 4;
+
+    buf[0] = 0;
+    if (s->type == SETTING_TYPE_CHOICE_BYTE) {
+        s->choice.name(offset, buf, sizeof(buf));
+    }
+  
+    bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, WS_DISPLAY_WIDTH_PIXELS - x_offset);
+}
+
+static bool ui_settings_selector_can_select(struct ui_selector_config *config, uint16_t offset) {
+    ui_settings_selector_config_t *sconfig = (ui_settings_selector_config_t*) config;
+    const setting_t __far* s = sconfig->setting;
+
+    if (s->type == SETTING_TYPE_CHOICE_BYTE) {
+        if (s->choice.allowed && !s->choice.allowed(offset)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+uint16_t ui_settings_selector(const setting_t __far *setting, uint16_t prev_value) {
+    ui_settings_selector_config_t config = {{0}, setting};
+
+    config.config.style = UI_SELECTOR_STYLE_16;
+    config.config.draw = ui_settings_selector_draw;
+    config.config.can_select = ui_settings_selector_can_select;
+    config.config.key_mask = WS_KEY_A | WS_KEY_B | WS_KEY_START;
+
+    config.config.offset = prev_value;
+    config.config.count = setting->choice.max + 1;
+
+    ui_layout_bars();
+    ui_draw_titlebar(lang_keys[setting->name]);
+    ui_show();
+
+    while (true) {
+        uint16_t keys_pressed = ui_selector(&config.config);
+
+        if (keys_pressed & WS_KEY_A) {
+            return config.config.offset;
+        } else if (keys_pressed & (WS_KEY_B | WS_KEY_START)) {
+            return prev_value;
+        }
+    }
+}
+
 void ui_settings(const setting_category_t __far* root_category) {
     ui_settings_config_t config = {{0}, root_category};
     bool reinit_ui = true;
@@ -135,17 +195,22 @@ reload_menu:
             } else if (s->type == SETTING_TYPE_FLAG) {
                 *s->flag.value ^= (1 << s->flag.bit);
             } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
-                uint8_t value = *((uint8_t*) s->choice.value);
-                for (int i = 0; i < s->choice.max; i++) {
-                    value++;
-                    if (value > s->choice.max)
-                        value = 0;
+                if (s->flags & SETTING_FLAG_CHOICE_LIST) {
+                    *((uint8_t*) s->choice.value) = ui_settings_selector(s, *((uint8_t*) s->choice.value));
+                    reload_required = true;
+                } else {
+                    uint8_t value = *((uint8_t*) s->choice.value);
+                    for (int i = 0; i < s->choice.max; i++) {
+                        value++;
+                        if (value > s->choice.max)
+                            value = 0;
 
-                    if (!s->choice.allowed || s->choice.allowed(value)) {
-                        break;
+                        if (!s->choice.allowed || s->choice.allowed(value)) {
+                            break;
+                        }
                     }
+                   *((uint8_t*) s->choice.value) = value;
                 }
-                *((uint8_t*) s->choice.value) = value;
             } else if (s->type == SETTING_TYPE_COLOR) {
                 ui_draw_titlebar(lang_keys[s->name]);
                 ui_color_picker(s->color.value);
