@@ -73,4 +73,7 @@ DEFINE_STRING(s_athenabios_tpl, "AthenaBIOS (%s)");
 DEFINE_STRING(s_freyabios_tpl, "FreyaBIOS %c.%c.%s");
 DEFINE_STRING(s_freyaos_tpl, "FreyaOS %c.%c.%s");
 
+DEFINE_STRING(s_path_font8, "/NILESWAN/FONT8/DEFAULT.SFF");
+DEFINE_STRING(s_path_font16, "/NILESWAN/FONT16/DEFAULT.SFF");
+
 #endif /* _STRINGS_H_ */

@@ -14,6 +14,9 @@ M.parse = function(filename, trans_table)
         ["chars"] = {}
     }
     local file <close> = io.open(filename)
+    if file == nil then
+        error("file not found: " .. filename)
+    end
     local infont = false
     local inproperties = nil
     local inchar = nil

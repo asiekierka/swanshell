@@ -24,7 +24,7 @@
 __attribute__((optimize("-O0")))
 int16_t memops_unpack_psram_data_if_gzip(uint16_t *bank, uint16_t dest_bank) {
     uint16_t src_bank = *bank;
-    uint8_t __far* header = MK_FP(0x2000, 0x0000);
+    uint8_t __far* header = MK_FP(WS_ROM0_SEGMENT, 0x0000);
     
     ws_bank_with_rom0(src_bank, {
         if (((uint16_t __far*) header)[0] != 0x8B1F) {
@@ -67,7 +67,7 @@ int16_t memops_unpack_psram_data_if_gzip(uint16_t *bank, uint16_t dest_bank) {
                 if (puff(
                     MK_FP(0x1000, 0x0000),
                     (uint32_t)(0x80 - dest_bank) << 16,
-                    MK_FP(0x2000, offset),
+                    MK_FP(WS_ROM0_SEGMENT, offset),
                     ((uint32_t)(dest_bank - src_bank) << 16) - offset
                 ) < 0) {
                     result = ERR_MCU_BIN_CORRUPT;

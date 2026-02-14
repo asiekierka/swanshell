@@ -107,7 +107,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progres
         uint16_t to_read_part;
         to_read_part = btw >= 0x8000 ? 0x8000 : btw;
         btw -= to_read_part;
-        int16_t result = f_write(fp, MK_FP(0x2000, 0x0000), to_read_part, &lbw);
+        int16_t result = f_write(fp, MK_FP(WS_ROM0_SEGMENT, 0x0000), to_read_part, &lbw);
         if (result != FR_OK)
             return result;
         bw += lbw;
@@ -116,7 +116,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progres
         to_read_part = btw >= 0x8000 ? 0x8000 : btw;
         if (to_read_part) {
             btw -= to_read_part;
-            result = f_write(fp, MK_FP(0x2000, 0x8000), to_read_part, &lbw);
+            result = f_write(fp, MK_FP(WS_ROM0_SEGMENT, 0x8000), to_read_part, &lbw);
             if (result != FR_OK)
                 return result;
             bw += lbw;

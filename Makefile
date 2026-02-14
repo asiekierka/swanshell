@@ -8,6 +8,7 @@ include $(WONDERFUL_TOOLCHAIN)/target/$(TARGET)/makedefs.mk
 
 PYTHON3		?= python3
 UV		?= uv
+LUA		?= $(WONDERFUL_TOOLCHAIN)/bin/wf-lua
 
 VERSION		?= $(shell git rev-parse --short=8 HEAD)
 
@@ -70,7 +71,7 @@ SOURCES_S	:= $(shell find -L $(SOURCEDIRS) -name "*.s")
 SOURCES_C	:= $(shell find -L $(SOURCEDIRS) -name "*.c")
 SOURCES_LANG	:= $(shell find -L lang)
 
-SOURCES_CBIN += build/bootstub.bin
+SOURCES_CBIN += build/bootstub.bin build/font_tiny8.bin build/font_tiny16.bin
 
 # Compiler and linker flags
 # -------------------------
@@ -114,23 +115,48 @@ DEPS		:= $(OBJS:.o=.d)
 
 all: $(ROM) compile_commands.json
 
-dist: all athenaos-compatible athenaos-native
+dist: all athenaos-compatible athenaos-native dist/NILESWAN/font8/default.sff dist/NILESWAN/font16/default.sff
 	@echo "  DIST"
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw dist/NILESWAN/BIOSATHN.RAW
 	@cp $(ATHENAOS_PATH)/dist/AthenaOS-*-nileswan.raw dist/NILESWAN/ATHENAFX.RAW
-	@rm -r dist/NILESWAN/LICENSE || true
-	@cp -R docs/license dist/NILESWAN/LICENSE
+	@rm -r dist/NILESWAN/license || true
+	@cp -R docs/license dist/NILESWAN/license
+	@$(MKDIR) -p dist/NILESWAN/license/font/default8
+	@$(MKDIR) -p dist/NILESWAN/license/font/default16
+	@cp fonts/misaki/LICENSE dist/NILESWAN/license/font/default8/LICENSE.misaki
+	@cp fonts/boutique/LICENSE dist/NILESWAN/license/font/default8/LICENSE.boutique
+	@cp fonts/baekmuk/COPYRIGHT dist/NILESWAN/license/font/default16/LICENSE.baekmuk
+	@cp vendor/modified-ark-pixel-font/LICENSE-OFL dist/NILESWAN/license/font/default16/LICENSE.arkpixel
+
+dist/NILESWAN/font16/default.sff: fonts/builder.lua fonts/build/ark-pixel-12px-proportional-ja.bdf
+	@echo "  FONT    $@"
+	@$(MKDIR) -p $(@D)
+	@$(LUA) fonts/builder.lua default16 default $@
+
+dist/NILESWAN/font8/default.sff: fonts/builder.lua
+	@echo "  FONT    $@"
+	@$(MKDIR) -p $(@D)
+	@$(LUA) fonts/builder.lua default8 default $@
+
+build/font_tiny16.bin: fonts/builder.lua fonts/build/ark-pixel-12px-proportional-ja.bdf
+	@echo "  FONT    $@"
+	@$(MKDIR) -p $(@D)
+	@$(LUA) fonts/builder.lua tiny16 default $@
+
+build/font_tiny8.bin: fonts/builder.lua
+	@echo "  FONT    $@"
+	@$(MKDIR) -p $(@D)
+	@$(LUA) fonts/builder.lua tiny8 default $@
 
 distclean: clean
 
-fonts: assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf
-
-assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf:
+fonts/build/ark-pixel-12px-proportional-ja.bdf:
 	@echo "  UV      $@"
+	@$(MKDIR) -p $(@D)
 	$(_V)$(UV) --directory vendor/modified-ark-pixel-font sync
 	$(_V)$(UV) --directory vendor/modified-ark-pixel-font run -m tools.cli --cleanup --font-sizes 12 --width-modes proportional --font-formats bdf --attachments release
-	$(_V)cp vendor/modified-ark-pixel-font/build/outputs/$(@F) $@
+	$(_V)cp vendor/modified-ark-pixel-font/build/outputs/* fonts/build/
 
 athenaos-compatible:
 	@$(MAKE) -C $(ATHENAOS_PATH) bios
@@ -165,7 +191,7 @@ clean:
 	$(_V)cd $(LIBNILE_PATH) && $(MAKE) TARGET=wswan/medium clean
 	$(_V)cd $(ATHENAOS_PATH) && $(MAKE) clean
 	$(_V)cd $(ATHENAOS_PATH) && $(MAKE) CONFIG=config/config.nileswan.mk clean
-	$(_V)rm assets/menu/fonts/ark-pixel-12px-proportional-ja.bdf || true
+	$(_V)rm fonts/build/* || true
 
 usage-symbols: $(ELF)
 	$(_V)$(ROMUSAGE) $< -g -C -d 0 --symbol-top 128
@@ -204,7 +230,19 @@ $(BUILDDIR)/assets/menu/lang_gen.o $(BUILDDIR)/assets/menu/lang_gen.h : $(SOURCE
 	$(_V)$(PYTHON3) tools/gen_strings.py lang $(BUILDDIR)/assets/menu/lang_gen.c $(BUILDDIR)/assets/menu/lang_gen.h
 	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/assets/menu/lang_gen.o $(BUILDDIR)/assets/menu/lang_gen.c
 
-$(BUILDDIR)/%.lua.o : %.lua | fonts
+$(BUILDDIR)/build/font_tiny8.bin.o $(BUILDDIR)/build/font_tiny8_bin.h : build/font_tiny8.bin
+	@echo "  BIN2S   $<"
+	@$(MKDIR) -p $(@D)
+	$(_V)$(WF)/bin/wf-bin2s --address-space __far --section ".rom0_ff.tiny8" $(@D) $<
+	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/build/font_tiny8.bin.o $(BUILDDIR)/build/font_tiny8_bin.s
+
+$(BUILDDIR)/build/font_tiny16.bin.o $(BUILDDIR)/build/font_tiny16_bin.h : build/font_tiny16.bin
+	@echo "  BIN2S   $<"
+	@$(MKDIR) -p $(@D)
+	$(_V)$(WF)/bin/wf-bin2s --address-space __far --section ".rom0_ff.tiny16" $(@D) $<
+	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/build/font_tiny16.bin.o $(BUILDDIR)/build/font_tiny16_bin.s
+
+$(BUILDDIR)/%.lua.o : %.lua
 	@echo "  PROCESS $<"
 	@$(MKDIR) -p $(@D)
 	$(_V)$(WF)/bin/wf-process -o $(BUILDDIR)/$*.s -t $(TARGET) --depfile $(BUILDDIR)/$*.lua.d --depfile-target $(BUILDDIR)/$*.lua.o $<

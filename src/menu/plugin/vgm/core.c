@@ -34,7 +34,7 @@ static uint8_t __far* vgm_state_to_ptr(vgm_state_t *state, uint16_t *backup) {
     outportw(WS_CART_EXTBANK_ROM0_PORT, state->bank);
     outportw(WS_CART_EXTBANK_ROM1_PORT, state->bank + 1);
 
-    return MK_FP(0x2000 | (state->pos >> 4), state->pos & 0xF);
+    return MK_FP(WS_ROM0_SEGMENT | (state->pos >> 4), state->pos & 0xF);
 }
 
 static void vgm_ptr_to_state(vgm_state_t *state, uint8_t __far* ptr) {

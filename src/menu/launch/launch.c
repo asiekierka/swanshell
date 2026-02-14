@@ -119,7 +119,7 @@ int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta) {
     uint16_t rom0_bank = ws_bank_rom0_save(bank);
     uint16_t rom1_bank = ws_bank_rom1_save(bank + 1);
 
-    memcpy(&meta->footer, MK_FP(0x2000 + (offset >> 4), offset & 0xF), 16);
+    memcpy(&meta->footer, MK_FP(WS_ROM0_SEGMENT + (offset >> 4), offset & 0xF), 16);
 
     ws_bank_rom0_restore(rom0_bank);
     ws_bank_rom1_restore(rom1_bank);
@@ -439,7 +439,7 @@ int16_t launch_backup_save_data(void) {
                 } else if (file_type == SAVE_ID_FOR_FLASH) {
                     uint16_t prev_bank = inportw(WS_CART_EXTBANK_ROM0_PORT);
                     outportw(WS_CART_EXTBANK_ROM0_PORT, (f_size(&save_fp) - 1) >> 16);
-                    memcpy(buffer, MK_FP(0x2000, 0xFFF0), 16);
+                    memcpy(buffer, MK_FP(WS_ROM0_SEGMENT, 0xFFF0), 16);
                     outportw(WS_CART_EXTBANK_ROM0_PORT, prev_bank);
                     
                     // Only restore flash if contents appear bootable.

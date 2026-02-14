@@ -191,7 +191,7 @@ finish:
         uint16_t rom1_bank = ws_bank_rom1_save(bank);
 
         // access the final 144 bytes of the ROM
-        const uint8_t __far *last_bytes = MK_FP(0x3000 + (offset >> 4) - (256 >> 4), 112);
+        const uint8_t __far *last_bytes = MK_FP(WS_ROM1_SEGMENT + (offset >> 4) - (256 >> 4), 112);
 
         // the ROM might not have been aligned to 128 bytes
         // try to adjust for this by locating byte 0xEA and maintenance

@@ -25,6 +25,7 @@
 #include "main.h"
 #include "mcu.h"
 #include "settings.h"
+#include "ui/bitmap.h"
 #include "ui/ui.h"
 #include "ui/ui_dialog.h"
 #include "ui/ui_file_selector.h"
@@ -86,6 +87,8 @@ void main(void) {
 
 	fs_init();
 	outportw(WS_CART_EXTBANK_RAM_PORT, 0);
+
+	bitmapfont_load();
 
 	ui_dialog_error_check(settings_load(), lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
 	ui_dialog_error_check(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);

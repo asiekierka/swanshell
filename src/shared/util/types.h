@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, 2023, 2024 Adrian Siekierka
+ * Copyright (c) 2026 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,17 +15,12 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MATH_H_
-#define MATH_H_
+#ifndef TYPES_H_
+#define TYPES_H_
 
-#include <stdbool.h>
-#include <stdint.h>
+typedef struct {
+    uint16_t offset;
+    uint8_t bank;
+} farptr_t;
 
-#define MIN(a,b) (((a)>(b))?(b):(a))
-#define MAX(a,b) (((a)<(b))?(b):(a))
-
-uint32_t math_next_power_of_two(uint32_t value);
-uint16_t math_color_to_greyscale(uint16_t rgb12);
-uint16_t math_popcount16(uint16_t value);
-
-#endif /* MATH_H_ */
+#endif /* TYPES_H_ */

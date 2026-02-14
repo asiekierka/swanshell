@@ -2,16 +2,16 @@ local MAX_WIDTH = 15
 local MAX_HEIGHT = 15
 local ROM_OFFSET_SHIFT = 0
 
-local bdf = dofile("lib/bdf.lua")
-local process = require("wf.api.v1.process")
+local bdf = dofile("fonts/lib/bdf.lua")
+local stringx = require("pl.stringx")
 local tablex = require("pl.tablex")
-local unicode_table = dofile("lib/unicode_table.lua")
+local unicode_table = dofile("fonts/lib/unicode_table.lua")
 
 local function table_to_string(n)
     return string.char(table.unpack(n))
 end
 
-local function build_font(name, height, fonts, x_offset_tbl, y_offset, is_allowed_char)
+local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y_offset, is_allowed_char)
     local chars = {}
     local i = 0
     local max_glyph_id = 0
@@ -163,7 +163,7 @@ local function build_font(name, height, fonts, x_offset_tbl, y_offset, is_allowe
     end
 
     local function use_small_glyph(id)
-        return id == 0 or glyph_count_per[id] >= GLYPH_ENTRY_STATIC_LIMIT
+        return (id == 0 and not tiny_font) or glyph_count_per[id] >= GLYPH_ENTRY_STATIC_LIMIT
     end
 
     local glyph_id_mask = GLYPH_TABLE_PER - 1
@@ -226,18 +226,44 @@ local function build_font(name, height, fonts, x_offset_tbl, y_offset, is_allowe
         rom_data[header_pos + 3] = char.width | (char.height << 4)
     end
 
-    for k,v in pairs(rom_datas) do
-        process.emit_symbol(name .. "_" .. k, table_to_string(v), {align=16})
+    return rom_datas
+end
+
+local function write_font(filename, font_height, tables)
+    local max_codepoint = math.max(table.unpack(tablex.keys(tables)))
+    local empty_pointer = string.char(0, 0, 0)
+    local file <close> = io.open(filename, "wb")
+    file:write(string.pack("<HHHHI3B",
+        0x6653, 0x0100, 12, max_codepoint, 0, font_height
+    ))
+    local pointers_fpos = file:seek()
+    file:write(empty_pointer:rep(max_codepoint+1))
+    -- TODO: Optimize by populating smaller, empty banks
+    pointer_locs = {}
+    for i=0,max_codepoint do
+        local data = tables[i]
+        local fpos = file:seek()
+        local fpos_left = 0x10000 - (fpos & 0xFFFF)
+        if fpos_left < #data then
+            file:write(string.char(0):rep(fpos_left))
+            fpos = file:seek()
+        end
+        file:write(string.char(table.unpack(data)))
+        pointer_locs[i] = fpos
+    end
+    file:seek("set", pointers_fpos)
+    for i=0,max_codepoint do
+        file:write(string.pack("<I3", pointer_locs[i]))
     end
 end
 
-local swanshell7 = bdf.parse("fonts/swanshell_7px.bdf")
-local misaki = bdf.parse("fonts/misaki_gothic_2nd.bdf")
-local arkpixel12 = bdf.parse("fonts/ark-pixel-12px-proportional-ja.bdf")
+local args = {...}
+if #args < 3 then
+    print("syntax: builder <font type> <font language code> <output filename>")
+    os.exit(0)
+end
 
-build_font("font8_bitmap", 8, {swanshell7, misaki}, {0, 0}, 0, function(ch, font)
-    -- BMP only
-    -- if ch >= 0x10000 then return false end
+local function filter_default(ch, font)
     -- control codes
     if (ch < 0x20) or (ch >= 0x80 and ch < 0xA0) then return false end 
     -- Braille
@@ -245,15 +271,49 @@ build_font("font8_bitmap", 8, {swanshell7, misaki}, {0, 0}, 0, function(ch, font
     -- UTF-16 surrogates, PUA
     if ch >= 0xD800 and ch < 0xF900 then return false end
     return true
-end)
-build_font("font16_bitmap", 16, {arkpixel12}, {-1}, nil, function(ch, font)
-    -- BMP only
-    -- if ch >= 0x10000 then return false end
-    -- control codes
-    if (ch < 0x20) or (ch >= 0x80 and ch < 0xA0) then return false end 
-    -- Braille
-    if ch >= 0x2800 and ch < 0x2900 then return false end
-    -- UTF-16 surrogates, PUA
-    if ch >= 0xD800 and ch < 0xF900 then return false end
-    return true
-end)
+end
+
+local function filter_tiny(ch, font)
+    return ch >= 0x20 and ch < 0x80
+end
+
+if args[1] == "default8" then
+    local swanshell7 = bdf.parse("fonts/local/swanshell_7px.bdf")
+    local misaki = bdf.parse("fonts/misaki/misaki_gothic_2nd.bdf")
+    local boutiquebitmap7 = bdf.parse("fonts/boutique/BoutiqueBitmap7x7_1.7.bdf")
+    -- local dalmoori = bdf.parse("fonts/dalmoori/dalmoori.bdf")
+
+    local font_order = {swanshell7, misaki, boutiquebitmap7}
+    local font_offsets = {0, 0, 0}
+    if stringx.startswith(args[2], "zh_") then
+        font_order = {swanshell7, boutiquebitmap7, misaki}
+    end
+
+    write_font(args[3], 8, build_font_entry_tables(8, false, font_order, font_offsets, 0, filter_default))
+end
+
+if args[1] == "default16" then
+    local arkpixel12
+    if args[2] == "zh_hans" then
+        arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_cn.bdf")
+    elseif args[2] == "zh_hant" then
+        arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_tw.bdf")
+    else
+        arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-ja.bdf")
+    end
+    local ksx1001table = unicode_table.parse("fonts/tables/KSX1001.TXT")
+    local baekmukdotum12 = bdf.parse("fonts/baekmuk/dotum12.bdf", ksx1001table)
+
+    write_font(args[3], 16, build_font_entry_tables(16, false, {arkpixel12, baekmukdotum12}, {-1, 0}, nil, filter_default))
+end
+
+if args[1] == "tiny8" then
+    local font = bdf.parse("fonts/local/swanshell_7px.bdf")
+    write_font(args[3], 8, build_font_entry_tables(8, true, {font}, {0}, 0, filter_tiny))
+end
+
+
+if args[1] == "tiny16" then
+    local font = bdf.parse("fonts/build/ark-pixel-12px-proportional-ja.bdf")
+    write_font(args[3], 16, build_font_entry_tables(16, true, {font}, {-1}, -3, filter_tiny))
+end

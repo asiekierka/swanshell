@@ -15,8 +15,8 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __OLD_BITMAP_H__
-#define __OLD_BITMAP_H__
+#ifndef BITMAP_H__
+#define BITMAP_H__
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -71,10 +71,23 @@ static inline void bitmap_hline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16
 void bitmap_vline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uint16_t color);
 void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint16_t w, uint16_t h, uint16_t layer, const uint8_t __far* font_data);
 
-extern const uint16_t __far font8_bitmap[];
-extern const uint16_t __far font16_bitmap[];
+#define font8_bitmap 0
+#define font16_bitmap 1
 
-void bitmapfont_set_active_font(const uint16_t __far *font);
+typedef struct __attribute__((packed)) {
+    uint16_t magic;
+    uint8_t version_minor;
+    uint8_t version_major;
+    uint16_t lut_offset;
+    uint16_t max_codepoint_8;
+    uint16_t error_offset;
+    uint8_t error_bank;
+    uint8_t font_height;
+} bitmapfont_header_t;
+
+#define BITMAPFONT_HEADER_MAGIC 0x6653
+
+void bitmapfont_set_active_font(uint16_t font);
 uint16_t bitmapfont_get_font_height(void);
 uint16_t bitmapfont_get_char_width(uint32_t ch);
 uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch);
@@ -83,5 +96,6 @@ uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t 
 uint16_t bitmapfont_draw_string16(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* str, uint16_t max_width);
 void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height, int linegap);
 uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width, int linegap);
+void bitmapfont_load(void);
 
-#endif /* __BITMAP_H__ */
+#endif /* BITMAP_H__ */

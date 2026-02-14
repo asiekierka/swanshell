@@ -85,7 +85,7 @@ int16_t launch_bfb_in_psram(void) {
     }
 
     ws_bank_with_rom0(0, {
-        const uint16_t __far* header = MK_FP(0x2000, 0x0000);
+        const uint16_t __far* header = MK_FP(WS_ROM0_SEGMENT, 0x0000);
 
         if (header[0] != 0x4662 || header[1] < MIN_SUPPORTED_ADDRESS) {
             return ERR_FILE_FORMAT_INVALID;
@@ -103,7 +103,7 @@ int16_t launch_bfb_in_psram(void) {
         // Disable IRQs - avoid other code interfering/overwriting memory
         ia16_disable_irq();
         outportw(WS_DISPLAY_CTRL_PORT, 0);
-        memcpy(ptr, MK_FP(0x2000, 0x0004), max_size);
+        memcpy(ptr, MK_FP(WS_ROM0_SEGMENT, 0x0004), max_size);
 
         outportb(0x60, 0x80);
         asm volatile("push %0\npush %1\nlret" :: "g" (segment), "g" (offset));

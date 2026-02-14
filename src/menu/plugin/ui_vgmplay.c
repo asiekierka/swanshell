@@ -108,12 +108,12 @@ int ui_vgmplay(const char *path) {
 
     // parse GD3 data
     ws_bank_with_rom0(vgm_bank, {
-        uint32_t gd3_offset = *((uint32_t __far*) MK_FP(0x2000, 0x0014));
+        uint32_t gd3_offset = *((uint32_t __far*) MK_FP(WS_ROM0_SEGMENT, 0x0014));
         if (gd3_offset != 0) {
             gd3_offset += 0x20;
             ws_bank_rom0_set(vgm_bank + (gd3_offset >> 16));
             ws_bank_rom1_set(vgm_bank + (gd3_offset >> 16) + 1);
-            const uint16_t __far* gd3_data = MK_FP(0x2000 + ((gd3_offset & 0xFFF0) >> 4), (gd3_offset & 0xF));
+            const uint16_t __far* gd3_data = MK_FP(WS_ROM0_SEGMENT + ((gd3_offset & 0xFFF0) >> 4), (gd3_offset & 0xF));
 
             int x = 8;
             int y = 16;
