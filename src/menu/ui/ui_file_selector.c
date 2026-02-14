@@ -290,7 +290,15 @@ rescan_directory:
                         ui_dialog_error_check(launch_com(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
+                    } else {
+                        goto txtview;
                     }
+                } else {
+txtview:
+                    ui_selector_clear_selection(&config);
+                    ui_dialog_error_check(ui_txtview(path), NULL, 0);
+                    reinit_ui = true;
+                    goto rescan_directory;
                 }
             }
             reinit_ui = true;

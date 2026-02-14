@@ -209,3 +209,7 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
         tile += bitmap->bpp;
     }
 }
+
+void bitmap_vscroll_row(const bitmap_t *bitmap, uint16_t ix, uint16_t row_from, uint16_t row_to, uint16_t height) {
+    memmove(BITMAP_AT(bitmap, ix << 3, row_to), BITMAP_AT(bitmap, ix << 3, row_from), bitmap->bpp * height);
+}

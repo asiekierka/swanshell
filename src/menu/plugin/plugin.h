@@ -20,6 +20,7 @@
 
 int ui_bmpview(const char *path);
 int ui_hidctrl(void);
+int ui_txtview(const char *path);
 int ui_vgmplay(const char *path);
 int ui_wavplay(const char *path);
 

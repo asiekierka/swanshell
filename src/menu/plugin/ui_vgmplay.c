@@ -29,6 +29,7 @@
 #include "../util/input.h"
 #include "../util/memops.h"
 #include "../util/util.h"
+#include "plugin.h"
 #include "settings.h"
 #include "ui/bitmap.h"
 #include "vgm/vgm.h"
@@ -75,13 +76,15 @@ int ui_vgmplay(const char *path) {
 
     ui_draw_titlebar_filename(path);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
-    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
-
+    
     uint32_t size = f_size(&fp);
     if (size > 4L*1024*1024) {
         return ERR_FILE_TOO_LARGE;
     }
+
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
     result = f_read_rom_banked(&fp, 0, size, NULL, NULL);
+
     f_close(&fp);
     if (result != FR_OK) {
         return result;
@@ -92,7 +95,6 @@ int ui_vgmplay(const char *path) {
     memops_unpack_psram_data_if_gzip(&vgm_bank, vgm_banks_used);
     
     ui_draw_statusbar(NULL);
-    ui_draw_titlebar(path);
 
     vgm_state = &local_vgm_state;
 

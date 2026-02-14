@@ -15,8 +15,8 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef BITMAP_H__
-#define BITMAP_H__
+#ifndef BITMAP_H_
+#define BITMAP_H_
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -70,6 +70,7 @@ static inline void bitmap_hline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16
 }
 void bitmap_vline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uint16_t color);
 void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint16_t w, uint16_t h, uint16_t layer, const uint8_t __far* font_data);
+void bitmap_vscroll_row(const bitmap_t *bitmap, uint16_t ix, uint16_t row_from, uint16_t row_to, uint16_t height);
 
 #define font8_bitmap 0
 #define font16_bitmap 1
@@ -98,4 +99,4 @@ void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t 
 uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width, int linegap);
 int16_t bitmapfont_load(void);
 
-#endif /* BITMAP_H__ */
+#endif /* BITMAP_H_ */
