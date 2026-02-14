@@ -119,7 +119,11 @@ int ui_txtview(const char *path) {
         if (file_pos >= size) {
             break;
         }
-        file_start_pos = file_next_pos;
+        if (input_pressed & WS_KEY_Y3) {
+            file_start_pos = file_pos;
+        } else {
+            file_start_pos = file_next_pos;
+        }
     }
 
     return 0;
