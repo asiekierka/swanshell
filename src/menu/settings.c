@@ -147,3 +147,7 @@ int16_t settings_save(void) {
 
     return f_close(&fp);
 }
+
+bool settings_language_prefer_large_fonts(void) {
+    return settings.language == 5;
+}

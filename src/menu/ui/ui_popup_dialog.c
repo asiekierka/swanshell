@@ -20,6 +20,7 @@
 #include <ws/display.h>
 #include "bitmap.h"
 #include "lang.h"
+#include "settings.h"
 #include "ui/ui.h"
 #include "ui_popup_dialog.h"
 #include "../main.h"
@@ -128,7 +129,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         title_box_width = 0;
     }
     if (config->description) {
-        bitmapfont_set_active_font(font8_bitmap);
+        bitmapfont_set_active_font(settings_language_prefer_large_fonts() ? font16_bitmap : font8_bitmap);
         bitmapfont_get_string_box(config->description, &desc_box_width, &desc_box_height, 1);
         APPEND_WITH_GAP(inner_height, desc_box_height);
         inner_width = MAX(inner_width, desc_box_width);
@@ -178,7 +179,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         inner_height -= 2;
     }
     if (config->description) {
-        bitmapfont_set_active_font(font8_bitmap);
+        bitmapfont_set_active_font(settings_language_prefer_large_fonts() ? font16_bitmap : font8_bitmap);
         bitmapfont_draw_string_box(&ui_bitmap,
             UI_CENTERED_IN_BOX(config->x, config->width, desc_box_width),
             inner_y + inner_height,

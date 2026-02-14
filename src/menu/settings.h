@@ -132,4 +132,6 @@ void settings_reset(void);
 int16_t settings_load(void);
 int16_t settings_save(void);
 
+bool settings_language_prefer_large_fonts(void);
+
 #endif /* _SETTINGS_H_ */
