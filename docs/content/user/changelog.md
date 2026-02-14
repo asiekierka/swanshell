@@ -13,6 +13,7 @@ weight: 100
 - Changed: On a new installation, the user is automatically prompted for their preferred language.
 - Changed: Question marks are now used for characters without a matching glyph in the font.
 - Changed: The display fonts are now stored in separate files.
+- Fixed: The "Hide icons" option not saving or loading correctly.
 - Minor performance and reliability improvements.
 
 ## swanshell 1.0.1 (7th February 2026)

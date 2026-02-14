@@ -58,7 +58,7 @@ static const setting_t __far setting_file_show_hidden = {
 };
 
 static const setting_t __far setting_file_hide_icons = {
-    s_file_show_hidden_key,
+    s_file_hide_icons_key,
     LK_SETTINGS_FILE_HIDE_ICONS_KEY,
     0,
     SETTING_TYPE_FLAG,
