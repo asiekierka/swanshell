@@ -36,7 +36,7 @@ void ui_about(void) {
     char buf[129];
 
     ui_layout_bars();
-    ui_draw_titlebar(lang_keys[LK_SUBMENU_OPTION_ABOUT]);
+    ui_draw_titlebar(lang_keys[LK_SETTINGS_ABOUT]);
     ui_draw_statusbar(NULL);
 
     int y = 23;

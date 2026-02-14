@@ -237,11 +237,11 @@ msgstr "Iniciar XMODEM"
 msgid "SUBMENU_OPTION_TEST_BFB"
 msgstr "Prueba"
 
-msgid "SUBMENU_OPTION_ABOUT"
-msgstr "Información"
+msgid "SETTINGS_ABOUT"
+msgstr "Información..."
 
 msgid "SUBMENU_OPTION_WITCH"
-msgstr "Witch"
+msgstr "Witch..."
 
 msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
 msgstr "Añadir a global"

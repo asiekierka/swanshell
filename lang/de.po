@@ -224,8 +224,8 @@ msgstr "Mittels XMODEM starten"
 msgid "SUBMENU_OPTION_TEST_BFB"
 msgstr "Prüfen"
 
-msgid "SUBMENU_OPTION_ABOUT"
-msgstr "Über"
+msgid "SETTINGS_ABOUT"
+msgstr "Über..."
 
 msgid "SUBMENU_OPTION_WITCH"
 msgstr "Witch..."

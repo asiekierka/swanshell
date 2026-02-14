@@ -44,6 +44,7 @@ DEFINE_STRING_LOCAL(s_arrow, "→");
 
 static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
     char buf[96];
+    buf[0] = 0;
 
     ui_settings_config_t *sconfig = (ui_settings_config_t*) config;
     const setting_t __far* s = sconfig->category->entries[offset];
@@ -51,7 +52,7 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
     int x_offset = 4;
     int len = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, lang_keys[s->name], WS_DISPLAY_WIDTH_PIXELS - x_offset);
 
-    if (s->type == SETTING_TYPE_CATEGORY || s->type == SETTING_TYPE_ACTION) {
+    if ((s->type == SETTING_TYPE_CATEGORY || s->type == SETTING_TYPE_ACTION) && !(s->flags & SETTING_FLAG_ACTION_NO_ARROW)) {
         strcpy(buf, s_arrow);
     } else if (s->type == SETTING_TYPE_FLAG) {
         strcpy(buf, lang_keys[(*s->flag.value & (1 << s->flag.bit)) ? s->flag.name_true : s->flag.name_false]);
@@ -93,7 +94,7 @@ static void ui_settings_selector_draw(struct ui_selector_config *config, uint16_
 
     buf[0] = 0;
     if (s->type == SETTING_TYPE_CHOICE_BYTE) {
-        s->choice.name(offset, buf, sizeof(buf));
+        s->choice.name(offset + s->choice.min, buf, sizeof(buf));
     }
   
     bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, WS_DISPLAY_WIDTH_PIXELS - x_offset);
@@ -120,8 +121,8 @@ uint16_t ui_settings_selector(const setting_t __far *setting, uint16_t prev_valu
     config.config.can_select = ui_settings_selector_can_select;
     config.config.key_mask = WS_KEY_A | WS_KEY_B | WS_KEY_START;
 
-    config.config.offset = prev_value;
-    config.config.count = setting->choice.max + 1;
+    config.config.offset = prev_value - setting->choice.min;
+    config.config.count = setting->choice.max + 1 - setting->choice.min;
 
     ui_layout_bars();
     ui_draw_titlebar(lang_keys[setting->name]);
@@ -131,7 +132,7 @@ uint16_t ui_settings_selector(const setting_t __far *setting, uint16_t prev_valu
         uint16_t keys_pressed = ui_selector(&config.config);
 
         if (keys_pressed & WS_KEY_A) {
-            return config.config.offset;
+            return setting->choice.min + config.config.offset;
         } else if (keys_pressed & (WS_KEY_B | WS_KEY_START)) {
             return prev_value;
         }
@@ -203,7 +204,7 @@ reload_menu:
                     for (int i = 0; i < s->choice.max; i++) {
                         value++;
                         if (value > s->choice.max)
-                            value = 0;
+                            value = s->choice.min;
 
                         if (!s->choice.allowed || s->choice.allowed(value)) {
                             break;
@@ -219,8 +220,6 @@ reload_menu:
 
             if (s->on_change) {
                 s->on_change(s);
-                // Immediate language changes depend on this
-                reload_required = true;
             }
             if (reload_required)
                 goto reload_menu;

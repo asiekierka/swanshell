@@ -15,6 +15,7 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
 #include <string.h>
 #include <ws/display.h>
 #include <ws/system.h>
@@ -24,6 +25,7 @@
 #include "lang.h"
 #include "strings.h"
 #include "ui/ui.h"
+#include "ui/ui_about.h"
 #include "ui/ui_dialog.h"
 #include "ui/ui_rtc_clock.h"
 
@@ -37,6 +39,8 @@ DEFINE_STRING_LOCAL(s_cart_mcu_spi_speed_key, "CartMcuSpiSpeed");
 DEFINE_STRING_LOCAL(s_language, "Language");
 DEFINE_STRING_LOCAL(s_theme_accent_color_key, "ThemeAccentColor");
 DEFINE_STRING_LOCAL(s_theme_dark_mode_key, "ThemeDarkMode");
+DEFINE_STRING_LOCAL(s_joy_repeat_first, "JoyRepeatFirst");
+DEFINE_STRING_LOCAL(s_joy_repeat_next, "JoyRepeatNext");
 
 settings_t settings;
 
@@ -89,7 +93,7 @@ static const setting_t __far setting_file_sort_order = {
     NULL,
     .choice = {
         &settings.file_sort,
-        6,
+        0, 6,
         NULL,
         settings_file_sort_order_name
     }
@@ -113,7 +117,7 @@ static const setting_t __far setting_file_view = {
     NULL,
     .choice = {
         &settings.file_view,
-        1,
+        0, 1,
         NULL,
         settings_file_view_name
     }
@@ -162,7 +166,7 @@ static const void __far* __far settings_language_table[] = {
     lang_keys_zh_Hans
 };
 
-static void settings_language_on_change(const settings_t *set) {
+static void settings_language_on_change(const struct setting *set) {
     lang_keys = settings_language_table[settings.language];
 }
 
@@ -179,7 +183,7 @@ static const setting_t __far setting_language = {
     settings_language_on_change,
     .choice = {
         &settings.language,
-        LANGUAGE_COUNT - 1,
+        0, LANGUAGE_COUNT - 1,
         NULL,
         settings_language_name
     }
@@ -250,13 +254,13 @@ static const setting_t __far setting_cart_mcu_spi_speed = {
     0,
     .choice = {
         &settings.mcu_spi_speed,
-        SETTING_MCU_SPI_SPEED_COUNT - 1,
+        0, SETTING_MCU_SPI_SPEED_COUNT - 1,
         NULL,
         settings_spi_speed_name
     }
 };
 
-static void setting_cart_set_rtc_time_action(const settings_t *set) {
+static void setting_cart_set_rtc_time_action(const struct setting *set) {
     int16_t result = ui_rtc_clock();
     if (result != 0) {
         ui_layout_bars();
@@ -294,7 +298,7 @@ static const setting_t __far setting_cart = {
     .category = { &settings_cart }
 };
 
-static void settings_theme_accent_color_on_change(const settings_t *set) {
+static void settings_theme_accent_color_on_change(const struct setting *set) {
     bool dark = settings.accent_color_high & SETTING_THEME_DARK_MODE;
     int shade = ui_rgb_to_shade(settings.accent_color);
     bool dark_titlebar_text = shade <= (dark ? 5 : 1);
@@ -305,7 +309,7 @@ static void settings_theme_accent_color_on_change(const settings_t *set) {
     outportb(WS_SCR_PAL_2_PORT + 1, shade | (dark_titlebar_text ? 0x70 : 0x00));
 }
 
-static void settings_theme_dark_mode_on_change(const settings_t *set) {
+static void settings_theme_dark_mode_on_change(const struct setting *set) {
     bool dark = settings.accent_color_high & SETTING_THEME_DARK_MODE;
     if (ws_system_is_color_active()) {
         if (!ui_has_wallpaper())
@@ -366,16 +370,91 @@ static const setting_t __far setting_theme = {
     .category = { &settings_theme }
 };
 
+// TODO: Implement friendlier configuration method for repeat delay/rate
+static void settings_ticks_name(uint16_t value, char *buf, int buf_len) {
+    uint16_t value_ms = ((value * 53) >> 2);
+    value_ms = ((value_ms + 4) / 5) * 5;
+
+    snprintf(buf, buf_len, s_milliseconds_tpl, value_ms);
+}
+
+static const setting_t __far setting_repeat_delay = {
+    s_joy_repeat_first,
+    LK_SETTINGS_CONTROLS_REPEAT_DELAY,
+    0,
+    SETTING_TYPE_CHOICE_BYTE,
+    SETTING_FLAG_CHOICE_LIST,
+    NULL,
+    .choice = {
+        &settings.joy_repeat_first_ticks,
+        9, 37,
+        NULL,
+        settings_ticks_name
+    }
+};
+
+static const setting_t __far setting_repeat_next_delay = {
+    s_joy_repeat_next,
+    LK_SETTINGS_CONTROLS_REPEAT_RATE,
+    0,
+    SETTING_TYPE_CHOICE_BYTE,
+    SETTING_FLAG_CHOICE_LIST,
+    NULL,
+    .choice = {
+        &settings.joy_repeat_next_ticks,
+        5, 36,
+        NULL,
+        settings_ticks_name
+    }
+};
+
+static const setting_category_t __far settings_controls = {
+    LK_SETTINGS_CONTROLS_KEY,
+    0,
+    &settings_root,
+    2,
+    {
+        &setting_repeat_delay,
+        &setting_repeat_next_delay
+    }
+};
+
+static const setting_t __far setting_controls = {
+    NULL,
+    LK_SETTINGS_CONTROLS_KEY,
+    0,
+    SETTING_TYPE_CATEGORY,
+    0,
+    NULL,
+    .category = { &settings_controls }
+};
+
+static void setting_about_action(const struct setting *set) {
+    ui_about();
+    ui_layout_bars();
+}
+
+static const setting_t __far setting_about = {
+    NULL,
+    LK_SETTINGS_ABOUT,
+    NULL,
+    SETTING_TYPE_ACTION,
+    SETTING_FLAG_ACTION_NO_ARROW,
+    setting_about_action
+};
+
 const setting_category_t __far settings_root = {
     LK_SETTINGS_KEY,
     0,
     NULL,
-    5,
+    7,
     {
         &setting_file,
         &setting_theme,
+        &setting_controls,
         &setting_program,
         &setting_cart,
-        &setting_language
+        &setting_language,
+        &setting_about
     }
 };

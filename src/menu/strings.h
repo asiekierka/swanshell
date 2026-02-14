@@ -63,6 +63,8 @@ DEFINE_STRING(s_path_wallpaper_bmp, "/NILESWAN/WALLPAPER.BMP");
 
 DEFINE_STRING(s_error_unknown, "Error %d");
 
+DEFINE_STRING(s_milliseconds_tpl, "%d ms");
+
 DEFINE_STRING(s_path_fbin, "/NILESWAN/fbin");
 DEFINE_STRING(s_path_athenabios_compatible, "/NILESWAN/BIOSATHC.RAW");
 DEFINE_STRING(s_path_athenabios_native, "/NILESWAN/BIOSATHN.RAW");

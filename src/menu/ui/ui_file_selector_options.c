@@ -160,12 +160,11 @@ bool ui_file_selector_options(const char __far *filename, uint8_t attrib) {
         if (!(attrib & AM_DIR)) {
             lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_FILE];
         }
-        lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
         lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_TOOLS];
-        lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_ABOUT];
+        lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
         
         int option = ui_popup_list(&lst);
-        if (i == 3 && option >= 0) option++;
+        if (i == 2 && option >= 0) option++;
 
         enum tristate result = TRISTATE_NONE;
         switch (option) {
@@ -176,14 +175,10 @@ bool ui_file_selector_options(const char __far *filename, uint8_t attrib) {
             result = ui_file_selector_file(&lst, filename);
             break;
         case 1:
-            ui_settings(&settings_root);
-            result = TRISTATE_TRUE;
-            break;
-        case 2:
             result = ui_file_selector_tools(&lst, filename);
             break;
-        case 3:
-            ui_about();
+        case 2:
+            ui_settings(&settings_root);
             result = TRISTATE_TRUE;
             break;
         }

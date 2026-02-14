@@ -246,8 +246,8 @@ msgstr "Lancer via XMODEM"
 msgid "SUBMENU_OPTION_TEST_BFB"
 msgstr "Test"
 
-msgid "SUBMENU_OPTION_ABOUT"
-msgstr "À propos"
+msgid "SETTINGS_ABOUT"
+msgstr "À propos..."
 
 msgid "SUBMENU_OPTION_WITCH"
 msgstr "Witch..."

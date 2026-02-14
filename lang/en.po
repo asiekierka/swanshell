@@ -46,6 +46,9 @@ msgstr "Cartridge"
 msgid "SETTINGS_THEME_KEY"
 msgstr "Theme"
 
+msgid "SETTINGS_CONTROLS_KEY"
+msgstr "Controls"
+
 
 msgid "SETTINGS_FILE_SORT_KEY"
 msgstr "File order"
@@ -126,6 +129,11 @@ msgstr "High"
 msgid "SETTINGS_CART_SET_RTC_TIME"
 msgstr "RTC date and time"
 
+msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
+msgstr "Repeat delay"
+
+msgid "SETTINGS_CONTROLS_REPEAT_RATE"
+msgstr "Repeat rate"
 
 msgid "SETTINGS_THEME_ACCENT_COLOR"
 msgstr "Accent color"
@@ -233,8 +241,8 @@ msgstr "Launch via XMODEM"
 msgid "SUBMENU_OPTION_TEST_BFB"
 msgstr "Test"
 
-msgid "SUBMENU_OPTION_ABOUT"
-msgstr "About"
+msgid "SETTINGS_ABOUT"
+msgstr "About..."
 
 msgid "SUBMENU_OPTION_WITCH"
 msgstr "Witch..."

@@ -104,8 +104,8 @@ msgstr "工具"
 msgid "SUBMENU_OPTION_TEST_BFB"
 msgstr "测试"
 
-msgid "SUBMENU_OPTION_ABOUT"
-msgstr "关于"
+msgid "SETTINGS_ABOUT"
+msgstr "关于…"
 
 msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
 msgstr "提取 BIOS/OS"

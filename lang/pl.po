@@ -246,8 +246,8 @@ msgstr "Plik już istnieje."
 msgid "DIALOG_OVERWRITE_CONFIRM"
 msgstr "Czy na pewno chcesz nadpisać ten plik?"
 
-msgid "SUBMENU_OPTION_ABOUT"
-msgstr "O programie"
+msgid "SETTINGS_ABOUT"
+msgstr "O programie..."
 
 msgid "ERROR_WITCH_NO_BIOS_FOUND"
 msgstr "Nie znaleziono pliku BIOS!"

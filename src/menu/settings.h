@@ -51,6 +51,7 @@
 
 #define SETTING_FLAG_COLOR_ONLY 0x01
 #define SETTING_FLAG_CHOICE_LIST 0x80
+#define SETTING_FLAG_ACTION_NO_ARROW 0x80
 
 enum {
     SETTING_MCU_SPI_SPEED_384KHZ = 0,
@@ -88,6 +89,7 @@ typedef struct setting {
         } flag;
         struct {
             void *value;
+            uint16_t min;
             uint16_t max;
             bool (*allowed)(uint16_t);
             void (*name)(uint16_t, char *, int);
@@ -117,6 +119,8 @@ typedef struct __attribute__((packed)) {
     uint8_t language;
     uint8_t file_view;
     uint8_t mcu_spi_speed;
+    uint8_t joy_repeat_first_ticks;
+    uint8_t joy_repeat_next_ticks;
     union {
         struct {
             uint8_t accent_color_low;

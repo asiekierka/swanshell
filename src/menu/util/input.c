@@ -18,6 +18,7 @@
 #include <ws.h>
 #include "input.h"
 #include "../main.h"
+#include "settings.h"
 
 extern volatile uint16_t vbl_ticks;
 
@@ -57,9 +58,6 @@ void input_reset(void) {
 	ia16_enable_irq();
 }
 
-#define JOY_REPEAT_DELAY 18
-#define JOY_REPEAT_DELAY_NEXT 5
-
 static uint8_t input_vbls_next[11];
 
 void input_update(void) {
@@ -86,14 +84,14 @@ void input_update(void) {
 				if (((uint8_t) (input_vbls_next[i] - vbl_ticks)) < 0x80) continue;
 				if (!(keys_released & input_mask)) {
 					input_pressed |= input_mask;
-					input_vbls_next[i] = vbl_ticks + JOY_REPEAT_DELAY_NEXT;
+					input_vbls_next[i] = vbl_ticks + settings.joy_repeat_next_ticks;
 				}
 			} else {
 				if (!(keys_released & input_mask)) {
 KeyRepressed:
 					input_pressed |= input_mask;
 					input_held |= input_mask;
-					input_vbls_next[i] = vbl_ticks + JOY_REPEAT_DELAY;
+					input_vbls_next[i] = vbl_ticks + settings.joy_repeat_first_ticks;
 				}
 			}
 			break;
