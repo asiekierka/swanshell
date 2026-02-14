@@ -133,6 +133,9 @@ uint16_t bitmapfont_get_char_width(uint32_t ch) {
 }
 
 uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch) {
+    if (ch < 0x20) {
+        return 0;
+    }
     return __bitmapfont_draw_char(bitmap, xofs, yofs, __bitmapfont_find_char(ch));
 }
 
@@ -142,6 +145,9 @@ uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width) 
 
     ws_bank_with_rom0(font_banks[active_font], {
         while ((ch = wsx_utf8_decode_next(&str)) != 0) {
+            if (ch < 0x20) {
+                continue;
+            }
             uint16_t new_width = width + __bitmapfont_get_char_width(__bitmapfont_find_char(ch));
             if (new_width > max_width)
                 return width - CONFIG_FONT_CHAR_GAP;
@@ -159,6 +165,9 @@ uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t 
 
     ws_bank_with_rom0(font_banks[active_font], {
         while ((ch = wsx_utf8_decode_next(&str)) != 0) {
+            if (ch < 0x20) {
+                continue;
+            }
             const uint16_t __far* data = __bitmapfont_find_char(ch);
             uint16_t new_width = width + __bitmapfont_get_char_width(data);
             if (new_width > max_width)
@@ -179,6 +188,9 @@ uint16_t bitmapfont_draw_string16(const bitmap_t *bitmap, uint16_t xofs, uint16_
 
     ws_bank_with_rom0(font_banks[active_font], {
         while (*str != 0) {
+            if (*str < 0x20) {
+                str++; continue;
+            }
             const uint16_t __far* data = __bitmapfont_find_char(*(str++));
             uint16_t new_width = width + __bitmapfont_get_char_width(data);
             if (new_width > max_width)
