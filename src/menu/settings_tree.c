@@ -71,7 +71,7 @@ static const setting_t __far setting_file_hide_icons = {
 };
 
 static const uint16_t __wf_rom settings_file_sort_order_name_table[] = {
-    LK_SETTINGS_FILE_SORT_DEFAULT,
+    LK_SETTINGS_FILE_SORT_FILESYSTEM,
     LK_SETTINGS_FILE_SORT_NAME_ASC,
     LK_SETTINGS_FILE_SORT_NAME_DESC,
     LK_SETTINGS_FILE_SORT_DATE_ASC,

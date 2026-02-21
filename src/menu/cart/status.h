@@ -40,4 +40,8 @@ bool cart_status_fetch_version(void *version, size_t version_size);
 int16_t cart_status_init(bool is_safe_mode, bool is_mcu_reset_ok);
 void cart_status_update(void);
 
+static inline bool cart_status_mcu_info_valid(void) {
+    return (cart_status.present & CART_PRESENT_MCU) && (cart_status.version >= CART_FW_VERSION_1_1_0);
+}
+
 #endif /* CART_MCU_H_ */

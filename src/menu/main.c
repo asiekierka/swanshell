@@ -52,7 +52,14 @@ void __far vblank_int_handler(void) {
 bool idle_until_vblank(void) {
 	uint16_t vbl_ticks_last = vbl_ticks;
 
-	shell_tick();
+	switch (vbl_ticks & 63) {
+		case 63:
+			cart_status_update();
+			break;
+		default:
+			shell_tick();
+			break;
+	}
 	while (vbl_ticks == vbl_ticks_last) {
 		ia16_halt();
 	}

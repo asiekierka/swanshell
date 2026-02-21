@@ -31,6 +31,7 @@ void settings_reset(void) {
     settings.mcu_spi_speed = SETTING_MCU_SPI_SPEED_24MHZ;
     settings.joy_repeat_first_ticks = 18;
     settings.joy_repeat_next_ticks = 5;
+    settings.file_sort = SETTING_FILE_SORT_NAME_ASC;
 }
 
 static int16_t settings_load_category(FIL *fp, const setting_category_t __far *cat, const char *key, const char *value) {

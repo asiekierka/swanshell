@@ -59,8 +59,8 @@ msgstr "Show hidden files"
 msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
 msgstr "Shows or hides files with the \"hidden\" attribute."
 
-msgid "SETTINGS_FILE_SORT_DEFAULT"
-msgstr "Default"
+msgid "SETTINGS_FILE_SORT_FILESYSTEM"
+msgstr "Filesystem"
 
 msgid "SETTINGS_FILE_SORT_NAME_ASC"
 msgstr "Name ↑"
