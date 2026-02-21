@@ -28,6 +28,7 @@
 #include "../../shared/util/math.h"
 
 #define INNER_GAP 4
+#define DESCRIPTION_GAP_EXTRA 2
 #define MIN_PROGRESS_BAR_WIDTH 64
 #define BUTTON_X_BORDER 5
 #define BUTTON_Y_BORDER 2
@@ -118,6 +119,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
     }
     title_box_height = 0;
     desc_box_height = 0;
+    uint16_t last_gap = 0;
 
     if (config->title) {
         bitmapfont_set_active_font(font16_bitmap);
@@ -125,6 +127,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         APPEND_WITH_GAP(inner_height, title_box_height);
         inner_width = MAX(inner_width, title_box_width);
         inner_height -= 2;
+        last_gap = INNER_GAP - 2;
     } else {
         title_box_width = 0;
     }
@@ -133,13 +136,15 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         bitmapfont_get_string_box(config->description, &desc_box_width, &desc_box_height, 1);
         APPEND_WITH_GAP(inner_height, desc_box_height);
         inner_width = MAX(inner_width, desc_box_width);
-        inner_height += 3;
+        inner_height += DESCRIPTION_GAP_EXTRA;
+        last_gap = INNER_GAP + DESCRIPTION_GAP_EXTRA;
     } else {
         desc_box_width = 0;
     }
     if (config->progress_max) {
         APPEND_WITH_GAP(inner_height, 1);
         inner_width = MAX(inner_width, MIN_PROGRESS_BAR_WIDTH);
+        last_gap = INNER_GAP;
     }
     if (config->buttons[0]) {
         bitmapfont_set_active_font(font16_bitmap);
@@ -152,7 +157,10 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
 
         APPEND_WITH_GAP(inner_height, bitmapfont_get_font_height() - 1 + (BUTTON_Y_BORDER * 2));
         inner_width = MAX(inner_width, button_width);
+        last_gap = INNER_GAP;
     }
+
+    inner_height -= last_gap;
     
     if (!config->width || !config->height) {
         config->width = ROUND_TO_8_WITH_BORDER(inner_width);
@@ -185,7 +193,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
             inner_y + inner_height,
             config->description, desc_box_width, 1);
         APPEND_INCLUDING_GAP(inner_height, desc_box_height);
-        inner_height += 3;
+        inner_height += DESCRIPTION_GAP_EXTRA;
     }
     if (config->progress_max) {
         config->progress_y = inner_y + inner_height;
