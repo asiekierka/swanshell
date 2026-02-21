@@ -64,9 +64,16 @@ int ui_txtview(const char *path) {
 
     uint32_t file_start_pos = 0;
     uint32_t file_next_pos = 0;
+    uint32_t file_last_end_pos = 0;
+    bool reader_open = true;
+    bool reader_redraw = true;
 
-    while (true) {
-        ui_layout_bars();
+    while (reader_open) {
+        if (reader_redraw) {
+            ui_layout_bars();
+            reader_redraw = false;
+            file_last_end_pos = 0;
+        }
 
         // Display text.
         bitmapfont_set_active_font(font16_bitmap);
@@ -108,21 +115,48 @@ int ui_txtview(const char *path) {
                     break;
                 }
             }
-            bitmapfont_draw_char(&ui_bitmap, x, y, ch);
+            if (file_pos >= file_last_end_pos)
+                bitmapfont_draw_char(&ui_bitmap, x, y, ch);
             x += chw;
         }
+        file_last_end_pos = file_pos;
 
-        input_wait_any_key();
-        if (input_pressed & (WS_KEY_B | WS_KEY_START)) {
-            break;
-        }
-        if (file_pos >= size) {
-            break;
-        }
-        if (input_pressed & WS_KEY_Y3) {
-            file_start_pos = file_pos;
-        } else {
-            file_start_pos = file_next_pos;
+        uint32_t file_drawn_pos = file_start_pos;
+        while (file_start_pos == file_drawn_pos) {
+            input_wait_any_key();
+            if (input_pressed & (WS_KEY_B | WS_KEY_START)) {
+                reader_open = false;
+                break;
+            }
+            if (input_pressed & (WS_KEY_X1 | WS_KEY_Y1 | WS_KEY_X4 | WS_KEY_Y4)) {
+                if (file_start_pos > 1) {
+                    file_start_pos--;
+                    while (file_start_pos > 0) {
+                        file_start_pos--;
+                        ws_bank_rom0_set(file_start_pos >> 16);
+                        ws_bank_rom1_set(file_start_pos >> 16);
+                        const char __far *ptr = MK_FP(0x2000 | ((file_start_pos >> 4) & 0xFFF), file_start_pos & 0xF);
+                        if (*ptr == '\n') {
+                            file_start_pos++;
+                            break;
+                        }
+                    }
+                    reader_redraw = true;
+                }
+            } else if (input_pressed & (WS_KEY_X2 | WS_KEY_Y2)) {
+                if (file_pos < size) {
+                    file_start_pos = file_pos;
+                    reader_redraw = true;
+                }
+            } else {
+                if (file_pos < size) {
+                    file_start_pos = file_next_pos;
+                    for (int i = 0; i < WS_DISPLAY_WIDTH_TILES; i++) {
+                        bitmap_vscroll_row(&ui_bitmap, i, 24, 8, 112);
+                        bitmap_rect_fill(&ui_bitmap, i << 3, 120, 8, 16, BITMAP_COLOR_2BPP(2));
+                    }
+                }
+            }
         }
     }
 
