@@ -15,6 +15,7 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <nile/hardware.h>
 #include <stdint.h>
 #include <string.h>
 #include <wonderful.h>

@@ -22,7 +22,7 @@
 
 #include "../lang.h"
 #include "lang_gen.h"
-#include "mcu.h"
+#include "cart/mcu.h"
 #include "../main.h"
 #include "../ui/ui.h"
 #include "../util/input.h"

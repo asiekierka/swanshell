@@ -24,7 +24,7 @@
 #include <ws/system.h>
 #include "errors.h"
 #include "main.h"
-#include "mcu.h"
+#include "cart/mcu.h"
 #include "settings.h"
 #include "util/math.h"
 

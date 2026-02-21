@@ -191,6 +191,18 @@ msgstr "PSRAM state corrupted"
 msgid "ERROR_MCU_COMM_FAILED"
 msgstr "MCU communication error"
 
+msgid "ERROR_FLASH_COMM_FAILED"
+msgstr "Flash communication error"
+
+msgid "ERROR_UNSUPPORTED_FIRMWARE_VERSION"
+msgstr "Unsupported firmware version"
+
+msgid "ERROR_INVALID_FIRMWARE_INSTALLATION"
+msgstr "Invalid firmware installation"
+
+msgid "ERROR_UNSUPPORTED_CARTRIDGE_REVISION"
+msgstr "Unsupported cartridge revision"
+
 msgid "ERROR_MCU_BIN_CORRUPT"
 msgstr "Invalid MCU.BIN format!"
 

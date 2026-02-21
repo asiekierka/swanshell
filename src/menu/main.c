@@ -22,10 +22,12 @@
 #include <ws/util.h>
 #include <wsx/planar_unpack.h>
 #include <nilefs.h>
+#include "cart/status.h"
+#include "errors.h"
 #include "lang.h"
 #include "lang_gen.h"
 #include "main.h"
-#include "mcu.h"
+#include "cart/mcu.h"
 #include "settings.h"
 #include "ui/bitmap.h"
 #include "ui/ui.h"
@@ -78,6 +80,8 @@ void fs_init(void) {
 void main(void) {
 	ia16_disable_irq();
 
+	bool is_safe_mode = (inportb(IO_NILE_SPI_CNT+1) & (NILE_SPI_CLOCK_CART >> 8)) != 0;
+
 	settings_reset();
 
 	ws_int_set_handler(WS_INT_VBLANK, vblank_int_handler);
@@ -128,7 +132,29 @@ void main(void) {
 			ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
 		}
 	}
-	ui_dialog_error_check(mcu_reset(true), lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
+
+	{
+		int16_t mcu_reset_result = mcu_reset(true);
+		int16_t result = cart_status_init(is_safe_mode, !mcu_reset_result);
+		if (mcu_reset_result && mcu_reset_result != ERR_MCU_COMM_FAILED) {
+			ui_dialog_error_check(mcu_reset_result, lang_keys[LK_ERROR_TITLE_MCU_INIT], 0);
+		}
+		if (result) {
+			ui_popup_dialog_config_t dlg = {0};
+			char error_name_buffer[48];
+
+			error_to_string_buffer(result, error_name_buffer, sizeof(error_name_buffer));
+			dlg.title = error_name_buffer;
+			dlg.description = lang_keys[LK_PROMPT_FUNCTIONALITY_UNAVAILABLE];
+			dlg.buttons[0] = LK_OK;
+
+			ui_popup_dialog_draw(&dlg);
+			ui_show();
+			
+			ui_popup_dialog_action(&dlg, 0);
+		}
+	}
+	
 	ui_dialog_error_check(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
 
 	shell_init();

@@ -147,7 +147,7 @@ mcu_compare_success:
 	}
 
 	// FIXME: Send the first MCU command, that might fail.
-	nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+	mcu_native_start();
 	nile_mcu_native_mcu_spi_set_speed_sync(0);
 
 	nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
@@ -160,7 +160,7 @@ mcu_compare_success:
 }
 
 bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen) {
-	if (!nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU))
+	if (!mcu_native_start())
 		return false;
 	return nile_mcu_native_send_cmd(cmd, buffer, buflen) >= 0;
 }
@@ -205,7 +205,7 @@ bool mcu_native_hid_update(uint16_t value) {
 void mcu_native_enter_speed(uint16_t speed) {
 	if (speed > 2 || (speed == 1 && !ws_system_is_color_active()))
 		speed = 0;
-	nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+	mcu_native_start();
     nile_mcu_native_mcu_spi_set_speed_sync(speed);
 	if (speed == 2)
 	    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_MCU);
@@ -214,7 +214,7 @@ void mcu_native_enter_speed(uint16_t speed) {
 }
 
 void mcu_native_exit_speed(void) {
-    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+	mcu_native_start();
     if (ws_system_is_color_active())
         outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) & ~WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
     nile_mcu_native_mcu_spi_set_speed_sync(0);

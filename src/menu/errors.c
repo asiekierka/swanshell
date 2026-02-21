@@ -23,7 +23,26 @@
 #include "lang_gen.h"
 #include "strings.h"
 
+static const uint16_t __far err_swanshell_lk_table[] = {
+    LK_ERROR_MCU_COMM_FAILED,
+    LK_ERROR_SAVE_CORRUPT,
+    LK_ERROR_MCU_BIN_CORRUPT,
+    LK_ERROR_SAVE_PSRAM_CORRUPT,
+    LK_ERROR_FILE_TOO_LARGE,
+    LK_ERROR_FILE_FORMAT_INVALID,
+    LK_ERROR_DATA_TRANSFER_TIMEOUT,
+    LK_ERROR_DATA_TRANSFER_CANCEL,
+    LK_ERROR_FILE_NOT_EXECUTABLE,
+    LK_ERROR_FLASH_COMM_FAILED,
+    LK_ERROR_UNSUPPORTED_FIRMWARE_VERSION,
+    LK_ERROR_INVALID_FIRMWARE_INSTALLATION,
+    LK_ERROR_UNSUPPORTED_CARTRIDGE_REVISION
+};
+
 const char __far *error_to_string(int16_t value) {
+    if (value >= ERR_MCU_COMM_FAILED && value < ERR_SWANSHELL_MAX) {
+        return lang_keys[err_swanshell_lk_table[value - ERR_MCU_COMM_FAILED]];
+    }
     switch (value) {
     case FR_INT_ERR:
         return lang_keys[LK_ERROR_FR_INT_ERR];
@@ -37,24 +56,6 @@ const char __far *error_to_string(int16_t value) {
         return lang_keys[LK_ERROR_FR_NO_PATH];
     case FR_DENIED:
         return lang_keys[LK_ERROR_FR_DENIED];
-    case ERR_MCU_COMM_FAILED:
-        return lang_keys[LK_ERROR_MCU_COMM_FAILED];
-    case ERR_SAVE_CORRUPT:
-        return lang_keys[LK_ERROR_SAVE_CORRUPT];
-    case ERR_MCU_BIN_CORRUPT:
-        return lang_keys[LK_ERROR_MCU_BIN_CORRUPT];
-    case ERR_SAVE_PSRAM_CORRUPT:
-        return lang_keys[LK_ERROR_SAVE_PSRAM_CORRUPT];
-    case ERR_FILE_TOO_LARGE:
-        return lang_keys[LK_ERROR_FILE_TOO_LARGE];
-    case ERR_FILE_FORMAT_INVALID:
-        return lang_keys[LK_ERROR_FILE_FORMAT_INVALID];
-    case ERR_DATA_TRANSFER_TIMEOUT:
-        return lang_keys[LK_ERROR_DATA_TRANSFER_TIMEOUT];
-    case ERR_DATA_TRANSFER_CANCEL:
-        return lang_keys[LK_ERROR_DATA_TRANSFER_CANCEL];
-    case ERR_FILE_NOT_EXECUTABLE:
-        return lang_keys[LK_ERROR_FILE_NOT_EXECUTABLE];
     default:
         return NULL;
     }

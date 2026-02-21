@@ -28,7 +28,7 @@
 #include "bootstub.h"
 #include "errors.h"
 #include "lang_gen.h"
-#include "mcu.h"
+#include "cart/mcu.h"
 #include "settings.h"
 #include "strings.h"
 #include "../../build/menu/build/bootstub_bin.h"
