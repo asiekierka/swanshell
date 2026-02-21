@@ -190,6 +190,7 @@ int ui_txtview(const char *path) {
 
         // Display text.
         bitmapfont_set_active_font(font16_bitmap);
+        int font_height = bitmapfont_get_font_height();
         int y = 8;
         int x = 1;
         uint32_t file_pos = file_start_pos;
@@ -197,7 +198,7 @@ int ui_txtview(const char *path) {
         while (file_pos < size) {
             uint32_t file_prev_pos = file_pos;
             ws_bank_rom0_set(file_pos >> 16);
-            ws_bank_rom1_set(file_pos >> 16);
+            ws_bank_rom1_set((file_pos >> 16) + 1);
             const char __far *ptr = MK_FP(0x2000 | ((file_pos >> 4) & 0xFFF), file_pos & 0xF);
             uint32_t ch;
             if (encoding == TXT_ENCODING_SJIS) {
@@ -210,7 +211,7 @@ int ui_txtview(const char *path) {
             if (ch < 0x20) {
                 if (ch == '\n') {
                     x = 1;
-                    y += bitmapfont_get_font_height();
+                    y += font_height;
                     if (!file_next_pos) {
                         file_next_pos = file_pos;
                     }
@@ -225,7 +226,7 @@ int ui_txtview(const char *path) {
             uint16_t chw = bitmapfont_get_char_width(ch);
             if ((x + chw) >= WS_DISPLAY_WIDTH_PIXELS) {
                 x = 1;
-                y += bitmapfont_get_font_height();
+                y += font_height;
                 if (!file_next_pos) {
                     file_next_pos = file_prev_pos;
                 }
@@ -270,8 +271,8 @@ int ui_txtview(const char *path) {
                 if (file_pos < size) {
                     file_start_pos = file_next_pos;
                     for (int i = 0; i < WS_DISPLAY_WIDTH_TILES; i++) {
-                        bitmap_vscroll_row(&ui_bitmap, i, 24, 8, 112);
-                        bitmap_rect_fill(&ui_bitmap, i << 3, 120, 8, 16, BITMAP_COLOR_2BPP(2));
+                        bitmap_vscroll_row(&ui_bitmap, i, 8 + font_height, 8, 128 - font_height);
+                        bitmap_rect_fill(&ui_bitmap, i << 3, 8 + 128 - font_height, 8, font_height, BITMAP_COLOR_2BPP(2));
                     }
                 }
             }
