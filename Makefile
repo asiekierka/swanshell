@@ -115,7 +115,7 @@ DEPS		:= $(OBJS:.o=.d)
 
 all: $(ROM) compile_commands.json
 
-dist: all athenaos-compatible athenaos-native dist/NILESWAN/font8/default.sff dist/NILESWAN/font16/default.sff
+dist: all athenaos-compatible athenaos-native dist/NILESWAN/font8/default.sff dist/NILESWAN/font16/default.sff dist/NILESWAN/unicode/shiftjis.tbl
 	@echo "  DIST"
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw dist/NILESWAN/BIOSATHN.RAW
@@ -128,6 +128,11 @@ dist: all athenaos-compatible athenaos-native dist/NILESWAN/font8/default.sff di
 	@cp fonts/boutique/LICENSE dist/NILESWAN/license/font/default8/LICENSE.boutique
 	@cp fonts/baekmuk/COPYRIGHT dist/NILESWAN/license/font/default16/LICENSE.baekmuk
 	@cp vendor/modified-ark-pixel-font/LICENSE-OFL dist/NILESWAN/license/font/default16/LICENSE.arkpixel
+
+dist/NILESWAN/unicode/shiftjis.tbl: fonts/tables/SHIFTJIS.TXT fonts/tablegen.lua
+	@echo "  TABLE   $@"
+	@$(MKDIR) -p $(@D)
+	@$(LUA) fonts/tablegen.lua shiftjis fonts/tables/SHIFTJIS.TXT $@
 
 dist/NILESWAN/font16/default.sff: fonts/builder.lua fonts/build/ark-pixel-12px-proportional-ja.bdf
 	@echo "  FONT    $@"
