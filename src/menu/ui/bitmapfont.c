@@ -127,6 +127,9 @@ uint16_t bitmapfont_get_font_height(void) {
 }
 
 uint16_t bitmapfont_get_char_width(uint32_t ch) {
+    if (ch < 0x20) {
+        return 0;
+    }
     ws_bank_with_rom0(font_banks[active_font], {
         return __bitmapfont_get_char_width(__bitmapfont_find_char(ch));
     });
