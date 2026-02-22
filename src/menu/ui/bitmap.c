@@ -17,6 +17,7 @@
 
 #include <string.h>
 #include <ws.h>
+#include <ws/system.h>
 #include <wsx/utf8.h>
 #include "bitmap.h"
 #include "config.h"
@@ -211,5 +212,21 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
 }
 
 void bitmap_vscroll_row(const bitmap_t *bitmap, uint16_t ix, uint16_t row_from, uint16_t row_to, uint16_t height) {
-    memmove(BITMAP_AT(bitmap, ix << 3, row_to), BITMAP_AT(bitmap, ix << 3, row_from), bitmap->bpp * height);
+    if (ws_system_is_color_active()) {
+        uint16_t dst = (uint16_t) BITMAP_AT(bitmap, ix << 3, row_to);
+        uint16_t src = (uint16_t) BITMAP_AT(bitmap, ix << 3, row_from); 
+        uint8_t mode = WS_GDMA_CTRL_INC | WS_GDMA_CTRL_START;
+        if (row_from < row_to) {
+            src += (bitmap->bpp * height) - 2;
+            dst += (bitmap->bpp * height) - 2;
+            mode |= WS_GDMA_CTRL_DEC;
+        }
+        outportw(WS_GDMA_LENGTH_PORT, (bitmap->bpp * height));
+        outportw(WS_GDMA_SOURCE_L_PORT, src);
+        outportw(WS_GDMA_DEST_PORT, dst);
+        outportb(WS_GDMA_SOURCE_H_PORT, 0);
+        outportb(WS_GDMA_CTRL_PORT, mode);
+    } else {
+        _nmemmove(BITMAP_AT(bitmap, ix << 3, row_to), BITMAP_AT(bitmap, ix << 3, row_from), bitmap->bpp * height);
+    }
 }
