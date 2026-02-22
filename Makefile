@@ -216,12 +216,10 @@ $(BUILDDIR)/%.c.o : %.c | $(OBJS_ASSETS) libnile-medium
 	@$(MKDIR) -p $(@D)
 	$(_V)$(CC) $(CFLAGS) -MMD -MP -MJ $(patsubst %.o,%.cc.json,$@) -c -o $@ $<
 
-# FIXME
-# $(_V)$(WF)/bin/wf-bin2s --address-space __far --section ".rom0_ff.bootstub" $(@D) $<
 $(BUILDDIR)/%.bin.o $(BUILDDIR)/%_bin.h : %.bin
 	@echo "  BIN2S   $<"
 	@$(MKDIR) -p $(@D)
-	$(_V)$(WF)/bin/wf-bin2s --address-space __far --section ".rom0.bootstub" $(@D) $<
+	$(_V)$(WF)/bin/wf-bin2s --address-space __far --section ".rom0_ff.bootstub" $(@D) $<
 	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/$*.bin.o $(BUILDDIR)/$*_bin.s
 
 $(BUILDDIR)/assets/menu/lang_gen.o $(BUILDDIR)/assets/menu/lang_gen.h : $(SOURCES_LANG)

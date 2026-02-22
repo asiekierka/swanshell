@@ -39,8 +39,10 @@ __attribute__((section(".iramx_2000")))
 ws_display_tile_t bitmap_tiles[512];
 #define bitmap_screen1 ((uint16_t ws_iram*) 0x3800)
 
-__attribute__((section(".iramCx_4000")))
-ws_display_tile_t bitmap_tiles_c1[512];
+__attribute__((section(".iramCx_4000"), retain))
+ws_display_tile_4bpp_t bitmap_tiles_c1[512];
+__attribute__((section(".iramCx_8000"), retain))
+ws_display_tile_4bpp_t bitmap_tiles_c2[512];
 
 bitmap_t ui_bitmap;
 
