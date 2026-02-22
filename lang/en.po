@@ -99,6 +99,19 @@ msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
 msgstr "Hide icons"
 
 
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
+msgstr "Text reader font"
+
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_HELP"
+msgstr "Selects the font used when reading text files."
+
+msgid "SETTINGS_FONT_SIZE_LARGE"
+msgstr "Large"
+
+msgid "SETTINGS_FONT_SIZE_SMALL"
+msgstr "Small"
+
+
 msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
 msgstr "Force fast SRAM"
 

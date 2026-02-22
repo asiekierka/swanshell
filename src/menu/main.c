@@ -130,7 +130,7 @@ void main(void) {
 			cfg.title = lang_keys_en[LK_DIALOG_SETTINGS_CREATING_NEW];
 			ui_popup_dialog_draw(&cfg);
 			ui_show();
-			ws_delay_ms(800);
+			ws_delay_ms(700);
 			settings.language = ui_settings_selector(&setting_language, 0);
 			settings_language_update();
 			ui_layout_clear(0);

@@ -28,6 +28,7 @@
 #include "../util/file.h"
 #include "../util/input.h"
 #include "plugin.h"
+#include "settings.h"
 #include "strings.h"
 #include "ui/bitmap.h"
 
@@ -188,10 +189,10 @@ int ui_txtview(const char *path) {
             file_last_end_pos = 0;
         }
 
-        // Display text.
-        bitmapfont_set_active_font(font16_bitmap);
+        // Display text
+        bitmapfont_set_active_font((settings.file_flags & SETTING_FILE_TEXT_READER_SMALL) ? font8_bitmap : font16_bitmap);
         int font_height = bitmapfont_get_font_height();
-        int y = 8;
+        int y = 8 + (font_height > 12 ? 1 : 0);
         int x = 1;
         uint32_t file_pos = file_start_pos;
         file_next_pos = 0;

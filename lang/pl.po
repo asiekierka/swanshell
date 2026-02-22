@@ -315,6 +315,18 @@ msgstr "Wybiera sposób przedstawiania plików w przeglądarce plików."
 msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
 msgstr "Ukryj ikony"
 
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
+msgstr "Czcionka czytnika tekstu"
+
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_HELP"
+msgstr "Wybiera czcionkę używaną we wbudowanym czytniku tekstu."
+
+msgid "SETTINGS_FONT_SIZE_LARGE"
+msgstr "Duża"
+
+msgid "SETTINGS_FONT_SIZE_SMALL"
+msgstr "Mała"
+
 msgid "UI_FILE_SELECTOR_EMPTY"
 msgstr "Pusty"
 
