@@ -170,10 +170,10 @@ athenaos-native:
 	@$(MAKE) -C $(ATHENAOS_PATH) CONFIG=config/config.nileswan.mk
 
 libnile-bootfriend:
-	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/bootfriend install
+	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/bootfriend DEFINES="-DLIBNILE_ENABLE_FAST_ALIGNED_READS" install
 
 libnile-medium:
-	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/medium install
+	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/medium DEFINES="-DLIBNILE_ENABLE_FAST_ALIGNED_READS" install
 
 build/bootstub.bin: libnile-bootfriend
 	$(_V)$(MAKE) -f Makefile.bootstub --no-print-directory
