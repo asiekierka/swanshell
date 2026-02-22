@@ -361,7 +361,8 @@ static const char __far * const __far path_ram0[] = {
 };
 #define PATH_RAM0_COUNT (sizeof(path_ram0) / sizeof(void __far*))
 
-int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
+__attribute__((noinline))
+static int16_t launch_athena_boot_curdir_as_rom_wip_inner(const char __far *name) {
     FILINFO fi;
     DIR dp;
     char buffer[FF_LFN_BUF + 1];
@@ -454,5 +455,12 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
         if (i >= 2) break;
     }
 
+    return FR_OK;
+}
+
+int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
+    // Split function to reduce stack usage
+    int16_t result = launch_athena_boot_curdir_as_rom_wip_inner(name);
+    if (result != FR_OK) return result;
     return launch_athena_jump();
 }
