@@ -142,7 +142,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         desc_box_width = 0;
     }
     if (config->progress_max) {
-        APPEND_WITH_GAP(inner_height, 1);
+        APPEND_WITH_GAP(inner_height, 5);
         inner_width = MAX(inner_width, MIN_PROGRESS_BAR_WIDTH);
         last_gap = INNER_GAP;
     }
@@ -196,8 +196,8 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         inner_height += DESCRIPTION_GAP_EXTRA;
     }
     if (config->progress_max) {
-        config->progress_y = inner_y + inner_height;
-        APPEND_INCLUDING_GAP(inner_height, 1);
+        config->progress_y = inner_y + inner_height + 2;
+        APPEND_INCLUDING_GAP(inner_height, 5);
     }
     if (config->buttons[0]) {
         bitmapfont_set_active_font(font16_bitmap);
