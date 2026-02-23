@@ -749,7 +749,7 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
         bootstub_data->prog_rom_type = ROM_TYPE_UNKNOWN;
     }
     bootstub_data->prog_flags2 = (settings.prog.flags & SETTING_PROG_FLAG_SRAM_OVERCLOCK) ? 0x00 : 0x0A;
-    bootstub_data->prog_patches = bootstub_data->prog_rom_type == ROM_TYPE_FREYA ? BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET : 0;
+    bootstub_data->prog_patches = (bootstub_data->prog_rom_type == ROM_TYPE_FREYA && meta->flash_size) ? BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET : 0;
     if (bootstub_data->prog_rom_type == ROM_TYPE_PCV2) {
         bootstub_data->start_pointer = MK_FP(0x4000, 0x0010);
     } else {

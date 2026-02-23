@@ -3,6 +3,11 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.0.4 (23rd February 2026)
+
+- Changed: A warning is now displayed for overdumped save data.
+- Fixed: A soft reset patch was incorrectly applied to certain cartridge images.
+
 ## swanshell 1.0.3 (23rd February 2026)
 
 - Changed: Minor translation updates.
