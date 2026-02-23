@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef ERRORS_H_
 #define ERRORS_H_
- 
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <wonderful.h>
@@ -28,7 +28,8 @@
 // Positive error codes < 0x80 are reserved for FatFs
 #include <nilefs.h>
 
-// Positive error codes >= 0x80 are for swanshell
+// Positive error codes >= 0x7F are for swanshell
+#define ERR_USER_EXIT_REQUESTED 0x7F
 enum {
     ERR_MCU_COMM_FAILED = 0x80,
     ERR_SAVE_CORRUPT,
@@ -50,4 +51,3 @@ const char __far* error_to_string(int16_t value);
 void error_to_string_buffer(int16_t value, char *buffer, size_t buflen);
 
 #endif /* ERRORS_H_ */
- 

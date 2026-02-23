@@ -202,7 +202,7 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
         && meta->footer.save_type == 0x04
         && meta->footer.mapper == 0x01
         && size == 0x80000) {
-        
+
         // Freya image test
         result = f_lseek(&f, 0x70000);
         if (result != FR_OK) {
@@ -237,7 +237,7 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     return FR_OK;
 }
 
-static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path, uint16_t lk) {
+static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, uint32_t file_size, const char *src_path, uint16_t lk, uint16_t lk_overdump) {
     uint8_t stack_buffer[CONFIG_MEMLAYOUT_STACK_BUFFER_SIZE];
     uint8_t *buffer;
     uint16_t buffer_size;
@@ -253,17 +253,30 @@ static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, ui
         buffer_size = sizeof(stack_buffer);
     }
 
-    dlg.title = lang_keys[lk];
-    dlg.progress_max = (file_size + buffer_size - 1) / buffer_size;
-
     result = f_open(fp, path, FA_READ | FA_WRITE | FA_OPEN_ALWAYS);
     if (result != FR_OK)
         return result;
 
     // Do not overwrite the file if it already has the right size.
-    if (f_size(fp) >= file_size)
-        goto preallocate_file_end_no_dialog;
+    if (f_size(fp) >= file_size) {
+        if (f_size(fp) > file_size) {
+            dlg.title = lang_keys[lk_overdump];
+            dlg.description = lang_keys[LK_DIALOG_SAVE_OVERDUMP_DESCRIPTION];
+            dlg.buttons[0] = LK_YES;
+            dlg.buttons[1] = LK_NO;
 
+            ui_popup_dialog_draw(&dlg);
+            if (ui_popup_dialog_action(&dlg, 1) == 1) {
+                result = ERR_USER_EXIT_REQUESTED;
+                goto preallocate_file_end;
+            }
+            ui_popup_dialog_clear(&dlg);
+        }
+        goto preallocate_file_end_no_dialog;
+    }
+
+    dlg.title = lang_keys[lk];
+    dlg.progress_max = (file_size + buffer_size - 1) / buffer_size;
     ui_popup_dialog_draw(&dlg);
 
     // Try to ensure a contiguous area for the file.
@@ -340,8 +353,8 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words) {
         if (!mcu_native_eeprom_read_data(buffer, i, to_read)) {
             result = ERR_MCU_COMM_FAILED;
             break;
-        }   
-             
+        }
+
         nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
         result = f_write(fp, buffer, to_read << 1, NULL);
         if (result != FR_OK)
@@ -464,7 +477,7 @@ int16_t launch_backup_save_data(void) {
                     outportw(WS_CART_EXTBANK_ROM0_PORT, (f_size(&save_fp) - 1) >> 16);
                     memcpy(buffer, MK_FP(WS_ROM0_SEGMENT, 0xFFF0), 16);
                     outportw(WS_CART_EXTBANK_ROM0_PORT, prev_bank);
-                    
+
                     // Only restore flash if contents appear bootable.
                     // FIXME: This skips the ROM footer to avoid losing the original entrypoint
                     // for runtime patches, which is not ideal.
@@ -500,7 +513,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     char tmp_buf[20];
     FIL fp;
     int16_t result;
-    
+
     uint16_t save_target = 0;
     if (meta->sram_size)   save_target |= SAVE_ID_FOR_SRAM;
     if (meta->eeprom_size) save_target |= SAVE_ID_FOR_EEPROM;
@@ -522,7 +535,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     // restore or create data
     if (meta->sram_size != 0) {
         strcpy(ext_loc, s_file_ext_sram);
-        result = preallocate_file(dst_path, &fp, 0xFF, meta->sram_size, NULL, LK_DIALOG_PREPARE_SAVE);
+        result = preallocate_file(dst_path, &fp, 0xFF, meta->sram_size, NULL, LK_DIALOG_PREPARE_SAVE, LK_DIALOG_SAVE_OVERDUMP_TITLE_SRAM);
         if (result != FR_OK)
             goto launch_restore_save_data_return_result;
 
@@ -540,7 +553,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     }
     if (meta->eeprom_size != 0) {
         strcpy(ext_loc, s_file_ext_eeprom);
-        result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL, LK_DIALOG_PREPARE_SAVE);
+        result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL, LK_DIALOG_PREPARE_SAVE, LK_DIALOG_SAVE_OVERDUMP_TITLE_EEPROM);
         if (result != FR_OK)
             goto launch_restore_save_data_return_result;
 
@@ -573,7 +586,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     }
     if (meta->flash_size != 0) {
         strcpy(ext_loc, s_file_ext_flash);
-        result = preallocate_file(dst_path, &fp, 0xFF, meta->flash_size, path, LK_DIALOG_PREPARE_FLASH);
+        result = preallocate_file(dst_path, &fp, 0xFF, meta->flash_size, path, LK_DIALOG_PREPARE_FLASH, LK_DIALOG_SAVE_OVERDUMP_TITLE_FLASH);
         if (result != FR_OK)
             goto launch_restore_save_data_return_result;
 
@@ -588,7 +601,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     result = f_getcwd(dst_cwd, sizeof(dst_cwd) - 1);
     if (result != FR_OK)
         goto launch_restore_save_data_ini_end;
-    
+
     char *dst_cwd_end = dst_cwd + strlen(dst_cwd) - 1;
     if (*dst_cwd_end != '/') {
         *(++dst_cwd_end) = '/';
@@ -610,7 +623,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     result = f_open(&fp, tmp_buf, FA_CREATE_ALWAYS | FA_WRITE);
     if (result != FR_OK)
         goto launch_restore_save_data_return_result;
-    
+
     result = f_puts(s_save_ini_start, &fp) < 0 ? FR_INT_ERR : FR_OK;
     if (result != FR_OK)
         goto launch_restore_save_data_ini_end;
@@ -671,7 +684,7 @@ bool launch_ui_handle_mcu_comm_error(launch_rom_metadata_t *meta) {
 
     ui_popup_dialog_draw(&dlg);
     ui_show();
-    
+
     if (ui_popup_dialog_action(&dlg, 1) == 0) {
         // Adjust metadata to disable all MCU-reliant features
         meta->eeprom_size = 0;   // EEPROM
@@ -696,7 +709,7 @@ int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     extern const void __bank_bootstub;
     extern const void __bank_gfx_bootstub_tiles;
-    
+
     if (bootstub_data->prog.size > 16*1024*1024L) {
         return ERR_FILE_TOO_LARGE;
     }
@@ -712,7 +725,7 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     bootstub_data->cluster_size = fs.csize;
     bootstub_data->fat_entry_count = fs.n_fatent;
     bootstub_data->fs_type = fs.fs_type;
-    
+
     if (meta != NULL) {
         bootstub_data->rom_banks = meta->rom_banks;
         bootstub_data->prog_sram_mask = (meta->sram_size - 1) >> 16;
@@ -784,7 +797,7 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
 int16_t launch_in_psram(uint32_t size) {
     int16_t result;
     launch_rom_metadata_t meta;
-    
+
     bootstub_data->prog.size = size;
 
     // Try reading as ROM
