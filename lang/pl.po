@@ -148,10 +148,13 @@ msgid "ERROR_FR_NO_PATH"
 msgstr "Nie znaleziono ścieżki"
 
 msgid "ERROR_SAVE_CORRUPT"
-msgstr "Dane zapisu uszkodzone"
+msgstr "Dane zapisu utracone"
 
 msgid "ERROR_SAVE_PSRAM_CORRUPT"
 msgstr "Stan PSRAM utracony"
+
+msgid "ERROR_SAVE_NOR_FLASH_CORRUPT"
+msgstr "Dane zapisu pamięci flash utracone"
 
 msgid "ERROR_MCU_COMM_FAILED"
 msgstr "Błąd komunikacji z MCU"

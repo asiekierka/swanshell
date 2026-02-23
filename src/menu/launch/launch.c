@@ -136,6 +136,27 @@ int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta) {
     return FR_OK;
 }
 
+__attribute__((noinline))
+static bool launch_is_rom_static_freya(FIL *f) {
+    uint8_t buffer[512 - 16];
+    uint16_t br;
+    int16_t result;
+
+    result = f_lseek(f, 0x7fe00);
+    if (result != FR_OK) return false;
+
+    result = f_read(f, buffer, sizeof(buffer), &br);
+    if (result != FR_OK) return false;
+
+    for (int i = 0; i < (sizeof(buffer) - 4); i++) {
+        if (buffer[i] == 'E' && buffer[i+1] == 'x' && buffer[i+2] == 't' && buffer[i+3] == 'r' && buffer[i+4] == 'a') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     uint8_t tmp[5];
     uint16_t br;
@@ -196,8 +217,10 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
         }
 
         if (!_fmemcmp(elisa_font_string, tmp, sizeof(elisa_font_string))) {
-            meta->flash_size = 0x80000;
             meta->rom_type = ROM_TYPE_FREYA;
+            if (!launch_is_rom_static_freya(&f)) {
+                meta->flash_size = 0x80000;
+            }
         }
     } else {
         const char __far *ext = strrchr(path, '.');

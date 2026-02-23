@@ -201,6 +201,9 @@ msgstr "Save data corrupted"
 msgid "ERROR_SAVE_PSRAM_CORRUPT"
 msgstr "PSRAM state corrupted"
 
+msgid "ERROR_SAVE_NOR_FLASH_CORRUPT"
+msgstr "Flash save data corrupted"
+
 msgid "ERROR_MCU_COMM_FAILED"
 msgstr "MCU communication error"
 
