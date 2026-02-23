@@ -3,6 +3,15 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.1.0 (Eventually)
+
+- Changed: A warning is now displayed for overdumped save data.
+- Changed: Text viewer improvements:
+  - Minor performance improvements.
+  - The text viewer now supports going back in a file.
+  - The text viewer now supports both Shift-JIS and UTF-8 encoded files, with automatic detection.
+- Changed: Tweaked visual padding for pop-up dialogs.
+
 ## swanshell 1.0.3 (23rd February 2026)
 
 - Changed: Minor translation updates.
