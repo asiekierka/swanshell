@@ -77,7 +77,7 @@ int ui_txtview(const char *path) {
         while (file_pos < size) {
             uint32_t file_prev_pos = file_pos;
             ws_bank_rom0_set(file_pos >> 16);
-            ws_bank_rom1_set(file_pos >> 16);
+            ws_bank_rom1_set((file_pos >> 16) + 1);
             const char __far *ptr = MK_FP(0x2000 | ((file_pos >> 4) & 0xFFF), file_pos & 0xF);
             uint32_t ch = wsx_utf8_decode_next(&ptr);
             file_pos = (file_pos & ~0xF) + FP_OFF(ptr);
