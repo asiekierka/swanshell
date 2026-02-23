@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-11 21:36+0000\n"
-"PO-Revision-Date: 2026-02-15 14:56+0000\n"
+"PO-Revision-Date: 2026-02-24 17:56+0000\n"
 "Last-Translator: Weblate Admin <kontakt@asie.pl>\n"
 "Language-Team: Polish <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "pl/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.15.2\n"
+"X-Generator: Weblate 5.16\n"
 
 msgid "YES"
 msgstr "Tak"
@@ -362,3 +362,41 @@ msgstr "Inicjalizacja zegara RTC..."
 
 msgid "ERROR_TITLE_FONTS_LOAD"
 msgstr "Błąd ładowania fontów!"
+
+msgid "SETTINGS_CONTROLS_KEY"
+msgstr "Sterowanie"
+
+msgid "SETTINGS_FILE_SORT_FILESYSTEM"
+msgstr "System plików"
+
+msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
+msgstr "Odstęp potwórzeń"
+
+msgid "SETTINGS_CONTROLS_REPEAT_RATE"
+msgstr "Częstość potwórzeń"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_SRAM"
+msgstr "Plik .ram zbyt duży"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_EEPROM"
+msgstr "Plik .eeprom zbyt duży"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_FLASH"
+msgstr "Plik .flash zbyt duży"
+
+msgid "DIALOG_SAVE_OVERDUMP_DESCRIPTION"
+msgstr ""
+"Plik może wymagać ręcznej edycji, aby działać poprawnie. Czy na pewno chcesz "
+"kontynuować?"
+
+msgid "ERROR_FLASH_COMM_FAILED"
+msgstr "Bląd komunikacji z pamięcią flash"
+
+msgid "ERROR_UNSUPPORTED_FIRMWARE_VERSION"
+msgstr "Nieobsługiwana wersja firmware"
+
+msgid "ERROR_INVALID_FIRMWARE_INSTALLATION"
+msgstr "Nieprawidłowa instalacja firmware"
+
+msgid "ERROR_UNSUPPORTED_CARTRIDGE_REVISION"
+msgstr "Niewspierany model kartridża"
