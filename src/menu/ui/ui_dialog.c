@@ -27,7 +27,7 @@ int16_t ui_dialog_error_check(int16_t error, const char __far *title, uint16_t f
     char error_name_buffer[48];
     ui_popup_dialog_config_t dlg = {0};
 
-    if (!error) return 0;
+    if (!error || error == ERR_USER_EXIT_REQUESTED) return error;
     error_to_string_buffer(error, error_name_buffer, sizeof(error_name_buffer));
 
     if (title) {

@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef ERRORS_H_
 #define ERRORS_H_
- 
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <wonderful.h>
@@ -28,19 +28,22 @@
 // Positive error codes < 0x80 are reserved for FatFs
 #include <nilefs.h>
 
-// Positive error codes >= 0x80 are for swanshell
-#define ERR_MCU_COMM_FAILED 0x80
-#define ERR_SAVE_CORRUPT 0x81
-#define ERR_MCU_BIN_CORRUPT 0x82
-#define ERR_SAVE_PSRAM_CORRUPT 0x83
-#define ERR_FILE_TOO_LARGE 0x84
-#define ERR_FILE_FORMAT_INVALID 0x85
-#define ERR_DATA_TRANSFER_TIMEOUT 0x86
-#define ERR_DATA_TRANSFER_CANCEL 0x87
-#define ERR_FILE_NOT_EXECUTABLE 0x88
+// Positive error codes >= 0x7F are for swanshell
+#define ERR_USER_EXIT_REQUESTED 0x7F
+enum {
+    ERR_MCU_COMM_FAILED = 0x80,
+    ERR_SAVE_CORRUPT,
+    ERR_MCU_BIN_CORRUPT,
+    ERR_SAVE_PSRAM_CORRUPT,
+    ERR_FILE_TOO_LARGE,
+    ERR_FILE_FORMAT_INVALID,
+    ERR_DATA_TRANSFER_TIMEOUT,
+    ERR_DATA_TRANSFER_CANCEL,
+    ERR_FILE_NOT_EXECUTABLE,
+    ERR_SWANSHELL_MAX
+};
 
 const char __far* error_to_string(int16_t value);
 void error_to_string_buffer(int16_t value, char *buffer, size_t buflen);
 
 #endif /* ERRORS_H_ */
- 

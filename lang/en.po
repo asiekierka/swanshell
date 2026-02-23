@@ -163,6 +163,17 @@ msgstr "Creating ROM image"
 msgid "DIALOG_STORE_SAVE"
 msgstr "Storing save data"
 
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_SRAM"
+msgstr ".ram file too large"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_EEPROM"
+msgstr ".eeprom file too large"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_FLASH"
+msgstr ".flash file too large"
+
+msgid "DIALOG_SAVE_OVERDUMP_DESCRIPTION"
+msgstr "This can indicate an overdump. The file may need to be manually adjusted to work correctly. Do you want to continue?"
 
 msgid "ERROR_FR_DISK_ERR"
 msgstr "Storage error"
