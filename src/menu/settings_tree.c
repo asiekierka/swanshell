@@ -30,6 +30,7 @@
 #include "ui/ui_rtc_clock.h"
 
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
+DEFINE_STRING_LOCAL(s_file_show_save_key, "FileShowSave");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
 DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
 DEFINE_STRING_LOCAL(s_file_hide_icons_key, "FileHideIcons");
@@ -54,6 +55,19 @@ static const setting_t __far setting_file_show_hidden = {
     .flag = {
         &settings.file_flags,
         SETTING_FILE_SHOW_HIDDEN_SHIFT,
+        LK_NO, LK_YES
+    }
+};
+
+static const setting_t __far setting_file_show_saves = {
+    s_file_show_save_key,
+    LK_SETTINGS_FILE_SHOW_SAVES_KEY,
+    LK_SETTINGS_FILE_SHOW_SAVES_HELP,
+    SETTING_TYPE_FLAG,
+    0,
+    .flag = {
+        &settings.file_flags,
+        SETTING_FILE_SHOW_SAVES_SHIFT,
         LK_NO, LK_YES
     }
 };
@@ -128,10 +142,11 @@ static const setting_category_t __far settings_file = {
     LK_SETTINGS_FILE_KEY,
     0,
     &settings_root,
-    4,
+    5,
     {
         &setting_file_view,
         &setting_file_sort_order,
+        &setting_file_show_saves,
         &setting_file_show_hidden,
         &setting_file_hide_icons
     }

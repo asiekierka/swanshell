@@ -34,7 +34,7 @@ extern uint8_t sector_buffer[CONFIG_MEMLAYOUT_SECTOR_BUFFER_SIZE];
 #define sector_buffer_is_active ws_system_is_color_active
 #endif
 
-typedef bool (*filinfo_predicate_t)(const FILINFO __far*);
+typedef bool (*filinfo_predicate_t)(const FILINFO __far*, const char __far*);
 bool f_anymatch(filinfo_predicate_t predicate, const char __far* path);
 
 bool f_exists_far(const char __far* path);

@@ -64,10 +64,20 @@ static int compare_filenames(const file_selector_entry_t __far* a, const file_se
     }
 }
 
-bool ui_file_selector_default_predicate(const FILINFO __far *fno) {
-    // Hidden file?
-    if ((fno->fattrib & AM_HID) && !(settings.file_flags & SETTING_FILE_SHOW_HIDDEN))
-        return false;
+bool ui_file_selector_default_predicate(const FILINFO __far *fno, const char __far* ext) {
+    if (!(settings.file_flags & SETTING_FILE_SHOW_HIDDEN)) {
+        if ((fno->fattrib & AM_HID))
+            return false;
+    }
+
+    if (!(settings.file_flags & SETTING_FILE_SHOW_SAVES)) {
+        if (ext != NULL) {
+            if (!strcasecmp(ext, s_file_ext_sram)) return false;
+            if (!strcasecmp(ext, s_file_ext_eeprom)) return false;
+            if (!strcasecmp(ext, s_file_ext_flash)) return false;
+            if (!strcasecmp(ext, s_file_ext_rtc)) return false;
+        }
+    }
 
     return true;
 }
@@ -91,11 +101,12 @@ int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t pr
         }
 		if (fno->fno.fname[0] == 0)
 			break;
-        if (!predicate(&fno->fno))
+
+		const char __far* ext_loc = strrchr(fno->fno.fname, '.');
+		if (!predicate(&fno->fno, ext_loc))
             continue;
 
         // Cache extension location
-        const char __far* ext_loc = strrchr(fno->fno.fname, '.');
         fno->extension_loc = ext_loc == NULL ? 255 : ext_loc - fno->fno.fname;
 
         file_count++;
@@ -230,7 +241,7 @@ rescan_directory:
         }
         if ((keys_pressed & WS_KEY_A) && config.count) {
             path_depth[path_depth_pos] = config.offset;
-            
+
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
             strncpy(path, fno->fno.fname, sizeof(fno->fno.fname));
             if (fno->fno.fattrib & AM_DIR) {
@@ -247,7 +258,7 @@ rescan_directory:
                         if (result == FR_OK) {
                             result = launch_restore_save_data(path, &meta);
                             if (result == ERR_MCU_COMM_FAILED) {
-                                if (launch_ui_handle_mcu_comm_error(&meta)) 
+                                if (launch_ui_handle_mcu_comm_error(&meta))
                                     result = FR_OK;
                                 else
                                     error_displayed = true;
@@ -320,7 +331,7 @@ txtview:
         // TODO: temporary
         if ((keys_pressed & WS_KEY_START) && config.count) {
             path_depth[path_depth_pos] = config.offset;
-            
+
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
 
             ui_selector_clear_selection(&config);

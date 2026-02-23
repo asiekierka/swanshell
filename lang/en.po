@@ -59,6 +59,12 @@ msgstr "Show hidden files"
 msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
 msgstr "Shows or hides files with the \"hidden\" attribute."
 
+msgid "SETTINGS_FILE_SHOW_SAVES_KEY"
+msgstr "Show save files"
+
+msgid "SETTINGS_FILE_SHOW_SAVES_HELP"
+msgstr "Shows or hides files used for save data (.ram, .flash, .eeprom, .rtc)."
+
 msgid "SETTINGS_FILE_SORT_FILESYSTEM"
 msgstr "Filesystem"
 

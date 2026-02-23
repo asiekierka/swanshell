@@ -38,7 +38,7 @@ bool f_anymatch(filinfo_predicate_t predicate, const char __far* local_path) {
 		if (fno.fname[0] == 0)
 			break;
 
-        if (predicate(&fno)) {
+        if (predicate(&fno, NULL)) {
             f_closedir(&dir);
             return true;
         }
@@ -52,7 +52,7 @@ bool f_exists_far(const char __far* path) {
     char local_path[FF_LFN_BUF + 1];
     local_path[FF_LFN_BUF] = 0;
     strncpy(local_path, path, FF_LFN_BUF);
-    
+
     return f_stat(local_path, NULL) == FR_OK;
 }
 
@@ -65,7 +65,7 @@ FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode) {
 
 int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata) {
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
-    
+
     uint16_t lbr;
     uint32_t br = 0;
     uint32_t bytes_total = btr;

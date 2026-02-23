@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef _SETTINGS_H_
 #define _SETTINGS_H_
 
@@ -37,6 +37,9 @@
 
 #define SETTING_FILE_TEXT_READER_SMALL_SHIFT 2
 #define SETTING_FILE_TEXT_READER_SMALL       (1 << SETTING_FILE_TEXT_READER_SMALL_SHIFT)
+
+#define SETTING_FILE_SHOW_SAVES_SHIFT 3
+#define SETTING_FILE_SHOW_SAVES       (1 << SETTING_FILE_SHOW_SAVES_SHIFT)
 
 #define SETTING_FILE_SORT_FILESYSTEM 0
 #define SETTING_FILE_SORT_NAME_ASC   1
