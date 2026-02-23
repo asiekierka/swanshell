@@ -3,6 +3,12 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.0.3 (23rd February 2026)
+
+- Changed: Minor translation updates.
+- Fixed: Some cartridge images were incorrectly detected as containing on-board NOR flash.
+- Fixed: The text viewer should now correctly read files over 64 KiB.
+
 ## swanshell 1.0.2 (14th February 2026)
 
 - Added: Input repeat delay and rate configuration.
