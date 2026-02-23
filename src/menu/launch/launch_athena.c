@@ -1,5 +1,5 @@
 	/**
- * Copyright (c) 2024, 2025 Adrian Siekierka
+ * Copyright (c) 2024, 2025, 2026 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -21,12 +21,16 @@
 #include <ws.h>
 #include <nile.h>
 #include <nilefs.h>
+#include "cart/mcu.h"
 #include "errors.h"
 #include "lang.h"
 #include "settings.h"
 #include "strings.h"
+#include "ui/bitmap.h"
+#include "ui/ui.h"
 #include "ui/ui_popup_dialog.h"
 #include "util/file.h"
+#include "util/math.h"
 
 #define DIR_SEGMENT 0x4000
 #define OS_SEGMENT 0xE000
@@ -86,7 +90,7 @@ typedef struct {
 	 */
 	uint32_t mtime;
 
-	void __far *il;
+	uint32_t il;
 
 	/**
 	 * Offset of resource data in file, passed via the
@@ -159,14 +163,112 @@ typedef struct {
     uint16_t ram0_file_count;
 } athena_os_footer_t;
 
+#define ATHENA_OS_VERSION (*((uint16_t __far*) MK_FP(0x1000, 0x006C)))
+#define ATHENA_RAM0_FILES ((ww_fent_t __far*) MK_FP(0x1000, 0x06F2))
+
 #define ATHENA_OS_FOOTER (*((athena_os_footer_t __far*) MK_FP(0x1000, 0xFFE0)))
 #define ATHENA_OS_FOOTER_BANK 0x0E
 #define ATHENA_BIOS_FOOTER_BANK 0x0F
 
-int16_t launch_athena_jump(void) {
-    // Clear BIOS settings area
+static const uint8_t __far ww_file_header[64] = {
+    '#', '!', 'w', 's', 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+};
+
+int16_t launch_athena_restore_ram0(char *pathbuf) {
+    FIL fp;
+    int16_t result;
+    uint16_t bw;
+    uint8_t local_buffer[64];
+
     outportw(WS_CART_EXTBANK_RAM_PORT, 3);
+
+    // If OS version is not set, assume ram0 was not initialized
+    if ((ATHENA_OS_VERSION & 0xF000) != 0x1000) return ERR_SAVE_CORRUPT;
+
+    // Set location for appending filenames
+    char *pathbuf_append = pathbuf + strlen(pathbuf) - 1;
+    if (*pathbuf_append == '\n') {
+        pathbuf_append--;
+    }
+    if (*pathbuf_append != '/') {
+        *(++pathbuf_append) = '/';
+    }
+    pathbuf_append++;
+
+    bitmapfont_set_active_font(font8_bitmap);
+
+    uint8_t *buffer;
+    uint16_t buffer_size;
+
+    if (sector_buffer_is_active()) {
+        buffer = sector_buffer;
+        buffer_size = sizeof(sector_buffer);
+    } else {
+        buffer = local_buffer;
+        buffer_size = sizeof(local_buffer);
+    }
+
+    // TODO: Handle duplicate file names?
+    for (int i = 0; i < RAM0_MAX_FILES; i++) {
+        ww_fent_t __far* file = ATHENA_RAM0_FILES + i;
+        if (file->name[0] == 0 || file->count == -1) continue;
+
+        // TODO: Shift-JIS filename support, file collisions
+        int dc = 0;
+        for (int sc = 0; sc < 16; sc++) {
+            uint8_t c = file->name[sc];
+            if (!c) continue;
+            if (c < 0x20 || c >= 0x7F || c == '*' || c == ':' || c == '<' || c == '>' || c == '|' || c == '"' || c == '?') c = '_';
+            pathbuf_append[dc++] = c;
+        }
+        pathbuf_append[dc] = 0;
+
+        bool has_custom_info = file->info[0] != 0 && (file->info[16] != 0 || memcmp(file->name, file->info, 16));
+        bool needs_ww_header = has_custom_info || file->mode != 6 || file->resource != -1 || file->il != 0;
+
+        result = f_open(&fp, pathbuf, FA_CREATE_ALWAYS | FA_WRITE);
+        if (result != FR_OK) return result;
+
+        if (needs_ww_header) {
+            result = f_write(&fp, ww_file_header, sizeof(ww_file_header), &bw);
+            if (result != FR_OK) { f_close(&fp); return result; }
+
+            result = f_write(&fp, file, sizeof(ww_fent_t), &bw);
+            if (result != FR_OK) { f_close(&fp); return result; }
+        }
+
+        volatile uint32_t flen = MAX(file->count * 128L, file->len);
+        volatile const void __far *floc = file->loc;
+
+        outportw(WS_CART_EXTBANK_RAM_PORT, 0);
+
+        while (flen) {
+            uint16_t flen_to_write = MIN(buffer_size, flen);
+            memcpy(buffer, floc, flen_to_write);
+            result = f_write(&fp, buffer, flen_to_write, &bw);
+            if (result != FR_OK) { f_close(&fp); return result; }
+            flen -= flen_to_write;
+            floc = MK_FP(FP_SEG(floc) + (flen_to_write >> 4), FP_OFF(floc));
+        }
+
+        outportw(WS_CART_EXTBANK_RAM_PORT, 3);
+
+        result = f_close(&fp);
+        if (result != FR_OK) return result;
+    }
+
+    return FR_OK;
+}
+
+int16_t launch_athena_jump(void) {
+    outportw(WS_CART_EXTBANK_RAM_PORT, 3);
+    // Clear BIOS settings area
     memset(MK_FP(0x1000, 0xFFEA), 0, 0x100 - 0xEA);
+    // Clear OS version
+    ATHENA_OS_VERSION = 0;
 
     // Load created cartridge image
     launch_rom_metadata_t meta = {0};
@@ -200,7 +302,7 @@ int16_t launch_athena_romfile_begin(void) {
     return FR_OK;
 }
 
-int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) {
+int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, uint32_t *id) {
     uint16_t file_count;
     uint16_t file_count_first;
     int16_t result;
@@ -275,7 +377,7 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
             strncpy(entry->info, path_basename, 24);
             entry->len = f_size(&fp);
             entry->count = (entry->len + 127) >> 7;
-            entry->mode = type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? 5 : 4;
+            entry->mode = type == ATHENA_ROMFILE_TYPE_RAM0 ? 6 : (type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? 5 : 4);
             entry->mtime = 0; // TODO
             entry->il = NULL;
             entry->resource = -1;
@@ -301,6 +403,11 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type) 
         // Edit location
         entry->loc = MK_FP(file_segment, 0x0000);
         entry->mode = (entry->mode & ~2) | 4; // Clear write flag, set read flag
+
+        // Generate unique ID
+        if (id != NULL) {
+            *id = entry->mtime ^ *((uint32_t*) entry->name) ^ entry->len;
+        }
 
         // Calculate file size
         uint16_t sector_count = *((uint16_t*) (buffer + 48));
@@ -352,22 +459,21 @@ launch_athena_romfile_add_done:
     });
 }
 
-static const char __far path_ram0_0[] = "../ram0";
-static const char __far path_ram0_1[] = "../ram";
-static const char __far path_ram0_2[] = "ram0";
-static const char __far path_ram0_3[] = "ram";
+static const char __far path_ram0_0[] = "ram0";
+static const char __far path_ram0_1[] = "ram";
+static const char __far path_ram0_2[] = "../ram0";
+static const char __far path_ram0_3[] = "../ram";
 static const char __far * const __far path_ram0[] = {
     path_ram0_0, path_ram0_1, path_ram0_2, path_ram0_3
 };
 #define PATH_RAM0_COUNT (sizeof(path_ram0) / sizeof(void __far*))
 
 __attribute__((noinline))
-static int16_t launch_athena_boot_curdir_as_rom_wip_inner(const char __far *name) {
+static int16_t launch_athena_boot_curdir_as_rom_wip_inner(const char __far *name, uint32_t *id) {
     FILINFO fi;
     DIR dp;
     char buffer[FF_LFN_BUF + 1];
     int16_t result;
-    FILINFO fno;
 
     buffer[0] = '.';
     buffer[1] = 0;
@@ -377,7 +483,7 @@ static int16_t launch_athena_boot_curdir_as_rom_wip_inner(const char __far *name
     ui_popup_dialog_draw(&dlg);
 
     result = launch_athena_begin(
-        settings.prog.flags & SETTING_PROG_FLAG_FX_COMPATIBLE_BIOS ? s_path_athenabios_compatible : s_path_athenabios_native, 
+        settings.prog.flags & SETTING_PROG_FLAG_FX_COMPATIBLE_BIOS ? s_path_athenabios_compatible : s_path_athenabios_native,
         s_path_athenaos_fx);
     if (result != FR_OK) return result;
 
@@ -390,14 +496,16 @@ static int16_t launch_athena_boot_curdir_as_rom_wip_inner(const char __far *name
     // i = 1 => /fbin
     // i = 2..N >= ../ram0, ../ram, etc.
     int fbin_len = strlen(s_path_fbin);
+    bool save_directory_found = false;
+
     for (int i = 0; i <= PATH_RAM0_COUNT+1; i++) {
         athena_romfile_type_t type = i < 2 ? ATHENA_ROMFILE_TYPE_ROM0 : ATHENA_ROMFILE_TYPE_RAM0;
         if (i >= 2) {
             // Check for ram0 path candidate
             strcpy(buffer, path_ram0[i - 2]);
-            result = f_stat(buffer, &fno);
+            result = f_stat(buffer, &fi);
             if (result != FR_OK) continue;
-            if (!(fno.fattrib & AM_DIR)) continue;
+            if (!(fi.fattrib & AM_DIR)) continue;
 
             // Found ram0 path
             result = f_chdir(buffer);
@@ -438,10 +546,10 @@ static int16_t launch_athena_boot_curdir_as_rom_wip_inner(const char __far *name
                 if (len >= 4 && !strcasecmp(fi.fname + len - 3, s_file_ext_il)) {
                     buffer[fbin_len] = '/';
                     strcpy(buffer + fbin_len + 1, fi.fname);
-                    result = launch_athena_romfile_add(buffer, f_type);
+                    result = launch_athena_romfile_add(buffer, f_type, f_type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? id : NULL);
                 }
             } else {
-                result = launch_athena_romfile_add(fi.fname, f_type);
+                result = launch_athena_romfile_add(fi.fname, f_type, f_type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? id : NULL);
             }
             if (result != FR_OK) {
                 f_closedir(&dp);
@@ -452,15 +560,63 @@ static int16_t launch_athena_boot_curdir_as_rom_wip_inner(const char __far *name
         f_closedir(&dp);
 
         // Found ram0 directory; exit.
-        if (i >= 2) break;
+        if (i >= 2) {
+            save_directory_found = true;
+            break;
+        }
+    }
+
+    // Initialize save path
+    if (!save_directory_found) {
+        strcpy(buffer, path_ram0_0);
+        result = f_mkdir(buffer);
+        if (result != FR_OK) return result;
+        result = f_chdir(buffer);
+        if (result != FR_OK) return result;
     }
 
     return FR_OK;
 }
 
-int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
-    // Split function to reduce stack usage
-    int16_t result = launch_athena_boot_curdir_as_rom_wip_inner(name);
+__attribute__((noinline))
+static int16_t launch_athena_create_save_ini(uint32_t id) {
+    char buf[FF_LFN_BUF+33];
+    FIL fp;
+    int16_t result;
+
+    strcpy(buf, s_path_save_ini);
+    result = f_open(&fp, buf, FA_CREATE_ALWAYS | FA_WRITE);
     if (result != FR_OK) return result;
+
+    result = f_puts(s_save_ini_start, &fp) < 0 ? FR_INT_ERR : FR_OK;
+    if (result != FR_OK) { f_close(&fp); return result; }
+
+    // ID has to be parsed before other entries
+    result = f_printf(&fp, s_save_ini_id_entry, id) < 0 ? FR_INT_ERR : FR_OK;
+    if (result != FR_OK) { f_close(&fp); return result; }
+
+    result = f_getcwd(buf, sizeof(buf));
+    if (result != FR_OK) { f_close(&fp); return result; }
+
+    result = f_printf(&fp, s_save_ini_freya_ram0_entry, (char __far*) buf) < 0 ? FR_INT_ERR : FR_OK;
+    if (result != FR_OK) { f_close(&fp); return result; }
+
+    return f_close(&fp);
+}
+
+int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
+    uint32_t id;
+    int16_t result = launch_athena_boot_curdir_as_rom_wip_inner(name, &id);
+    if (result != FR_OK) return result;
+
+    // Write SAVE.INI
+    result = launch_athena_create_save_ini(id);
+    if (result != FR_OK) return result;
+
+    // Write save ID to MCU
+    result = mcu_native_save_id_set(id, SAVE_ID_FOR_SRAM) ? FR_OK : ERR_MCU_COMM_FAILED;
+    mcu_native_finish();
+    if (result != FR_OK) return result;
+
     return launch_athena_jump();
 }

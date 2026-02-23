@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, 2025 Adrian Siekierka
+ * Copyright (c) 2024, 2025, 2026 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -29,6 +29,7 @@
 #include "errors.h"
 #include "lang_gen.h"
 #include "cart/mcu.h"
+#include "launch/launch_athena.h"
 #include "settings.h"
 #include "strings.h"
 #include "../../build/menu/build/bootstub_bin.h"
@@ -391,14 +392,6 @@ static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
     return result;
 }
 
-DEFINE_STRING_LOCAL(s_save_ini_start, "[Save]\n");
-DEFINE_STRING_LOCAL(s_save_ini_id, "ID");
-DEFINE_STRING_LOCAL(s_save_ini_sram, "SRAM");
-DEFINE_STRING_LOCAL(s_save_ini_eeprom, "EEPROM");
-DEFINE_STRING_LOCAL(s_save_ini_flash, "Flash");
-DEFINE_STRING_LOCAL(s_save_ini_entry, "%s=%ld|%s%s\n");
-DEFINE_STRING_LOCAL(s_save_ini_id_entry, "ID=%ld\n");
-
 static void launch_backup_progress_update(ui_popup_dialog_config_t *dlg, uint32_t step, uint32_t max) {
     dlg->progress_step = step >> 7;
     dlg->progress_max = max >> 7;
@@ -407,7 +400,7 @@ static void launch_backup_progress_update(ui_popup_dialog_config_t *dlg, uint32_
 
 int16_t launch_backup_save_data(void) {
     FIL fp, save_fp;
-    char buffer[FF_LFN_BUF + 4];
+    char buffer[FF_LFN_BUF + 33];
     char *key, *value;
     ini_next_result_t ini_result;
     int16_t result;
@@ -440,6 +433,20 @@ int16_t launch_backup_save_data(void) {
         } else if (ini_result == INI_NEXT_KEY_VALUE) {
             if (!strcasecmp(key, s_save_ini_id)) {
                 id = atol(value);
+                continue;
+            }
+
+            if (!strcasecmp(key, s_save_ini_freya_ram0)) {
+                uint32_t fetched_id = launch_get_save_id(SAVE_ID_FOR_SRAM);
+                if (id != fetched_id) {
+                    result = ERR_SAVE_CORRUPT;
+                    goto launch_backup_save_data_return_result;
+                }
+
+                result = launch_athena_restore_ram0(value);
+                if (result != FR_OK) {
+                    goto launch_backup_save_data_return_result;
+                }
                 continue;
             }
 

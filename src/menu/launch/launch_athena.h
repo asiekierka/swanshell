@@ -25,7 +25,7 @@
 
 /**
  * @brief Start loading AthenaOS environment.
- * 
+ *
  * @param bios_path Path to .bin file containing AthenaBIOS.
  * @param os_path Path to .bin file containing AthenaOS.
  * @return int16_t Error code, if any.
@@ -34,14 +34,14 @@ int16_t launch_athena_begin(const char __far *bios_path, const char __far *os_pa
 
 /**
  * @brief Launch AthenaOS environment.
- * 
+ *
  * @return int16_t Error code, if any.
  */
 int16_t launch_athena_jump(void);
 
 /**
  * @brief Start creating a ROM file layout.
- * 
+ *
  * @return int16_t Error code, if any.
  */
 int16_t launch_athena_romfile_begin(void);
@@ -54,12 +54,20 @@ typedef enum {
 
 /**
  * @brief Add file to ROM layout.
- * 
+ *
  * @param path File path.
  * @return int16_t Error code, if any.
  */
-int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type);
+int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, uint32_t *id);
 
 int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name);
+
+/**
+ * @brief Copy SRAM contents to directory
+ *
+ * @param pathbuf Directory path, as writable buffer with at least 17 extra bytes free.
+ * @return int16_t Error code, if any.
+ */
+int16_t launch_athena_restore_ram0(char *pathbuf);
 
 #endif /* LAUNCH_ATHENA_H_ */

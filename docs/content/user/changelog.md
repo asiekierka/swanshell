@@ -5,6 +5,7 @@ weight: 100
 
 ## swanshell 1.1.0 (Eventually)
 
+- Added: Saving `/ram0` contents when loading `.fx` programs directly.
 - Changed: Text viewer improvements:
   - Minor performance improvements.
   - The text viewer now supports going back in a file.
