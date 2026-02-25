@@ -288,6 +288,9 @@ msgstr "Anulowano transfer danych"
 msgid "ERROR_DATA_CORRUPT"
 msgstr "Dane uszkodzone"
 
+msgid "ERROR_OUT_OF_MEMORY"
+msgstr "Brak wolnej pamięci"
+
 msgid "SUBMENU_OPTION_TOOLS"
 msgstr "Narzędzia"
 

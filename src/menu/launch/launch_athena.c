@@ -320,18 +320,16 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, 
             file_count = ATHENA_OS_FOOTER.ram0_file_count;
 
             if (file_count >= RAM0_MAX_FILES) {
-                // TODO: Custom error message?
                 outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
-                return FR_TOO_MANY_OPEN_FILES;
+                return ERR_OUT_OF_MEMORY;
             }
         } else {
             file_count_first = 0;
             file_count = ATHENA_OS_FOOTER.file_count;
 
             if (file_count >= ROM0_MAX_FILES) {
-                // TODO: Custom error message?
                 outportw(WS_CART_EXTBANK_RAM_PORT, prev_ram);
-                return FR_TOO_MANY_OPEN_FILES;
+                return ERR_OUT_OF_MEMORY;
             }
 
             if (type == ATHENA_ROMFILE_TYPE_ROM0_BOOT) {

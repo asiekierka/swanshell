@@ -36,7 +36,8 @@ static const uint16_t __far err_swanshell_lk_table[] = {
     LK_ERROR_FLASH_COMM_FAILED,
     LK_ERROR_UNSUPPORTED_FIRMWARE_VERSION,
     LK_ERROR_INVALID_FIRMWARE_INSTALLATION,
-    LK_ERROR_UNSUPPORTED_CARTRIDGE_REVISION
+    LK_ERROR_UNSUPPORTED_CARTRIDGE_REVISION,
+    LK_ERROR_OUT_OF_MEMORY
 };
 
 const char __far *error_to_string(int16_t value) {

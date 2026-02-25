@@ -257,6 +257,9 @@ msgstr "Data transfer cancelled"
 msgid "ERROR_DATA_CORRUPT"
 msgstr "Data corrupt"
 
+msgid "ERROR_OUT_OF_MEMORY"
+msgstr "Out of memory"
+
 
 msgid "ERROR_TITLE_FS_INIT"
 msgstr "Could not mount storage!"
