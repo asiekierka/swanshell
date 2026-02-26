@@ -27,6 +27,7 @@
 #include "../ui/ui.h"
 #include "../util/file.h"
 #include "../util/input.h"
+#include "main.h"
 #include "plugin.h"
 #include "settings.h"
 #include "strings.h"
@@ -56,7 +57,7 @@ static txt_encoding_t detect_encoding(uint32_t size) {
             // Neither UTF-8 nor Shift-JIS use bytes from 0xFD to 0xFF.
             return TXT_ENCODING_OTHER;
         }
-        
+
         // UTF-8 validity checks
         if (!cannot_be_utf8) {
             if (ch >= 0xF0) {
@@ -243,7 +244,10 @@ int ui_txtview(const char *path) {
 
         uint32_t file_drawn_pos = file_start_pos;
         while (file_start_pos == file_drawn_pos) {
-            input_wait_any_key();
+            idle_until_vblank();
+            input_update();
+            if (!input_pressed) continue;
+
             if (input_pressed & (WS_KEY_B | WS_KEY_START)) {
                 reader_open = false;
                 break;
