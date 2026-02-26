@@ -37,12 +37,12 @@ void ui_hide(void);
 void ui_show(void);
 void ui_layout_clear(uint16_t pal);
 void ui_layout_bars(void);
-void ui_draw_centered_status(const char __far* text);
 void ui_draw_titlebar(const char __far* text);
 void ui_draw_statusbar(const char __far* text);
 #ifdef CONFIG_ENABLE_WALLPAPER
 bool ui_has_wallpaper(void);
 void ui_unload_wallpaper(void);
+uint16_t ui_icon_update(void);
 #else
 static inline bool ui_has_wallpaper(void) { return false; }
 static inline void ui_unload_wallpaper(void) { }
@@ -64,5 +64,21 @@ extern uint16_t bitmap_screen2[];
 #define MAINPAL_COLOR_BLUE 11
 #define MAINPAL_COLOR_LIGHT_GREY 14
 #define MAINPAL_COLOR_DARK_GREY 15
+
+#define UI_BAR_ICON_WIDTH_TILES 3
+#define UI_BAR_ICON_WIDTH_PIXELS (UI_BAR_ICON_WIDTH_TILES << 3)
+
+typedef enum {
+    UI_BAR_ICON_NONE = 0,
+    UI_BAR_ICON_USB_CONNECT,
+    UI_BAR_ICON_BOOTROM_UNLOCK,
+    UI_BAR_ICON_BATTERY_3,
+    UI_BAR_ICON_BATTERY_2,
+    UI_BAR_ICON_BATTERY_1,
+    UI_BAR_ICON_BATTERY_0,
+    UI_BAR_ICON_BATTERY_NONE,
+    UI_BAR_ICON_MCU_ERROR,
+    UI_BAR_ICON_USB_DETECT
+} bar_icon_index_t;
 
 #endif /* UI_H_ */

@@ -15,12 +15,15 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <nile/mcu/protocol.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <ws.h>
+#include <ws/display.h>
 #include <wsx/planar_convert.h>
 #include "bitmap.h"
+#include "cart/status.h"
 #include "strings.h"
 #include "ui.h"
 #include "util/bmp.h"
@@ -28,6 +31,7 @@
 #include "util/input.h"
 #include "main.h"
 #include "settings.h"
+#include "../../../build/menu/assets/menu/bar_icons.h"
 #include "../../../build/menu/assets/menu/icons.h"
 #include "lang.h"
 #include "config.h"
@@ -45,6 +49,7 @@ __attribute__((section(".iramCx_8000"), retain))
 ws_display_tile_4bpp_t bitmap_tiles_c2[512];
 
 bitmap_t ui_bitmap;
+static uint8_t icons_visible;
 
 void ui_draw_titlebar(const char __far* text) {
     bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR_2BPP(2));
@@ -54,18 +59,69 @@ void ui_draw_titlebar(const char __far* text) {
     }
 }
 
-void ui_draw_statusbar(const char __far* text) {
-    bitmap_rect_fill(&ui_bitmap, 0, WS_DISPLAY_HEIGHT_PIXELS-8, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR_2BPP(2));
-    bitmapfont_set_active_font(font8_bitmap);
-    if (text != NULL) {
-        bitmapfont_draw_string(&ui_bitmap, 2, WS_DISPLAY_HEIGHT_PIXELS-8, text, WS_DISPLAY_WIDTH_PIXELS - 4);
+static void ui_draw_icon(int x, int idx) {
+    const uint8_t __far* src = &gfx_bar_icons[idx * 8];
+    uint8_t *dest = ((uint8_t*) ui_bitmap.start) + (ui_bitmap.x_pitch * x) + (ui_bitmap.y_pitch * (WS_DISPLAY_HEIGHT_PIXELS - 8));
+    if (ui_bitmap.bpp == 4) {
+        dest[0x00] = src[0x0];
+        dest[0x04] = src[0x1];
+        dest[0x08] = src[0x2];
+        dest[0x0c] = src[0x3];
+        dest[0x10] = src[0x4];
+        dest[0x14] = src[0x5];
+        dest[0x18] = src[0x6];
+        dest[0x1c] = src[0x7];
+    } else {
+        dest[0x00] = src[0x0];
+        dest[0x02] = src[0x1];
+        dest[0x04] = src[0x2];
+        dest[0x06] = src[0x3];
+        dest[0x08] = src[0x4];
+        dest[0x0a] = src[0x5];
+        dest[0x0c] = src[0x6];
+        dest[0x0e] = src[0x7];
     }
 }
 
-void ui_draw_centered_status(const char __far* text) {
-    int16_t width = bitmapfont_get_string_width(text, WS_DISPLAY_WIDTH_PIXELS);
-    bitmap_rect_clear(&ui_bitmap, 0, (WS_DISPLAY_HEIGHT_PIXELS - 12) >> 1, WS_DISPLAY_WIDTH_PIXELS, 11);
-    bitmapfont_draw_string(&ui_bitmap, (WS_DISPLAY_WIDTH_PIXELS - width) >> 1, (WS_DISPLAY_HEIGHT_PIXELS - 12) >> 1, text, WS_DISPLAY_WIDTH_PIXELS);
+uint16_t ui_icon_update(void) {
+    if (!icons_visible) return WS_DISPLAY_WIDTH_PIXELS;
+    uint16_t prev_icon_pos = icons_visible;
+    uint16_t icon_pos = WS_DISPLAY_WIDTH_TILES-1;
+    bool mcu_data_valid = true;
+
+    if (!(cart_status.present & CART_PRESENT_MCU)) {
+        mcu_data_valid = false;
+        ui_draw_icon(icon_pos--, UI_BAR_ICON_MCU_ERROR);
+    }
+
+    if (!(inportb(WS_SYSTEM_CTRL_PORT) & WS_SYSTEM_CTRL_IPL_LOCK))
+        ui_draw_icon(icon_pos--, UI_BAR_ICON_BOOTROM_UNLOCK);
+
+    if (mcu_data_valid) {
+        if (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_CONNECT) {
+            ui_draw_icon(icon_pos--, UI_BAR_ICON_USB_CONNECT);
+        } else if (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT) {
+            ui_draw_icon(icon_pos--, UI_BAR_ICON_USB_DETECT);
+        }
+    }
+
+    if (prev_icon_pos < icon_pos) {
+        for (int i = prev_icon_pos; i < icon_pos; i++)
+            ui_draw_icon(i, UI_BAR_ICON_NONE);
+    }
+    icons_visible = icon_pos;
+
+    return icon_pos * 8;
+}
+
+void ui_draw_statusbar(const char __far* text) {
+    icons_visible = WS_DISPLAY_WIDTH_TILES;
+    uint16_t icon_end = ui_icon_update();
+    bitmap_rect_fill(&ui_bitmap, 0, WS_DISPLAY_HEIGHT_PIXELS-8, icon_end, 8, BITMAP_COLOR_2BPP(2));
+    bitmapfont_set_active_font(font8_bitmap);
+    if (text != NULL) {
+        bitmapfont_draw_string(&ui_bitmap, 2, WS_DISPLAY_HEIGHT_PIXELS-8, text, icon_end - 4);
+    }
 }
 
 #define INIT_SCREEN_PATTERN(screen_loc, pal, ofs) \
@@ -80,6 +136,7 @@ void ui_draw_centered_status(const char __far* text) {
 
 void ui_init(void) {
     ui_hide();
+    icons_visible = 0;
 
     // initialize palettes
 #ifdef CONFIG_DEBUG_FORCE_MONO
@@ -214,6 +271,7 @@ void ui_show(void) {
 }
 
 void ui_layout_clear(uint16_t pal) {
+    icons_visible = 0;
     if (pal == 0 && !ui_has_wallpaper()) {
         bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS, BITMAP_COLOR_4BPP(2));
     } else {

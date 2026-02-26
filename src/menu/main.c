@@ -55,6 +55,7 @@ bool idle_until_vblank(void) {
 	switch (vbl_ticks & 63) {
 		case 63:
 			cart_status_update();
+			ui_icon_update();
 			break;
 		default:
 			shell_tick();
@@ -124,23 +125,6 @@ void main(void) {
 	}
 
 	{
-		int16_t result = settings_load();
-		if (result == FR_NO_FILE || result == FR_NO_PATH) {
-			ui_popup_dialog_config_t cfg = {0};
-			cfg.title = lang_keys_en[LK_DIALOG_SETTINGS_CREATING_NEW];
-			ui_popup_dialog_draw(&cfg);
-			ui_show();
-			ws_delay_ms(700);
-			settings.language = ui_settings_selector(&setting_language, 0);
-			settings_language_update();
-			ui_layout_clear(0);
-			settings_save();
-		} else {
-			ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
-		}
-	}
-
-	{
 		int16_t mcu_reset_result = mcu_reset(true);
 		int16_t result = cart_status_init(is_safe_mode, !mcu_reset_result);
 		if (mcu_reset_result && mcu_reset_result != ERR_MCU_COMM_FAILED) {
@@ -157,11 +141,28 @@ void main(void) {
 
 			ui_popup_dialog_draw(&dlg);
 			ui_show();
-			
+
 			ui_popup_dialog_action(&dlg, 0);
 		}
 	}
-	
+
+	{
+		int16_t result = settings_load();
+		if (result == FR_NO_FILE || result == FR_NO_PATH) {
+			ui_popup_dialog_config_t cfg = {0};
+			cfg.title = lang_keys_en[LK_DIALOG_SETTINGS_CREATING_NEW];
+			ui_popup_dialog_draw(&cfg);
+			ui_show();
+			ws_delay_ms(700);
+			settings.language = ui_settings_selector(&setting_language, 0);
+			settings_language_update();
+			ui_layout_clear(0);
+			settings_save();
+		} else {
+			ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
+		}
+	}
+
 	ui_dialog_error_check(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
 
 	shell_init();
