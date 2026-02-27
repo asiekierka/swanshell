@@ -86,22 +86,22 @@ static void ui_draw_icon(int x, int idx) {
 uint16_t ui_icon_update(void) {
     if (!icons_visible) return WS_DISPLAY_WIDTH_PIXELS;
     uint16_t prev_icon_pos = icons_visible;
-    uint16_t icon_pos = WS_DISPLAY_WIDTH_TILES - 1;
+    uint16_t icon_pos = WS_DISPLAY_WIDTH_TILES;
     bool mcu_data_valid = cart_status.version >= CART_FW_VERSION_1_1_0;
 
     if (!(cart_status.present & CART_PRESENT_MCU)) {
         mcu_data_valid = false;
-        ui_draw_icon(icon_pos--, UI_BAR_ICON_MCU_ERROR);
+        ui_draw_icon(--icon_pos, UI_BAR_ICON_MCU_ERROR);
     }
 
     if (!(inportb(WS_SYSTEM_CTRL_PORT) & WS_SYSTEM_CTRL_IPL_LOCK))
-        ui_draw_icon(icon_pos--, UI_BAR_ICON_BOOTROM_UNLOCK);
+        ui_draw_icon(--icon_pos, UI_BAR_ICON_BOOTROM_UNLOCK);
 
     if (mcu_data_valid) {
         if (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_CONNECT) {
-            ui_draw_icon(icon_pos--, UI_BAR_ICON_USB_CONNECT);
+            ui_draw_icon(--icon_pos, UI_BAR_ICON_USB_CONNECT);
         } else if (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT) {
-            ui_draw_icon(icon_pos--, UI_BAR_ICON_USB_DETECT);
+            ui_draw_icon(--icon_pos, UI_BAR_ICON_USB_DETECT);
         }
     }
 
