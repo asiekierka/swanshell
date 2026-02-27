@@ -86,8 +86,8 @@ static void ui_draw_icon(int x, int idx) {
 uint16_t ui_icon_update(void) {
     if (!icons_visible) return WS_DISPLAY_WIDTH_PIXELS;
     uint16_t prev_icon_pos = icons_visible;
-    uint16_t icon_pos = WS_DISPLAY_WIDTH_TILES-1;
-    bool mcu_data_valid = true;
+    uint16_t icon_pos = WS_DISPLAY_WIDTH_TILES - 1;
+    bool mcu_data_valid = cart_status.version >= CART_FW_VERSION_1_1_0;
 
     if (!(cart_status.present & CART_PRESENT_MCU)) {
         mcu_data_valid = false;
