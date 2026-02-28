@@ -38,7 +38,7 @@
 
 static bool mcu_native_cdc_read_block_sync(void __wf_cram* buffer, uint16_t buflen, uint16_t timeout_ticks) {
     volatile uint16_t target_ticks = vbl_ticks + timeout_ticks;
-    
+
     while (buflen && ((int16_t) (vbl_ticks - target_ticks)) < 0) {
         int bytes_read = nile_mcu_native_cdc_read_sync(buffer, MIN(buflen, 256));
         if (bytes_read > 0) {
@@ -52,7 +52,7 @@ static bool mcu_native_cdc_read_block_sync(void __wf_cram* buffer, uint16_t bufl
 
 static int16_t mcu_native_cdc_read_sync(void __wf_cram* buffer, uint16_t buflen, uint16_t timeout_ticks) {
     volatile uint16_t target_ticks = vbl_ticks + timeout_ticks;
-    
+
     while (((int16_t) (vbl_ticks - target_ticks)) < 0) {
         int bytes_read = nile_mcu_native_cdc_read_sync(buffer, MIN(buflen, 256));
         if (bytes_read > 0)
@@ -64,7 +64,7 @@ static int16_t mcu_native_cdc_read_sync(void __wf_cram* buffer, uint16_t buflen,
 
 static bool mcu_native_cdc_write_block_sync(const void __wf_cram* buffer, uint16_t buflen, uint16_t timeout_ticks) {
     volatile uint16_t target_ticks = vbl_ticks + timeout_ticks;
-    
+
     while (buflen && ((int16_t) (vbl_ticks - target_ticks)) < 0) {
         int bytes_written = nile_mcu_native_cdc_write_sync(buffer, MIN(buflen, 256));
         if (bytes_written > 0) {
@@ -103,7 +103,7 @@ int xmodem_recv_start(uint32_t *size) {
     uint16_t timeout_ticks = 0;
     data[0] = NAK; SEND_DATA(1);
     *size = 0;
-    
+
     while (true) {
         int bytes_read = mcu_native_cdc_read_sync(data, 132, 75);
         if (bytes_read < 1) {
@@ -123,13 +123,13 @@ int xmodem_recv_start(uint32_t *size) {
                 received_soh = true;
 
                 // SOH: receive block
+                if (i > 0) {
+                    // slow path in case SOH was not the first byte; this should never happen
+                    memmove(data, data + i, bytes_read - i);
+                    bytes_read -= i;
+                }
+
                 if (bytes_read < 132) {
-                    if (i > 0) {
-                        // slow path in case SOH was not the first byte; this should never happen
-                        memmove(data, data + i, bytes_read - i);
-                        bytes_read -= i;
-                    }
-                    
                     if (!mcu_native_cdc_read_block_sync(data + bytes_read, 132 - bytes_read, TIMEOUT_TICKS)) {
                         result = ERR_DATA_TRANSFER_TIMEOUT; goto finish;
                     }
@@ -167,7 +167,7 @@ int xmodem_recv_start(uint32_t *size) {
                 }
 
                 // on failure, respond with NAK
-                data[0] = NAK; SEND_DATA(1);
+                data[0] = NAK; SEND_DATA(1); break;
             } else if (data[i] == CAN) {
                 // CAN: cancel transfer
                 result = ERR_DATA_TRANSFER_CANCEL; goto finish;

@@ -51,6 +51,7 @@ void __far vblank_int_handler(void) {
 
 bool idle_until_vblank(void) {
 	uint16_t vbl_ticks_last = vbl_ticks;
+	bool refresh_view = false;
 
 	switch (vbl_ticks & 63) {
 		case 63:
@@ -58,14 +59,14 @@ bool idle_until_vblank(void) {
 			ui_icon_update();
 			break;
 		default:
-			shell_tick();
+			refresh_view = shell_tick();
 			break;
 	}
 	while (vbl_ticks == vbl_ticks_last) {
 		ia16_halt();
 	}
 
-	return false;
+	return refresh_view;
 }
 
 void wait_for_vblank(void) {

@@ -16,17 +16,20 @@
  */
 
 #include <nile.h>
+#include <nile/fpga.h>
 #include <nilefs.h>
+#include <nilefs/ff.h>
 #include <string.h>
 #include "shell.h"
 #include "strings.h"
+#include "util/file.h"
 #include "util/task/task.h"
 #include "errors.h"
 #include "lang.h"
 #include "launch/launch.h"
 #include "xmodem.h"
 
-uint8_t shell_task_mem[512];
+uint8_t shell_task_mem[1024];
 #define shell_task ((task_t*) shell_task_mem)
 
 #define SHELL_LINE_LENGTH 128
@@ -40,11 +43,26 @@ uint8_t shell_flags = SHELL_FLAG_NOT_INITIALIZED;
 DEFINE_STRING_LOCAL(s_line_too_long, "\r\nLine too long");
 DEFINE_STRING_LOCAL(s_new_line, "\r\n");
 DEFINE_STRING_LOCAL(s_new_prompt, "\r\n> ");
+DEFINE_STRING_LOCAL(s_dot_local, ".");
 DEFINE_STRING_LOCAL(s_about, "about");
+DEFINE_STRING_LOCAL(s_help, "help");
 DEFINE_STRING_LOCAL(s_launch, "launch");
+DEFINE_STRING_LOCAL(s_reboot, "reboot");
+DEFINE_STRING_LOCAL(s_upload, "upload");
+DEFINE_STRING_LOCAL(s_file_too_big, "File too big");
+DEFINE_STRING_LOCAL(s_missing_argument, "Missing argument");
 DEFINE_STRING_LOCAL(s_unknown_command, "Unknown command");
 DEFINE_STRING_LOCAL(s_backspace, "\x08 \x08");
 DEFINE_STRING_LOCAL(s_awaiting_xmodem_transfer, "Awaiting XMODEM transfer");
+DEFINE_STRING_LOCAL(s_saving_file, "Saving file");
+DEFINE_STRING_LOCAL(s_help_output,
+"Commands:\n"
+"about          \tAbout swanshell\n"
+"help           \tPrint help information\n"
+"launch [path]  \tLaunch file via XMODEM or via path\n"
+"reboot         \tSoft reboot cartridge\n"
+"upload <path>  \tUpload file to storage card via XMODEM\n"
+);
 
 static const char __far s_version_suffix[] = " " VERSION;
 
@@ -90,22 +108,73 @@ static void shell_about(void) {
     nile_mcu_native_cdc_write_string(lang_keys_en[LK_NAME_COPYRIGHT_INFO]);
 }
 
-static void shell_launch(void) {
-    // TODO: Support argument
+static void shell_help(void) {
+    nile_mcu_native_cdc_write_string(s_help_output);
+}
 
-    if (shell_flags & SHELL_FLAG_INTERACTIVE) {
-        nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
-    }
+static void shell_reboot(void) {
+    ia16_disable_irq();
+    nilefs_eject();
+    nile_soft_reset();
+}
+
+static void shell_launch(void) {
+    int16_t result = FR_OK;
     uint32_t size = 0;
-    int16_t result = xmodem_recv_start(&size);
+    if (shell_line_pos > 7) {
+        FIL fp;
+        result = f_open(&fp, shell_line + 7, FA_READ | FA_OPEN_EXISTING);
+        if (result == FR_OK) {
+            size = f_size(&fp);
+            if (size > 12*1024*1024L) {
+                nile_mcu_native_cdc_write_string_const(s_file_too_big);
+                return;
+            }
+            result = f_read_rom_banked(&fp, 0, size, NULL, NULL);
+            f_close(&fp);
+        }
+    } else {
+        if (shell_flags & SHELL_FLAG_INTERACTIVE) {
+            nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
+        }
+        result = xmodem_recv_start(&size);
+        nile_mcu_native_cdc_write_string_const(s_new_line);
+    }
     if (result == FR_OK) {
         bootstub_data->prog.size = size;
         shell_task_yield(SHELL_RET_LAUNCH_IN_PSRAM);
     }
     if (result != FR_OK) {
-        nile_mcu_native_cdc_write_string_const(s_new_line);
         nile_mcu_native_cdc_write_string(error_to_string(result));
     }
+}
+
+static void shell_file_callback(void *userdata, uint32_t step, uint32_t max) {
+    nile_mcu_native_cdc_write_string_const(s_dot_local);
+}
+
+static void shell_upload(void) {
+    if (shell_flags & SHELL_FLAG_INTERACTIVE) {
+        nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
+    }
+    uint32_t size = 0;
+    int16_t result = xmodem_recv_start(&size);
+    ws_delay_ms(10);
+    nile_mcu_native_cdc_write_string_const(s_new_line);
+    if (result == FR_OK) {
+        FIL fp;
+        nile_mcu_native_cdc_write_string_const(s_saving_file);
+        result = f_open(&fp, shell_line + 7, FA_WRITE | FA_CREATE_ALWAYS);
+        if (result == FR_OK) {
+            result = f_write_rom_banked(&fp, 0, size, shell_file_callback, NULL);
+            f_close(&fp);
+        }
+        nile_mcu_native_cdc_write_string_const(s_new_line);
+    }
+    if (result != FR_OK) {
+        nile_mcu_native_cdc_write_string(error_to_string(result));
+    }
+    shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
 int shell_func(task_t *task) {
@@ -122,8 +191,18 @@ int shell_func(task_t *task) {
 
                     if (!strcmp(shell_line, s_about)) {
                         shell_about();
-                    } else if (!strcmp(shell_line, s_launch)) {
+                    } else if (!strcmp(shell_line, s_help)) {
+                        shell_help();
+                    } else if (!strcmp(shell_line, s_reboot)) {
+                        shell_reboot();
+                    } else if (!memcmp(shell_line, s_launch, 6)) {
                         shell_launch();
+                    } else if (!memcmp(shell_line, s_upload, 6)) {
+                        if (shell_line_pos <= 7 || shell_line[6] != ' ') {
+                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+                        } else {
+                            shell_upload();
+                        }
                     } else {
                         nile_mcu_native_cdc_write_string_const(s_unknown_command);
                     }
@@ -164,13 +243,15 @@ void shell_init(void) {
     task_init(shell_task_mem, sizeof(shell_task_mem), shell_func);
 }
 
-void shell_tick(void) {
-    if (shell_flags == SHELL_FLAG_NOT_INITIALIZED) return;
-    if (task_is_joined(shell_task)) return;
+bool shell_tick(void) {
+    if (shell_flags == SHELL_FLAG_NOT_INITIALIZED) return false;
+    if (task_is_joined(shell_task)) return false;
 
     switch (task_resume(shell_task)) {
+        case SHELL_RET_REFRESH_UI: return true;
         case SHELL_RET_LAUNCH_IN_PSRAM: {
             launch_in_psram(bootstub_data->prog.size);
-        } break;
+        } return false;
+        default: return false;
     }
 }
