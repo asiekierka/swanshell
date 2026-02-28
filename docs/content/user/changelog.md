@@ -6,12 +6,15 @@ weight: 100
 ## swanshell 1.1.0 (Eventually)
 
 - Added: Saving `/ram0` contents when loading `.fx` programs directly.
+- Added: Status icons - the cartridge's status is now communicated visually in the bottom right corner.
 - Added: The option to hide save files.
 - Changed: Text viewer improvements:
   - Minor performance improvements.
+  - The text viewer now shows an approximate percentage position in the file being read.
   - The text viewer now supports going back in a file.
   - The text viewer now supports both Shift-JIS and UTF-8 encoded files, with automatic detection.
 - Changed: Tweaked visual padding for pop-up dialogs.
+- Other minor improvements.
 
 ## swanshell 1.0.4 (23rd February 2026)
 
