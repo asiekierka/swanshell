@@ -88,7 +88,7 @@ uint16_t ui_icon_update(void) {
     uint16_t prev_icon_pos = icons_visible;
     uint16_t icon_pos = WS_DISPLAY_WIDTH_TILES;
     bool mcu_present = cart_status.present & CART_PRESENT_MCU;
-    bool mcu_info_ok = !(cart_status.present & CART_PRESENT_MCU_INFO_ERROR);
+    bool mcu_info_ok = cart_status.present & CART_PRESENT_MCU_INFO_OK;
     bool mcu_data_valid = mcu_present && cart_status.version >= CART_FW_VERSION_1_1_0 && mcu_info_ok;
 
     if (!mcu_present) {
@@ -112,7 +112,7 @@ uint16_t ui_icon_update(void) {
         } else if (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT) {
             ui_draw_icon(--icon_pos, UI_BAR_ICON_USB_DETECT);
         }
-    } else if (!mcu_info_ok) {
+    } else if (cart_status.present & CART_PRESENT_MCU_INFO_ERROR) {
         ui_draw_icon(--icon_pos, UI_BAR_ICON_MCU_ERROR);
     }
 

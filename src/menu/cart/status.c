@@ -59,7 +59,6 @@ static int16_t cart_status_init_inner(bool is_mcu_reset_ok) {
     // Initialize stub MCU status if the cartridge is < 1.1.0
     if (cart_status.version == CART_FW_VERSION_1_0_0) {
         cart_status.mcu_info.caps = NILE_MCU_NATIVE_INFO_CAP_ACCEL
-            | NILE_MCU_NATIVE_INFO_CAP_BATTERY
             | NILE_MCU_NATIVE_INFO_CAP_USB
             | NILE_MCU_NATIVE_INFO_CAP_RTC
             | NILE_MCU_NATIVE_INFO_CAP_EEPROM;
@@ -67,7 +66,7 @@ static int16_t cart_status_init_inner(bool is_mcu_reset_ok) {
         cart_status.mcu_info.status = NILE_MCU_NATIVE_INFO_RTC_ENABLED
             | NILE_MCU_NATIVE_INFO_RTC_LSE
             | NILE_MCU_NATIVE_INFO_USB_DETECT
-            | NILE_MCU_NATIVE_INFO_USB_CONNECT; 
+            | NILE_MCU_NATIVE_INFO_USB_CONNECT;
     }
 
     return 0;
@@ -99,9 +98,11 @@ void cart_status_update(void) {
     mcu_native_start();
     int16_t result = nile_mcu_native_mcu_get_info_sync(&cart_status.mcu_info, sizeof(nile_mcu_native_info_t));
     mcu_native_finish();
-    if (result < 0) {
-        cart_status.present |= CART_PRESENT_MCU_INFO_ERROR;
-    } else {
+    if (result >= 4) {
+        cart_status.present |= CART_PRESENT_MCU_INFO_OK;
         cart_status.present &= ~CART_PRESENT_MCU_INFO_ERROR;
+    } else {
+        cart_status.present &= ~CART_PRESENT_MCU_INFO_OK;
+        cart_status.present |= CART_PRESENT_MCU_INFO_ERROR;
     }
 }

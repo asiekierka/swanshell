@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef CART_STATUS_H_
 #define CART_STATUS_H_
 
@@ -23,7 +23,8 @@
 
 #define CART_PRESENT_MCU 0x01
 #define CART_PRESENT_FLASH 0x02
-#define CART_PRESENT_MCU_INFO_ERROR 0x40
+#define CART_PRESENT_MCU_INFO_ERROR 0x20
+#define CART_PRESENT_MCU_INFO_OK 0x40
 #define CART_PRESENT_SAFE_MODE 0x80
 #define CART_FW_VERSION_NONE 0x00
 #define CART_FW_VERSION_1_0_0 0x01
