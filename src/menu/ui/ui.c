@@ -95,6 +95,14 @@ uint16_t ui_icon_update(void) {
         ui_draw_icon(--icon_pos, UI_BAR_ICON_MCU_ERROR);
     }
 
+    if (mcu_data_valid) {
+        if (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_BATTERY_OK) {
+            ui_draw_icon(--icon_pos, UI_BAR_ICON_BATTERY_3);
+        } else {
+            ui_draw_icon(--icon_pos, UI_BAR_ICON_BATTERY_NONE);
+        }
+    }
+
     if (!(inportb(WS_SYSTEM_CTRL_PORT) & WS_SYSTEM_CTRL_IPL_LOCK))
         ui_draw_icon(--icon_pos, UI_BAR_ICON_BOOTROM_UNLOCK);
 
