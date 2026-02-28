@@ -108,10 +108,8 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
                 snprintf(sbuf, sizeof(sbuf), lang_keys[LK_UI_FILE_SELECTOR_PAGE_FORMAT], (config->offset / row_count) + 1, ((config->count + row_count - 1) / row_count));
                 ui_draw_statusbar(sbuf);
-                if (config->info_key) {
-                    const char __far* info_str = lang_keys[config->info_key];
-                    bitmapfont_draw_string(&ui_bitmap, WS_DISPLAY_WIDTH_PIXELS - 2 - bitmapfont_get_string_width(info_str, WS_DISPLAY_WIDTH_PIXELS), WS_DISPLAY_HEIGHT_PIXELS-8, info_str, WS_DISPLAY_WIDTH_PIXELS);
-                }
+                if (config->info_key)
+                    ui_draw_statusbar_right(lang_keys[config->info_key]);
                 draw_highlights |= ui_has_wallpaper();
             }
             if (draw_highlights) {
@@ -135,7 +133,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                     for (int ix = 0; ix < 28; ix++) {
                         ws_screen_put_tile(bitmap_screen2, ((prev_sel_tile + 1) + (ix * 18)), ix, prev_sel_tile + 1);
                         ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel_tile + 1) + (ix * 18)), ix, sel_tile + 1);
-                        
+
                         if (row_height > 8) {
                             ws_screen_put_tile(bitmap_screen2, ((prev_sel_tile + 2) + (ix * 18)), ix, prev_sel_tile + 2);
                             ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel_tile + 2) + (ix * 18)), ix, sel_tile + 2);

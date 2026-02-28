@@ -127,6 +127,16 @@ void ui_draw_statusbar(const char __far* text) {
     }
 }
 
+void ui_draw_statusbar_right(const char __far* text) {
+    for (int i = icons_visible; i < WS_DISPLAY_WIDTH_TILES; i++)
+        ui_draw_icon(i, UI_BAR_ICON_NONE);
+    icons_visible = 0;
+    bitmapfont_set_active_font(font8_bitmap);
+    if (text != NULL) {
+        bitmapfont_draw_string(&ui_bitmap, WS_DISPLAY_WIDTH_PIXELS - 2 - bitmapfont_get_string_width(text, WS_DISPLAY_WIDTH_PIXELS), WS_DISPLAY_HEIGHT_PIXELS-8, text, WS_DISPLAY_WIDTH_PIXELS);
+    }
+}
+
 #define INIT_SCREEN_PATTERN(screen_loc, pal, ofs) \
     { \
         int ip = (ofs); \

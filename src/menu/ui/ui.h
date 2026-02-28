@@ -39,6 +39,7 @@ void ui_layout_clear(uint16_t pal);
 void ui_layout_bars(void);
 void ui_draw_titlebar(const char __far* text);
 void ui_draw_statusbar(const char __far* text);
+void ui_draw_statusbar_right(const char __far* text);
 #ifdef CONFIG_ENABLE_WALLPAPER
 bool ui_has_wallpaper(void);
 void ui_unload_wallpaper(void);
