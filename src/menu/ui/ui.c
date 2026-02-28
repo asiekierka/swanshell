@@ -87,10 +87,11 @@ uint16_t ui_icon_update(void) {
     if (!icons_visible) return WS_DISPLAY_WIDTH_PIXELS;
     uint16_t prev_icon_pos = icons_visible;
     uint16_t icon_pos = WS_DISPLAY_WIDTH_TILES;
-    bool mcu_data_valid = cart_status.version >= CART_FW_VERSION_1_1_0;
+    bool mcu_present = cart_status.present & CART_PRESENT_MCU;
+    bool mcu_info_ok = !(cart_status.present & CART_PRESENT_MCU_INFO_ERROR);
+    bool mcu_data_valid = mcu_present && cart_status.version >= CART_FW_VERSION_1_1_0 && mcu_info_ok;
 
-    if (!(cart_status.present & CART_PRESENT_MCU)) {
-        mcu_data_valid = false;
+    if (!mcu_present) {
         ui_draw_icon(--icon_pos, UI_BAR_ICON_MCU_ERROR);
     }
 
@@ -103,6 +104,8 @@ uint16_t ui_icon_update(void) {
         } else if (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT) {
             ui_draw_icon(--icon_pos, UI_BAR_ICON_USB_DETECT);
         }
+    } else if (!mcu_info_ok) {
+        ui_draw_icon(--icon_pos, UI_BAR_ICON_MCU_ERROR);
     }
 
     if (prev_icon_pos < icon_pos) {

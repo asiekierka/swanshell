@@ -97,6 +97,11 @@ void cart_status_update(void) {
     if (cart_status.version < CART_FW_VERSION_1_1_0) return;
 
     mcu_native_start();
-    nile_mcu_native_mcu_get_info_sync(&cart_status.mcu_info, sizeof(nile_mcu_native_info_t));
+    int16_t result = nile_mcu_native_mcu_get_info_sync(&cart_status.mcu_info, sizeof(nile_mcu_native_info_t));
     mcu_native_finish();
+    if (result < 0) {
+        cart_status.present |= CART_PRESENT_MCU_INFO_ERROR;
+    } else {
+        cart_status.present &= ~CART_PRESENT_MCU_INFO_ERROR;
+    }
 }
