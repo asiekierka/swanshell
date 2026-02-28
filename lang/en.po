@@ -382,6 +382,12 @@ msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "%d IRAM bytes free"
 
 
+msgid "PROMPT_TF_CARD_REMOVED_TITLE"
+msgstr "Storage card removed!"
+
+msgid "PROMPT_TF_CARD_REMOVED"
+msgstr "Please insert a storage card. The cartridge will be automaticaly rebooted."
+
 msgid "PROMPT_NO_BATTERY_TITLE"
 msgstr "Missing or discharged cartridge battery!"
 

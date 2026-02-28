@@ -18,8 +18,44 @@
 #include "irq.h"
 #include "cart/mcu.h"
 #include "cart/status.h"
+#include "lang.h"
+#include "lang_gen.h"
+#include "main.h"
+#include "ui/ui.h"
+#include "ui/ui_popup_dialog.h"
 #include <nile.h>
 #include <nilefs.h>
+#include <ws.h>
+
+static void cart_tf_removed_handler(void) {
+    ui_popup_dialog_config_t dialog = {0};
+
+    dialog.title = lang_keys[LK_PROMPT_TF_CARD_REMOVED_TITLE];
+    dialog.description = lang_keys[LK_PROMPT_TF_CARD_REMOVED];
+
+    ui_hide();
+    ui_init();
+    ui_layout_clear(0);
+    ui_popup_dialog_draw(&dialog);
+    ui_show();
+
+    ia16_enable_irq();
+    while (true) {
+        wait_for_vblank();
+        wait_for_vblank();
+
+        mcu_native_start();
+        uint16_t irq = nile_mcu_native_mcu_reg_read_sync(NILE_MCU_NATIVE_REG_IRQ_STATUS_AUTOACK);
+        mcu_native_finish();
+
+        wait_for_vblank();
+
+        if (irq & NILE_MCU_NATIVE_IRQ_TF_INSERT) {
+            nilefs_eject();
+            nile_soft_reset();
+        }
+    }
+}
 
 void cart_irq_update(void) {
     if (cart_status.version < CART_FW_VERSION_1_1_0)
@@ -28,8 +64,7 @@ void cart_irq_update(void) {
     uint16_t irq = nile_mcu_native_mcu_reg_read_sync(NILE_MCU_NATIVE_REG_IRQ_STATUS_AUTOACK);
     mcu_native_finish();
 
-    if (irq & NILE_MCU_NATIVE_IRQ_TF_INSERT) {
-        nilefs_eject();
-        nile_soft_reset();
+    if (irq & NILE_MCU_NATIVE_IRQ_TF_REMOVE) {
+        cart_tf_removed_handler();
     }
 }

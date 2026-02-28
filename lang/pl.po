@@ -345,6 +345,12 @@ msgstr "Usuń"
 msgid "DIALOG_FILE_DELETE_CONFIRM"
 msgstr "Czy na pewno chcesz usunąć ten plik?"
 
+msgid "PROMPT_TF_CARD_REMOVED_TITLE"
+msgstr "Karta pamięci usunięta!"
+
+msgid "PROMPT_TF_CARD_REMOVED"
+msgstr "Proszę włożyć kartę pamięci. Kartridż zostanie automatycznie uruchomiony ponownie."
+
 msgid "PROMPT_NO_BATTERY_TITLE"
 msgstr "Brak lub rozładowana bateria kartridża!"
 
