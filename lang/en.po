@@ -382,6 +382,12 @@ msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "%d IRAM bytes free"
 
 
+msgid "PROMPT_NO_BATTERY_TITLE"
+msgstr "Missing or discharged cartridge battery!"
+
+msgid "PROMPT_NO_BATTERY"
+msgstr "Save data will not be retained. Do you want to continue?"
+
 msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
 msgstr "Some functionality will be unavailable. Do you want to continue?"
 

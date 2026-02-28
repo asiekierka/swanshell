@@ -345,6 +345,12 @@ msgstr "Usuń"
 msgid "DIALOG_FILE_DELETE_CONFIRM"
 msgstr "Czy na pewno chcesz usunąć ten plik?"
 
+msgid "PROMPT_NO_BATTERY_TITLE"
+msgstr "Brak lub rozładowana bateria kartridża!"
+
+msgid "PROMPT_NO_BATTERY"
+msgstr "Dane zapisu nie zostaną zachowane. Czy chcesz kontynuować?"
+
 msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
 msgstr "Część funkcjonalności będzie niedostępna. Czy chcesz kontynuować?"
 

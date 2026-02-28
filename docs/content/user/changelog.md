@@ -6,6 +6,7 @@ weight: 100
 ## swanshell 1.1.0 (Eventually)
 
 - Added: Enhanced USB shell (`help`, `reboot`, `upload`, `launch path` commands).
+- Added: On firmware 1.1.0, missing/low battery warnings.
 - Added: Saving `/ram0` contents when loading `.fx` programs directly.
 - Added: Status icons - the cartridge's status is now communicated visually in the bottom right corner.
 - Added: The option to hide save files.

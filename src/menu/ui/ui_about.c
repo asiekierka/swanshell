@@ -60,7 +60,7 @@ void ui_about(void) {
         y, buf, 65535);
 
     y += 19;
-    bitmapfont_draw_string_box(&ui_bitmap, 4, y, lang_keys[LK_NAME_COPYRIGHT_INFO], WS_DISPLAY_WIDTH_PIXELS - 8, 1);
+    bitmapfont_draw_string_box(&ui_bitmap, 4, y, lang_keys[LK_NAME_COPYRIGHT_INFO], WS_DISPLAY_WIDTH_PIXELS - 8, 1, 0);
 
     input_wait_any_key();
 }

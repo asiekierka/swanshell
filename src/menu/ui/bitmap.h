@@ -27,7 +27,7 @@
 //
 // AE ; width = 2
 // BF ; height = 4
-// CG ; bpp = 2 
+// CG ; bpp = 2
 // DH ; pitch = 64
 typedef struct {
     // Arguments
@@ -53,7 +53,7 @@ typedef struct {
 
 #define BITMAP_COLOR_MODE_STORE    0x000
 #define BITMAP_COLOR_MODE_XOR      0x100
-#define BITMAP_COLOR(value, mask, mode) ((value) | ((mask) << 4) | (mode)) 
+#define BITMAP_COLOR(value, mask, mode) ((value) | ((mask) << 4) | (mode))
 #define BITMAP_COLOR_2BPP(value) BITMAP_COLOR(value, 3, BITMAP_COLOR_MODE_STORE)
 #define BITMAP_COLOR_4BPP(value) BITMAP_COLOR(value, 15, BITMAP_COLOR_MODE_STORE)
 
@@ -88,6 +88,8 @@ typedef struct __attribute__((packed)) {
 
 #define BITMAPFONT_HEADER_MAGIC 0x6653
 
+#define BITMAPFONT_BOX_CENTERED 0x0001
+
 void bitmapfont_set_active_font(uint16_t font);
 uint16_t bitmapfont_get_font_height(void);
 uint16_t bitmapfont_get_char_width(uint32_t ch);
@@ -96,7 +98,7 @@ uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width);
 uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t max_width);
 uint16_t bitmapfont_draw_string16(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* str, uint16_t max_width);
 void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height, int linegap);
-uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width, int linegap);
+uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width, int linegap, uint16_t flags);
 int16_t bitmapfont_load(void);
 
 #endif /* BITMAP_H_ */

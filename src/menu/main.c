@@ -22,6 +22,7 @@
 #include <ws/util.h>
 #include <wsx/planar_unpack.h>
 #include <nilefs.h>
+#include "cart/irq.h"
 #include "cart/status.h"
 #include "errors.h"
 #include "lang.h"

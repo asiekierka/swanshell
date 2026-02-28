@@ -158,6 +158,14 @@ static bool launch_is_rom_static_freya(FIL *f) {
     return false;
 }
 
+bool launch_is_battery_required(launch_rom_metadata_t *meta) {
+    if (meta->eeprom_size)
+        return true;
+    if (meta->sram_size)
+        return meta->rom_type != ROM_TYPE_FREYA;
+    return false;
+}
+
 int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     uint8_t tmp[5];
     uint16_t br;
@@ -679,6 +687,24 @@ launch_restore_save_data_ini_end:
     result = result || f_close(&fp);
 launch_restore_save_data_return_result:
     return result;
+}
+
+bool launch_ui_handle_battery_missing_error(launch_rom_metadata_t *meta) {
+    ui_popup_dialog_config_t dlg = {0};
+
+    dlg.title = lang_keys[LK_PROMPT_NO_BATTERY_TITLE];
+    dlg.description = lang_keys[LK_PROMPT_NO_BATTERY];
+    dlg.buttons[0] = LK_YES;
+    dlg.buttons[1] = LK_NO;
+
+    ui_popup_dialog_draw(&dlg);
+    ui_show();
+
+    if (ui_popup_dialog_action(&dlg, 1) == 0) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool launch_ui_handle_mcu_comm_error(launch_rom_metadata_t *meta) {

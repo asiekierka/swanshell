@@ -92,11 +92,11 @@ static inline void ui_popup_dialog_draw_buttons(ui_popup_dialog_config_t *config
         bitmap_rect_fill(&ui_bitmap, xofs + button_x[i] + 1, config->buttons_y + 1,
             button_w[i] - 2, button_height - 2, BITMAP_COLOR_2BPP(2));
         bitmapfont_draw_string(&ui_bitmap, xofs + button_x[i] + BUTTON_X_BORDER, config->buttons_y + BUTTON_Y_BORDER + BUTTON_Y_TEXT_OFFSET,
-            lang_keys[config->buttons[i]], WS_DISPLAY_WIDTH_PIXELS);  
+            lang_keys[config->buttons[i]], WS_DISPLAY_WIDTH_PIXELS);
         if (selected == i) {
             bitmap_rect_fill(&ui_bitmap, xofs + button_x[i] + 1, config->buttons_y + 1,
-                button_w[i] - 2, button_height - 2, BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));    
-        }  
+                button_w[i] - 2, button_height - 2, BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));
+        }
     }
 }
 
@@ -161,7 +161,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
     }
 
     inner_height -= last_gap;
-    
+
     if (!config->width || !config->height) {
         config->width = ROUND_TO_8_WITH_BORDER(inner_width);
         config->height = ROUND_TO_8_WITH_BORDER(inner_height);
@@ -182,7 +182,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         bitmapfont_draw_string_box(&ui_bitmap,
             UI_CENTERED_IN_BOX(config->x, config->width, title_box_width),
             inner_y + inner_height,
-            config->title, title_box_width, 0);
+            config->title, title_box_width, 0, BITMAPFONT_BOX_CENTERED);
         APPEND_INCLUDING_GAP(inner_height, title_box_height);
         inner_height -= 2;
     }
@@ -191,7 +191,7 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
         bitmapfont_draw_string_box(&ui_bitmap,
             UI_CENTERED_IN_BOX(config->x, config->width, desc_box_width),
             inner_y + inner_height,
-            config->description, desc_box_width, 1);
+            config->description, desc_box_width, 1, 0);
         APPEND_INCLUDING_GAP(inner_height, desc_box_height);
         inner_height += DESCRIPTION_GAP_EXTRA;
     }

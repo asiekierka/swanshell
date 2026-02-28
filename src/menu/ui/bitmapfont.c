@@ -48,7 +48,7 @@ static inline bitmapfont_header_t __far* bitmapfont_get_header_ptr(void) {
 
 static const uint16_t __far* __bitmapfont_find_char(uint32_t ch) {
     uint16_t ch_high = ch >> 8;
-    
+
     ws_bank_rom0_set(font_banks[active_font]);
     bitmapfont_header_t __far* header = bitmapfont_get_header_ptr();
 
@@ -99,9 +99,9 @@ static const uint16_t __far* __bitmapfont_get_error_glyph(void) {
 static inline uint16_t __bitmapfont_get_char_width(const uint16_t __far* data16) {
     if (!FP_SEG(data16))
         data16 = __bitmapfont_get_error_glyph();
-    
+
     const uint8_t __far *data = (const uint8_t __far*) data16;
-    return (data[2] & 0xF) + (data[3] & 0xF);    
+    return (data[2] & 0xF) + (data[3] & 0xF);
 }
 
 static inline uint16_t __bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* data) {
@@ -261,7 +261,7 @@ repeat_char:
     if (*height) *height -= linegap;
 }
 
-uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width, int linegap) {
+uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width, int linegap, uint16_t flags) {
     uint32_t ch;
     uint16_t line_width = 0;
     const char __far* start_str = str;
@@ -288,6 +288,9 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
                     break_str = prev_str;
                 }
                 uint16_t local_xofs = xofs;
+                if (flags & BITMAPFONT_BOX_CENTERED) {
+                    local_xofs += (width - line_width) >> 1;
+                }
                 while (start_str < break_str) {
                     ch = wsx_utf8_decode_next(&start_str);
                     local_xofs += bitmapfont_draw_char(bitmap, local_xofs, yofs, ch) + CONFIG_FONT_CHAR_GAP;
@@ -307,7 +310,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
             }
         }
     });
-    
+
     return yofs - start_yofs;
 }
 

@@ -22,6 +22,7 @@
 #include <ws.h>
 #include <nilefs.h>
 #include "bitmap.h"
+#include "cart/status.h"
 #include "config.h"
 #include "errors.h"
 #include "lang_gen.h"
@@ -253,15 +254,20 @@ rescan_directory:
                     const char __far* ext = fno->fno.fname + fno->extension_loc;
                     if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
                         launch_rom_metadata_t meta;
-                        bool error_displayed = false;
                         int16_t result = launch_get_rom_metadata(path, &meta);
                         if (result == FR_OK) {
                             result = launch_restore_save_data(path, &meta);
+                            reinit_dirs = true;
                             if (result == ERR_MCU_COMM_FAILED) {
                                 if (launch_ui_handle_mcu_comm_error(&meta))
                                     result = FR_OK;
                                 else
-                                    error_displayed = true;
+                                    goto exit_no_launch;
+                            } else {
+                                if (launch_is_battery_required(&meta))
+                                    if (cart_status_mcu_info_valid() && !cart_status_mcu_battery_ok())
+                                        if (!launch_ui_handle_battery_missing_error(&meta))
+                                            goto exit_no_launch;
                             }
                             if (result == FR_OK) {
                                 result = launch_set_bootstub_file_entry(path, &bootstub_data->prog);
@@ -271,9 +277,8 @@ rescan_directory:
                             }
                         }
 
-                        // Error
-                        if (!error_displayed)
-                            ui_dialog_error_check(result, NULL, 0);
+                        ui_dialog_error_check(result, NULL, 0);
+exit_no_launch:
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_fx) || !strcasecmp(ext, s_file_ext_bin)) {

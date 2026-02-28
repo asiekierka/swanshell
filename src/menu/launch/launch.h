@@ -50,10 +50,12 @@ typedef struct {
     uint8_t rom_type;
 } launch_rom_metadata_t;
 
+bool launch_is_battery_required(launch_rom_metadata_t *meta);
 int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta);
 int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta);
 int16_t launch_backup_save_data(void);
 int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta);
+bool launch_ui_handle_battery_missing_error(launch_rom_metadata_t *meta);
 bool launch_ui_handle_mcu_comm_error(launch_rom_metadata_t *meta);
 int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *entry);
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta);

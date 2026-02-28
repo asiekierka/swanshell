@@ -19,6 +19,7 @@
 #define CART_STATUS_H_
 
 #include <nile.h>
+#include <nile/mcu/protocol.h>
 #include <stdint.h>
 
 #define CART_PRESENT_MCU 0x01
@@ -43,7 +44,11 @@ int16_t cart_status_init(bool is_safe_mode, bool is_mcu_reset_ok);
 void cart_status_update(void);
 
 static inline bool cart_status_mcu_info_valid(void) {
-    return (cart_status.present & CART_PRESENT_MCU) && (cart_status.version >= CART_FW_VERSION_1_1_0);
+    return (cart_status.present & CART_PRESENT_MCU_INFO_OK) && (cart_status.version >= CART_FW_VERSION_1_1_0);
+}
+
+static inline bool cart_status_mcu_battery_ok(void) {
+    return cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_BATTERY_OK;
 }
 
 #endif /* CART_STATUS_H_ */

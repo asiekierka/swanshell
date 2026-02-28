@@ -61,7 +61,7 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
     } else if (s->type == SETTING_TYPE_COLOR) {
         snprintf(buf, sizeof(buf), s_color, *s->color.value & 0xFFF);
     }
-  
+
     x_offset = WS_DISPLAY_WIDTH_PIXELS - x_offset - bitmapfont_get_string_width(buf, WS_DISPLAY_WIDTH_PIXELS - x_offset - len);
     bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, WS_DISPLAY_WIDTH_PIXELS - x_offset);
 }
@@ -96,7 +96,7 @@ static void ui_settings_selector_draw(struct ui_selector_config *config, uint16_
     if (s->type == SETTING_TYPE_CHOICE_BYTE) {
         s->choice.name(offset + s->choice.min, buf, sizeof(buf));
     }
-  
+
     bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, WS_DISPLAY_WIDTH_PIXELS - x_offset);
 }
 
@@ -174,9 +174,9 @@ reload_menu:
 
                 ui_draw_titlebar(lang_keys[s->name]);
                 ui_draw_statusbar(NULL);
-                
+
                 bitmapfont_set_active_font(font16_bitmap);
-                bitmapfont_draw_string_box(&ui_bitmap, 2, 10, lang_keys[s->help], WS_DISPLAY_WIDTH_PIXELS - 4, 0);
+                bitmapfont_draw_string_box(&ui_bitmap, 2, 10, lang_keys[s->help], WS_DISPLAY_WIDTH_PIXELS - 4, 0, 0);
 
                 input_wait_any_key();
 
@@ -187,7 +187,7 @@ reload_menu:
 
         if (keys_pressed & WS_KEY_A) {
             bool reload_required = false;
-            
+
             if (s->type == SETTING_TYPE_CATEGORY) {
                 config.category = s->category.value;
                 offset_category_stack[offset_category_stack_pos++] = config.config.offset;
