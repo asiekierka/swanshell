@@ -26,6 +26,7 @@
 #endif
 
 DEFINE_STRING(s_color, "#%03x");
+DEFINE_STRING(s_percent, "%d%%");
 
 DEFINE_STRING(s_path_sep, "/");
 DEFINE_STRING(s_dot, ".");

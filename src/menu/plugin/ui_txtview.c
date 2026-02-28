@@ -142,6 +142,7 @@ static uint32_t sjis_decode_next(const char __far** s, uint16_t tbl_bank) {
 
 int ui_txtview(const char *path) {
     FIL fp;
+    char buf[64];
 
     ui_layout_bars();
 
@@ -166,7 +167,6 @@ int ui_txtview(const char *path) {
     txt_encoding_t encoding = detect_encoding(size);
     uint16_t tbl_bank = (size + 65535) >> 16;
     if (encoding == TXT_ENCODING_SJIS) {
-        char buf[64];
         strcpy(buf, s_path_tbl_shiftjis);
         result = f_open(&fp, buf, FA_READ);
         if (result != FR_OK) return result;
@@ -243,6 +243,10 @@ int ui_txtview(const char *path) {
         file_last_end_pos = file_pos;
 
         uint32_t file_drawn_pos = file_start_pos;
+        uint16_t percent = (file_pos * 100) / size;
+        snprintf(buf, sizeof(buf) - 1, s_percent, percent);
+        ui_draw_statusbar(buf);
+
         while (file_start_pos == file_drawn_pos) {
             idle_until_vblank();
             input_update();
