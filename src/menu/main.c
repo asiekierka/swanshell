@@ -54,6 +54,9 @@ bool idle_until_vblank(void) {
 	bool refresh_view = false;
 
 	switch (vbl_ticks & 63) {
+	    case 31:
+			cart_irq_update();
+			break;
 		case 63:
 			cart_status_update();
 			ui_icon_update();

@@ -9,6 +9,7 @@ weight: 100
 - Added: Saving `/ram0` contents when loading `.fx` programs directly.
 - Added: Status icons - the cartridge's status is now communicated visually in the bottom right corner.
 - Added: The option to hide save files.
+- Changed: On firmware 1.1.0+, inserting a removed storage card will trigger a cartridge reboot.
 - Changed: Text viewer improvements:
   - Minor performance improvements.
   - The text viewer now shows an approximate percentage position in the file being read.

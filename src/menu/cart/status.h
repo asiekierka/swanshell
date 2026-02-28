@@ -46,4 +46,4 @@ static inline bool cart_status_mcu_info_valid(void) {
     return (cart_status.present & CART_PRESENT_MCU) && (cart_status.version >= CART_FW_VERSION_1_1_0);
 }
 
-#endif /* CART_MCU_H_ */
+#endif /* CART_STATUS_H_ */
