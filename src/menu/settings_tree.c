@@ -348,7 +348,7 @@ static void settings_theme_dark_mode_on_change(const struct setting *set) {
 static const setting_t __far setting_theme_dark_mode = {
     s_theme_dark_mode_key,
     LK_SETTINGS_THEME_DARK_MODE,
-    0,
+    LK_SETTINGS_THEME_DARK_MODE_HELP,
     SETTING_TYPE_FLAG,
     0,
     settings_theme_dark_mode_on_change,
@@ -362,7 +362,7 @@ static const setting_t __far setting_theme_dark_mode = {
 static const setting_t __far setting_theme_accent_color = {
     s_theme_accent_color_key,
     LK_SETTINGS_THEME_ACCENT_COLOR,
-    0,
+    LK_SETTINGS_THEME_ACCENT_COLOR_HELP,
     SETTING_TYPE_COLOR,
     0,
     settings_theme_accent_color_on_change,
@@ -417,7 +417,7 @@ static void settings_ticks_name(uint16_t value, char *buf, int buf_len) {
 static const setting_t __far setting_repeat_delay = {
     s_joy_repeat_first,
     LK_SETTINGS_CONTROLS_REPEAT_DELAY,
-    0,
+    LK_SETTINGS_CONTROLS_REPEAT_DELAY_HELP,
     SETTING_TYPE_CHOICE_BYTE,
     SETTING_FLAG_CHOICE_LIST,
     NULL,
@@ -432,7 +432,7 @@ static const setting_t __far setting_repeat_delay = {
 static const setting_t __far setting_repeat_next_delay = {
     s_joy_repeat_next,
     LK_SETTINGS_CONTROLS_REPEAT_RATE,
-    0,
+    LK_SETTINGS_CONTROLS_REPEAT_RATE_HELP,
     SETTING_TYPE_CHOICE_BYTE,
     SETTING_FLAG_CHOICE_LIST,
     NULL,

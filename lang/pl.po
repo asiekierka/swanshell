@@ -106,7 +106,7 @@ msgid "SETTINGS_CART_MCU_SPI_SPEED"
 msgstr "Prędkość komunikacji MCU"
 
 msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
-msgstr "- Niska: 384 KHz\n- Średnia: 6 MHz na WSC, 384 KHz na WS/PCv2\n- Wysoka: 24 MHz"
+msgstr "Ustaw częstotliwość używaną do komunikacji z MCU na kartridżu. Obecnie jest ona używana do transferu plików przez USB.\n- Niska: 384 KHz\n- Średnia: 6 MHz (384 KHz na WS/PCv2)\n- Wysoka: 24 MHz"
 
 msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
 msgstr "Niska"
@@ -282,8 +282,14 @@ msgstr "Motyw"
 msgid "SETTINGS_THEME_ACCENT_COLOR"
 msgstr "Kolor akcentu"
 
+msgid "SETTINGS_THEME_ACCENT_COLOR_HELP"
+msgstr "Kolor używany jako akcent interfejsu, m.in. na górnym i dolnym pasku."
+
 msgid "SETTINGS_THEME_DARK_MODE"
 msgstr "Tryb nocny"
+
+msgid "SETTINGS_THEME_DARK_MODE_HELP"
+msgstr "Użyj ciemnego tła na głównym obszarze interfejsu użytkownika."
 
 msgid "ERROR_DATA_TRANSFER_TIMEOUT"
 msgstr "Przekroczono czas transferu danych"
@@ -393,8 +399,14 @@ msgstr "System plików"
 msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
 msgstr "Odstęp potwórzeń"
 
+msgid "SETTINGS_CONTROLS_REPEAT_DELAY_HELP"
+msgstr "Odstęp między pierwszym wciśnięciem przycisku a pierwszym powtórzeniem wciśnięcia."
+
 msgid "SETTINGS_CONTROLS_REPEAT_RATE"
 msgstr "Częstość potwórzeń"
+
+msgid "SETTINGS_CONTROLS_REPEAT_RATE_HELP"
+msgstr "Częstość następnych powtórzeń wciśnięcia."
 
 msgid "DIALOG_SAVE_OVERDUMP_TITLE_SRAM"
 msgstr "Plik .ram zbyt duży"

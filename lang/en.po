@@ -134,7 +134,7 @@ msgid "SETTINGS_CART_MCU_SPI_SPEED"
 msgstr "MCU communication speed"
 
 msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
-msgstr "- Low: 384 KHz\n- Medium: 6 MHz on WSC, 384 KHz on WS/PCv2\n- High: 24 MHz"
+msgstr "Set the frequency used for communicating with the cartridge MCU. This is currently used for USB file transfers.\n- Low: 384 KHz\n- Medium: 6 MHz (384 KHz on WS/PCv2)\n- High: 24 MHz"
 
 msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
 msgstr "Low"
@@ -151,14 +151,26 @@ msgstr "RTC date and time"
 msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
 msgstr "Repeat delay"
 
+msgid "SETTINGS_CONTROLS_REPEAT_DELAY_HELP"
+msgstr "The delay between the press of a button and its first repeat."
+
 msgid "SETTINGS_CONTROLS_REPEAT_RATE"
 msgstr "Repeat rate"
+
+msgid "SETTINGS_CONTROLS_REPEAT_RATE_HELP"
+msgstr "The rate of subsequent button press repeats."
 
 msgid "SETTINGS_THEME_ACCENT_COLOR"
 msgstr "Accent color"
 
+msgid "SETTINGS_THEME_ACCENT_COLOR_HELP"
+msgstr "Color used as the user interface accent, in particular on the top and bottom bars."
+
 msgid "SETTINGS_THEME_DARK_MODE"
 msgstr "Dark mode"
+
+msgid "SETTINGS_THEME_DARK_MODE_HELP"
+msgstr "Use a dark background for the main area of the user interface."
 
 msgid "SETTINGS_THEME_DARK"
 msgstr "Dark"
