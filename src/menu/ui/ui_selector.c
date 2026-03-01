@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <ws.h>
 #include <ws/display.h>
+#include <ws/timer.h>
 #include "ui_selector.h"
 #include "../util/input.h"
 #include "../main.h"
@@ -116,10 +117,10 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                 uint16_t prev_sel = (prev_offset % row_count);
                 uint16_t sel = (config->offset % row_count);
                 if (full_redraw) {
-                    for (int ix = 0; ix < 28; ix++) {
-                        for (int iy = 0; iy < 16; iy++) {
-                            uint16_t pal = 0;
-                            if ((iy >> (row_height > 8 ? 1 : 0)) == sel) pal = WS_SCREEN_ATTR_PALETTE(1);
+                    for (int iy = 0; iy < 16; iy++) {
+                        uint16_t pal = 0;
+                        if ((iy >> (row_height > 8 ? 1 : 0)) == sel) pal = WS_SCREEN_ATTR_PALETTE(1);
+                        for (int ix = 0; ix < 28; ix++) {
                             ws_screen_put_tile(bitmap_screen2, pal | ((iy + 1) + (ix * 18)), ix, iy + 1);
                         }
                     }
