@@ -15,12 +15,13 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef UI_ABOUT_H__
-#define UI_ABOUT_H__
+#ifndef UI_ABOUT_H_
+#define UI_ABOUT_H_
 
 #include <stdint.h>
 #include <wonderful.h>
 
 void ui_about(void);
+void ui_about_cartridge(void);
 
-#endif /* UI_ABOUT_H__ */
+#endif /* UI_ABOUT_H_ */

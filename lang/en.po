@@ -289,8 +289,11 @@ msgstr "Launch via XMODEM"
 msgid "SUBMENU_OPTION_TEST_BFB"
 msgstr "Test"
 
-msgid "SETTINGS_ABOUT"
-msgstr "About..."
+msgid "SETTINGS_SYS_INFO"
+msgstr "System information"
+
+msgid "SETTINGS_SYS_INFO_MY_CARTRIDGE"
+msgstr "My cartridge"
 
 msgid "SUBMENU_OPTION_WITCH"
 msgstr "Witch..."

@@ -27,8 +27,10 @@
 
 DEFINE_STRING(s_color, "#%03x");
 DEFINE_STRING(s_percent, "%d%%");
+DEFINE_STRING(s_hex_byte, "%02x");
 
 DEFINE_STRING(s_path_sep, "/");
+DEFINE_STRING(s_comma, ",");
 DEFINE_STRING(s_dot, ".");
 DEFINE_STRING(s_dotdot, "..");
 
@@ -89,5 +91,9 @@ DEFINE_STRING(s_save_ini_freya_ram0, "FreyaRam0");
 DEFINE_STRING(s_save_ini_entry, "%s=%ld|%s%s\n");
 DEFINE_STRING(s_save_ini_id_entry, "ID=%ld\n");
 DEFINE_STRING(s_save_ini_freya_ram0_entry, "FreyaRam0=%s\n");
+
+DEFINE_STRING(s_my_board_revision, "rev. %d");
+DEFINE_STRING(s_my_firmware_version, "%d.%d.%d (%02x%02x%02x%02x)");
+DEFINE_STRING(s_my_mcu_protocol_version, "%d.%d");
 
 #endif /* _STRINGS_H_ */

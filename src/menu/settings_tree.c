@@ -479,6 +479,41 @@ static const setting_t __far setting_about = {
     setting_about_action
 };
 
+static void setting_about_cartridge_action(const struct setting *set) {
+    ui_about_cartridge();
+    ui_layout_bars();
+}
+
+static const setting_t __far setting_about_cartridge = {
+    NULL,
+    LK_SETTINGS_SYS_INFO_MY_CARTRIDGE,
+    NULL,
+    SETTING_TYPE_ACTION,
+    SETTING_FLAG_ACTION_NO_ARROW,
+    setting_about_cartridge_action
+};
+
+static const setting_category_t __far settings_sys_info = {
+    LK_SETTINGS_SYS_INFO,
+    0,
+    &settings_root,
+    2,
+    {
+        &setting_about_cartridge,
+        &setting_about
+    }
+};
+
+static const setting_t __far setting_sys_info = {
+    NULL,
+    LK_SETTINGS_SYS_INFO,
+    0,
+    SETTING_TYPE_CATEGORY,
+    0,
+    NULL,
+    .category = { &settings_sys_info }
+};
+
 const setting_category_t __far settings_root = {
     LK_SETTINGS_KEY,
     0,
@@ -490,7 +525,7 @@ const setting_category_t __far settings_root = {
         &setting_controls,
         &setting_program,
         &setting_cart,
-        &setting_language,
-        &setting_about
+        &setting_sys_info,
+        &setting_language
     }
 };

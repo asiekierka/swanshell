@@ -5,6 +5,7 @@ weight: 100
 
 ## swanshell 1.1.0 (Eventually)
 
+- Added: Enhanced system information menu.
 - Added: Enhanced USB shell (`help`, `reboot`, `upload`, `launch path` commands).
 - Added: On firmware 1.1.0, missing/low battery warnings.
 - Added: Saving `/ram0` contents when loading `.fx` programs directly.

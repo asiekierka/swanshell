@@ -195,6 +195,12 @@ msgstr "Błąd ładowania ustawień!"
 msgid "SUBMENU_OPTION_TEST_BFB"
 msgstr "Test"
 
+msgid "SETTINGS_SYS_INFO"
+msgstr "Informacje systemowe"
+
+msgid "SETTINGS_SYS_INFO_MY_CARTRIDGE"
+msgstr "Mój kartridż"
+
 msgid "SUBMENU_OPTION_WITCH"
 msgstr "Witch..."
 

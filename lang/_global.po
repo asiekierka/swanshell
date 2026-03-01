@@ -35,3 +35,52 @@ msgstr "!@#$%^&'()_+\nQWERTYUIOP{}\nASDFGHJKL;\nZXCVBNM,.␣"
 #: Will never appear in non-English.
 msgid "DIALOG_SETTINGS_CREATING_NEW"
 msgstr "Creating new settings data..."
+
+#: Not translating "My cartridge" section for now.
+msgid "MY_CARTRIDGE_BOARD_REVISION"
+msgstr "Board revision:"
+
+msgid "MY_CARTRIDGE_FIRMWARE_VERSION"
+msgstr "FW version:"
+
+msgid "MY_CARTRIDGE_FIRMWARE_VERSION_FACTORY"
+msgstr "factory"
+
+msgid "MY_CARTRIDGE_FIRMWARE_VERSION_PARTIAL_INSTALL"
+msgstr "partial install"
+
+msgid "MY_CARTRIDGE_MCU_PROTOCOL_VERSION"
+msgstr "MCU protocol version:"
+
+msgid "MY_CARTRIDGE_RTC_STATUS"
+msgstr "RTC status:"
+
+msgid "MY_CARTRIDGE_RTC_STATUS_INITIALIZED"
+msgstr "initialized"
+
+msgid "MY_CARTRIDGE_RTC_STATUS_NOT_INITIALIZED"
+msgstr "not initialized"
+
+msgid "MY_CARTRIDGE_RTC_STATUS_REDUCED_ACCURACY"
+msgstr "reduced accuracy"
+
+msgid "MY_CARTRIDGE_USB_STATUS"
+msgstr "USB status:"
+
+msgid "MY_CARTRIDGE_USB_STATUS_NOT_CONNECTED"
+msgstr "not connected"
+
+msgid "MY_CARTRIDGE_USB_STATUS_DETECTED"
+msgstr "detected"
+
+msgid "MY_CARTRIDGE_USB_STATUS_CONNECTED"
+msgstr "connected"
+
+msgid "MY_CARTRIDGE_NOT_SUPPORTED"
+msgstr "not supported"
+
+msgid "MY_CARTRIDGE_ERROR"
+msgstr "[error]"
+
+msgid "SETTINGS_ABOUT"
+msgstr "About..."
