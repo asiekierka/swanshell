@@ -21,6 +21,9 @@
 #include <nilefs/ff.h>
 #include <string.h>
 #include "shell.h"
+#include "cart/status.h"
+#include "lang_gen.h"
+#include "launch/launch_athena.h"
 #include "strings.h"
 #include "util/file.h"
 #include "util/task/task.h"
@@ -29,6 +32,8 @@
 #include "launch/launch.h"
 #include "xmodem.h"
 
+// Avoid shell stack memory overlapping with bootstub
+__attribute__((section(".iram_1700")))
 uint8_t shell_task_mem[1152];
 #define shell_task ((task_t*) shell_task_mem)
 
@@ -124,34 +129,72 @@ static void shell_reboot(void) {
     nile_soft_reset();
 }
 
+__attribute__((noinline))
+static void shell_print_error(int16_t result) {
+    if (result == FR_OK) return;
+    nile_mcu_native_cdc_write_string(error_to_string(result));
+}
+
+__attribute__((noinline))
+static int16_t shell_launch_file(char *path) {
+    const char *ext = (const char*) strrchr(path, '.');
+    if (ext == NULL) return ERR_FILE_NOT_EXECUTABLE;
+    if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
+        launch_rom_metadata_t meta;
+        int16_t result = launch_get_rom_metadata(path, &meta);
+        if (result == FR_OK) {
+            result = launch_restore_save_data(path, &meta);
+            if (result == ERR_MCU_COMM_FAILED) {
+                shell_print_error(result);
+                nile_mcu_native_cdc_write_string_const(s_new_line);
+                result = FR_OK;
+            }
+            if (launch_is_battery_required(&meta)) {
+                if (cart_status_mcu_info_valid() && !cart_status_mcu_battery_ok()) {
+                    nile_mcu_native_cdc_write_string(lang_keys[LK_PROMPT_NO_BATTERY_TITLE]);
+                    nile_mcu_native_cdc_write_string_const(s_new_line);
+                }
+            }
+            if (result == FR_OK) {
+                result = launch_set_bootstub_file_entry(path, &bootstub_data->prog);
+                if (result == FR_OK) {
+                    result = launch_rom_via_bootstub(&meta);
+                }
+            }
+            shell_task_yield(SHELL_RET_REFRESH_UI);
+        }
+        return result;
+    } else if (!strcasecmp(ext, s_file_ext_fx) || !strcasecmp(ext, s_file_ext_bin)) {
+        // TODO: Do some checks on the .bin file
+        return launch_athena_boot_curdir_as_rom_wip(path);
+    } else if (!strcasecmp(ext, s_file_ext_bfb)) {
+        int16_t result = launch_bfb(path);
+        shell_task_yield(SHELL_RET_REFRESH_UI);
+        return result;
+    } else if (!strcasecmp(ext, s_file_ext_com)) {
+        int16_t result = launch_com(path);
+        shell_task_yield(SHELL_RET_REFRESH_UI);
+        return result;
+    } else {
+        return ERR_FILE_NOT_EXECUTABLE;
+    }
+}
+
+__attribute__((noinline))
 static void shell_launch(void) {
     int16_t result = FR_OK;
     uint32_t size = 0;
-    if (shell_line_pos > 7) {
-        FIL fp;
-        result = f_open(&fp, shell_line + 7, FA_READ | FA_OPEN_EXISTING);
-        if (result == FR_OK) {
-            size = f_size(&fp);
-            if (size > 12*1024*1024L) {
-                nile_mcu_native_cdc_write_string_const(s_file_too_big);
-                return;
-            }
-            result = f_read_rom_banked(&fp, 0, size, NULL, NULL);
-            f_close(&fp);
-        }
-    } else {
-        if (shell_flags & SHELL_FLAG_INTERACTIVE) {
-            nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
-        }
-        result = xmodem_recv_start(&size);
-        nile_mcu_native_cdc_write_string_const(s_new_line);
+    if (shell_flags & SHELL_FLAG_INTERACTIVE) {
+        nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
     }
+    result = xmodem_recv_start(&size);
+    nile_mcu_native_cdc_write_string_const(s_new_line);
     if (result == FR_OK) {
         bootstub_data->prog.size = size;
         shell_task_yield(SHELL_RET_LAUNCH_IN_PSRAM);
     }
     if (result != FR_OK) {
-        nile_mcu_native_cdc_write_string(error_to_string(result));
+        shell_print_error(result);
     }
 }
 
@@ -178,7 +221,7 @@ static void shell_upload(void) {
         nile_mcu_native_cdc_write_string_const(s_new_line);
     }
     if (result != FR_OK) {
-        nile_mcu_native_cdc_write_string(error_to_string(result));
+        shell_print_error(result);
     }
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
@@ -186,7 +229,7 @@ static void shell_upload(void) {
 static void shell_cd(void) {
     int16_t result = f_chdir(shell_line + 3);
     if (result != FR_OK) {
-        nile_mcu_native_cdc_write_string(error_to_string(result));
+        shell_print_error(result);
     }
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
@@ -209,14 +252,14 @@ static void shell_ls(void) {
         f_closedir(&dp);
     }
     if (result != FR_OK) {
-        nile_mcu_native_cdc_write_string(error_to_string(result));
+        shell_print_error(result);
     }
 }
 
 static void shell_rm(void) {
     int16_t result = f_unlink(shell_line + 3);
     if (result != FR_OK) {
-        nile_mcu_native_cdc_write_string(error_to_string(result));
+        shell_print_error(result);
     }
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
@@ -257,7 +300,11 @@ int shell_func(task_t *task) {
                         }
                         shell_ls();
                     } else if (!memcmp(shell_line, s_launch, 6)) {
-                        shell_launch();
+                        if (shell_line_pos <= 7 || shell_line[6] != ' ') {
+                            shell_launch();
+                        } else{
+                            shell_print_error(shell_launch_file(shell_line + 7));
+                        }
                     } else if (!memcmp(shell_line, s_upload, 6)) {
                         if (shell_line_pos <= 7 || shell_line[6] != ' ') {
                             nile_mcu_native_cdc_write_string_const(s_missing_argument);
