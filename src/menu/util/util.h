@@ -14,15 +14,28 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef UTIL_H_
 #define UTIL_H_
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <wonderful.h>
+#include <ws.h>
+#include "shell/shell.h"
 
 extern const uint8_t __far util_hex_chars[16];
+
+#define HBL_PROFILE_START { ws_timer_hblank_start_once(65535); }
+#define HBL_PROFILE_END { \
+    uint16_t __hbl_time = ws_timer_hblank_get_counter(); \
+    ws_timer_hblank_disable(); \
+    char __hbl_buf[81]; \
+    const char *__hbl_name = __FUNCTION__; \
+    snprintf(__hbl_buf, 81, "%s():%d %d\r\n", (const char __far*) __hbl_name, __LINE__, __hbl_time ^ 0xFFFF); \
+    __hbl_buf[80] = 0; \
+    nile_mcu_native_cdc_write_string(__hbl_buf); \
+}
 
 /**
  * @return uint16_t The approximate number of free RAM bytes.

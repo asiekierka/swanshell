@@ -21,11 +21,12 @@
 #include <ws/display.h>
 #include <ws/timer.h>
 #include "ui_selector.h"
-#include "../util/input.h"
 #include "../main.h"
 #include "lang.h"
 #include "lang_gen.h"
 #include "ui/ui.h"
+#include "util/input.h"
+#include "util/util.h"
 
 #define SELECTOR_Y_OFFSET 8
 

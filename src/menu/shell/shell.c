@@ -76,7 +76,7 @@ DEFINE_STRING_LOCAL(s_help_output,
 static const char __far s_version_suffix[] = " " VERSION;
 
 #define nile_mcu_native_cdc_write_string_const(s) nile_mcu_native_cdc_write_sync(s, sizeof(s)-1)
-static void nile_mcu_native_cdc_write_string(const char __far* s) {
+void nile_mcu_native_cdc_write_string(const char __far* s) {
     int last_pos = 0;
     int pos = 0;
     while (true) {

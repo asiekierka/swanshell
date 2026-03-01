@@ -129,7 +129,7 @@ static void update_day_of_week(ws_cart_rtc_datetime_t *dt) {
     if (month > 12) month = 12;
     if (month < 1) month = 1;
     if (day < 1) day = 1;
-    
+
     // 0 days in 2000, 366 days in 2001, 731 days in 2002, ...
     uint16_t days_before_year = (365 * year) + ((year + 3) / 4);
     uint16_t days_in_year = 0;
@@ -187,7 +187,7 @@ static void adjust_component(ws_cart_rtc_datetime_t *dt, int sel_value, int delt
             delta = 10;
         }
     }
-    
+
     if (high_digit) {
         delta *= 10;
     }
@@ -270,10 +270,10 @@ int16_t ui_rtc_clock(void) {
             full_redraw = false;
             redraw = false;
         }
-        
+
         idle_until_vblank();
         input_update();
-        
+
         if (input_pressed & WS_KEY_X2) {
             if (sel_value < 11) {
                 sel_value++;

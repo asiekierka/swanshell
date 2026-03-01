@@ -24,6 +24,7 @@
 
 void shell_init(void);
 bool shell_tick(void);
+void nile_mcu_native_cdc_write_string(const char __far* s);
 
 enum {
     SHELL_RET_IDLE = 0,
