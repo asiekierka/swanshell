@@ -220,6 +220,8 @@ reload_menu:
 
             if (s->on_change) {
                 s->on_change(s);
+                // Required for "About" titlebar redraw
+                reload_required = true;
             }
             if (reload_required)
                 goto reload_menu;
