@@ -18,10 +18,9 @@ Pros:
 
 Cons:
 
-* Many features are not yet implemented, such as:
-  * Saving files from RAM to storage card
+* A few more niche features are not yet implemented, such as:
   * Multi-process support (ProcIL)
-* Software compatibility is currently lower than the cartridge image method.
+* Software compatibility is currently slightly lower than the cartridge image method.
 
 ## Getting started
 
