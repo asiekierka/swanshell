@@ -1,5 +1,7 @@
 # swanshell
 
+[![Translation status](https://weblate.asie.pl/widget/49bitcat/swanshell/svg-badge.svg)](https://weblate.asie.pl/engage/49bitcat/)
+
 The primary and official file selector/launcher program for [nileswan](https://49bitcat.com/docs/nileswan/).
 
 The name is a reference to homebrew-friendly launchers that came past and which this project was inspired by: PogoShell and MoonShell.
