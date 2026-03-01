@@ -29,7 +29,7 @@
 #include "launch/launch.h"
 #include "xmodem.h"
 
-uint8_t shell_task_mem[1024];
+uint8_t shell_task_mem[1152];
 #define shell_task ((task_t*) shell_task_mem)
 
 #define SHELL_LINE_LENGTH 128
@@ -45,9 +45,12 @@ DEFINE_STRING_LOCAL(s_new_line, "\r\n");
 DEFINE_STRING_LOCAL(s_new_prompt, "\r\n> ");
 DEFINE_STRING_LOCAL(s_dot_local, ".");
 DEFINE_STRING_LOCAL(s_about, "about");
+DEFINE_STRING_LOCAL(s_cd, "cd");
 DEFINE_STRING_LOCAL(s_help, "help");
 DEFINE_STRING_LOCAL(s_launch, "launch");
+DEFINE_STRING_LOCAL(s_ls, "ls");
 DEFINE_STRING_LOCAL(s_reboot, "reboot");
+DEFINE_STRING_LOCAL(s_rm, "rm");
 DEFINE_STRING_LOCAL(s_upload, "upload");
 DEFINE_STRING_LOCAL(s_file_too_big, "File too big");
 DEFINE_STRING_LOCAL(s_missing_argument, "Missing argument");
@@ -58,9 +61,12 @@ DEFINE_STRING_LOCAL(s_saving_file, "Saving file");
 DEFINE_STRING_LOCAL(s_help_output,
 "Commands:\n"
 "about          \tAbout swanshell\n"
+"cd <path>      \tChange current directory to specified path\n"
 "help           \tPrint help information\n"
 "launch [path]  \tLaunch file via XMODEM or via path\n"
+"ls [path]      \tList files in path\n"
 "reboot         \tSoft reboot cartridge\n"
+"rm <path>      \tRemove file at path\n"
 "upload <path>  \tUpload file to storage card via XMODEM\n"
 );
 
@@ -177,6 +183,44 @@ static void shell_upload(void) {
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
+static void shell_cd(void) {
+    int16_t result = f_chdir(shell_line + 3);
+    if (result != FR_OK) {
+        nile_mcu_native_cdc_write_string(error_to_string(result));
+    }
+    shell_task_yield(SHELL_RET_REFRESH_UI);
+}
+
+static void shell_ls(void) {
+    DIR dp;
+    FILINFO fno;
+    int16_t result = f_opendir(&dp, shell_line + 3);
+    if (result == FR_OK) {
+        while (true) {
+    		result = f_readdir(&dp, &fno);
+    		if (result != FR_OK)
+                break;
+    		if (fno.fname[0] == 0)
+    			break;
+            nile_mcu_native_cdc_write_string(fno.fname);
+            nile_mcu_native_cdc_write_string_const(s_new_line);
+    	}
+
+        f_closedir(&dp);
+    }
+    if (result != FR_OK) {
+        nile_mcu_native_cdc_write_string(error_to_string(result));
+    }
+}
+
+static void shell_rm(void) {
+    int16_t result = f_unlink(shell_line + 3);
+    if (result != FR_OK) {
+        nile_mcu_native_cdc_write_string(error_to_string(result));
+    }
+    shell_task_yield(SHELL_RET_REFRESH_UI);
+}
+
 int shell_func(task_t *task) {
     while (true) {
         shell_task_yield(SHELL_RET_IDLE);
@@ -191,10 +235,27 @@ int shell_func(task_t *task) {
 
                     if (!strcmp(shell_line, s_about)) {
                         shell_about();
+                    } else if (!memcmp(shell_line, s_cd, 2)) {
+                        if (shell_line_pos <= 3 || shell_line[2] != ' ') {
+                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+                        } else {
+                            shell_cd();
+                        }
+                    } else if (!memcmp(shell_line, s_rm, 2)) {
+                        if (shell_line_pos <= 3 || shell_line[2] != ' ') {
+                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+                        } else {
+                            shell_rm();
+                        }
                     } else if (!strcmp(shell_line, s_help)) {
                         shell_help();
                     } else if (!strcmp(shell_line, s_reboot)) {
                         shell_reboot();
+                    } else if (!memcmp(shell_line, s_ls, 2)) {
+                        if (shell_line_pos <= 3 || shell_line[2] != ' ') {
+                            strcpy(shell_line + 3, s_dot_local);
+                        }
+                        shell_ls();
                     } else if (!memcmp(shell_line, s_launch, 6)) {
                         shell_launch();
                     } else if (!memcmp(shell_line, s_upload, 6)) {
