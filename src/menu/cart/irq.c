@@ -45,10 +45,13 @@ static void cart_tf_removed_handler(void) {
         wait_for_vblank();
 
         mcu_native_start();
-        uint16_t irq = nile_mcu_native_mcu_reg_read_sync(NILE_MCU_NATIVE_REG_IRQ_STATUS_AUTOACK);
+        int16_t irq = nile_mcu_native_mcu_reg_read_sync(NILE_MCU_NATIVE_REG_IRQ_STATUS_AUTOACK);
         mcu_native_finish();
 
         wait_for_vblank();
+
+        if (irq < 0)
+            continue;
 
         if (irq & NILE_MCU_NATIVE_IRQ_TF_INSERT) {
             nilefs_eject();
@@ -61,8 +64,10 @@ void cart_irq_update(void) {
     if (cart_status.version < CART_FW_VERSION_1_1_0)
         return;
     mcu_native_start();
-    uint16_t irq = nile_mcu_native_mcu_reg_read_sync(NILE_MCU_NATIVE_REG_IRQ_STATUS_AUTOACK);
+    int16_t irq = nile_mcu_native_mcu_reg_read_sync(NILE_MCU_NATIVE_REG_IRQ_STATUS_AUTOACK);
     mcu_native_finish();
+    if (irq < 0)
+        return;
 
     if (irq & NILE_MCU_NATIVE_IRQ_TF_REMOVE) {
         cart_tf_removed_handler();
