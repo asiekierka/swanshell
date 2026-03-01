@@ -32,8 +32,6 @@
 #include "launch/launch.h"
 #include "xmodem.h"
 
-// Avoid shell stack memory overlapping with bootstub
-__attribute__((section(".iram_1700")))
 uint8_t shell_task_mem[1152];
 #define shell_task ((task_t*) shell_task_mem)
 

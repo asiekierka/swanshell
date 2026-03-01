@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
+#include <ws/system.h>
 #include <wsx/zx0.h>
 #include <nile.h>
 #include <nilefs.h>
@@ -739,6 +740,8 @@ int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *
     return FR_OK;
 }
 
+extern void launch_jump_to_bootstub(uint16_t size);
+
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     extern const void __bank_bootstub;
     extern const void __bank_gfx_bootstub_tiles;
@@ -809,22 +812,18 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     mcu_native_finish();
 
     // Initialize bootstub data
-    if (ws_system_is_color_active()) {
+    if (ws_system_is_color_model()) {
         ws_system_set_mode(WS_MODE_COLOR);
         outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
         ws_gdma_copy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
-        outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_bootstub);
-        ws_gdma_copy((void*) 0x00c0, bootstub, bootstub_size);
     } else {
-        ws_system_set_mode(WS_MODE_COLOR);
         outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
         memcpy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
-        outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_bootstub);
-        memcpy((void*) 0x00c0, bootstub, bootstub_size);
     }
+
     // Jump to bootstub
-    asm volatile("ljmp $0x0000,$0x00c0\n");
-    return true;
+    outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_bootstub);
+    launch_jump_to_bootstub(bootstub_size);
 }
 
 int16_t launch_in_psram(uint32_t size) {
