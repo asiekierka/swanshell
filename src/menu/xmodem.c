@@ -163,6 +163,11 @@ int xmodem_recv_start(uint32_t *size) {
                             xmodem_idx++;
                             break;
                         }
+                    } else {
+                        // Valid XMODEM packet received, but for the wrong packet.
+                        // Give the communication time to resynchronize.
+                        received_soh = false;
+                        break;
                     }
                 }
 

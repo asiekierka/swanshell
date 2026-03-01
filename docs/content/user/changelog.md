@@ -18,6 +18,7 @@ weight: 100
   - The text viewer now supports going back in a file.
   - The text viewer now supports both Shift-JIS and UTF-8 encoded files, with automatic detection.
 - Changed: Tweaked visual padding for pop-up dialogs.
+- Fixed: Reliability problems when using XMODEM file transfers within the USB shell.
 - Other minor improvements.
 
 ## swanshell 1.0.4 (23rd February 2026)
