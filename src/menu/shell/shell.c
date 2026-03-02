@@ -317,6 +317,9 @@ int shell_func(task_t *task) {
                 }
 
                 shell_new_prompt();
+            } else if (c == 3) {
+                // CTRL+C
+                shell_new_prompt();
             } else if (c == 8) {
                 // Backspace
                 if (shell_line_pos > 0) {
