@@ -17,6 +17,7 @@
 
 #include <nile.h>
 #include <nile/fpga.h>
+#include <nile/mcu/protocol.h>
 #include <nilefs.h>
 #include <nilefs/ff.h>
 #include <string.h>
@@ -93,6 +94,11 @@ void nile_mcu_native_cdc_write_string(const char __far* s) {
         }
         pos++;
     }
+}
+
+static void shell_reset(void) {
+    shell_line_pos = 0;
+    shell_flags = 0;
 }
 
 static void shell_task_yield(uint16_t ret) {
@@ -262,9 +268,20 @@ static void shell_rm(void) {
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
+static inline bool shell_usb_active(void) {
+    return cart_status_mcu_info_valid() && (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT);
+}
+
 int shell_func(task_t *task) {
     while (true) {
         shell_task_yield(SHELL_RET_IDLE);
+        if (!shell_usb_active()) {
+            shell_reset();
+            while (shell_usb_active())
+                shell_task_yield(SHELL_RET_IDLE);
+            continue;
+        }
+
         int bytes_read = nile_mcu_native_cdc_read_sync(shell_line + shell_line_pos, 1);
         if (bytes_read > 0) {
             char c = shell_line[shell_line_pos];
@@ -347,8 +364,7 @@ int shell_func(task_t *task) {
 }
 
 void shell_init(void) {
-    shell_line_pos = 0;
-    shell_flags = 0;
+    shell_reset();
     task_init(shell_task_mem, sizeof(shell_task_mem), shell_func);
 }
 

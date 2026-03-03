@@ -44,7 +44,7 @@ int16_t cart_status_init(bool is_safe_mode, bool is_mcu_reset_ok);
 void cart_status_update(void);
 
 static inline bool cart_status_mcu_info_valid(void) {
-    return (cart_status.present & CART_PRESENT_MCU_INFO_OK) && (cart_status.version >= CART_FW_VERSION_1_1_0);
+    return cart_status.present & CART_PRESENT_MCU_INFO_OK;
 }
 
 static inline bool cart_status_mcu_battery_ok(void) {
