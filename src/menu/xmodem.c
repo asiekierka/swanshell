@@ -16,6 +16,7 @@
  */
 
 #include <nile/mcu.h>
+#include <nile/mcu/cdc.h>
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
@@ -27,6 +28,7 @@
 #include "cart/mcu.h"
 #include "settings.h"
 #include "util/math.h"
+#include "xmodem.h"
 
 #define SOH 1
 #define EOT 4
@@ -80,18 +82,81 @@ static bool mcu_native_cdc_write_block_sync(const void __wf_cram* buffer, uint16
     if (!mcu_native_cdc_write_block_sync(data, (count), TIMEOUT_TICKS)) \
         { result = ERR_DATA_TRANSFER_TIMEOUT; goto finish; }
 
+#define SEND_DATA_OFS(ofs, count) \
+    if (!mcu_native_cdc_write_block_sync(data + (ofs), (count), TIMEOUT_TICKS)) \
+        { result = ERR_DATA_TRANSFER_TIMEOUT; goto finish; }
+
 #define RECV_DATA(count) \
     if (!mcu_native_cdc_read_block_sync(data, (count), TIMEOUT_TICKS)) \
         { result = ERR_DATA_TRANSFER_TIMEOUT; goto finish; }
 
 extern uint8_t xmodem_checksum(uint8_t *data);
 
-int xmodem_recv_start(uint32_t *size) {
+int xmodem_send(xmodem_send_callback_t cb, void *userdata) {
+    uint8_t data[132];
+    uint8_t xmodem_idx = 0;
+    int result = 0;
+    bool new_data_requested = true;
+    uint8_t data_available = 0;
+
+    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+    mcu_native_enter_speed(settings.mcu_spi_speed);
+
+    while (true) {
+        int bytes_read = nile_mcu_native_cdc_read_sync(data, 1);
+        if (bytes_read < 0) {
+            result = ERR_MCU_COMM_FAILED;
+            goto finish;
+        }
+        if (bytes_read < 1)
+            continue;
+
+        if (data[0] == NAK || data[0] == ACK) {
+            if (data[0] == ACK) {
+                if (!new_data_requested && !data_available) break;
+                new_data_requested = true;
+            }
+
+            if (new_data_requested) {
+                xmodem_idx++;
+                data_available = cb(data + 3, userdata) ? 1 : 0;
+                new_data_requested = false;
+            }
+
+            if (data_available == 0) {
+                data[0] = EOT; SEND_DATA(1);
+            } else if (data_available == 1) {
+                data[0] = SOH;
+                data[1] = xmodem_idx;
+                data[2] = xmodem_idx ^ 0xFF;
+                nile_mcu_native_cdc_write_async_start(data, 131);
+                data[131] = xmodem_checksum(data + 3);
+                if (nile_mcu_native_cdc_write_async_finish() <= 0) {
+                    SEND_DATA(131);
+                }
+                SEND_DATA_OFS(131, 1);
+                data_available = 2;
+            } else {
+                data[0] = SOH;
+                SEND_DATA(132);
+            }
+        } else if (data[0] == CAN) {
+            result = ERR_DATA_TRANSFER_CANCEL; goto finish;
+        }
+    }
+
+finish:
+    mcu_native_exit_speed();
+    mcu_native_finish();
+
+    return result;
+}
+
+int xmodem_recv_to_psram(uint16_t bank, uint32_t *size) {
     uint8_t data[132];
     uint8_t eot_step = 0;
     uint8_t xmodem_idx = 0x01;
 
-    uint16_t bank = 0;
     uint16_t offset = 0;
     int result = 0;
     bool received_soh = false;
@@ -210,7 +275,6 @@ finish:
         ws_bank_rom1_restore(rom1_bank);
     }
 
-    outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) & ~WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
 
     mcu_native_exit_speed();

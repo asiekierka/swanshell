@@ -110,7 +110,7 @@ static enum tristate ui_file_selector_tools(ui_popup_list_config_t *lst, const c
             return TRISTATE_NONE;
         case 0: {
             uint32_t size = 0;
-            int16_t result = xmodem_recv_start(&size);
+            int16_t result = xmodem_recv_to_psram(0, &size);
             if (result == FR_OK) {
                 result = launch_in_psram(size);
             }

@@ -22,6 +22,9 @@
 #include <stdint.h>
 #include <wonderful.h>
 
-int xmodem_recv_start(uint32_t *size);
+typedef bool (*xmodem_send_callback_t)(uint8_t *data, void *userdata);
+
+int xmodem_send(xmodem_send_callback_t cb, void *userdata);
+int xmodem_recv_to_psram(uint16_t bank, uint32_t *size);
 
 #endif /* XMODEM_H_ */

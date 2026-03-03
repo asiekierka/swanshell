@@ -50,6 +50,7 @@ DEFINE_STRING_LOCAL(s_new_prompt, "\r\n> ");
 DEFINE_STRING_LOCAL(s_dot_local, ".");
 DEFINE_STRING_LOCAL(s_about, "about");
 DEFINE_STRING_LOCAL(s_cd, "cd");
+DEFINE_STRING_LOCAL(s_download, "download");
 DEFINE_STRING_LOCAL(s_help, "help");
 DEFINE_STRING_LOCAL(s_launch, "launch");
 DEFINE_STRING_LOCAL(s_ls, "ls");
@@ -64,14 +65,15 @@ DEFINE_STRING_LOCAL(s_awaiting_xmodem_transfer, "Awaiting XMODEM transfer");
 DEFINE_STRING_LOCAL(s_saving_file, "Saving file");
 DEFINE_STRING_LOCAL(s_help_output,
 "Commands:\n"
-"about          \tAbout swanshell\n"
-"cd <path>      \tChange current directory to specified path\n"
-"help           \tPrint help information\n"
-"launch [path]  \tLaunch file via XMODEM or via path\n"
-"ls [path]      \tList files in path\n"
-"reboot         \tSoft reboot cartridge\n"
-"rm <path>      \tRemove file at path\n"
-"upload <path>  \tUpload file to storage card via XMODEM\n"
+"about            \tAbout swanshell\n"
+"cd <path>        \tChange current directory to specified path\n"
+"download <path>  \tDownload file from storage card via XMODEM\n"
+"help             \tPrint help information\n"
+"launch [path]    \tLaunch file via XMODEM or via path\n"
+"ls [path]        \tList files in path\n"
+"reboot           \tSoft reboot cartridge\n"
+"rm <path>        \tRemove file at path\n"
+"upload <path>    \tUpload file to storage card via XMODEM\n"
 );
 
 static const char __far s_version_suffix[] = " " VERSION;
@@ -191,7 +193,7 @@ static void shell_launch(void) {
     if (shell_flags & SHELL_FLAG_INTERACTIVE) {
         nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
     }
-    result = xmodem_recv_start(&size);
+    result = xmodem_recv_to_psram(0, &size);
     nile_mcu_native_cdc_write_string_const(s_new_line);
     if (result == FR_OK) {
         bootstub_data->prog.size = size;
@@ -211,7 +213,7 @@ static void shell_upload(void) {
         nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
     }
     uint32_t size = 0;
-    int16_t result = xmodem_recv_start(&size);
+    int16_t result = xmodem_recv_to_psram(0, &size);
     ws_delay_ms(10);
     nile_mcu_native_cdc_write_string_const(s_new_line);
     if (result == FR_OK) {
@@ -228,6 +230,35 @@ static void shell_upload(void) {
         shell_print_error(result);
     }
     shell_task_yield(SHELL_RET_REFRESH_UI);
+}
+
+static bool shell_download_callback(uint8_t *buffer, void *userdata) {
+    FIL *fp = (FIL*) userdata;
+    uint16_t br = 0;
+    int16_t result = f_read(fp, buffer, 128, &br);
+    if (result != FR_OK || br == 0) {
+        return false;
+    } else {
+        if (br < 128)
+            memset(buffer + br, 0, 128 - br);
+        return true;
+    }
+}
+
+static void shell_download(void) {
+    FIL fp;
+    int16_t result = f_open(&fp, shell_line + 9, FA_READ | FA_OPEN_EXISTING);
+    if (result == FR_OK) {
+        if (shell_flags & SHELL_FLAG_INTERACTIVE) {
+            nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
+        }
+        result = xmodem_send(shell_download_callback, &fp);
+        f_close(&fp);
+    }
+    if (result != FR_OK) {
+        nile_mcu_native_cdc_write_string_const(s_new_line);
+        shell_print_error(result);
+    }
 }
 
 static void shell_cd(void) {
@@ -269,6 +300,8 @@ static void shell_rm(void) {
 }
 
 static inline bool shell_usb_active(void) {
+    // TODO: remove after emulator update
+    if (cart_status.present & CART_PRESENT_MCU_INFO_ERROR) return true;
     return cart_status_mcu_info_valid() && (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT);
 }
 
@@ -319,6 +352,12 @@ int shell_func(task_t *task) {
                             shell_launch();
                         } else{
                             shell_print_error(shell_launch_file(shell_line + 7));
+                        }
+                    } else if (!memcmp(shell_line, s_download, 8)) {
+                        if (shell_line_pos <= 9 || shell_line[8] != ' ') {
+                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+                        } else {
+                            shell_download();
                         }
                     } else if (!memcmp(shell_line, s_upload, 6)) {
                         if (shell_line_pos <= 7 || shell_line[6] != ' ') {
