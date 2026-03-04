@@ -3,6 +3,12 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.1.1 (4th March 2026)
+
+- Changed: Ctrl+C in the USB shell now activates interactive mode.
+- Changed: Updated Chinese (Simplified) translation. (PECO)
+- Fixed: Regression in EEPROM mode initialization.
+
 ## swanshell 1.1.0 (4th March 2026)
 
 - Added: Enhanced system information menu.
