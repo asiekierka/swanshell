@@ -24,6 +24,8 @@
     .intel_syntax noprefix
     .global cold_jump
 
+#define FINAL_STUB_OFFSET 0x2004
+
     // DX:AX - jump pointer
     // CX - bank limit
     .section .fartext.s.cold_jump, "a"
@@ -48,7 +50,7 @@ cold_jump:
 
     // Copy stub to RAM
     mov si, offset "launch_ram_asm_relocated"
-    mov di, 0x2000
+    mov di, FINAL_STUB_OFFSET
     // Populate immediate values in jump stub
     mov ax, [0x40]
     stosw
@@ -66,8 +68,8 @@ cold_jump:
 
     // Clear 0x58 - 0x1FFF and jump to relocated stub
     mov di, 0x58
-    mov cx, ((0x2000 - 0x58) >> 1)
-    jmp 0x2004
+    mov cx, ((FINAL_STUB_OFFSET - 0x58) >> 1)
+    jmp (FINAL_STUB_OFFSET + 4)
 
 launch_ram_asm_relocated:
     // Clear unused memory
@@ -104,9 +106,9 @@ launch_ram_asm_relocated:
     mov [0x56], ax
 
     // Restore final registers
-    mov ax, [0x2002]
+    mov ax, [FINAL_STUB_OFFSET + 2]
     mov ds, ax
-    ss mov ax, [0x2000]
+    ss mov ax, [FINAL_STUB_OFFSET]
 
     // Fly me to the moon
 launch_ram_asm_relocated_stub:
