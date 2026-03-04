@@ -3,21 +3,26 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell 1.1.0 (Eventually)
+## swanshell 1.1.0 (4th March 2026)
 
 - Added: Enhanced system information menu.
-- Added: Enhanced USB shell (`help`, `reboot`, `upload`, `launch path` commands).
+- Added: Enhanced USB shell:
+  - New commands: `cd`, `download`, `help`, `ls`, `mkdir`, `reboot`, `rm`, `upload`.
+  - The Ctrl+C keybind is now supported.
+  - The `launch` command now accepts an optional path.
 - Added: On firmware 1.1.0, missing/low battery warnings.
 - Added: Saving `/ram0` contents when loading `.fx` programs directly.
 - Added: Status icons - the cartridge's status is now communicated visually in the bottom right corner.
 - Added: The option to hide save files.
 - Changed: On firmware 1.1.0+, inserting a removed storage card will trigger a cartridge reboot.
+- Changed: Slightly improved battery draw in the menu when no USB cable is connected.
 - Changed: Text viewer improvements:
   - Minor performance improvements.
   - The text viewer now shows an approximate percentage position in the file being read.
   - The text viewer now supports going back in a file.
   - The text viewer now supports both Shift-JIS and UTF-8 encoded files, with automatic detection.
 - Changed: Tweaked visual padding for pop-up dialogs.
+- Fixed: Certain memory initialization issues when launching a program.
 - Fixed: Reliability problems when using XMODEM file transfers within the USB shell.
 - Other minor improvements.
 

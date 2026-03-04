@@ -54,10 +54,11 @@ DEFINE_STRING_LOCAL(s_download, "download");
 DEFINE_STRING_LOCAL(s_help, "help");
 DEFINE_STRING_LOCAL(s_launch, "launch");
 DEFINE_STRING_LOCAL(s_ls, "ls");
+DEFINE_STRING_LOCAL(s_mkdir, "mkdir");
 DEFINE_STRING_LOCAL(s_reboot, "reboot");
 DEFINE_STRING_LOCAL(s_rm, "rm");
+DEFINE_STRING_LOCAL(s_rmdir, "rmdir");
 DEFINE_STRING_LOCAL(s_upload, "upload");
-DEFINE_STRING_LOCAL(s_file_too_big, "File too big");
 DEFINE_STRING_LOCAL(s_missing_argument, "Missing argument");
 DEFINE_STRING_LOCAL(s_unknown_command, "Unknown command");
 DEFINE_STRING_LOCAL(s_backspace, "\x08 \x08");
@@ -71,8 +72,10 @@ DEFINE_STRING_LOCAL(s_help_output,
 "help             \tPrint help information\n"
 "launch [path]    \tLaunch file via XMODEM or via path\n"
 "ls [path]        \tList files in path\n"
+"mkdir <path>     \tCreate directory at path\n"
 "reboot           \tSoft reboot cartridge\n"
 "rm <path>        \tRemove file at path\n"
+"rmdir <path>     \tRemove directory at path\n"
 "upload <path>    \tUpload file to storage card via XMODEM\n"
 );
 
@@ -269,6 +272,22 @@ static void shell_cd(void) {
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
+static void shell_mkdir(void) {
+    int16_t result = f_mkdir(shell_line + 6);
+    if (result != FR_OK) {
+        shell_print_error(result);
+    }
+    shell_task_yield(SHELL_RET_REFRESH_UI);
+}
+
+static void shell_rmdir(void) {
+    int16_t result = f_rmdir(shell_line + 6);
+    if (result != FR_OK) {
+        shell_print_error(result);
+    }
+    shell_task_yield(SHELL_RET_REFRESH_UI);
+}
+
 static void shell_ls(void) {
     DIR dp;
     FILINFO fno;
@@ -300,6 +319,7 @@ static void shell_rm(void) {
 }
 
 static inline bool shell_usb_active(void) {
+    if (cart_status.version < CART_FW_VERSION_1_1_0) return true;
     // TODO: remove after emulator update
     if (cart_status.present & CART_PRESENT_MCU_INFO_ERROR) return true;
     return cart_status_mcu_info_valid() && (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT);
@@ -332,11 +352,23 @@ int shell_func(task_t *task) {
                         } else {
                             shell_cd();
                         }
+                    } else if (!memcmp(shell_line, s_rmdir, 5)) {
+                        if (shell_line_pos <= 6 || shell_line[5] != ' ') {
+                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+                        } else {
+                            shell_rmdir();
+                        }
                     } else if (!memcmp(shell_line, s_rm, 2)) {
                         if (shell_line_pos <= 3 || shell_line[2] != ' ') {
                             nile_mcu_native_cdc_write_string_const(s_missing_argument);
                         } else {
                             shell_rm();
+                        }
+                    } else if (!memcmp(shell_line, s_mkdir, 5)) {
+                        if (shell_line_pos <= 6 || shell_line[5] != ' ') {
+                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+                        } else {
+                            shell_mkdir();
                         }
                     } else if (!strcmp(shell_line, s_help)) {
                         shell_help();

@@ -36,7 +36,6 @@
 #define NAK 21
 #define CAN 24
 #define TIMEOUT_TICKS (75 * 10)
-#define TIMEOUT_PACKET_SECONDS 60
 
 static bool mcu_native_cdc_read_block_sync(void __wf_cram* buffer, uint16_t buflen, uint16_t timeout_ticks) {
     volatile uint16_t target_ticks = vbl_ticks + timeout_ticks;
@@ -170,10 +169,10 @@ int xmodem_recv_to_psram(uint16_t bank, uint32_t *size) {
     *size = 0;
 
     while (true) {
-        int bytes_read = mcu_native_cdc_read_sync(data, 132, 75);
+        int bytes_read = mcu_native_cdc_read_sync(data,132, 75 * 4);
         if (bytes_read < 1) {
             timeout_ticks++;
-            if (timeout_ticks >= TIMEOUT_PACKET_SECONDS) {
+            if (timeout_ticks > 10) {
                 result = ERR_DATA_TRANSFER_TIMEOUT; goto finish;
             }
             if (!received_soh) {
