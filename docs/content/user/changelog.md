@@ -3,6 +3,8 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.1.2 (Eventually)
+
 ## swanshell 1.1.1 (4th March 2026)
 
 - Changed: Ctrl+C in the USB shell now activates interactive mode.

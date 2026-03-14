@@ -31,7 +31,7 @@ typedef struct ui_selector_config {
     uint8_t style; ///< Style.
     void *userdata; ///< Data to pass to selector functions.
 
-    void (*draw)(struct ui_selector_config *config, uint16_t idx, uint16_t y);
+    void (*draw)(struct ui_selector_config *config, uint16_t idx, uint16_t y, uint16_t scroll_tick);
     bool (*can_select)(struct ui_selector_config *config, uint16_t idx);
 } ui_selector_config_t;
 

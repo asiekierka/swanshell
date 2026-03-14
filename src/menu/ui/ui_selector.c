@@ -61,7 +61,7 @@ void ui_selector_clear_selection(ui_selector_config_t *config) {
         if (config->offset < config->count) {
             uint16_t prev_sel = (config->offset % row_count);
             bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(0));
-            config->draw(config, config->offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+            config->draw(config, config->offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset, 0);
         }
     }
 }
@@ -70,10 +70,15 @@ void ui_selector_clear_selection(ui_selector_config_t *config) {
     if (config->count > 0 && config->offset >= config->count) \
         config->offset = config->count - 1
 
+#define SCROLL_TICKS_MIN 96
+#define SCROLL_TICKS_PACE_SHIFT 5
+#define SCROLL_TICKS_PACE_MASK ((1 << (SCROLL_TICKS_PACE_SHIFT)) - 1)
+
 uint16_t ui_selector(ui_selector_config_t *config) {
     char sbuf[33];
     bool full_redraw = true;
     uint16_t prev_offset = 0xFFFF;
+    uint16_t scroll_ticks;
 
     UI_SELECTOR_ROW_CONFIG();
 
@@ -96,6 +101,8 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
     while (true) {
         if (prev_offset != config->offset) {
+            scroll_ticks = 0;
+            
             bool draw_filenames = prev_offset == 0xFFFF || ((prev_offset / row_count) != (config->offset / row_count));
             bool draw_highlights = prev_offset == 0xFFFF || ((prev_offset % row_count) != (config->offset % row_count));
             if (draw_filenames) {
@@ -105,7 +112,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                     uint16_t offset = ((config->offset / row_count) * row_count) + i;
                     if (offset >= config->count) break;
 
-                    config->draw(config, offset, i * row_height + SELECTOR_Y_OFFSET + row_offset);
+                    config->draw(config, offset, i * row_height + SELECTOR_Y_OFFSET + row_offset, 0);
                 }
 
                 snprintf(sbuf, sizeof(sbuf), lang_keys[LK_UI_FILE_SELECTOR_PAGE_FORMAT], (config->offset / row_count) + 1, ((config->count + row_count - 1) / row_count));
@@ -148,11 +155,11 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                     // Redraw previous and current selected filename
                     if (!draw_filenames && prev_offset < config->count) {
                         bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(0));
-                        config->draw(config, prev_offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+                        config->draw(config, prev_offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset, 0);
                     }
                     if (config->offset < config->count) {
                         bitmap_rect_fill(&ui_bitmap, 0, sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(2));
-                        config->draw(config, config->offset, sel * row_height + SELECTOR_Y_OFFSET + row_offset);
+                        config->draw(config, config->offset, sel * row_height + SELECTOR_Y_OFFSET + row_offset, 0);
                     }
                 }
             }
@@ -163,6 +170,14 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
         if (idle_until_vblank())
             return UI_SELECTOR_RELOAD_REQUESTED;
+
+        scroll_ticks++;
+        if (scroll_ticks > SCROLL_TICKS_MIN && !(scroll_ticks & SCROLL_TICKS_PACE_MASK)) {
+            ui_selector_set_active_font(config);
+            int y_offset = (config->offset % row_count) * row_height + SELECTOR_Y_OFFSET;
+            config->draw(config, config->offset, y_offset + row_offset, (scroll_ticks - SCROLL_TICKS_MIN) >> SCROLL_TICKS_PACE_SHIFT);
+        }
+
     	input_update();
         uint16_t keys_pressed = input_pressed;
 

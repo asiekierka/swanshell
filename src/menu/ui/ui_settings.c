@@ -42,7 +42,7 @@ typedef struct ui_settings_config {
 
 DEFINE_STRING_LOCAL(s_arrow, "→");
 
-static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
+static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y, uint16_t scroll_tick) {
     char buf[96];
     buf[0] = 0;
 
@@ -84,7 +84,7 @@ typedef struct ui_settings_selector_config {
     const setting_t __far* setting;
 } ui_settings_selector_config_t;
 
-static void ui_settings_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
+static void ui_settings_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y, uint16_t scroll_tick) {
     char buf[96];
 
     ui_settings_selector_config_t *sconfig = (ui_settings_selector_config_t*) config;

@@ -21,6 +21,7 @@
 #include <wonderful.h>
 #include <ws.h>
 #include <nilefs.h>
+#include <wsx/utf8.h>
 #include "bitmap.h"
 #include "cart/status.h"
 #include "config.h"
@@ -125,7 +126,7 @@ int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t pr
     return FR_OK;
 }
 
-static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y) {
+static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y, uint16_t scroll_tick) {
     int x_offset;
     if (settings.file_flags & SETTING_FILE_HIDE_ICONS)
         x_offset = 2;
@@ -133,7 +134,32 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
         x_offset = config->style == UI_SELECTOR_STYLE_16 ? 16 : 10;
 
     file_selector_entry_t __far *fno = ui_file_selector_open_fno(offset);
-    uint16_t x = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, fno->fno.fname, WS_DISPLAY_WIDTH_PIXELS - x_offset);
+    
+    const char __far *s = fno->fno.fname;
+    int max_width = WS_DISPLAY_WIDTH_PIXELS - x_offset;
+    if (scroll_tick) {
+        int width = bitmapfont_get_string_width(s, 65535);
+        if (width <= max_width)
+            scroll_tick = 0;
+        else {
+            int width_cropped = width;
+            while (width_cropped > max_width) {
+                width_cropped -= bitmapfont_get_char_width(wsx_utf8_decode_next(&s)) + CONFIG_FONT_CHAR_GAP;
+            }
+            int tick_count = (s - fno->fno.fname) + 2;
+            scroll_tick %= (tick_count + 8);
+            if (scroll_tick > tick_count) scroll_tick = 0;
+
+            s = fno->fno.fname;
+            while (scroll_tick--)
+                wsx_utf8_decode_next(&s);
+
+            while (inportb(WS_DISPLAY_LINE_PORT) != (y + bitmapfont_get_font_height() - 1));
+            bitmap_rect_fill(&ui_bitmap, x_offset & ~7, y, 28 * 8 - (x_offset & ~7), bitmapfont_get_font_height(), BITMAP_COLOR_2BPP(ui_has_wallpaper() ? 0 : 2));
+        }
+    }
+
+    uint16_t x = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, s, max_width);
     uint8_t icon_idx = 1;
     if (fno->fno.fattrib & AM_DIR) {
         icon_idx = 0;
