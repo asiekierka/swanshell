@@ -169,7 +169,7 @@ int xmodem_recv_to_psram(uint16_t bank, uint32_t *size) {
     *size = 0;
 
     while (true) {
-        int bytes_read = mcu_native_cdc_read_sync(data,132, 75 * 4);
+        int bytes_read = mcu_native_cdc_read_sync(data,132, timeout_ticks ? 75 * 4 : 75);
         if (bytes_read < 1) {
             timeout_ticks++;
             if (timeout_ticks > 10) {

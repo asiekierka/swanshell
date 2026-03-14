@@ -5,6 +5,9 @@ weight: 100
 
 ## swanshell 1.1.2 (Eventually)
 
+- Added: Long file names are now automatically scrolled in the file selector.
+- Fixed: Regression in swanshell 1.1.0 which led to slower XMODEM transfer start times.
+
 ## swanshell 1.1.1 (4th March 2026)
 
 - Changed: Ctrl+C in the USB shell now activates interactive mode.
