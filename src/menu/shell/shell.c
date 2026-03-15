@@ -49,12 +49,15 @@ DEFINE_STRING_LOCAL(s_new_line, "\r\n");
 DEFINE_STRING_LOCAL(s_new_prompt, "\r\n> ");
 DEFINE_STRING_LOCAL(s_dot_local, ".");
 DEFINE_STRING_LOCAL(s_about, "about");
+DEFINE_STRING_LOCAL(s_cat, "cat");
 DEFINE_STRING_LOCAL(s_cd, "cd");
 DEFINE_STRING_LOCAL(s_download, "download");
+DEFINE_STRING_LOCAL(s_echo, "echo");
 DEFINE_STRING_LOCAL(s_help, "help");
 DEFINE_STRING_LOCAL(s_launch, "launch");
 DEFINE_STRING_LOCAL(s_ls, "ls");
 DEFINE_STRING_LOCAL(s_mkdir, "mkdir");
+DEFINE_STRING_LOCAL(s_pwd, "pwd");
 DEFINE_STRING_LOCAL(s_reboot, "reboot");
 DEFINE_STRING_LOCAL(s_rm, "rm");
 DEFINE_STRING_LOCAL(s_rmdir, "rmdir");
@@ -67,12 +70,15 @@ DEFINE_STRING_LOCAL(s_saving_file, "Saving file");
 DEFINE_STRING_LOCAL(s_help_output,
 "Commands:\n"
 "about            \tAbout swanshell\n"
+"cat <path>       \tPrint text from file at path\n"
 "cd <path>        \tChange current directory to specified path\n"
 "download <path>  \tDownload file from storage card via XMODEM\n"
+"echo <text>      \tEcho text\n"
 "help             \tPrint help information\n"
 "launch [path]    \tLaunch file via XMODEM or via path\n"
 "ls [path]        \tList files in path\n"
 "mkdir <path>     \tCreate directory at path\n"
+"pwd              \tPrint current working directory\n"
 "reboot           \tSoft reboot cartridge\n"
 "rm <path>        \tRemove file at path\n"
 "rmdir <path>     \tRemove directory at path\n"
@@ -288,6 +294,38 @@ static void shell_rmdir(void) {
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
+__attribute__((noinline))
+static void shell_pwd(void) {
+    char cwd[513];
+    int16_t result = f_getcwd(cwd, sizeof(cwd) - 1);
+    if (result != FR_OK) {
+        shell_print_error(result);
+    }
+    cwd[sizeof(cwd) - 1] = 0;
+    nile_mcu_native_cdc_write_string(cwd);
+}
+
+__attribute__((noinline))
+static void shell_cat(void) {
+    FIL fp;
+    char buf[129];
+    buf[sizeof(buf) - 1] = 0;
+    int16_t result = f_open(&fp, shell_line + 4, FA_READ | FA_OPEN_EXISTING);
+    if (result == FR_OK) {
+        uint16_t br;
+        while (!f_eof(&fp)) {
+            result = f_read(&fp, buf, sizeof(buf) - 1, &br);
+            if (result != FR_OK) break;
+            nile_mcu_native_cdc_write_string(buf);
+        }
+        f_close(&fp);
+    }
+    if (result != FR_OK) {
+        nile_mcu_native_cdc_write_string_const(s_new_line);
+        shell_print_error(result);
+    }
+}
+
 static void shell_ls(void) {
     DIR dp;
     FILINFO fno;
@@ -397,6 +435,20 @@ int shell_func(task_t *task) {
                         } else {
                             shell_upload();
                         }
+                    } else if (!memcmp(shell_line, s_echo, 4)) {
+                        if (shell_line_pos <= 5 || shell_line[4] != ' ') {
+                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+                        } else {
+                            nile_mcu_native_cdc_write_string(shell_line + 5);
+                        }
+                    } else if (!memcmp(shell_line, s_cat, 3)) {
+                        if (shell_line_pos <= 4 || shell_line[3] != ' ') {
+                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+                        } else {
+                            shell_cat();
+                        }
+                    } else if (!strcmp(shell_line, s_pwd)) {
+                        shell_pwd();
                     } else {
                         nile_mcu_native_cdc_write_string_const(s_unknown_command);
                     }
