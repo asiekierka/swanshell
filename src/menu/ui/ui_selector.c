@@ -24,6 +24,7 @@
 #include "../main.h"
 #include "lang.h"
 #include "lang_gen.h"
+#include "settings.h"
 #include "ui/ui.h"
 #include "util/input.h"
 #include "util/util.h"
@@ -171,11 +172,13 @@ uint16_t ui_selector(ui_selector_config_t *config) {
         if (idle_until_vblank())
             return UI_SELECTOR_RELOAD_REQUESTED;
 
-        scroll_ticks++;
-        if (scroll_ticks > SCROLL_TICKS_MIN && !(scroll_ticks & SCROLL_TICKS_PACE_MASK)) {
-            ui_selector_set_active_font(config);
-            int y_offset = (config->offset % row_count) * row_height + SELECTOR_Y_OFFSET;
-            config->draw(config, config->offset, y_offset + row_offset, (scroll_ticks - SCROLL_TICKS_MIN) >> SCROLL_TICKS_PACE_SHIFT);
+        if (settings.file_flags & SETTING_THEME_SCROLL_LONG_NAMES) {
+            scroll_ticks++;
+            if (scroll_ticks > SCROLL_TICKS_MIN && !(scroll_ticks & SCROLL_TICKS_PACE_MASK)) {
+                ui_selector_set_active_font(config);
+                int y_offset = (config->offset % row_count) * row_height + SELECTOR_Y_OFFSET;
+                config->draw(config, config->offset, y_offset + row_offset, (scroll_ticks - SCROLL_TICKS_MIN) >> SCROLL_TICKS_PACE_SHIFT);
+            }
         }
 
     	input_update();

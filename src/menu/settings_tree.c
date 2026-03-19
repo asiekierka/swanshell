@@ -384,14 +384,30 @@ static const setting_t __far setting_txtview_font_size = {
     }
 };
 
+static const setting_t __far setting_scroll_long_names = {
+    s_text_reader_font_key,
+    LK_SETTINGS_SCROLL_LONG_NAMES_KEY,
+    LK_SETTINGS_SCROLL_LONG_NAMES_HELP,
+    SETTING_TYPE_FLAG,
+    0,
+    NULL,
+    .flag = {
+        &settings.file_flags,
+        SETTING_THEME_SCROLL_LONG_NAMES_SHIFT,
+        LK_NO,
+        LK_YES
+    }
+};
+
 static const setting_category_t __far settings_theme = {
     LK_SETTINGS_THEME_KEY,
     0,
     &settings_root,
-    3,
+    4,
     {
         &setting_theme_dark_mode,
         &setting_theme_accent_color,
+        &setting_scroll_long_names,
         &setting_txtview_font_size
     }
 };

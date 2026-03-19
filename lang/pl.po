@@ -345,6 +345,12 @@ msgstr "Duża"
 msgid "SETTINGS_FONT_SIZE_SMALL"
 msgstr "Mała"
 
+msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
+msgstr "Przewijanie długich nazw"
+
+msgid "SETTINGS_SCROLL_LONG_NAMES_HELP"
+msgstr "Włącz automatyczne przewijanie długich nazw, takich jak nazwy plików, w widoku listy."
+
 msgid "UI_FILE_SELECTOR_EMPTY"
 msgstr "Pusty"
 

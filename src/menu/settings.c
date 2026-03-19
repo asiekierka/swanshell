@@ -32,6 +32,7 @@ void settings_reset(void) {
     settings.joy_repeat_first_ticks = 18;
     settings.joy_repeat_next_ticks = 5;
     settings.file_sort = SETTING_FILE_SORT_NAME_ASC;
+    settings.file_flags = SETTING_THEME_SCROLL_LONG_NAMES;
 }
 
 static int16_t settings_load_category(FIL *fp, const setting_category_t __far *cat, const char *key, const char *value) {

@@ -117,6 +117,12 @@ msgstr "Large"
 msgid "SETTINGS_FONT_SIZE_SMALL"
 msgstr "Small"
 
+msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
+msgstr "Scroll long names in list"
+
+msgid "SETTINGS_SCROLL_LONG_NAMES_HELP"
+msgstr "Enable automatically scrolling long names, such as file names, in the list view."
+
 
 msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
 msgstr "Force fast SRAM"
