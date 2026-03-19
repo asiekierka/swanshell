@@ -217,6 +217,7 @@ int16_t ui_rtc_clock(void) {
 
     uint8_t last_rtc_data[RTC_DATETIME_SIZE];
     uint8_t current_rtc_data[RTC_DATETIME_SIZE];
+    uint8_t new_rtc_data[RTC_DATETIME_SIZE];
     uint8_t rtc_status = WS_CART_RTC_STATUS_24_HOUR;
 
 	nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
@@ -249,7 +250,7 @@ int16_t ui_rtc_clock(void) {
 
     ui_layout_bars();
 
-    if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_DATETIME, NULL, 0, current_rtc_data, RTC_DATETIME_SIZE) < 7) {
+    if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_DATETIME, NULL, 0, current_rtc_data, RTC_DATETIME_SIZE) < RTC_DATETIME_SIZE) {
         return ERR_MCU_COMM_FAILED;
     }
     memcpy(last_rtc_data, current_rtc_data, RTC_DATETIME_SIZE);
@@ -261,11 +262,14 @@ int16_t ui_rtc_clock(void) {
     int sel_value = 0;
 
     while (true) {
-        nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_DATETIME, NULL, 0, current_rtc_data, RTC_DATETIME_SIZE);
-        if (!redraw) redraw = memcmp(last_rtc_data, current_rtc_data, RTC_DATETIME_SIZE) != 0;
+        if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_DATETIME, NULL, 0, new_rtc_data, RTC_DATETIME_SIZE) == RTC_DATETIME_SIZE) {
+            if (memcmp(current_rtc_data, new_rtc_data, RTC_DATETIME_SIZE) != 0) {
+                memcpy(current_rtc_data, new_rtc_data, RTC_DATETIME_SIZE);
+                redraw = true;
+            }
+        }
         if (redraw) {
             draw_rtc_timer((ws_cart_rtc_datetime_t*) &current_rtc_data, sel_value, full_redraw);
-
             memcpy(last_rtc_data, current_rtc_data, RTC_DATETIME_SIZE);
             full_redraw = false;
             redraw = false;
