@@ -27,7 +27,7 @@
 #include "../../shared/util/math.h"
 
 #define LIST_ENTRY_X_PADDING 3
-#define LIST_ENTRY_Y_OFFSET 1
+#define LIST_ENTRY_Y_OFFSET 2
 
 void ui_popup_list_clear(ui_popup_list_config_t *config) {
     uint16_t list_width = config->width;

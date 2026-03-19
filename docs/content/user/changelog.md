@@ -3,7 +3,7 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell 1.1.2 (Eventually)
+## swanshell 1.1.2 (19th March 2026)
 
 - Added: Long file names are now automatically scrolled in the file selector.
 - Added: New USB shell commands: `cat`, `echo`, `pwd`.
