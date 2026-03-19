@@ -79,7 +79,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
     char sbuf[33];
     bool full_redraw = true;
     uint16_t prev_offset = 0xFFFF;
-    uint16_t scroll_ticks;
+    uint16_t scroll_ticks = 0;
 
     UI_SELECTOR_ROW_CONFIG();
 
@@ -102,7 +102,15 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
     while (true) {
         if (prev_offset != config->offset) {
-            scroll_ticks = 0;
+            if (settings.file_flags & SETTING_THEME_SCROLL_LONG_NAMES) {
+                if (scroll_ticks > SCROLL_TICKS_MIN) {
+                    ui_selector_set_active_font(config);
+                    int y_offset = (prev_offset % row_count) * row_height + SELECTOR_Y_OFFSET;
+                    bitmap_rect_fill(&ui_bitmap, 0, y_offset + row_offset, 28 * 8, row_height, BITMAP_COLOR_2BPP(ui_has_wallpaper() ? 0 : 2));
+                    config->draw(config, prev_offset, y_offset + row_offset, 0);
+                }
+                scroll_ticks = 0;
+            }
             
             bool draw_filenames = prev_offset == 0xFFFF || ((prev_offset / row_count) != (config->offset / row_count));
             bool draw_highlights = prev_offset == 0xFFFF || ((prev_offset % row_count) != (config->offset % row_count));

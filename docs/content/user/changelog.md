@@ -5,8 +5,8 @@ weight: 100
 
 ## swanshell 1.1.2 (19th March 2026)
 
-- Added: Long file names are now automatically scrolled in the file selector.
 - Added: New USB shell commands: `cat`, `echo`, `pwd`.
+- Added: Option to scroll long file names in the file selector. (WIP)
 - Fixed: Regression in swanshell 1.1.0 which led to slower XMODEM transfer start times.
 - Fixed: RTC date/time settings menu occasionally reading corrupt information.
 
