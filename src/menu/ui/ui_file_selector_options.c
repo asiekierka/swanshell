@@ -133,10 +133,21 @@ static enum tristate ui_file_selector_tools(ui_popup_list_config_t *lst, const c
 
 static enum tristate ui_file_selector_file(ui_popup_list_config_t *lst, const char __far *filename) {
     while (true) {
+        uint8_t options[4];
+        int i = 0;
         memset(lst, 0, sizeof(ui_popup_list_config_t));
-        lst->option[0] = lang_keys[LK_SUBMENU_OPTION_FILE_DELETE];
+        if (fileops_is_rom(filename)) {
+            options[i] = 1;
+            lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_FILE_ERASE_SAVE];
+        }
+        options[i] = 0;
+        lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_FILE_DELETE];
 
-        switch (ui_popup_list(lst)) {
+        int result = ui_popup_list(lst);
+        if (result >= 0) {
+            result = options[result];
+        }
+        switch (result) {
         case UI_POPUP_ACTION_START:
             return TRISTATE_FALSE;
         default:
@@ -145,6 +156,11 @@ static enum tristate ui_file_selector_file(ui_popup_list_config_t *lst, const ch
         case 0: {
             int16_t result = ui_fileops_check_file_delete_by_user(filename);
             ui_dialog_error_check(result, lang_keys[LK_SUBMENU_OPTION_FILE_DELETE], 0);
+            return TRISTATE_TRUE;
+        }
+        case 1: {
+            int16_t result = ui_fileops_check_file_erase_savedata(filename);
+            ui_dialog_error_check(result, lang_keys[LK_SUBMENU_OPTION_FILE_ERASE_SAVE], 0);
             return TRISTATE_TRUE;
         }
         }

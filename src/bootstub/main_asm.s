@@ -69,14 +69,21 @@ restore_cold_boot_io_state:
     mov cx, (0x20 >> 1)
     call __outsw_loop
 
-    // reset I/O ports 0xA2 - 0xAA
+    // reset I/O ports 0xA2, 0xA3
     mov si, 0x0020 + 0xA2
     mov dx, 0xA2
-    mov cx, (0x8 >> 1)
-    call __outsw_loop
+    outsw
+
+    // manually reset I/O ports 0xA2 - 0xAA
+    // On system start, the timer reload values have non-deterministic readout
+    // values; however, the counters act as if they were set to zero.
+    // Maintaining this behaviour is more important.
+    xor ax, ax
+    out 0xA4, ax
+    out 0xA6, ax
 
     // reset remaining I/O ports by hand
-    xor ax, ax
+    // xor ax, ax
     out 0xB2, al
     out 0xB3, al
     out 0xB7, al

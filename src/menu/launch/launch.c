@@ -551,7 +551,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     // restore or create data
     if (meta->sram_size != 0) {
         strcpy(ext_loc, s_file_ext_sram);
-        result = preallocate_file(dst_path, &fp, 0xFF, meta->sram_size, NULL, LK_DIALOG_PREPARE_SAVE, LK_DIALOG_SAVE_OVERDUMP_TITLE_SRAM);
+        result = preallocate_file(dst_path, &fp, 0x00, meta->sram_size, NULL, LK_DIALOG_PREPARE_SAVE, LK_DIALOG_SAVE_OVERDUMP_TITLE_SRAM);
         if (result != FR_OK)
             goto launch_restore_save_data_return_result;
 

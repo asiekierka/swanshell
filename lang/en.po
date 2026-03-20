@@ -328,8 +328,14 @@ msgstr "File..."
 msgid "SUBMENU_OPTION_FILE_DELETE"
 msgstr "Delete"
 
+msgid "SUBMENU_OPTION_FILE_ERASE_SAVE"
+msgstr "Erase save data"
+
 msgid "DIALOG_FILE_DELETE_CONFIRM"
 msgstr "Are you sure you want to delete this file?"
+
+msgid "DIALOG_FILE_ERASE_SAVE_CONFIRM"
+msgstr "Are you sure you want to erase save data for this file?"
 
 msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
 msgstr "Scanning for BIOS..."

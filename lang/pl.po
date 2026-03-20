@@ -360,8 +360,14 @@ msgstr "Plik..."
 msgid "SUBMENU_OPTION_FILE_DELETE"
 msgstr "Usuń"
 
+msgid "SUBMENU_OPTION_FILE_ERASE_SAVE"
+msgstr "Wyczyść dane zapisu"
+
 msgid "DIALOG_FILE_DELETE_CONFIRM"
 msgstr "Czy na pewno chcesz usunąć ten plik?"
+
+msgid "DIALOG_FILE_ERASE_SAVE_CONFIRM"
+msgstr "Czy na pewno chcesz wyczyścić dane zapisu dla tego pliku?"
 
 msgid "PROMPT_TF_CARD_REMOVED_TITLE"
 msgstr "Karta pamięci usunięta!"

@@ -3,6 +3,12 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.1.3 (20th March 2026)
+
+- Added: Option to erase a file's related save data.
+- Fixed: Issue with new SRAM save file initialization.
+- Fixed: Issue with timer initialization when loading programs.
+
 ## swanshell 1.1.2 (19th March 2026)
 
 - Added: New USB shell commands: `cat`, `echo`, `pwd`.

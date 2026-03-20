@@ -23,6 +23,7 @@
 #include "lang.h"
 #include "lang_gen.h"
 #include "ui/ui.h"
+#include "ui_fileops.h"
 #include "strings.h"
 #include "util/file.h"
 #include "ui/ui_popup_dialog.h"
@@ -51,15 +52,20 @@ static int16_t __fileops_delete_path(char *path, bool hide_other_values) {
     return FR_OK;
 }
 
-int16_t fileops_delete_file_and_savedata(const char __far *filename, bool and_savedata) {
+int16_t fileops_delete_file_maybe_savedata(const char __far *filename, uint16_t flags) {
     char path[FF_LFN_BUF+1];
     int16_t result;
 
+    bool and_file = (flags & FILEOPS_DELETE_FILE_MAYBE_INCLUDE_FILE) != 0;
+    bool and_savedata = (flags & FILEOPS_DELETE_FILE_MAYBE_INCLUDE_SAVEDATA) != 0;
+
     strcpy(path, filename);
-    result = __fileops_delete_path(path,  false);
-    if (result != FR_OK) {
-        if (and_savedata && (result == FR_NO_FILE || result == FR_NO_PATH)) return FR_OK;
-        return result;
+    if (and_file) {
+        result = __fileops_delete_path(path,  false);
+        if (result != FR_OK) {
+            if (and_savedata && (result == FR_NO_FILE || result == FR_NO_PATH)) return FR_OK;
+            return result;
+        }
     }
 
     if (and_savedata && fileops_is_rom(path)) {
@@ -93,7 +99,7 @@ int16_t ui_fileops_check_file_overwrite(const char __far *filename) {
     ui_show();
     
     if (ui_popup_dialog_action(&dlg, 1) == 0) {
-        return fileops_delete_file_and_savedata(filename, true);
+        return fileops_delete_file_maybe_savedata(filename, FILEOPS_DELETE_FILE_MAYBE_INCLUDE_FILE | FILEOPS_DELETE_FILE_MAYBE_INCLUDE_SAVEDATA);
     } else {
         return FR_EXIST;
     }
@@ -111,7 +117,25 @@ int16_t ui_fileops_check_file_delete_by_user(const char __far *filename) {
     ui_show();
     
     if (ui_popup_dialog_action(&dlg, 1) == 0) {
-        return fileops_delete_file_and_savedata(filename, false);
+        return fileops_delete_file_maybe_savedata(filename, FILEOPS_DELETE_FILE_MAYBE_INCLUDE_FILE);
+    } else {
+        return FR_OK;
+    }
+}
+
+int16_t ui_fileops_check_file_erase_savedata(const char __far *filename) {
+    ui_popup_dialog_config_t dlg = {0};
+
+    dlg.title = lang_keys[LK_SUBMENU_OPTION_FILE_ERASE_SAVE];
+    dlg.description = lang_keys[LK_DIALOG_FILE_ERASE_SAVE_CONFIRM];
+    dlg.buttons[0] = LK_YES;
+    dlg.buttons[1] = LK_NO;
+
+    ui_popup_dialog_draw(&dlg);
+    ui_show();
+    
+    if (ui_popup_dialog_action(&dlg, 1) == 0) {
+        return fileops_delete_file_maybe_savedata(filename, FILEOPS_DELETE_FILE_MAYBE_INCLUDE_SAVEDATA);
     } else {
         return FR_OK;
     }
