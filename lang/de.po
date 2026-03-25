@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-02 07:42+0000\n"
+"PO-Revision-Date: 2026-03-26 03:48+0000\n"
 "Last-Translator: Kemal Afzal <Kemal-Afzal@outlook.de>\n"
 "Language-Team: German <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "de/>\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16\n"
+"X-Generator: Weblate 5.16.2\n"
 
 msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
 msgstr "Seite %d/%d"
@@ -116,11 +116,12 @@ msgstr ""
 msgid "SETTINGS_CART_MCU_SPI_SPEED"
 msgstr "Kommunikationsgeschwindigkeit des Mikrocontroller"
 
-#, fuzzy
 msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
 msgstr ""
+"Legt die Frequenz für die Kommunikation mit dem Mikrokontroller im "
+"Spielmodul. Wird derzeitig für USB Dateiübertragungen verwendet.\n"
 "- Niedrig: 384 kHz\n"
-"- Medium: 6 MHz bei WSC, 384 kHz bei WS/PCv2\n"
+"- Medium: 6 MHz (384 kHz bei WS/PCv2)\n"
 "- Hoch: 24 MHz"
 
 msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
@@ -276,7 +277,6 @@ msgstr "Datei auswählen"
 msgid "PROGRESS_COPYING_DATA"
 msgstr "Daten werden kopiert..."
 
-#, fuzzy
 msgid "SUBMENU_OPTION_CONTROLLER_MODE"
 msgstr "Controllermodus"
 
@@ -301,7 +301,6 @@ msgstr "Kompatibel"
 msgid "ATHENABIOS_SUFFIX_NATIVE"
 msgstr "Nativ"
 
-#, fuzzy
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Controllermodus aktiv."
 
@@ -367,3 +366,92 @@ msgstr "Wiederholungsrate"
 
 msgid "ERROR_TITLE_FONTS_LOAD"
 msgstr "Schriftarten konnten nicht geladen werden!"
+
+msgid "SETTINGS_FILE_SHOW_SAVES_KEY"
+msgstr "Speicherdateien anzeigen"
+
+msgid "SETTINGS_FILE_SHOW_SAVES_HELP"
+msgstr "Speicherdateien anzeigen oder verstecken (.ram, .flash, .eeprom, .rtc)."
+
+msgid "SETTINGS_FILE_SORT_FILESYSTEM"
+msgstr "Dateisystem"
+
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_HELP"
+msgstr "Wählt die Schriftart aus, beim Lesen von Textdateien verwendet wird."
+
+msgid "SETTINGS_FONT_SIZE_LARGE"
+msgstr "Groß"
+
+msgid "SETTINGS_FONT_SIZE_SMALL"
+msgstr "Klein"
+
+msgid "SETTINGS_CONTROLS_REPEAT_DELAY_HELP"
+msgstr ""
+"Die Verzögerung nach der das Gedrückthalten eines Knopfes als zweites "
+"Drücken gilt."
+
+msgid "SETTINGS_CONTROLS_REPEAT_RATE_HELP"
+msgstr "Die Frequenz mit welcher der Knopfdruck wiederholt wird."
+
+msgid "SETTINGS_THEME_ACCENT_COLOR_HELP"
+msgstr ""
+"Akzentfarbe der Benutzeroberfläche, insbesondere die obere und untere Leiste."
+
+msgid "SETTINGS_THEME_DARK_MODE_HELP"
+msgstr ""
+"Einen dunklen Hintergrund für den Hauptbereich der Benutzeroberfläche "
+"verwenden."
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_SRAM"
+msgstr ".ram Datei zu groß"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_EEPROM"
+msgstr ".eeprom Datei zu groß"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_FLASH"
+msgstr ".flash Datei zu groß"
+
+msgid "DIALOG_SAVE_OVERDUMP_DESCRIPTION"
+msgstr ""
+"Das kann ein Zeichen für einen Overdump sein. Die Datei muss eventuell "
+"händisch angepasst werden. Soll fortgefahren werden?"
+
+msgid "ERROR_SAVE_NOR_FLASH_CORRUPT"
+msgstr "Flashspeicherdatei beschädigt"
+
+msgid "ERROR_FLASH_COMM_FAILED"
+msgstr "Flashkommunikationsfehler"
+
+msgid "ERROR_UNSUPPORTED_FIRMWARE_VERSION"
+msgstr "Nicht unterstützte Firmwareversion"
+
+msgid "ERROR_INVALID_FIRMWARE_INSTALLATION"
+msgstr "Ungültige Installation der Firmware"
+
+msgid "ERROR_UNSUPPORTED_CARTRIDGE_REVISION"
+msgstr "Nicht unterstützte Revision des Spielmodul"
+
+msgid "ERROR_OUT_OF_MEMORY"
+msgstr "Kein Speicher frei"
+
+msgid "SETTINGS_SYS_INFO"
+msgstr "Systeminformationen"
+
+msgid "SETTINGS_SYS_INFO_MY_CARTRIDGE"
+msgstr "Mein Spielmodul"
+
+msgid "PROMPT_TF_CARD_REMOVED_TITLE"
+msgstr "Speicherkarte wurde entfernt!"
+
+msgid "PROMPT_TF_CARD_REMOVED"
+msgstr ""
+"Bitte lege eine Speicherkarte ein. Das Spielmodul startet automatisch neu."
+
+msgid "PROMPT_NO_BATTERY_TITLE"
+msgstr "Batterie im Spielmodul fehlend oder leer!"
+
+msgid "PROMPT_NO_BATTERY"
+msgstr "Speicherdaten bleiben nicht erhalten. Soll fortgefahren werden?"
+
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
+msgstr "Textbetrachter Schriftart"
