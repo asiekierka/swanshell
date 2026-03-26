@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 05:42+0000\n"
+"PO-Revision-Date: 2026-03-26 05:46+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
@@ -93,7 +93,7 @@ msgid "ERROR_FILE_FORMAT_INVALID"
 msgstr "文件格式无效"
 
 msgid "ERROR_FILE_NOT_EXECUTABLE"
-msgstr "文件不能执行"
+msgstr "文件无法执行"
 
 msgid "SUBMENU_OPTION_SETTINGS"
 msgstr "设置"
@@ -382,7 +382,7 @@ msgid "DIALOG_SAVE_OVERDUMP_TITLE_FLASH"
 msgstr ".flash 文件太大"
 
 msgid "DIALOG_SAVE_OVERDUMP_DESCRIPTION"
-msgstr "这可能表明过度转储。文件可能需要手动调整才能正常工作。你想继续吗？"
+msgstr "这表示可能存在过度转储，文件可能需要手动调整才能正常工作。确定要继续吗？"
 
 msgid "ERROR_SAVE_NOR_FLASH_CORRUPT"
 msgstr "Flash 存档数据损坏"
@@ -421,7 +421,7 @@ msgid "PROMPT_NO_BATTERY_TITLE"
 msgstr "卡带电池缺失或已耗尽！"
 
 msgid "PROMPT_NO_BATTERY"
-msgstr "存档数据将不会被保留。你想继续吗？"
+msgstr "存档数据将不会被保留。确定要继续吗？"
 
 msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
 msgstr "重复输入延迟"
