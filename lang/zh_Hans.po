@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 05:46+0000\n"
+"PO-Revision-Date: 2026-03-26 06:02+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
@@ -454,4 +454,4 @@ msgid "SUBMENU_OPTION_FILE_ERASE_SAVE"
 msgstr "删除存档数据"
 
 msgid "DIALOG_FILE_ERASE_SAVE_CONFIRM"
-msgstr "确定要删除该文件的存档数据？"
+msgstr "确定要删除此文件的存档数据？"
