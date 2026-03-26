@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 06:02+0000\n"
+"PO-Revision-Date: 2026-03-26 16:57+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
@@ -84,7 +84,7 @@ msgid "SETTINGS_THEME_DARK_MODE"
 msgstr "深色模式"
 
 msgid "DIALOG_UPDATING_MCU"
-msgstr "更新 MCU"
+msgstr "正在更新 MCU"
 
 msgid "ERROR_FILE_TOO_LARGE"
 msgstr "文件太大"
@@ -141,7 +141,7 @@ msgid "DIALOG_OVERWRITE_CONFIRM"
 msgstr "确定要覆盖此文件？"
 
 msgid "OSK_OK"
-msgstr "好的"
+msgstr "OK"
 
 msgid "SETTINGS_FILE_SORT_NAME_ASC"
 msgstr "名称 ↑"
@@ -159,7 +159,7 @@ msgid "SETTINGS_FILE_VIEW_SMALL"
 msgstr "小列表"
 
 msgid "SETTINGS_FILE_VIEW_HELP"
-msgstr "选择文件在文件浏览器中的排列方式。"
+msgstr "选择文件在文件浏览器中的显示方式。"
 
 msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
 msgstr "强制 fast SRAM"
@@ -171,13 +171,13 @@ msgstr ""
 "这有助于缓解某些程序的卡顿，但也可能影响兼容性或使速通失效。"
 
 msgid "SETTINGS_PROG_FX_BIOS"
-msgstr "用于 .fx 加载器的 BIOS 变体"
+msgstr "用于 .fx 加载器的 BIOS 版本"
 
 msgid "SETTINGS_PROG_FX_BIOS_HELP"
 msgstr ""
-".fx 程序使用的BIOS变体。\n"
+".fx 程序使用的 BIOS 版本。\n"
 "\n"
-"对于串行通信，Native 使用USB端口，Compatible 使用控制台EXT端口。"
+"对于串行通信，原生使用 USB 端口，兼容使用控制台 EXT 端口。"
 
 msgid "SETTINGS_CART_MCU_SPI_SPEED"
 msgstr "MCU 通信速度"
@@ -262,7 +262,7 @@ msgid "ERROR_TITLE_FS_INIT"
 msgstr "无法挂载存储！"
 
 msgid "ERROR_TITLE_MCU_INIT"
-msgstr "无法初始化 MCU ！"
+msgstr "无法初始化 MCU！"
 
 msgid "ERROR_TITLE_SETTINGS_LOAD"
 msgstr "无法加载设置！"
@@ -277,13 +277,13 @@ msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
 msgstr "添加为全局库"
 
 msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
-msgstr "扫描 BIOS …"
+msgstr "正在扫描 BIOS …"
 
 msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
-msgstr "扫描 OS …"
+msgstr "正在扫描 OS …"
 
 msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
-msgstr "提取 OS …"
+msgstr "正在提取 OS …"
 
 msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
 msgstr "创建镜像"
@@ -295,7 +295,7 @@ msgid "SUBMENU_OPTION_CONTROLLER_MODE"
 msgstr "手柄模式"
 
 msgid "DIALOG_INITIALIZING_RTC"
-msgstr "正在初始化 RTC …"
+msgstr "正在初始化 RTC…"
 
 msgid "ERROR_WITCH_NO_BIOS_FOUND"
 msgstr "未找到 BIOS 文件！"
@@ -427,7 +427,7 @@ msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
 msgstr "重复输入延迟"
 
 msgid "SETTINGS_CONTROLS_REPEAT_DELAY_HELP"
-msgstr "从按下按键到开始重复按键输入的间隔时间。"
+msgstr "长按按键时开始重复按键输入的间隔时间。"
 
 msgid "SETTINGS_CONTROLS_REPEAT_RATE"
 msgstr "重复输入速率"
@@ -436,7 +436,7 @@ msgid "SETTINGS_CONTROLS_REPEAT_RATE_HELP"
 msgstr "后续重复按键输入的速率。"
 
 msgid "SETTINGS_THEME_ACCENT_COLOR_HELP"
-msgstr "用作用户界面强调色的颜色，特别是在顶部和底部栏上。"
+msgstr "用作用户界面强调色的颜色，主要使用在顶部和底部栏上。"
 
 msgid "SETTINGS_THEME_DARK_MODE_HELP"
 msgstr "为用户界面的主要区域使用深色背景。"
