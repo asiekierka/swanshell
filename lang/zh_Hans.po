@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 05:40+0000\n"
+"PO-Revision-Date: 2026-03-26 05:42+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
@@ -138,7 +138,7 @@ msgid "DIALOG_FILE_ALREADY_EXISTS"
 msgstr "文件已存在。"
 
 msgid "DIALOG_OVERWRITE_CONFIRM"
-msgstr "你确认要覆盖这个文件吗？"
+msgstr "确定要覆盖此文件？"
 
 msgid "OSK_OK"
 msgstr "好的"
@@ -304,7 +304,7 @@ msgid "ERROR_WITCH_NO_OS_FOUND"
 msgstr "未找到 OS 文件！"
 
 msgid "CONTROLLER_MODE_ACTIVE"
-msgstr "游戏手柄模式已激活。"
+msgstr "手柄模式已激活。"
 
 msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
 msgstr "按 SOUND 键退出。"
@@ -415,10 +415,10 @@ msgid "PROMPT_TF_CARD_REMOVED_TITLE"
 msgstr "存储卡已移除！"
 
 msgid "PROMPT_TF_CARD_REMOVED"
-msgstr "请插入存储卡。卡带将自动重启。"
+msgstr "请插入存储卡，卡带将自动重启。"
 
 msgid "PROMPT_NO_BATTERY_TITLE"
-msgstr "缺失或已耗尽的卡带电池！"
+msgstr "卡带电池缺失或已耗尽！"
 
 msgid "PROMPT_NO_BATTERY"
 msgstr "存档数据将不会被保留。你想继续吗？"
