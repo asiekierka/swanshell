@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 03:48+0000\n"
+"PO-Revision-Date: 2026-03-27 01:04+0000\n"
 "Last-Translator: Kemal Afzal <Kemal-Afzal@outlook.de>\n"
 "Language-Team: German <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "de/>\n"
@@ -455,3 +455,17 @@ msgstr "Speicherdaten bleiben nicht erhalten. Soll fortgefahren werden?"
 
 msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
 msgstr "Textbetrachter Schriftart"
+
+msgid "SUBMENU_OPTION_FILE_ERASE_SAVE"
+msgstr "Speicherdaten löschen"
+
+msgid "DIALOG_FILE_ERASE_SAVE_CONFIRM"
+msgstr "Sollen die Speicherdaten dieser Datei wirklich gelöscht werden?"
+
+msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
+msgstr "Lange Namen scrollen lassen"
+
+msgid "SETTINGS_SCROLL_LONG_NAMES_HELP"
+msgstr ""
+"Stellt ein, ob lange Namen, etwa Dateinamen, in der Listenanzeige "
+"automatisch scrollen."
