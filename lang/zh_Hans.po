@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 05:34+0000\n"
+"PO-Revision-Date: 2026-03-26 05:40+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
@@ -424,16 +424,16 @@ msgid "PROMPT_NO_BATTERY"
 msgstr "存档数据将不会被保留。你想继续吗？"
 
 msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
-msgstr "重复延迟"
+msgstr "重复输入延迟"
 
 msgid "SETTINGS_CONTROLS_REPEAT_DELAY_HELP"
-msgstr "从按住按键到产生第一次重复输入的延迟时间。"
+msgstr "从按下按键到开始重复按键输入的间隔时间。"
 
 msgid "SETTINGS_CONTROLS_REPEAT_RATE"
-msgstr "重复速率"
+msgstr "重复输入速率"
 
 msgid "SETTINGS_CONTROLS_REPEAT_RATE_HELP"
-msgstr "后续产生重复按键输入的速率。"
+msgstr "后续重复按键输入的速率。"
 
 msgid "SETTINGS_THEME_ACCENT_COLOR_HELP"
 msgstr "用作用户界面强调色的颜色，特别是在顶部和底部栏上。"
