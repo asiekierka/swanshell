@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "PO-Revision-Date: 2026-03-26 05:34+0000\n"
-"Last-Translator: PECO <msn451518580@hotmail.com>\n"
+"Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -117,7 +117,7 @@ msgid "SUBMENU_OPTION_FILE_DELETE"
 msgstr "删除"
 
 msgid "DIALOG_FILE_DELETE_CONFIRM"
-msgstr "你确认要删除这个文件吗？"
+msgstr "确认要删除此文件？"
 
 msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
 msgstr "正在提取 BIOS …"
@@ -144,10 +144,10 @@ msgid "OSK_OK"
 msgstr "好的"
 
 msgid "SETTINGS_FILE_SORT_NAME_ASC"
-msgstr "文件名 ↑"
+msgstr "名称 ↑"
 
 msgid "SETTINGS_FILE_SORT_NAME_DESC"
-msgstr "文件名 ↓"
+msgstr "名称 ↓"
 
 msgid "SETTINGS_PROG_KEY"
 msgstr "程序启动器"
@@ -166,7 +166,7 @@ msgstr "强制 fast SRAM"
 
 msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
 msgstr ""
-"在 Color 机型上运行游戏前启用更快的 SRAM 和 I/O 速度。\n"
+"在 Color 机型上运行游戏时启用更快的 SRAM 和 I/O 速度。\n"
 "\n"
 "这有助于缓解某些程序的卡顿，但也可能影响兼容性或使速通失效。"
 
@@ -292,7 +292,7 @@ msgid "PROGRESS_COPYING_DATA"
 msgstr "正在复制数据…"
 
 msgid "SUBMENU_OPTION_CONTROLLER_MODE"
-msgstr "游戏手柄模式"
+msgstr "手柄模式"
 
 msgid "DIALOG_INITIALIZING_RTC"
 msgstr "正在初始化 RTC …"
@@ -316,7 +316,7 @@ msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "%d IRAM 字节空闲"
 
 msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
-msgstr "部分功能将无法使用。你想继续吗？"
+msgstr "部分功能将无法使用。确定要继续吗？"
 
 msgid "COLOR_RED"
 msgstr "红色"
@@ -445,4 +445,13 @@ msgid "DIALOG_SAVE_OVERDUMP_TITLE_SRAM"
 msgstr ".ram 文件太大"
 
 msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
-msgstr "滚动显示长文件名"
+msgstr "滚动显示长项目名"
+
+msgid "SETTINGS_SCROLL_LONG_NAMES_HELP"
+msgstr "开启在列表视图中滚动显示较长的项目名（例如文件名）。"
+
+msgid "SUBMENU_OPTION_FILE_ERASE_SAVE"
+msgstr "删除存档数据"
+
+msgid "DIALOG_FILE_ERASE_SAVE_CONFIRM"
+msgstr "确定要删除该文件的存档数据？"
