@@ -3,6 +3,11 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.1.4 (Eventually)
+
+- Added: Japanese translation (bigmoonur)
+- Changed: Improved German translation (Generic)
+
 ## swanshell 1.1.3 (20th March 2026)
 
 - Added: Option to erase a file's related save data.

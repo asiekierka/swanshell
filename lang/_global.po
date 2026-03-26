@@ -26,6 +26,9 @@ msgstr "Polski"
 msgid "LANG_ZH_HANS"
 msgstr "中文"
 
+msgid "LANG_JA"
+msgstr "日本語"
+
 msgid "OSK_ALPHA_SMALL"
 msgstr "1234567890-=\nqwertyuiop[]\nasdfghjkl;\nzxcvbnm,.␣"
 
