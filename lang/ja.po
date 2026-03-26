@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 06:15+0000\n"
+"PO-Revision-Date: 2026-03-26 07:26+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Japanese <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "ja/>\n"
@@ -19,3 +19,93 @@ msgstr "グローバルライブラリとして追加"
 
 msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
 msgstr "%d/%d ページ"
+
+msgid "UI_STATUS_LOADING"
+msgstr "Loading..."
+
+msgid "YES"
+msgstr "はい"
+
+msgid "NO"
+msgstr "いいえ"
+
+#, fuzzy
+msgid "OK"
+msgstr "OK"
+
+msgid "CANCEL"
+msgstr "キャンセル"
+
+msgid "SETTINGS_INFO_WS"
+msgstr "ヘルプ"
+
+msgid "SETTINGS_INFO_PC2"
+msgstr "Pass: ヘルプ"
+
+msgid "SETTINGS_KEY"
+msgstr "設定"
+
+msgid "SETTINGS_LANGUAGE_KEY"
+msgstr "言語"
+
+msgid "SETTINGS_FILE_KEY"
+msgstr "ファイルブラウザ"
+
+msgid "SETTINGS_PROG_KEY"
+msgstr "プログラム"
+
+msgid "SETTINGS_CART_KEY"
+msgstr "カートリッジ"
+
+msgid "SETTINGS_THEME_KEY"
+msgstr "テーマ"
+
+msgid "SETTINGS_CONTROLS_KEY"
+msgstr "コントロール"
+
+msgid "SETTINGS_FILE_SORT_KEY"
+msgstr "並べ替え"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
+msgstr "隠しファイルを表示"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
+msgstr "「hidden」属性の付いたファイルの表示/非表示を切り替えます。"
+
+msgid "SETTINGS_FILE_SHOW_SAVES_KEY"
+msgstr "セーブファイルを表示"
+
+msgid "SETTINGS_FILE_SHOW_SAVES_HELP"
+msgstr ""
+"セーブデータ用ファイル（.ram、.flash、.eeprom、.rtc）の表示/非表示を切り替え"
+"ます。"
+
+msgid "SETTINGS_FILE_SORT_FILESYSTEM"
+msgstr "ファイルシステム"
+
+msgid "SETTINGS_FILE_SORT_NAME_ASC"
+msgstr "名前 ↑"
+
+msgid "SETTINGS_FILE_SORT_NAME_DESC"
+msgstr "名前 ↓"
+
+msgid "SETTINGS_FILE_SORT_DATE_ASC"
+msgstr "日付 ↑"
+
+msgid "SETTINGS_FILE_SORT_DATE_DESC"
+msgstr "日付 ↓"
+
+msgid "SETTINGS_FILE_SORT_SIZE_ASC"
+msgstr "サイズ ↑"
+
+msgid "SETTINGS_FILE_SORT_SIZE_DESC"
+msgstr "サイズ ↓"
+
+msgid "SETTINGS_FILE_SORT_HELP"
+msgstr "ファイルブラウザでのファイルの並び順を選択します。"
+
+msgid "SETTINGS_FILE_VIEW_KEY"
+msgstr "表示"
+
+msgid "SETTINGS_FILE_VIEW_LARGE"
+msgstr "リスト（大）"
