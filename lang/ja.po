@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 07:26+0000\n"
+"PO-Revision-Date: 2026-03-26 16:57+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Japanese <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "ja/>\n"
@@ -29,7 +29,6 @@ msgstr "はい"
 msgid "NO"
 msgstr "いいえ"
 
-#, fuzzy
 msgid "OK"
 msgstr "OK"
 
@@ -37,7 +36,7 @@ msgid "CANCEL"
 msgstr "キャンセル"
 
 msgid "SETTINGS_INFO_WS"
-msgstr "ヘルプ"
+msgstr "Y1: ヘルプ"
 
 msgid "SETTINGS_INFO_PC2"
 msgstr "Pass: ヘルプ"
@@ -70,7 +69,7 @@ msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
 msgstr "隠しファイルを表示"
 
 msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
-msgstr "「hidden」属性の付いたファイルの表示/非表示を切り替えます。"
+msgstr "「隠しファイル」属性の付いたファイルの表示/非表示を切り替えます。"
 
 msgid "SETTINGS_FILE_SHOW_SAVES_KEY"
 msgstr "セーブファイルを表示"
@@ -102,10 +101,359 @@ msgid "SETTINGS_FILE_SORT_SIZE_DESC"
 msgstr "サイズ ↓"
 
 msgid "SETTINGS_FILE_SORT_HELP"
-msgstr "ファイルブラウザでのファイルの並び順を選択します。"
+msgstr "ファイルブラウザでの並び順を選択します。"
 
 msgid "SETTINGS_FILE_VIEW_KEY"
 msgstr "表示"
 
 msgid "SETTINGS_FILE_VIEW_LARGE"
 msgstr "リスト（大）"
+
+msgid "SETTINGS_FILE_VIEW_SMALL"
+msgstr "リスト（小）"
+
+msgid "SETTINGS_FILE_VIEW_HELP"
+msgstr "ファイルブラウザでの表示形式を選択します。"
+
+msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
+msgstr "アイコン非表示"
+
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
+msgstr "テキストフォント"
+
+msgid "SETTINGS_FONT_SIZE_LARGE"
+msgstr "大"
+
+msgid "SETTINGS_FONT_SIZE_SMALL"
+msgstr "小"
+
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_HELP"
+msgstr "テキストファイル表示時のフォントを選択します。"
+
+msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
+msgstr "長い項目名のスクロール表示"
+
+msgid "SETTINGS_SCROLL_LONG_NAMES_HELP"
+msgstr "リスト表示の際、ファイル名等の長い項目名をスクロール表示します。"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
+msgstr "強制 fast SRAM"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
+msgstr ""
+"カラー表示のできる機種においてゲーム起動時に SRAM と I/O の高速動作を有効にし"
+"ます。\n"
+"\n"
+"一部のプログラムでの処理落ちを軽減させる場合がありますが、互換性の低下や RTA "
+"の成績無効につながる場合があります。"
+
+msgid "SETTINGS_PROG_FX_BIOS"
+msgstr ".fx 用 BIOS バージョン"
+
+msgid "SETTINGS_PROG_FX_BIOS_HELP"
+msgstr ""
+".fx プログラムで使用する BIOS バージョンを選択します。\n"
+"\n"
+"シリアル通信では、標準は USB 端子、互換は本体の EXT 端子を使用します。"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED"
+msgstr "MCU 通信速度"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
+msgstr ""
+"カートリッジ MCU と通信する際の周波数を設定します。現時点では USB 接続での"
+"ファイル転送時に使用されます。\n"
+"- Low: 384 KHz\n"
+"- Medium: 6 MHz （WS/PCv2 では 384 KHz）\n"
+"- High: 24 MHz"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
+msgstr "Low"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_6MHZ"
+msgstr "Medium*"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
+msgstr "High"
+
+msgid "SETTINGS_CART_SET_RTC_TIME"
+msgstr "RTC 日時"
+
+msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
+msgstr "連続入力遅延"
+
+msgid "SETTINGS_CONTROLS_REPEAT_DELAY_HELP"
+msgstr "長押しの際、連続入力が開始するまでの時間を設定します。"
+
+msgid "SETTINGS_CONTROLS_REPEAT_RATE"
+msgstr "連続入力速度"
+
+msgid "SETTINGS_CONTROLS_REPEAT_RATE_HELP"
+msgstr "連続入力の速度を設定します。"
+
+msgid "SETTINGS_THEME_ACCENT_COLOR"
+msgstr "テーマカラー"
+
+msgid "SETTINGS_THEME_ACCENT_COLOR_HELP"
+msgstr "UI のアクセントカラーを設定します、主に上下のバーに使用されます。"
+
+msgid "SETTINGS_THEME_DARK_MODE"
+msgstr "ダークモード"
+
+msgid "SETTINGS_THEME_DARK_MODE_HELP"
+msgstr "UI メイン領域の背景に暗い配色を使用します。"
+
+msgid "SETTINGS_THEME_DARK"
+msgstr "Dark"
+
+msgid "SETTINGS_THEME_LIGHT"
+msgstr "Light"
+
+msgid "DIALOG_UPDATING_MCU"
+msgstr "MCU 更新中"
+
+msgid "DIALOG_PREPARE_SAVE"
+msgstr "セーブデータ作成中"
+
+msgid "DIALOG_PREPARE_FLASH"
+msgstr "flash イメージ作成中"
+
+msgid "DIALOG_PREPARE_ROM"
+msgstr "ROM イメージ作成中"
+
+msgid "DIALOG_STORE_SAVE"
+msgstr "セーブデータ保存中"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_SRAM"
+msgstr ".ram ファイルが大きすぎます"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_EEPROM"
+msgstr ".eeprom ファイルが大きすぎます"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_FLASH"
+msgstr ".flash ファイルが大きすぎます"
+
+msgid "DIALOG_SAVE_OVERDUMP_DESCRIPTION"
+msgstr ""
+"overdump の可能性があります。正しく動作させるには、手動での修正が必要になる場"
+"合があります。続行しますか？"
+
+msgid "ERROR_FR_DISK_ERR"
+msgstr "ストレージエラー"
+
+msgid "ERROR_FR_INT_ERR"
+msgstr "FatFs 内部エラー"
+
+msgid "ERROR_FR_NOT_READY"
+msgstr "ストレージの準備ができていません"
+
+msgid "ERROR_FR_NO_FILE"
+msgstr "ファイルが見つかりません"
+
+msgid "ERROR_FR_NO_PATH"
+msgstr "パスが見つかりません"
+
+msgid "ERROR_FR_DENIED"
+msgstr "アクセスが拒否されました"
+
+msgid "ERROR_SAVE_CORRUPT"
+msgstr "セーブデータが破損しています"
+
+msgid "ERROR_SAVE_PSRAM_CORRUPT"
+msgstr "PSRAM ステートが破損しています"
+
+msgid "ERROR_SAVE_NOR_FLASH_CORRUPT"
+msgstr "Flash セーブデータが破損しています"
+
+msgid "ERROR_MCU_COMM_FAILED"
+msgstr "MCU 通信エラー"
+
+msgid "ERROR_FLASH_COMM_FAILED"
+msgstr "Flash 通信エラー"
+
+msgid "ERROR_UNSUPPORTED_FIRMWARE_VERSION"
+msgstr "未対応のバージョンです"
+
+msgid "ERROR_INVALID_FIRMWARE_INSTALLATION"
+msgstr "ファームウェアのインストールが無効です"
+
+msgid "ERROR_UNSUPPORTED_CARTRIDGE_REVISION"
+msgstr "未対応のカートリッジリビジョンです"
+
+msgid "UI_FILE_SELECTOR_EMPTY"
+msgstr "空"
+
+msgid "ERROR_MCU_BIN_CORRUPT"
+msgstr "MCU.BIN の形式が無効です！"
+
+msgid "ERROR_FILE_TOO_LARGE"
+msgstr "ファイルが大きすぎます"
+
+msgid "ERROR_FILE_FORMAT_INVALID"
+msgstr "ファイル形式が無効です"
+
+msgid "ERROR_FILE_NOT_EXECUTABLE"
+msgstr "ファイルが実行できません"
+
+msgid "ERROR_DATA_TRANSFER_TIMEOUT"
+msgstr "データ転送がタイムアウトしました"
+
+msgid "ERROR_DATA_TRANSFER_CANCEL"
+msgstr "データ転送がキャンセルされました"
+
+msgid "ERROR_DATA_CORRUPT"
+msgstr "データが破損しています"
+
+msgid "ERROR_OUT_OF_MEMORY"
+msgstr "メモリが不足しています"
+
+msgid "ERROR_TITLE_FS_INIT"
+msgstr "ストレージをマウントできませんでした！"
+
+msgid "ERROR_TITLE_MCU_INIT"
+msgstr "MCU を初期化できませんでした！"
+
+msgid "ERROR_TITLE_SETTINGS_LOAD"
+msgstr "設定を読み込めませんでした！"
+
+msgid "ERROR_TITLE_FONTS_LOAD"
+msgstr "フォントを読み込めませんでした！"
+
+msgid "ERROR_TITLE_SAVE_STORE"
+msgstr "セーブデータを保存できませんでした！"
+
+msgid "SUBMENU_OPTION_SETTINGS"
+msgstr "設定"
+
+msgid "SUBMENU_OPTION_TOOLS"
+msgstr "ツール"
+
+msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
+msgstr "XMODEM で起動"
+
+msgid "SUBMENU_OPTION_TEST_BFB"
+msgstr "テスト"
+
+msgid "SETTINGS_SYS_INFO"
+msgstr "システム情報"
+
+msgid "SETTINGS_SYS_INFO_MY_CARTRIDGE"
+msgstr "カートリッジ情報"
+
+msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
+msgstr "BIOS/OS を抽出"
+
+msgid "SUBMENU_OPTION_FILE"
+msgstr "ファイル..."
+
+msgid "SUBMENU_OPTION_FILE_DELETE"
+msgstr "削除"
+
+msgid "SUBMENU_OPTION_FILE_ERASE_SAVE"
+msgstr "セーブデータを消去"
+
+msgid "DIALOG_FILE_DELETE_CONFIRM"
+msgstr "このファイルを削除しますか？"
+
+msgid "DIALOG_FILE_ERASE_SAVE_CONFIRM"
+msgstr "このファイルのセーブデータを消去しますか？"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
+msgstr "BIOS 検索中..."
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
+msgstr "BIOS 抽出中..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
+msgstr "OS 検索中..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
+msgstr "OS 抽出中..."
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
+msgstr "BIOS 置き換え"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_OS"
+msgstr "OS 置き換え"
+
+msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
+msgstr "イメージを作成"
+
+#, fuzzy
+msgid "INPUT_TARGET_FILENAME"
+msgstr "保存先ファイル名"
+
+msgid "SELECT_FILE"
+msgstr "ファイルを選択"
+
+msgid "PROGRESS_COPYING_DATA"
+msgstr "コピー中..."
+
+msgid "SUBMENU_OPTION_CONTROLLER_MODE"
+msgstr "コントローラーモード"
+
+msgid "DIALOG_INITIALIZING_RTC"
+msgstr "RTC 初期化中..."
+
+msgid "ERROR_WITCH_NO_BIOS_FOUND"
+msgstr "BIOS ファイルを見つかりませんでした！"
+
+msgid "ERROR_WITCH_NO_OS_FOUND"
+msgstr "OS ファイルを見つかりませんでした！"
+
+msgid "DIALOG_FILE_ALREADY_EXISTS"
+msgstr "ファイルが既に存在しています。"
+
+msgid "DIALOG_OVERWRITE_CONFIRM"
+msgstr "このファイルを上書きしますか？"
+
+msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
+msgstr "互換"
+
+msgid "COLOR_GREEN"
+msgstr "Green"
+
+msgid "COLOR_BLUE"
+msgstr "Blue"
+
+msgid "COLOR_PREVIEW"
+msgstr "プレビュー"
+
+msgid "COLOR_RED"
+msgstr "Red"
+
+msgid "OSK_ALPHA"
+msgstr "Aa"
+
+msgid "OSK_OK"
+msgstr "OK"
+
+msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
+msgstr "一部の機能が利用できなくなります。続行しますか？"
+
+msgid "PROMPT_NO_BATTERY"
+msgstr "セーブデータは保存されません。続行しますか？"
+
+msgid "PROMPT_NO_BATTERY_TITLE"
+msgstr "カートリッジの電池がありません、または電池切れです！"
+
+msgid "PROMPT_TF_CARD_REMOVED"
+msgstr "メモリカードを挿入してください。カートリッジは自動的に再起動されます。"
+
+msgid "PROMPT_TF_CARD_REMOVED_TITLE"
+msgstr "メモリカードが取り外されました！"
+
+msgid "CONTROLLER_MODE_ACTIVE"
+msgstr "コントローラーモードが有効です。"
+
+msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
+msgstr "終了するには SOUND を押してください。"
+
+msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
+msgstr "終了するには VIEW を押してください。"
+
+msgid "ABOUT_RAM_BYTES_FREE"
+msgstr "IRAM 空き容量 %d bytes"
+
+msgid "ATHENABIOS_SUFFIX_NATIVE"
+msgstr "標準"
