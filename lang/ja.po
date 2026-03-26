@@ -1,2 +1,21 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2026-03-26 06:15+0000\n"
+"Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
+"Language-Team: Japanese <https://weblate.asie.pl/projects/49bitcat/swanshell/"
+"ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
+
+msgid "SUBMENU_OPTION_WITCH"
+msgstr "Witch..."
+
+msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
+msgstr "グローバルライブラリとして追加"
+
+msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
+msgstr "%d/%d ページ"
