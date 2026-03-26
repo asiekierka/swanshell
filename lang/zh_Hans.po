@@ -268,7 +268,7 @@ msgid "ERROR_TITLE_SETTINGS_LOAD"
 msgstr "无法加载设置！"
 
 msgid "ERROR_TITLE_SAVE_STORE"
-msgstr "无法存储存档数据！"
+msgstr "无法保存存档数据！"
 
 msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
 msgstr "通过 XMODEM 启动"
@@ -316,7 +316,7 @@ msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "%d IRAM 字节空闲"
 
 msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
-msgstr "某些功能将不可用。你想继续吗？"
+msgstr "部分功能将无法使用。你想继续吗？"
 
 msgid "COLOR_RED"
 msgstr "红色"
