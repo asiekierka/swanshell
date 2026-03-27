@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 16:57+0000\n"
+"PO-Revision-Date: 2026-03-28 03:26+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Japanese <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "ja/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "X-Generator: Weblate 5.16.2\n"
 
 msgid "SUBMENU_OPTION_WITCH"
-msgstr "Witch..."
+msgstr "ウィッチ..."
 
 msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
 msgstr "グローバルライブラリとして追加"
@@ -235,8 +235,8 @@ msgstr ".flash ファイルが大きすぎます"
 
 msgid "DIALOG_SAVE_OVERDUMP_DESCRIPTION"
 msgstr ""
-"overdump の可能性があります。正しく動作させるには、手動での修正が必要になる場"
-"合があります。続行しますか？"
+"overdump である可能性があります。正しく動作させるには、手動での修正が必要にな"
+"る場合があります。続行しますか？"
 
 msgid "ERROR_FR_DISK_ERR"
 msgstr "ストレージエラー"
@@ -329,7 +329,7 @@ msgid "SUBMENU_OPTION_TOOLS"
 msgstr "ツール"
 
 msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
-msgstr "XMODEM で起動"
+msgstr "XMODEM 経由で起動"
 
 msgid "SUBMENU_OPTION_TEST_BFB"
 msgstr "テスト"
@@ -341,7 +341,7 @@ msgid "SETTINGS_SYS_INFO_MY_CARTRIDGE"
 msgstr "カートリッジ情報"
 
 msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
-msgstr "BIOS/OS を抽出"
+msgstr "BIOS/OS 吸い出し"
 
 msgid "SUBMENU_OPTION_FILE"
 msgstr "ファイル..."
@@ -362,26 +362,25 @@ msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
 msgstr "BIOS 検索中..."
 
 msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
-msgstr "BIOS 抽出中..."
+msgstr "BIOS 吸出中..."
 
 msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
 msgstr "OS 検索中..."
 
 msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
-msgstr "OS 抽出中..."
+msgstr "OS 吸出中..."
 
 msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
-msgstr "BIOS 置き換え"
+msgstr "BIOS 書き換え"
 
 msgid "SUBMENU_OPTION_WITCH_REPLACE_OS"
-msgstr "OS 置き換え"
+msgstr "OS 書き換え"
 
 msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
 msgstr "イメージを作成"
 
-#, fuzzy
 msgid "INPUT_TARGET_FILENAME"
-msgstr "保存先ファイル名"
+msgstr "ファイル名を入力"
 
 msgid "SELECT_FILE"
 msgstr "ファイルを選択"
