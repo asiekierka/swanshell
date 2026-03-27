@@ -42,4 +42,6 @@ Select the game's main `.fx` file, then press `A`. Enjoy!
 
 ### There's no sound / The game is complaining about missing "SoundIL"!
 
-SoundIL is a library for playing music and sound bundled with the WonderWitch. While it is proprietary, games were allowed to redistribute it as part of their files - as such, you can find it pretty easily by searching for `sound102.il`. Place this file alongside the `.fx` of the game you wish to launch.
+SoundIL is the official library for playing music and sound. While it is proprietary, games were allowed to redistribute it as part of their files - as such, you can find it pretty easily by searching for `sound102.il`.
+
+Once downloaded, place `sound102.il` on your storage card, then use the `Tools` -> `Witch` -> `Add as global library` option. This will force the `.il` file to be loaded alongside every launched `.fx` program. Alternatively, you can choose to place this file alongside the `.fx` of the game you wish to launch.
