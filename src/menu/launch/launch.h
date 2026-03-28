@@ -65,6 +65,8 @@ int16_t launch_bfb_in_psram(void);
 
 int16_t launch_com(const char *path);
 
+int16_t launch_plugin_via_ipc(const char __far *plugin_path, const char *filename);
+
 int16_t launch_in_psram(uint32_t size);
 
 #endif /* LAUNCH_H_ */

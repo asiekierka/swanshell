@@ -111,11 +111,11 @@ DEPS		:= $(OBJS:.o=.d)
 # Targets
 # -------
 
-.PHONY: all clean dist distclean fonts athenaos-compatible athenaos-native libnile-bootfriend libnile-medium usage usage-symbols
+.PHONY: all clean dist distclean fonts athenaos-compatible athenaos-native libnile-bootfriend libnile-medium plugin-uxnws usage usage-symbols
 
 all: $(ROM) compile_commands.json
 
-dist: all athenaos-compatible athenaos-native dist/NILESWAN/font8/default.sff dist/NILESWAN/font16/default.sff dist/NILESWAN/unicode/shiftjis.tbl
+dist: all athenaos-compatible athenaos-native plugin-uxnws dist/NILESWAN/font8/default.sff dist/NILESWAN/font16/default.sff dist/NILESWAN/unicode/shiftjis.tbl
 	@echo "  DIST"
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw dist/NILESWAN/BIOSATHN.RAW
@@ -128,6 +128,7 @@ dist: all athenaos-compatible athenaos-native dist/NILESWAN/font8/default.sff di
 	@cp fonts/boutique/LICENSE dist/NILESWAN/license/font/default8/LICENSE.boutique
 	@cp fonts/baekmuk/COPYRIGHT dist/NILESWAN/license/font/default16/LICENSE.baekmuk
 	@cp vendor/modified-ark-pixel-font/LICENSE-OFL dist/NILESWAN/license/font/default16/LICENSE.arkpixel
+	@cp vendor/uxnws/uxnws.wsc dist/NILESWAN/PLUG_UXN.BIN
 
 dist/NILESWAN/unicode/shiftjis.tbl: fonts/tables/SHIFTJIS.TXT fonts/tablegen.lua
 	@echo "  TABLE   $@"
@@ -164,16 +165,19 @@ fonts/build/ark-pixel-12px-proportional-ja.bdf:
 	$(_V)cp vendor/modified-ark-pixel-font/build/outputs/* fonts/build/
 
 athenaos-compatible:
-	@$(MAKE) -C $(ATHENAOS_PATH) bios
+	@$(MAKE) -C $(ATHENAOS_PATH) VERSION=0.0.0 bios
 
 athenaos-native:
-	@$(MAKE) -C $(ATHENAOS_PATH) CONFIG=config/config.nileswan.mk
+	@$(MAKE) -C $(ATHENAOS_PATH) VERSION=0.0.0 CONFIG=config/config.nileswan.mk
 
 libnile-bootfriend:
 	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/bootfriend DEFINES="-DLIBNILE_ENABLE_FAST_ALIGNED_READS" install
 
 libnile-medium:
 	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/medium DEFINES="-DLIBNILE_ENABLE_FAST_ALIGNED_READS" install
+
+plugin-uxnws:
+	@$(MAKE) -C vendor/uxnws
 
 build/bootstub.bin: libnile-bootfriend
 	$(_V)$(MAKE) -f Makefile.bootstub --no-print-directory
@@ -196,6 +200,7 @@ clean:
 	$(_V)cd $(LIBNILE_PATH) && $(MAKE) TARGET=wswan/medium clean
 	$(_V)cd $(ATHENAOS_PATH) && $(MAKE) clean
 	$(_V)cd $(ATHENAOS_PATH) && $(MAKE) CONFIG=config/config.nileswan.mk clean
+	$(_V)cd vendor/uxnws && $(MAKE) clean
 	$(_V)rm fonts/build/* || true
 
 usage-symbols: $(ELF)

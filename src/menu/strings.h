@@ -45,6 +45,7 @@ DEFINE_STRING(s_file_ext_html, ".html");
 DEFINE_STRING(s_file_ext_il, ".il");
 DEFINE_STRING(s_file_ext_pc2, ".pc2");
 DEFINE_STRING(s_file_ext_raw, ".raw");
+DEFINE_STRING(s_file_ext_rom, ".rom");
 DEFINE_STRING(s_file_ext_txt, ".txt");
 DEFINE_STRING(s_file_ext_vgm, ".vgm");
 DEFINE_STRING(s_file_ext_vgz, ".vgz");
@@ -63,6 +64,8 @@ DEFINE_STRING(s_file_ext_rtc, ".rtc");
 DEFINE_STRING(s_path_save_ini, "/NILESWAN/SAVE.INI");
 DEFINE_STRING(s_path_config_ini, "/NILESWAN/CONFIG.INI");
 DEFINE_STRING(s_path_wallpaper_bmp, "/NILESWAN/WALLPAPER.BMP");
+
+DEFINE_STRING(s_path_plugin_uxn, "/NILESWAN/PLUG_UXN.BIN");
 
 DEFINE_STRING(s_error_unknown, "Error %d");
 

@@ -190,6 +190,10 @@ static int16_t shell_launch_file(char *path) {
         int16_t result = launch_com(path);
         shell_task_yield(SHELL_RET_REFRESH_UI);
         return result;
+    } else if (!strcasecmp(ext, s_file_ext_rom)) {
+        int16_t result = launch_plugin_via_ipc(s_path_plugin_uxn, path);
+        shell_task_yield(SHELL_RET_REFRESH_UI);
+        return result;
     } else {
         return ERR_FILE_NOT_EXECUTABLE;
     }

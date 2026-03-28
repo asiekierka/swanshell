@@ -7,3 +7,6 @@
 [submodule "vendor/modified-ark-pixel-font"]
 	path = vendor/modified-ark-pixel-font
 	url = https://github.com/asiekierka/modified-ark-pixel-font
+[submodule "vendor/uxnws"]
+	path = vendor/uxnws
+	url = https://codeberg.org/asie/uxnws.git

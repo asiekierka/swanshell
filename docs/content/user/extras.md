@@ -17,9 +17,11 @@ Note that, due to the console's non-standard button layout, only games and progr
 | ------ | ----------- |
 | .bfb | [BootFriend](https://wiki.asie.pl/doku.php?id=project:homebrew:wsbootfriend) programs[^bfb] |
 | .bmp | Bitmap images (up to 16 colors, 224x144) |
+| .rom | [Varvara/Uxn](https://wiki.xxiivv.com/site/varvara.html) virtual machine programs[^uxn] |
 | .vgm, .vgz | Music files[^vgm] |
 | .wav | Music files[^wav] |
 
 [^bfb]: Primarily meant for development use.
+[^uxn]: Provided by [uxnws](https://codeberg.org/asie/uxnws).
 [^vgm]: DMG (GB/GBC), PSG (SN76489), and WS/WSC music files supported.
 [^wav]: It is recommended to make your WAV files 4000, 6000, 12000 or 24000 Hz, 8-bit, mono.

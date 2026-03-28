@@ -335,6 +335,11 @@ exit_no_launch:
                         ui_dialog_error_check(launch_com(path), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
+                    } else if (!strcasecmp(ext, s_file_ext_rom)) {
+                        ui_selector_clear_selection(&config);
+                        ui_dialog_error_check(launch_plugin_via_ipc(s_path_plugin_uxn, path), NULL, 0);
+                        reinit_ui = true;
+                        goto rescan_directory;
                     } else {
                         goto txtview;
                     }
