@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-28 03:26+0000\n"
+"PO-Revision-Date: 2026-03-29 11:00+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Japanese <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "ja/>\n"
@@ -180,16 +180,16 @@ msgid "SETTINGS_CART_SET_RTC_TIME"
 msgstr "RTC 日時"
 
 msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
-msgstr "連続入力遅延"
+msgstr "キーリピート遅延"
 
 msgid "SETTINGS_CONTROLS_REPEAT_DELAY_HELP"
-msgstr "長押しの際、連続入力が開始するまでの時間を設定します。"
+msgstr "リピート入力認識までの時間を設定します。"
 
 msgid "SETTINGS_CONTROLS_REPEAT_RATE"
-msgstr "連続入力速度"
+msgstr "キーリピート速度"
 
 msgid "SETTINGS_CONTROLS_REPEAT_RATE_HELP"
-msgstr "連続入力の速度を設定します。"
+msgstr "リピート入力の速度を設定します。"
 
 msgid "SETTINGS_THEME_ACCENT_COLOR"
 msgstr "テーマカラー"
