@@ -54,8 +54,32 @@ static const uint8_t __far arrow_down_glyph[] = {
     0b00011000
 };
 
+static uint8_t correct_hour_12_to_24(uint8_t value) {
+    uint8_t am_pm = value & 0x80;
+    uint8_t hour = value & 0x7F;
+    if (hour < 0x12 && am_pm) {
+        hour = wsx_int_to_bcd8(wsx_bcd8_to_int(hour) + 12);
+    }
+    return hour;
+}
+
+static uint8_t correct_hour_24_to_12(uint8_t value, uint8_t rtc_status) {
+    if (value >= 0x12) {
+        if (rtc_status & WS_CART_RTC_STATUS_24_HOUR) {
+            return value | 0x80;
+        } else {
+            return wsx_int_to_bcd8(wsx_bcd8_to_int(value) - 12) | 0x80;
+        }
+    } else {
+        return value;
+    }
+}
+
 static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool full_redraw) {
     char text[20];
+
+    // Handle AM/PM correction in 12-hour mode
+    uint8_t hour = correct_hour_12_to_24(dt->time.hour);
 
     text[0]  = '2';
     text[1]  = '0';
@@ -68,8 +92,8 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
     text[8]  = util_hex_chars[dt->date.day >> 4];
     text[9]  = util_hex_chars[dt->date.day & 0xF];
     text[10] = ' ';
-    text[11] = util_hex_chars[dt->time.hour >> 4];
-    text[12] = util_hex_chars[dt->time.hour & 0xF];
+    text[11] = util_hex_chars[hour >> 4];
+    text[12] = util_hex_chars[hour & 0xF];
     text[13] = ':';
     text[14] = util_hex_chars[dt->time.minute >> 4];
     text[15] = util_hex_chars[dt->time.minute & 0xF];
@@ -143,9 +167,10 @@ static void update_day_of_week(ws_cart_rtc_datetime_t *dt) {
     dt->date.wday = day_of_week;
 }
 
-static void adjust_component(ws_cart_rtc_datetime_t *dt, int sel_value, int delta) {
+static void adjust_component(ws_cart_rtc_datetime_t *dt, uint8_t rtc_status, int sel_value, int delta) {
     int min = 0;
     int max = 99;
+    uint8_t hour_adj;
     uint8_t *ptr = 0;
     bool high_digit = !(sel_value & 1);
 
@@ -153,7 +178,7 @@ static void adjust_component(ws_cart_rtc_datetime_t *dt, int sel_value, int delt
     case 0: ptr = &dt->date.year; break;
     case 1: ptr = &dt->date.month; min = 1; max = 12; break;
     case 2: ptr = &dt->date.day; min = 1; max = 31; break;
-    case 3: ptr = &dt->time.hour; max = 23; break;
+    case 3: ptr = &hour_adj; hour_adj = correct_hour_12_to_24(dt->time.hour); max = 23; break;
     case 4: ptr = &dt->time.minute; max = 59; break;
     case 5: ptr = &dt->time.second; max = 59; break;
     }
@@ -208,7 +233,11 @@ static void adjust_component(ws_cart_rtc_datetime_t *dt, int sel_value, int delt
         else if (new_value > max) new_value = min;
     }
 
-    *ptr = wsx_int_to_bcd8(new_value);
+    if (ptr == &hour_adj) {
+        dt->time.hour = correct_hour_24_to_12(wsx_int_to_bcd8(new_value), rtc_status);
+    } else {
+        *ptr = wsx_int_to_bcd8(new_value);
+    }
 }
 
 int16_t ui_rtc_clock(void) {
@@ -246,6 +275,11 @@ int16_t ui_rtc_clock(void) {
             idle_until_vblank();
 
         ui_popup_dialog_clear(&dlg);
+    } else if (!(rtc_status & WS_CART_RTC_STATUS_24_HOUR)) {
+        rtc_status |= WS_CART_RTC_STATUS_24_HOUR;
+        if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_WRITE_STATUS, &rtc_status, 1, NULL, 0) < 0) {
+            return ERR_MCU_COMM_FAILED;
+        }
     }
 
     ui_layout_bars();
@@ -311,19 +345,19 @@ int16_t ui_rtc_clock(void) {
             redraw = true;
         }
         if (input_pressed & WS_KEY_X3) {
-            adjust_component((ws_cart_rtc_datetime_t*) &current_rtc_data, sel_value, -1);
+            adjust_component((ws_cart_rtc_datetime_t*) &current_rtc_data, rtc_status, sel_value, -1);
             changed = true;
         }
         if (input_pressed & WS_KEY_X1) {
-            adjust_component((ws_cart_rtc_datetime_t*) &current_rtc_data, sel_value, 1);
+            adjust_component((ws_cart_rtc_datetime_t*) &current_rtc_data, rtc_status, sel_value, 1);
             changed = true;
         }
         if (input_pressed & WS_KEY_Y3) {
-            adjust_component((ws_cart_rtc_datetime_t*) &current_rtc_data, sel_value, -999);
+            adjust_component((ws_cart_rtc_datetime_t*) &current_rtc_data, rtc_status, sel_value, -999);
             changed = true;
         }
         if (input_pressed & WS_KEY_Y1) {
-            adjust_component((ws_cart_rtc_datetime_t*) &current_rtc_data, sel_value, 999);
+            adjust_component((ws_cart_rtc_datetime_t*) &current_rtc_data, rtc_status, sel_value, 999);
             changed = true;
         }
         if (changed) {
@@ -332,6 +366,7 @@ int16_t ui_rtc_clock(void) {
                 return ERR_MCU_COMM_FAILED;
             }
             changed = false;
+            redraw = true;
         }
         if (input_pressed & (WS_KEY_A | WS_KEY_B | WS_KEY_START)) {
             break;

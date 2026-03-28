@@ -6,7 +6,9 @@ weight: 100
 ## swanshell 1.1.4 (Eventually)
 
 - Added: Japanese translation (bigmoonur)
+- Added: Uxn virtual machine plugin.
 - Changed: Improved German translation (Generic)
+- Fixed: Various RTC date/time settings menu issues.
 
 ## swanshell 1.1.3 (20th March 2026)
 
