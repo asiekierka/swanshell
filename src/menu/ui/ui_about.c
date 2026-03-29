@@ -77,6 +77,7 @@ static int get_board_revision(void) {
     case 0: return 6;
     case 1: return 7;
     case 2: return 9;
+    case 3: return ('a' << 8) | 9;
     default: return -1;
     }
 }
@@ -191,7 +192,7 @@ void ui_about_cartridge(void) {
     text_x += UI_ABOUT_CARTRIDGE_SPACING;
 
     int brev = get_board_revision();
-    if (brev < 0) strcpy(buf, lang_keys[LK_MY_CARTRIDGE_ERROR]); else sprintf(buf, s_my_board_revision, brev);
+    if (brev < 0) strcpy(buf, lang_keys[LK_MY_CARTRIDGE_ERROR]); else sprintf(buf, s_my_board_revision, brev & 0xFF, brev >> 8);
     text_x += bitmapfont_draw_string(&ui_bitmap, text_x, text_y, buf, 65535);
 
     UI_ABOUT_CARTRIDGE_NEWLINE;
