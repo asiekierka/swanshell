@@ -3,11 +3,12 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell 1.1.4 (Eventually)
+## swanshell 1.1.4 (29th March 2026)
 
-- Added: Japanese translation (bigmoonur)
+- Added: Japanese translation. (bigmoonur)
 - Added: Uxn virtual machine plugin.
-- Changed: Improved German translation (Generic)
+- Changed: Improved German translation. (Generic)
+- Changed: Improved Chinese (Simplified) translation. (bigmoonur, PECO)
 - Fixed: Startup state inconsistency for Color programs.
 - Fixed: Various RTC date/time settings menu issues.
 
