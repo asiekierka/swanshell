@@ -43,15 +43,20 @@ restore_cold_boot_io_state:
     pop es
 
     cld
-    // clear memory from 0x2000 onwards
+    // clear 0x2000 - 0x3FFF (=> 0x00)
     mov di, 0x2000
     mov cx, (0x2000 >> 1)
     in al, 0x60
     mov bl, al
     xor ax, ax
-    test bl, 0x80
+    test bl, 0x80 // color?
     jz 1f
-    mov cx, (0xE000 >> 1)
+    // clear 0x2000 - 0xFDFF
+    mov cx, (0xDE00 >> 1)
+    rep stosw
+    // clear 0xFE00 - 0xFFFF (=> 0xFF)
+    mov cx, (0x200 >> 1)
+    mov ax, 0xFFFF
 1:
     rep stosw
 

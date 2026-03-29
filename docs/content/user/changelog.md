@@ -8,6 +8,7 @@ weight: 100
 - Added: Japanese translation (bigmoonur)
 - Added: Uxn virtual machine plugin.
 - Changed: Improved German translation (Generic)
+- Fixed: Startup state inconsistency for Color programs.
 - Fixed: Various RTC date/time settings menu issues.
 
 ## swanshell 1.1.3 (20th March 2026)
