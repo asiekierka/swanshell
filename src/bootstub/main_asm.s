@@ -51,7 +51,10 @@ restore_cold_boot_io_state:
     xor ax, ax
     test bl, 0x80
     jz 1f
-    mov cx, (0xE000 >> 1)
+    mov cx, (0xDE00 >> 1)
+    rep stosw
+    mov cx, (0x200 >> 1)
+    mov ax, 0xFFFF
 1:
     rep stosw
 
