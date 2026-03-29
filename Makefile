@@ -128,7 +128,7 @@ dist: all athenaos-compatible athenaos-native plugin-uxnws dist/NILESWAN/font8/d
 	@cp fonts/boutique/LICENSE dist/NILESWAN/license/font/default8/LICENSE.boutique
 	@cp fonts/baekmuk/COPYRIGHT dist/NILESWAN/license/font/default16/LICENSE.baekmuk
 	@cp vendor/modified-ark-pixel-font/LICENSE-OFL dist/NILESWAN/license/font/default16/LICENSE.arkpixel
-	@cp vendor/uxnws/uxnws.wsc dist/NILESWAN/PLUG_UXN.BIN
+	@cp vendor/uxnws/uxnws.nileswan.wsc dist/NILESWAN/PLUG_UXN.BIN
 
 dist/NILESWAN/unicode/shiftjis.tbl: fonts/tables/SHIFTJIS.TXT fonts/tablegen.lua
 	@echo "  TABLE   $@"
@@ -177,7 +177,7 @@ libnile-medium:
 	@$(MAKE) -C $(LIBNILE_PATH) TARGET=wswan/medium DEFINES="-DLIBNILE_ENABLE_FAST_ALIGNED_READS" install
 
 plugin-uxnws:
-	@$(MAKE) -C vendor/uxnws
+	@$(MAKE) -C vendor/uxnws PLATFORM=nileswan
 
 build/bootstub.bin: libnile-bootfriend
 	$(_V)$(MAKE) -f Makefile.bootstub --no-print-directory
