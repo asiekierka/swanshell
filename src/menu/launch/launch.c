@@ -740,7 +740,7 @@ int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *
     return FR_OK;
 }
 
-extern void launch_jump_to_bootstub(uint16_t size);
+extern void launch_jump_to_bootstub(uint16_t size, uint16_t flags);
 
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     extern const void __bank_bootstub;
@@ -812,10 +812,12 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     mcu_native_finish();
 
     // Initialize bootstub data
+    uint16_t color = 0;
     if (ws_system_is_color_model()) {
         ws_system_set_mode(WS_MODE_COLOR);
         outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
         ws_gdma_copy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
+        color = 1;
     } else {
         outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
         memcpy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
@@ -823,7 +825,7 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
 
     // Jump to bootstub
     outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_bootstub);
-    launch_jump_to_bootstub(bootstub_size);
+    launch_jump_to_bootstub(bootstub_size, color);
 }
 
 int16_t launch_in_psram(uint32_t size) {

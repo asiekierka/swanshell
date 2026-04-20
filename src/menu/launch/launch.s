@@ -28,8 +28,7 @@ launch_jump_to_bootstub:
     // Load bootstub to 0x00C0 and jump. Stack not trustworthy here!
     mov cx, ax
 
-    in al, 0x60
-    test al, 0x80
+    test dx, dx
     jnz launch_jump_to_bootstub_gdma
 
     shr cx, 1
