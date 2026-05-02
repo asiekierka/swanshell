@@ -3,6 +3,14 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.1.6 (2nd May 2026)
+
+- Minor reliability improvements.
+
+## swanshell 1.1.5 (20th April 2026)
+
+- Fixed: Software launching regression on "mono" consoles.
+
 ## swanshell 1.1.4 (29th March 2026)
 
 - Added: Japanese translation. (bigmoonur)

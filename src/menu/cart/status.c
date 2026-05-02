@@ -41,7 +41,7 @@ bool cart_status_fetch_version(void *version, size_t version_size) {
 
 static int16_t cart_status_init_inner(bool is_mcu_reset_ok) {
     // Check board revision
-    if (inportb(IO_NILE_BOARD_REVISION) > 0x2) return ERR_UNSUPPORTED_CARTRIDGE_REVISION;
+    if (inportb(IO_NILE_BOARD_REVISION) > CART_MAX_BOARD_REVISION) return ERR_UNSUPPORTED_CARTRIDGE_REVISION;
 
     // Load installed firmware version
     nile_flash_version_t version;

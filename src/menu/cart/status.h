@@ -30,6 +30,7 @@
 #define CART_FW_VERSION_NONE 0x00
 #define CART_FW_VERSION_1_0_0 0x01
 #define CART_FW_VERSION_1_1_0 0x02
+#define CART_MAX_BOARD_REVISION 0x03
 
 typedef struct {
     uint8_t present;
