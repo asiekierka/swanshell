@@ -39,7 +39,7 @@ msgid "SETTINGS_INFO_WS"
 msgstr "Y1: ヘルプ"
 
 msgid "SETTINGS_INFO_PC2"
-msgstr "Pass: ヘルプ"
+msgstr "View: ヘルプ"
 
 msgid "SETTINGS_KEY"
 msgstr "設定"

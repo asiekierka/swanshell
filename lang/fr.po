@@ -36,7 +36,7 @@ msgid "SETTINGS_INFO_WS"
 msgstr "Y1: Aide"
 
 msgid "SETTINGS_INFO_PC2"
-msgstr "Pass: Aide"
+msgstr "View: Aide"
 
 msgid "SETTINGS_KEY"
 msgstr "Paramètres"

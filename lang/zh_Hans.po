@@ -331,7 +331,7 @@ msgid "COLOR_PREVIEW"
 msgstr "预览"
 
 msgid "SETTINGS_INFO_PC2"
-msgstr "Pass: 帮助"
+msgstr "View: 帮助"
 
 msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
 msgstr "兼容"

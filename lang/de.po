@@ -341,7 +341,7 @@ msgid "SETTINGS_CART_KEY"
 msgstr "Spielmodul"
 
 msgid "SETTINGS_INFO_PC2"
-msgstr "Pass: Hilfe"
+msgstr "View: Hilfe"
 
 msgid "SETTINGS_PROG_FX_BIOS"
 msgstr "BIOS-Variante für .fx"
