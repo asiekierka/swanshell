@@ -3,6 +3,10 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.1.7 (10th May 2026)
+
+- Fixed: PCv2 input layout mapping.
+
 ## swanshell 1.1.6 (2nd May 2026)
 
 - Minor reliability improvements.
