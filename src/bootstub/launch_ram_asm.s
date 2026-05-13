@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 Adrian Siekierka
+ * Copyright (c) 2024, 2026 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -22,18 +22,18 @@
     .arch   i186
     .code16
     .intel_syntax noprefix
-    .global cold_jump
 
-#define FINAL_STUB_OFFSET 0x2004
+#define COLD_JUMP_PART2_IRAM_OFFSET 0x2004
+#define COLD_JUMP_IPC_IRAM_OFFSET 0xE0
+#define COLD_JUMP_IPC_IRAM_RUN_OFFSET ((COLD_JUMP_IPC_IRAM_OFFSET) + 0x18)
 
     // DX:AX - jump pointer
-    // CX - bank limit
-    .section .fartext.s.cold_jump, "a"
     .align 2
-cold_jump:
+    .global cold_jump_via_iram
+cold_jump_via_iram:
     // Patch address in jump stub
-    mov [launch_ram_asm_relocated_stub + 1], ax
-    mov [launch_ram_asm_relocated_stub + 3], dx
+    mov [cold_jump_part2_iram_stub + 1], ax
+    mov [cold_jump_part2_iram_stub + 3], dx
 
     // Write bank values
     mov ax, 0xFFFF
@@ -49,14 +49,14 @@ cold_jump:
     mov es, ax
 
     // Copy stub to RAM
-    mov si, offset "launch_ram_asm_relocated"
-    mov di, FINAL_STUB_OFFSET
+    mov si, offset "cold_jump_part2_iram"
+    mov di, COLD_JUMP_PART2_IRAM_OFFSET
     // Populate immediate values in jump stub
     mov ax, [0x40]
     stosw
     mov ax, [0x50]
     stosw
-    mov cx, (launch_ram_asm_relocated_end + 1 - launch_ram_asm_relocated)
+    mov cx, (cold_jump_part2_iram_end + 1 - cold_jump_part2_iram)
     shr cx, 1
     rep movsw
 
@@ -68,10 +68,10 @@ cold_jump:
 
     // Clear 0x58 - 0x1FFF and jump to relocated stub
     mov di, 0x58
-    mov cx, ((FINAL_STUB_OFFSET - 0x58) >> 1)
-    jmp (FINAL_STUB_OFFSET + 4)
+    mov cx, ((COLD_JUMP_PART2_IRAM_OFFSET - 0x58) >> 1)
+    jmp (COLD_JUMP_PART2_IRAM_OFFSET + 4)
 
-launch_ram_asm_relocated:
+cold_jump_part2_iram:
     // Clear unused memory
     rep stosw
 
@@ -106,11 +106,93 @@ launch_ram_asm_relocated:
     mov [0x56], ax
 
     // Restore final registers
-    mov ax, [FINAL_STUB_OFFSET + 2]
+    mov ax, [COLD_JUMP_PART2_IRAM_OFFSET + 2]
     mov ds, ax
-    ss mov ax, [FINAL_STUB_OFFSET]
+    ss mov ax, [COLD_JUMP_PART2_IRAM_OFFSET]
 
     // Fly me to the moon
-launch_ram_asm_relocated_stub:
+cold_jump_part2_iram_stub:
     jmp 0xffff,0x0000
-launch_ram_asm_relocated_end:
+cold_jump_part2_iram_end:
+
+    // DX:AX - jump pointer
+    .align 2
+    .global cold_jump_via_ipc
+cold_jump_via_ipc:
+    push ax
+
+    // Write bank values
+    mov ax, 0x000E
+    out WS_CART_EXTBANK_RAM_PORT, ax
+    mov ax, 0xFFFF
+    out WS_CART_BANK_ROML_PORT, al
+    out WS_CART_EXTBANK_ROM0_PORT, ax
+    out WS_CART_EXTBANK_ROM1_PORT, ax
+
+    // Copy part2 to IPC
+    cld
+    inc ax
+    mov ds, ax
+    push 0x1000
+    pop es
+
+    // Copy register state to IPC
+    mov si, 0x40
+    mov di, COLD_JUMP_IPC_IRAM_OFFSET
+    mov cx, (0x18 >> 1)
+    rep movsw
+
+    // Copy part2 to IPC
+    mov si, offset "cold_jump_part2_ipc"
+    mov cx, (cold_jump_part2_ipc_end + 1 - cold_jump_part2_ipc)
+    shr cx, 1
+    rep movsw
+
+    pop ax
+    jmp 0x1000, COLD_JUMP_IPC_IRAM_RUN_OFFSET
+
+cold_jump_part2_ipc:
+    // Write jump stub to 0x0400
+    mov word ptr [0x400], 0xD0E7 // OUT 0xD0, AX
+    mov byte ptr [0x402], 0xB8 // MOV AX, nnnn
+    mov cx, [0x40]
+    mov word ptr [0x403], cx
+    mov byte ptr [0x405], 0xEA // JMP dx:ax
+    mov word ptr [0x406], ax
+    mov word ptr [0x408], dx
+
+    push ds
+    push es
+    pop ds
+    pop es // DS = 0x1000, ES = 0x0000
+
+    // Clear 0x0000 - 0x03FF
+    xor ax, ax
+    mov di, ax
+    mov cx, (0x400 >> 1)
+    rep stosw
+
+    // Clear 0x040A - 0x1FFF
+    mov di, 0x40A
+    mov cx, ((0x2000 - 0x40A) >> 1)
+    rep stosw
+
+    // Restore register state
+    mov cx, [0xF6]
+    push cx
+    popf
+    push ax // Clear stack area we just used
+    mov     bx, [0xE2]
+    mov     cx, [0xE4]
+    mov     dx, [0xE6]
+    mov     sp, [0xE8]
+    mov     bp, [0xEA]
+    mov     si, [0xEC]
+    mov     di, [0xEE]
+    mov     es, [0xF2]
+    mov     ss, [0xF4]
+    mov     ds, [0xF0]
+    
+    mov     ax, 0xFFFF
+    jmp 0x0000,0x0400
+cold_jump_part2_ipc_end:

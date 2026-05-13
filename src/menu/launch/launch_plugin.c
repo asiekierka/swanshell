@@ -52,6 +52,7 @@ int16_t launch_plugin_via_ipc(const char __far *plugin_path, const char *filenam
     if (result == FR_OK) {
         result = launch_set_bootstub_file_entry(filepath, &bootstub_data->prog);
         if (result == FR_OK) {
+            bootstub_data->prog_patches |= BOOTSTUB_PROG_PATCH_IPC_RESERVED;
             result = launch_rom_via_bootstub(&meta);
         }
     }

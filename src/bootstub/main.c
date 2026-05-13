@@ -172,7 +172,9 @@ void init_launch_io_state(void) {
 extern void pad_image_in_memory(uint32_t last_byte, uint16_t last_bank);
 
 __attribute__((noreturn))
-extern void cold_jump(const void __far *ptr);
+extern void cold_jump_via_iram(const void __far *ptr);
+__attribute__((noreturn))
+extern void cold_jump_via_ipc(const void __far *ptr);
 
 extern void nilefs_ipc_sync(void);
 
@@ -264,7 +266,11 @@ int main(void) {
 	outportb(IO_NILE_POW_CNT, (inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET) | bootstub_data->prog_pow_cnt);
 	// jump to cartridge
 	outportb(WS_INT_ACK_PORT, 0xFF);
-	cold_jump(bootstub_data->start_pointer);
+	if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_IPC_RESERVED) {
+		cold_jump_via_iram(bootstub_data->start_pointer);		
+	} else {
+		cold_jump_via_ipc(bootstub_data->start_pointer);
+	}
 
 error:
 	report_fatfs_error(result);
