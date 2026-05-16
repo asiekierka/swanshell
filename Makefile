@@ -138,22 +138,22 @@ dist/NILESWAN/unicode/shiftjis.tbl: fonts/tables/SHIFTJIS.TXT fonts/tablegen.lua
 dist/NILESWAN/font16/default.sff: fonts/builder.lua fonts/build/ark-pixel-12px-proportional-ja.bdf
 	@echo "  FONT    $@"
 	@$(MKDIR) -p $(@D)
-	@$(LUA) fonts/builder.lua default16 default $@
+	@$(LUA) fonts/builder.lua -t default16 -o $@
 
 dist/NILESWAN/font8/default.sff: fonts/builder.lua
 	@echo "  FONT    $@"
 	@$(MKDIR) -p $(@D)
-	@$(LUA) fonts/builder.lua default8 default $@
+	@$(LUA) fonts/builder.lua -t default8 -o $@
 
 build/font_tiny16.bin: fonts/builder.lua fonts/build/ark-pixel-12px-proportional-ja.bdf
 	@echo "  FONT    $@"
 	@$(MKDIR) -p $(@D)
-	@$(LUA) fonts/builder.lua tiny16 default $@
+	@$(LUA) fonts/builder.lua -t tiny16 -o $@
 
 build/font_tiny8.bin: fonts/builder.lua
 	@echo "  FONT    $@"
 	@$(MKDIR) -p $(@D)
-	@$(LUA) fonts/builder.lua tiny8 default $@
+	@$(LUA) fonts/builder.lua -t tiny8 -o $@
 
 distclean: clean
 

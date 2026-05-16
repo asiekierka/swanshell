@@ -3,9 +3,18 @@ local MAX_HEIGHT = 15
 local ROM_OFFSET_SHIFT = 0
 
 local bdf = dofile("fonts/lib/bdf.lua")
+local lapp = require("pl.lapp")
 local stringx = require("pl.stringx")
 local tablex = require("pl.tablex")
 local unicode_table = dofile("fonts/lib/unicode_table.lua")
+
+local args = lapp [[
+Converts .bdf fonts to the swanshell format
+  -l,--language (optional string) Language code
+  -o,--output   (string)          Output file name
+  -r,--rotate                     Rotate font clockwise
+  -t,--type     (string)          Font type: default8, default16, tiny8, tiny16
+]]
 
 local function table_to_string(n)
     return string.char(table.unpack(n))
@@ -15,6 +24,30 @@ local function add_char_gap(font, amount)
     for id, char in pairs(font.chars) do
         char.gap = (char.gap or 0) + amount
     end                
+end
+
+-- 90 degree clockwise rotate the provided font bitmap entry
+local function rotate_font_entry(char, height)
+    local bitmap = {}
+    for i=1,char.width do
+        bitmap[i] = 0
+    end
+    for iy=1,char.height do
+        for ix=1,char.width do
+            local new_ix = char.width + 1 - ix
+            if (char.bitmap[iy] & (1 << (ix - 1))) > 0 then
+                bitmap[new_ix] = bitmap[new_ix] | (1 << (iy - 1))
+            end
+        end
+    end
+
+    return {
+        ["x"]=height-char.y-char.height,
+        ["y"]=char.x,
+        ["width"]=char.height,
+        ["height"]=char.width,
+        ["bitmap"]=bitmap
+    }
 end
 
 local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y_offset, is_allowed_char)
@@ -98,18 +131,41 @@ local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y
 
                 char.width = char.width + (char.gap or 0)
 
+                for iy=1,#bitmap do
+                    bitmap[iy] = bitmap[iy] >> (char_bitwidth - char.width)
+                end
+
                 -- calculate xofs, yofs, width, height
                 local res = {}
                 res.width = char.width
                 res.height = #bitmap
+                res.bitmap = bitmap
+                res.x = char.x
+                res.y = char_start_y
+                --- if id == 97 then
+                ---    print(res.x, res.y, res.width, res.height)
+                ---    print(font.ascent, char.y, char.height)
+                ---    print(table.unpack(bitmap))
+                --- end
+                if res.x < 0 then res.x = 0 end
+                if res.y < 0 then res.y = 0 end
+                if (res.y + res.height) > MAX_HEIGHT then
+                    res.y = MAX_HEIGHT - res.height
+                end
+
+                if args.rotate then
+                    res = rotate_font_entry(res, height)
+                end
+                bitmap = res.bitmap
                 res.bitmap = {}
+
                 -- pack ROM data
                 local x = 0
                 local i = 0
                 for iy=1,#bitmap do
-                    local b = bitmap[iy] >> (char_bitwidth - char.width)
+                    local b = bitmap[iy]
                     local m = 1
-                    for ix=1,char.width do
+                    for ix=1,res.width do
                         if (b & m) ~= 0 then
                             x = x | (1 << i)
                         end
@@ -129,19 +185,7 @@ local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y
                 while (#res.bitmap & ((1 << ROM_OFFSET_SHIFT) - 1)) ~= 0 do
                     table.insert(res.bitmap, 0)
                 end
-                res.x = char.x
-                res.y = char_start_y
-                --- if id == 97 then
-                ---    print(res.x, res.y, res.width, res.height)
-                ---    print(font.ascent, char.y, char.height)
-                ---    print(table.unpack(bitmap))
-                --- end
-                if res.x < 0 then res.x = 0 end
-                if res.y < 0 then res.y = 0 end
-                if (res.y + res.height) > MAX_HEIGHT then
-                    res.y = MAX_HEIGHT - res.height
-                end
-                if (res.x > 0 or res.width > 0) then
+                if (res.x > 0) or (res.width > 0) then
                     chars[id] = res
                     if id > max_glyph_id then
                         max_glyph_id = id
@@ -274,12 +318,6 @@ local function write_font(filename, font_height, tables, offsets)
     end
 end
 
-local args = {...}
-if #args < 3 then
-    print("syntax: builder <font type> <font language code> <output filename>")
-    os.exit(0)
-end
-
 local function filter_default(ch, font)
     -- control codes
     if (ch < 0x20) or (ch >= 0x80 and ch < 0xA0) then return false end 
@@ -294,7 +332,7 @@ local function filter_tiny(ch, font)
     return ch >= 0x20 and ch < 0x80
 end
 
-if args[1] == "default8" then
+if args.type == "default8" then
     local swanshell7 = bdf.parse("fonts/local/swanshell_7px.bdf")
     local misaki = bdf.parse("fonts/misaki/misaki_gothic_2nd.bdf")
     local boutiquebitmap7 = bdf.parse("fonts/boutique/BoutiqueBitmap7x7_1.7.bdf")
@@ -306,18 +344,18 @@ if args[1] == "default8" then
 
     local font_order = {swanshell7, misaki, boutiquebitmap7}
     local font_offsets = {0, 0, 0}
-    if stringx.startswith(args[2], "zh_") then
+    if stringx.startswith(args.language or "", "zh_") then
         font_order = {swanshell7, boutiquebitmap7, misaki}
     end
 
-    write_font(args[3], 8, build_font_entry_tables(8, false, font_order, font_offsets, 0, filter_default))
+    write_font(args.output, 8, build_font_entry_tables(8, false, font_order, font_offsets, 0, filter_default))
 end
 
-if args[1] == "default16" then
+if args.type == "default16" then
     local arkpixel12
-    if args[2] == "zh_hans" then
+    if args.language or "" == "zh_hans" then
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_cn.bdf")
-    elseif args[2] == "zh_hant" then
+    elseif args.language or "" == "zh_hant" then
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_tw.bdf")
     else
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-ja.bdf")
@@ -328,18 +366,18 @@ if args[1] == "default16" then
     add_char_gap(arkpixel12, 1)
     add_char_gap(baekmukdotum12, 1)
 
-    write_font(args[3], 16, build_font_entry_tables(16, false, {arkpixel12, baekmukdotum12}, {-1, 0}, nil, filter_default))
+    write_font(args.output, 16, build_font_entry_tables(16, false, {arkpixel12, baekmukdotum12}, {-1, 0}, nil, filter_default))
 end
 
-if args[1] == "tiny8" then
+if args.type == "tiny8" then
     local font = bdf.parse("fonts/local/swanshell_7px.bdf")
     add_char_gap(font, 1)
-    write_font(args[3], 8, build_font_entry_tables(8, true, {font}, {0}, 0, filter_tiny))
+    write_font(args.output, 8, build_font_entry_tables(8, true, {font}, {0}, 0, filter_tiny))
 end
 
 
-if args[1] == "tiny16" then
+if args.type == "tiny16" then
     local font = bdf.parse("fonts/build/ark-pixel-12px-proportional-ja.bdf")
     add_char_gap(font, 1)
-    write_font(args[3], 16, build_font_entry_tables(16, true, {font}, {-1}, -3, filter_tiny))
+    write_font(args.output, 16, build_font_entry_tables(16, true, {font}, {-1}, -3, filter_tiny))
 end
