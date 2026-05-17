@@ -69,7 +69,7 @@ bool idle_until_vblank(void) {
 	while (vbl_ticks == vbl_ticks_last) {
 		ia16_halt();
 	}
-
+	
 	return refresh_view;
 }
 

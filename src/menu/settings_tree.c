@@ -20,6 +20,7 @@
 #include <ws/display.h>
 #include <ws/system.h>
 
+#include "cart/status.h"
 #include "lang_gen.h"
 #include "settings.h"
 #include "lang.h"
@@ -178,6 +179,7 @@ static void settings_display_orientation_on_change(const struct setting *set) {
     if (settings.display_orientation > SETTING_DISPLAY_ORIENTATION_AUTO) {
         bitmap_set_screen_rotation(settings.display_orientation == SETTING_DISPLAY_ORIENTATION_VERTICAL);
     }
+    cart_status_set_orientation_auto(settings.display_orientation == SETTING_DISPLAY_ORIENTATION_AUTO);
 }
 
 static const setting_t __far setting_display_orientation = {

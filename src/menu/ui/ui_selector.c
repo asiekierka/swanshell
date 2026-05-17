@@ -22,6 +22,7 @@
 #include <ws/timer.h>
 #include "ui_selector.h"
 #include "../main.h"
+#include "cart/status.h"
 #include "lang.h"
 #include "lang_gen.h"
 #include "settings.h"
@@ -84,7 +85,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
         ui_draw_statusbar(lang_keys[LK_UI_FILE_SELECTOR_EMPTY]);
 
         while (true) {
-            if (idle_until_vblank())
+            if (idle_until_vblank() || cart_status_apply_orientation_change())
                 return UI_SELECTOR_RELOAD_REQUESTED;
             input_update();
             uint16_t keys_pressed = input_pressed;
@@ -163,7 +164,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
             full_redraw = false;
         }
 
-        if (idle_until_vblank())
+        if (idle_until_vblank() || cart_status_apply_orientation_change())
             return UI_SELECTOR_RELOAD_REQUESTED;
 
         if (settings.file_flags & SETTING_THEME_SCROLL_LONG_NAMES) {

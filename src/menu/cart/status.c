@@ -19,6 +19,8 @@
 #include "cart/mcu.h"
 #include "errors.h"
 #include "status.h"
+#include "ui/bitmap.h"
+#include "ui/ui.h"
 #include <nile/flash.h>
 #include <nile/flash_layout.h>
 #include <nile/hardware.h>
@@ -73,7 +75,6 @@ static int16_t cart_status_init_inner(bool is_mcu_reset_ok) {
 }
 
 int16_t cart_status_init(bool is_safe_mode, bool is_mcu_reset_ok) {
-    memset(&cart_status, 0, sizeof(cart_status_t));
     if (is_safe_mode) {
         cart_status.present |= CART_PRESENT_SAFE_MODE;
     }
@@ -94,10 +95,17 @@ int16_t cart_status_init(bool is_safe_mode, bool is_mcu_reset_ok) {
 
 void cart_status_update(void) {
     if (cart_status.version < CART_FW_VERSION_1_1_0) return;
-
+    
+    int16_t accel_data[3];
     mcu_native_start();
     int16_t result = nile_mcu_native_mcu_get_info_sync(&cart_status.mcu_info, sizeof(nile_mcu_native_info_t));
+    nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(NILE_MCU_NATIVE_CMD_ACCEL_READ, 0), NULL, 0);
+    int16_t accel_result = 0;
+    if (cart_status.orientation_state & 0x80) {
+        accel_result = nile_mcu_native_recv_cmd(&accel_data, 6);
+    }
     mcu_native_finish();
+    
     if (result >= 4) {
         cart_status.present |= CART_PRESENT_MCU_INFO_OK;
         cart_status.present &= ~CART_PRESENT_MCU_INFO_ERROR;
@@ -105,4 +113,57 @@ void cart_status_update(void) {
         cart_status.present &= ~CART_PRESENT_MCU_INFO_OK;
         cart_status.present |= CART_PRESENT_MCU_INFO_ERROR;
     }
+
+    if (accel_result >= 6) {
+        // Use bit 0 for current state, bit 1 to stage toggles.
+        // Require at least two readouts (~1 second) for an orientation toggle.
+        bool current_vertical = (cart_status.orientation_state & 1) != 0;
+        bool toggle = (accel_data[1] >= CART_ORIENTATION_MIN_ACCEL_VAL && current_vertical)
+            || (accel_data[0] <= -CART_ORIENTATION_MIN_ACCEL_VAL && !current_vertical);
+        
+        if (toggle) {
+            if (cart_status.orientation_state & 2) {
+                cart_status.orientation_state ^= 3;
+            } else {
+                cart_status.orientation_state |= 2;
+            }
+        } else {
+            cart_status.orientation_state &= ~2;
+        }
+    } else if (cart_status.orientation_state & 0x80) {
+        cart_status.orientation_state = 0x80;
+    }
+}
+
+bool cart_status_apply_orientation_change(void) {
+    if (!(cart_status.orientation_state & 0x80)) return false;
+
+    uint8_t old_bitmap_rotation = bitmap_rotation;
+    bitmap_set_screen_rotation((cart_status.orientation_state & 1) != 0);
+    if (old_bitmap_rotation != bitmap_rotation) {
+        ui_layout_clear(0);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void cart_status_set_orientation_auto(bool enabled) {
+    bool curr_state = (cart_status.orientation_state & 0x80) != 0;
+    if (curr_state == enabled) return;
+
+    mcu_native_start();
+    if (enabled) {
+        // 2 Hz polling
+        nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(NILE_MCU_NATIVE_CMD_ACCEL_POLL, 2), NULL, 0);
+        nile_mcu_native_recv_cmd(NULL, 0);
+    } else {
+        // disable polling
+        nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(NILE_MCU_NATIVE_CMD_ACCEL_POLL, 0), NULL, 0);
+        nile_mcu_native_recv_cmd(NULL, 0);
+    }
+    mcu_native_finish();
+
+    cart_status.orientation_state = (enabled ? 0x80 : 0);
+    cart_status_apply_orientation_change();
 }

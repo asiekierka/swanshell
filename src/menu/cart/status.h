@@ -30,12 +30,15 @@
 #define CART_FW_VERSION_NONE 0x00
 #define CART_FW_VERSION_1_0_0 0x01
 #define CART_FW_VERSION_1_1_0 0x02
+
 #define CART_MAX_BOARD_REVISION 0x03
+#define CART_ORIENTATION_MIN_ACCEL_VAL 650
 
 typedef struct {
+    nile_mcu_native_info_t mcu_info;
     uint8_t present;
     uint8_t version;
-    nile_mcu_native_info_t mcu_info;
+    uint8_t orientation_state;
 } cart_status_t;
 
 extern cart_status_t cart_status;
@@ -43,6 +46,8 @@ extern cart_status_t cart_status;
 bool cart_status_fetch_version(void *version, size_t version_size);
 int16_t cart_status_init(bool is_safe_mode, bool is_mcu_reset_ok);
 void cart_status_update(void);
+void cart_status_set_orientation_auto(bool enabled);
+bool cart_status_apply_orientation_change(void);
 
 static inline bool cart_status_mcu_info_valid(void) {
     return cart_status.present & CART_PRESENT_MCU_INFO_OK;

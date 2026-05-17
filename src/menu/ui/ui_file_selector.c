@@ -229,7 +229,7 @@ rescan_directory:
     ui_draw_titlebar(NULL);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
     ui_show();
-    if (ui_has_wallpaper()) {
+    if (!reinit_ui && ui_has_wallpaper()) {
         ui_layout_bars();
     }
     if (reinit_ui || reinit_dirs) {
@@ -265,6 +265,7 @@ rescan_directory:
         if (keys_pressed == UI_SELECTOR_RELOAD_REQUESTED) {
             reinit_ui = true;
             reinit_dirs = true;
+            path_depth[path_depth_pos] = config.offset;
             goto rescan_directory;
         }
         if ((keys_pressed & WS_KEY_A) && config.count) {
