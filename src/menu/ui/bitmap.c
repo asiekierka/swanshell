@@ -36,6 +36,7 @@ static inline void bitmap_update_screen_size(void) {
         screen_width = WS_DISPLAY_HEIGHT_PIXELS;
         screen_height = WS_DISPLAY_WIDTH_PIXELS;
     }
+    bitmapfont_update_active_font();
 }
 
 void bitmap_set_screen_rotation(bool vertical) {

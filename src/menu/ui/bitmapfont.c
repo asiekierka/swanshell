@@ -29,15 +29,21 @@
 #include "../../../build/menu/build/font_tiny8_bin.h"
 #include "../../../build/menu/build/font_tiny16_bin.h"
 
-uint8_t font_banks[2] = {0xFF, 0xFF};
-uint16_t font_offsets[2] = {
+uint8_t font_banks[4] = {0xFF, 0xFF, 0xFF, 0xFF};
+uint16_t font_offsets[4] = {
     __builtin_ia16_FP_OFF(font_tiny8),
+    __builtin_ia16_FP_OFF(font_tiny8),
+    __builtin_ia16_FP_OFF(font_tiny16),
     __builtin_ia16_FP_OFF(font_tiny16)
 };
 uint8_t active_font = font16_bitmap;
 
 void bitmapfont_set_active_font(uint16_t font) {
-    active_font = font;
+    active_font = font | (bitmap_rotation ? 0 : 1);
+}
+
+void bitmapfont_update_active_font(void) {
+    active_font = (active_font & ~1) | (bitmap_rotation ? 0 : 1);
 }
 
 // __-prefixed functions corrupt/do not use ROM0; non-__-prefixed preserve/do not use ROM0
@@ -353,6 +359,15 @@ int16_t bitmapfont_load(void) {
     result = bitmapfont_load_font(font8_bitmap, system_end_bank, s_path_font8);
     if (result != FR_OK) return result;
     system_end_bank = MIN(system_end_bank, font_banks[font8_bitmap]);
-    result = bitmapfont_load_font(font16_bitmap, font_banks[font8_bitmap], s_path_font16);
+
+    result = bitmapfont_load_font(font8_bitmap + 1, system_end_bank, s_path_font8v);
+    if (result != FR_OK) return result;
+    system_end_bank = MIN(system_end_bank, font_banks[font8_bitmap + 1]);
+
+    result = bitmapfont_load_font(font16_bitmap, system_end_bank, s_path_font16);
+    if (result != FR_OK) return result;
+    system_end_bank = MIN(system_end_bank, font_banks[font16_bitmap]);
+
+    result = bitmapfont_load_font(font16_bitmap + 1, system_end_bank, s_path_font16v);
     return result;
 }

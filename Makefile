@@ -115,7 +115,7 @@ DEPS		:= $(OBJS:.o=.d)
 
 all: $(ROM) compile_commands.json
 
-dist: all athenaos-compatible athenaos-native plugin-uxnws dist/NILESWAN/font8/default.sff dist/NILESWAN/font16/default.sff dist/NILESWAN/unicode/shiftjis.tbl
+dist: all athenaos-compatible athenaos-native plugin-uxnws dist/NILESWAN/font8/default.sff dist/NILESWAN/font8/vdefault.sff dist/NILESWAN/font16/default.sff dist/NILESWAN/font16/vdefault.sff dist/NILESWAN/unicode/shiftjis.tbl
 	@echo "  DIST"
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-ww.raw dist/NILESWAN/BIOSATHC.RAW
 	@cp $(ATHENAOS_PATH)/dist/AthenaBIOS-*-nileswan.raw dist/NILESWAN/BIOSATHN.RAW
@@ -144,6 +144,16 @@ dist/NILESWAN/font8/default.sff: fonts/builder.lua
 	@echo "  FONT    $@"
 	@$(MKDIR) -p $(@D)
 	@$(LUA) fonts/builder.lua -t default8 -o $@
+
+dist/NILESWAN/font16/vdefault.sff: fonts/builder.lua fonts/build/ark-pixel-12px-proportional-ja.bdf
+	@echo "  FONT    $@"
+	@$(MKDIR) -p $(@D)
+	@$(LUA) fonts/builder.lua -r -t default16 -o $@
+
+dist/NILESWAN/font8/vdefault.sff: fonts/builder.lua
+	@echo "  FONT    $@"
+	@$(MKDIR) -p $(@D)
+	@$(LUA) fonts/builder.lua -r -t default8 -o $@
 
 build/font_tiny16.bin: fonts/builder.lua fonts/build/ark-pixel-12px-proportional-ja.bdf
 	@echo "  FONT    $@"

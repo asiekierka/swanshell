@@ -83,7 +83,7 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
 void bitmap_vscroll_row(const bitmap_t *bitmap, uint16_t ix, uint16_t row_from, uint16_t row_to, uint16_t height);
 
 #define font8_bitmap 0
-#define font16_bitmap 1
+#define font16_bitmap 2
 
 typedef struct __attribute__((packed)) {
     uint16_t magic;
@@ -100,6 +100,7 @@ typedef struct __attribute__((packed)) {
 
 #define BITMAPFONT_BOX_CENTERED 0x0001
 
+void bitmapfont_update_active_font(void);
 void bitmapfont_set_active_font(uint16_t font);
 uint16_t bitmapfont_get_font_height(void);
 uint16_t bitmapfont_get_char_width(uint32_t ch);

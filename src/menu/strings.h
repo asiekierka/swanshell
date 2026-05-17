@@ -82,7 +82,9 @@ DEFINE_STRING(s_freyabios_tpl, "FreyaBIOS %c.%c.%s");
 DEFINE_STRING(s_freyaos_tpl, "FreyaOS %c.%c.%s");
 
 DEFINE_STRING(s_path_font8, "/NILESWAN/FONT8/DEFAULT.SFF");
+DEFINE_STRING(s_path_font8v, "/NILESWAN/FONT8/VDEFAULT.SFF");
 DEFINE_STRING(s_path_font16, "/NILESWAN/FONT16/DEFAULT.SFF");
+DEFINE_STRING(s_path_font16v, "/NILESWAN/FONT16/VDEFAULT.SFF");
 DEFINE_STRING(s_path_tbl_shiftjis, "/NILESWAN/UNICODE/SHIFTJIS.TBL");
 
 DEFINE_STRING(s_save_ini_start, "[Save]\n");
