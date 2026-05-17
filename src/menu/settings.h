@@ -72,6 +72,12 @@ enum {
     SETTING_MCU_SPI_SPEED_COUNT
 };
 
+enum {
+    SETTING_DISPLAY_ORIENTATION_AUTO = 0,
+    SETTING_DISPLAY_ORIENTATION_HORIZONTAL,
+    SETTING_DISPLAY_ORIENTATION_VERTICAL
+};
+
 struct setting;
 
 typedef struct setting_category {
@@ -133,6 +139,7 @@ typedef struct __attribute__((packed)) {
     uint8_t mcu_spi_speed;
     uint8_t joy_repeat_first_ticks;
     uint8_t joy_repeat_next_ticks;
+    uint8_t display_orientation;
     union {
         struct {
             uint8_t accent_color_low;

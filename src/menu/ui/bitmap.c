@@ -24,7 +24,7 @@
 #include "config.h"
 #include "util/math.h"
 
-uint8_t bitmap_rotation = 1;
+uint8_t bitmap_rotation = 3;
 uint8_t screen_width = WS_DISPLAY_WIDTH_PIXELS;
 uint8_t screen_height = WS_DISPLAY_HEIGHT_PIXELS;
 

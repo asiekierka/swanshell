@@ -129,6 +129,8 @@ void main(void) {
 		}
 	}
 
+	bitmap_set_screen_force_horizontal(false);
+
 	{
 		int16_t mcu_reset_result = mcu_reset(true);
 		int16_t result = cart_status_init(is_safe_mode, !mcu_reset_result);

@@ -184,6 +184,17 @@ msgstr "Dark"
 msgid "SETTINGS_THEME_LIGHT"
 msgstr "Light"
 
+msgid "SETTINGS_DISPLAY_ORIENTATION"
+msgstr "Display orientation"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_AUTO"
+msgstr "Auto"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_HORIZONTAL"
+msgstr "Horizontal"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_VERTICAL"
+msgstr "Vertical"
 
 msgid "DIALOG_UPDATING_MCU"
 msgstr "Updating MCU"

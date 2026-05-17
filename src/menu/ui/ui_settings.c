@@ -210,11 +210,19 @@ reload_menu:
                             break;
                         }
                     }
-                   *((uint8_t*) s->choice.value) = value;
+                    *((uint8_t*) s->choice.value) = value;
+
+                    if (s->choice.value == &settings.display_orientation) {
+                        reload_required = true;
+                        reinit_ui = true;
+                    }
                 }
             } else if (s->type == SETTING_TYPE_COLOR) {
+                bitmap_set_screen_force_horizontal(true);
                 ui_draw_titlebar(lang_keys[s->name]);
                 ui_color_picker(s->color.value);
+                bitmap_set_screen_force_horizontal(false);
+                reinit_ui = true;
                 reload_required = true;
             }
 

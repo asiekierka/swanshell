@@ -24,6 +24,7 @@
 #include "settings.h"
 #include "lang.h"
 #include "strings.h"
+#include "ui/bitmap.h"
 #include "ui/ui.h"
 #include "ui/ui_about.h"
 #include "ui/ui_dialog.h"
@@ -37,6 +38,7 @@ DEFINE_STRING_LOCAL(s_file_hide_icons_key, "FileHideIcons");
 DEFINE_STRING_LOCAL(s_program_fast_sram_key, "ProgFastSRAM");
 DEFINE_STRING_LOCAL(s_program_fx_bios_key, "ProgFxCmptBios");
 DEFINE_STRING_LOCAL(s_cart_mcu_spi_speed_key, "CartMcuSpiSpeed");
+DEFINE_STRING_LOCAL(s_display_orientation_key, "DispOrient");
 DEFINE_STRING_LOCAL(s_language, "Language");
 DEFINE_STRING_LOCAL(s_theme_accent_color_key, "ThemeAccentColor");
 DEFINE_STRING_LOCAL(s_theme_dark_mode_key, "ThemeDarkMode");
@@ -160,6 +162,37 @@ static const setting_t __far setting_file = {
     0,
     NULL,
     .category = { &settings_file }
+};
+
+static const uint16_t __wf_rom settings_display_orientation_table[] = {
+    LK_SETTINGS_DISPLAY_ORIENTATION_AUTO,
+    LK_SETTINGS_DISPLAY_ORIENTATION_HORIZONTAL,
+    LK_SETTINGS_DISPLAY_ORIENTATION_VERTICAL
+};
+
+static void settings_display_orientation_name(uint16_t value, char *buf, int buf_len) {
+    strncpy(buf, lang_keys[settings_display_orientation_table[value]], buf_len);
+}
+
+static void settings_display_orientation_on_change(const struct setting *set) {
+    if (settings.display_orientation > SETTING_DISPLAY_ORIENTATION_AUTO) {
+        bitmap_set_screen_rotation(settings.display_orientation == SETTING_DISPLAY_ORIENTATION_VERTICAL);
+    }
+}
+
+static const setting_t __far setting_display_orientation = {
+    s_display_orientation_key,
+    LK_SETTINGS_DISPLAY_ORIENTATION,
+    0,
+    SETTING_TYPE_CHOICE_BYTE,
+    0,
+    settings_display_orientation_on_change,
+    .choice = {
+        &settings.display_orientation,
+        0, 2,
+        NULL,
+        settings_display_orientation_name
+    }
 };
 
 #define LANGUAGE_COUNT 7
@@ -536,9 +569,10 @@ const setting_category_t __far settings_root = {
     LK_SETTINGS_KEY,
     0,
     NULL,
-    7,
+    8,
     {
         &setting_file,
+        &setting_display_orientation,
         &setting_theme,
         &setting_controls,
         &setting_program,
