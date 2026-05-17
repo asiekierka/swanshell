@@ -42,7 +42,7 @@ local function rotate_font_entry(char, height)
     end
 
     return {
-        ["x"]=height-char.y-char.height,
+        ["x"]=char.y,
         ["y"]=char.x,
         ["width"]=char.height,
         ["height"]=char.width,
@@ -152,6 +152,7 @@ local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y
                 if (res.y + res.height) > MAX_HEIGHT then
                     res.y = MAX_HEIGHT - res.height
                 end
+                local char_not_empty = (res.x > 0) or (res.width > 0)
 
                 if args.rotate then
                     res = rotate_font_entry(res, height)
@@ -185,7 +186,7 @@ local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y
                 while (#res.bitmap & ((1 << ROM_OFFSET_SHIFT) - 1)) ~= 0 do
                     table.insert(res.bitmap, 0)
                 end
-                if (res.x > 0) or (res.width > 0) then
+                if char_not_empty then
                     chars[id] = res
                     if id > max_glyph_id then
                         max_glyph_id = id

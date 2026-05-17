@@ -110,8 +110,8 @@ void main(void) {
 	{
 		const char __far *title = lang_keys[LK_NAME];
 		bitmapfont_draw_string(&ui_bitmap,
-			(WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(title, 255)) >> 1,
-			(WS_DISPLAY_HEIGHT_PIXELS - 16) >> 1,
+			(screen_width - bitmapfont_get_string_width(title, 255)) >> 1,
+			(screen_height - 16) >> 1,
 			title, 255);
 	}
 	ui_show();

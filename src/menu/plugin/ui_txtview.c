@@ -217,7 +217,7 @@ int ui_txtview(const char *path) {
                     if (!file_next_pos) {
                         file_next_pos = file_pos;
                     }
-                    if (y >= (WS_DISPLAY_HEIGHT_PIXELS - 8)) {
+                    if (y >= (screen_height - 8)) {
                         break;
                     }
                 } else if (ch == '\t') {
@@ -226,13 +226,13 @@ int ui_txtview(const char *path) {
                 continue;
             }
             uint16_t chw = bitmapfont_get_char_width(ch);
-            if ((x + chw) >= WS_DISPLAY_WIDTH_PIXELS) {
+            if ((x + chw) >= screen_width) {
                 x = 1;
                 y += font_height;
                 if (!file_next_pos) {
                     file_next_pos = file_prev_pos;
                 }
-                if (y >= (WS_DISPLAY_HEIGHT_PIXELS - 8)) {
+                if (y >= (screen_height - 8)) {
                     break;
                 }
             }
@@ -279,7 +279,7 @@ int ui_txtview(const char *path) {
             } else {
                 if (file_pos < size) {
                     file_start_pos = file_next_pos;
-                    for (int i = 0; i < WS_DISPLAY_WIDTH_TILES; i++) {
+                    for (int i = 0; i < (screen_width >> 3); i++) {
                         bitmap_vscroll_row(&ui_bitmap, i, 8 + font_height, 8, 128 - font_height);
                         bitmap_rect_fill(&ui_bitmap, i << 3, 8 + 128 - font_height, 8, font_height, BITMAP_COLOR_2BPP(2));
                     }

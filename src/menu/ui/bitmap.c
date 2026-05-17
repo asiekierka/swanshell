@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, 2025 Adrian Siekierka
+ * Copyright (c) 2024, 2025, 2026 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -17,11 +17,36 @@
 
 #include <string.h>
 #include <ws.h>
+#include <ws/display.h>
 #include <ws/system.h>
 #include <wsx/utf8.h>
 #include "bitmap.h"
 #include "config.h"
 #include "util/math.h"
+
+uint8_t bitmap_rotation = 1;
+uint8_t screen_width = WS_DISPLAY_WIDTH_PIXELS;
+uint8_t screen_height = WS_DISPLAY_HEIGHT_PIXELS;
+
+static inline void bitmap_update_screen_size(void) {
+    if (bitmap_rotation) {
+        screen_width = WS_DISPLAY_WIDTH_PIXELS;
+        screen_height = WS_DISPLAY_HEIGHT_PIXELS;
+    } else {
+        screen_width = WS_DISPLAY_HEIGHT_PIXELS;
+        screen_height = WS_DISPLAY_WIDTH_PIXELS;
+    }
+}
+
+void bitmap_set_screen_rotation(bool vertical) {
+    bitmap_rotation = (bitmap_rotation & ~1) | (!vertical ? 1 : 0);
+    bitmap_update_screen_size();
+}
+
+void bitmap_set_screen_force_horizontal(bool forced) {
+    bitmap_rotation = (bitmap_rotation & ~2) | (forced ? 2 : 0);
+    bitmap_update_screen_size();
+}
 
 #define BITMAP_AT(bitmap, x, y) (((uint8_t*) (bitmap)->start) + ((y) * (bitmap)->y_pitch) + (((x) >> (bitmap)->x_shift) * (bitmap)->x_pitch))
 
@@ -46,10 +71,26 @@ void bitmap_clear(const bitmap_t *bitmap) {
     memset(bitmap->start, 0, bitmap->x_pitch * bitmap->width);
 }
 
+#define BITMAP_DO_ROTATE_XYWH(x,y,width,height) \
+    if (!bitmap_rotation) { \
+        uint16_t tmp = y; \
+        y = x; \
+        x = (bitmap->width << 3) - height - tmp; \
+        \
+        tmp = width; \
+        width = height; \
+        height = tmp; \
+    }
+
 extern void __bitmap_bitop_row_c(uint16_t _and, uint16_t _xor, uint16_t _rows, uint16_t _mask, bitmap_t *bitmap, void *dest);
 extern void __bitmap_bitop_fill_c(uint16_t value, void *dest, uint16_t _rows);
 
 void bitmap_vline(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t length, uint16_t color) {
+    if (!bitmap_rotation) {
+        bitmap_rect_fill(bitmap, x, y, 1, length, color);
+        return;
+    }
+
     if (bitmap->bpp == 1) {
         color = BITMAP_COLOR_2BPP(color ? 3 : 0);
     }
@@ -80,6 +121,8 @@ void bitmap_rect_draw(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
 }
 
 void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) {
+    BITMAP_DO_ROTATE_XYWH(x, y, width, height);
+
     if (bitmap->bpp == 1) {
         color = BITMAP_COLOR_2BPP(color ? 3 : 0);
     }
@@ -157,6 +200,11 @@ void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
 
 void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint16_t w, uint16_t h, uint16_t layer, const uint8_t __far* font_data) {
     if (!FP_SEG(font_data)) return;
+    if (!bitmap_rotation) {
+        uint16_t tmp = yofs;
+        yofs = xofs;
+        xofs = (bitmap->width << 3) - w - tmp;
+    }
 
     xofs += w - 1;
     uint8_t *tile = BITMAP_AT(bitmap, xofs, yofs) + layer;

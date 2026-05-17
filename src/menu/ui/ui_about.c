@@ -50,24 +50,24 @@ void ui_about(void) {
     sprintf(buf, s_name_version, lang_keys[LK_NAME]);
     bitmapfont_set_active_font(font16_bitmap);
     bitmapfont_draw_string(&ui_bitmap,
-        (WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(buf, 65535)) >> 1,
+        (screen_width - bitmapfont_get_string_width(buf, 65535)) >> 1,
         y, buf, 65535);
 
     y += 14;
     strcpy(buf, lang_keys[LK_NAME_COPYRIGHT]);
     bitmapfont_set_active_font(font8_bitmap);
     bitmapfont_draw_string(&ui_bitmap,
-        (WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(buf, 65535)) >> 1,
+        (screen_width - bitmapfont_get_string_width(buf, 65535)) >> 1,
         y, buf, 65535);
 
     y += 11;
     sprintf(buf, lang_keys[LK_ABOUT_RAM_BYTES_FREE], mem_query_free());
     bitmapfont_draw_string(&ui_bitmap,
-        (WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(buf, 65535)) >> 1,
+        (screen_width - bitmapfont_get_string_width(buf, 65535)) >> 1,
         y, buf, 65535);
 
     y += 19;
-    bitmapfont_draw_string_box(&ui_bitmap, 4, y, lang_keys[LK_NAME_COPYRIGHT_INFO], WS_DISPLAY_WIDTH_PIXELS - 8, 1, 0);
+    bitmapfont_draw_string_box(&ui_bitmap, 4, y, lang_keys[LK_NAME_COPYRIGHT_INFO], screen_width - 8, 1, 0);
 
     input_wait_any_key();
 }
@@ -238,7 +238,7 @@ void ui_about_cartridge(void) {
         for (int i = 0; i < 8; i++) {
             sprintf(buf + (i * 2), s_hex_byte, (int) ((uint8_t) buf[64 + i]));
         }
-        text_x = (WS_DISPLAY_WIDTH_PIXELS - bitmapfont_get_string_width(buf, WS_DISPLAY_WIDTH_PIXELS)) >> 1;
+        text_x = (screen_width - bitmapfont_get_string_width(buf, screen_width)) >> 1;
         text_x += bitmapfont_draw_string(&ui_bitmap, text_x, text_y, buf, 65535);
     }
     nile_flash_sleep();

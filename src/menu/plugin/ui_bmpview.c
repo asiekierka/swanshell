@@ -50,7 +50,7 @@ int ui_bmpview(const char *path) {
 
     bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
     if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
-        bmp->width <= 0 || bmp->width > WS_DISPLAY_WIDTH_PIXELS || bmp->height <= 0 || bmp->height > WS_DISPLAY_HEIGHT_PIXELS ||
+        bmp->width <= 0 || bmp->width > screen_width || bmp->height <= 0 || bmp->height > screen_height ||
         bmp->compression != 0) {
         return ERR_FILE_FORMAT_INVALID;
     }
@@ -153,8 +153,8 @@ int ui_bmpview(const char *path) {
         }
     }
 
-    uint8_t xo = (WS_DISPLAY_WIDTH_PIXELS - bmp->width) >> 1;
-    uint8_t yo = ((WS_DISPLAY_HEIGHT_PIXELS - bmp->height) >> 1);
+    uint8_t xo = (screen_width - bmp->width) >> 1;
+    uint8_t yo = ((screen_height - bmp->height) >> 1);
 
     outportb(WS_SCR2_SCRL_X_PORT, -xo);
     outportb(WS_SCR2_SCRL_Y_PORT, -yo + inportb(WS_SCR2_SCRL_Y_PORT));

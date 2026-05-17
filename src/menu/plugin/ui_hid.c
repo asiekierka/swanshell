@@ -42,12 +42,12 @@ int ui_hidctrl(void) {
     uint16_t width1 = bitmapfont_get_string_width(lang_keys[s1], 65535);
     uint16_t width2 = bitmapfont_get_string_width(lang_keys[s2], 65535);
     bitmapfont_draw_string(&ui_bitmap,
-        (WS_DISPLAY_WIDTH_PIXELS - width1) >> 1,
-        (WS_DISPLAY_HEIGHT_PIXELS >> 1) - 20,
+        (screen_width - width1) >> 1,
+        (screen_height >> 1) - 20,
         lang_keys[s1], 65535);
     bitmapfont_draw_string(&ui_bitmap,
-        (WS_DISPLAY_WIDTH_PIXELS - width2) >> 1,
-        (WS_DISPLAY_HEIGHT_PIXELS >> 1) + 4,
+        (screen_width - width2) >> 1,
+        (screen_height >> 1) + 4,
         lang_keys[s2], 65535);
 
     // TODO: more than 75 Hz polling

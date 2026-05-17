@@ -101,7 +101,11 @@ static inline uint16_t __bitmapfont_get_char_width(const uint16_t __far* data16)
         data16 = __bitmapfont_get_error_glyph();
 
     const uint8_t __far *data = (const uint8_t __far*) data16;
-    return (data[2] & 0xF) + (data[3] & 0xF);
+    if (bitmap_rotation) {
+        return (data[2] & 0xF) + (data[3] & 0xF);
+    } else {
+        return (data[2] >> 4) + (data[3] >> 4);
+    }
 }
 
 static inline uint16_t __bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* data) {
@@ -112,12 +116,21 @@ static inline uint16_t __bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t x
     uint16_t y = (data[1] >>  4) & 0xF;
     uint16_t w = (data[1] >>  8) & 0xF;
     uint16_t h = (data[1] >> 12) & 0xF;
-    if (h) {
-        const uint8_t __far* font_data = ((const uint8_t __far*) data) + data[0];
-        bitmap_draw_glyph(bitmap, xofs + x, yofs + y, w, h, 0, font_data);
-    }
+    if (bitmap_rotation) {
+        if (h) {
+            const uint8_t __far* font_data = ((const uint8_t __far*) data) + data[0];
+            bitmap_draw_glyph(bitmap, xofs + x, yofs + y, w, h, 0, font_data);
+        }
 
-    return x + w;
+        return x + w;
+    } else {
+        if (w) {
+            const uint8_t __far* font_data = ((const uint8_t __far*) data) + data[0];
+            bitmap_draw_glyph(bitmap, xofs + y, yofs + x, w, h, 0, font_data);
+        }
+
+        return y + h;
+    }
 }
 
 uint16_t bitmapfont_get_font_height(void) {

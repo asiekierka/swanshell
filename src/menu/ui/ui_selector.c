@@ -25,6 +25,7 @@
 #include "lang.h"
 #include "lang_gen.h"
 #include "settings.h"
+#include "ui/bitmap.h"
 #include "ui/ui.h"
 #include "util/input.h"
 #include "util/util.h"
@@ -38,22 +39,16 @@ static inline void ui_selector_set_active_font(ui_selector_config_t *config) {
 #define UI_SELECTOR_ROW_CONFIG() \
     uint16_t row_count, row_height, row_offset; \
     if (config->style == UI_SELECTOR_STYLE_16) { \
-        row_count = 8; \
         row_height = 16; \
         row_offset = 3; \
     } else { \
-        row_count = 16; \
         row_height = 8; \
         row_offset = 0; \
-    }
+    } \
+    row_count = (screen_height - 16) / row_height;
 
 void ui_selector_clear_selection(ui_selector_config_t *config) {
-    for (int ix = 0; ix < 28; ix++) {
-        for (int iy = 0; iy < 16; iy++) {
-            uint16_t pal = 0;
-            ws_screen_put_tile(bitmap_screen2, pal | ((iy + 1) + (ix * 18)), ix, iy + 1);
-        }
-    }
+    ui_screen_modify_tiles(bitmap_screen2, ~WS_SCREEN_ATTR_PALETTE_MASK, 0, 0, 1, screen_width>>3, (screen_height-16)>>3);
 
     if (ui_has_wallpaper()) {
         ui_selector_set_active_font(config);
@@ -61,7 +56,7 @@ void ui_selector_clear_selection(ui_selector_config_t *config) {
 
         if (config->offset < config->count) {
             uint16_t prev_sel = (config->offset % row_count);
-            bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(0));
+            bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, screen_width, row_height, BITMAP_COLOR_4BPP(0));
             config->draw(config, config->offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset, 0);
         }
     }
@@ -106,7 +101,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                 if (scroll_ticks > SCROLL_TICKS_MIN) {
                     ui_selector_set_active_font(config);
                     int y_offset = (prev_offset % row_count) * row_height + SELECTOR_Y_OFFSET;
-                    bitmap_rect_fill(&ui_bitmap, 0, y_offset + row_offset, 28 * 8, row_height, BITMAP_COLOR_2BPP(ui_has_wallpaper() ? 0 : 2));
+                    bitmap_rect_fill(&ui_bitmap, 0, y_offset + row_offset, screen_width, row_height, BITMAP_COLOR_2BPP(ui_has_wallpaper() ? 0 : 2));
                     config->draw(config, prev_offset, y_offset + row_offset, 0);
                 }
                 scroll_ticks = 0;
@@ -116,7 +111,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
             bool draw_highlights = prev_offset == 0xFFFF || ((prev_offset % row_count) != (config->offset % row_count));
             if (draw_filenames) {
                 ui_selector_set_active_font(config);
-                bitmap_rect_fill(&ui_bitmap, 0, SELECTOR_Y_OFFSET, 28 * 8, row_height * row_count, BITMAP_COLOR_4BPP(ui_has_wallpaper() ? 0 : 2));
+                bitmap_rect_fill(&ui_bitmap, 0, SELECTOR_Y_OFFSET, screen_width, row_height * row_count, BITMAP_COLOR_4BPP(ui_has_wallpaper() ? 0 : 2));
                 for (int i = 0; i < row_count; i++) {
                     uint16_t offset = ((config->offset / row_count) * row_count) + i;
                     if (offset >= config->count) break;
@@ -134,12 +129,9 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                 uint16_t prev_sel = (prev_offset % row_count);
                 uint16_t sel = (config->offset % row_count);
                 if (full_redraw) {
-                    for (int iy = 0; iy < 16; iy++) {
-                        uint16_t pal = 0;
-                        if ((iy >> (row_height > 8 ? 1 : 0)) == sel) pal = WS_SCREEN_ATTR_PALETTE(1);
-                        for (int ix = 0; ix < 28; ix++) {
-                            ws_screen_put_tile(bitmap_screen2, pal | ((iy + 1) + (ix * 18)), ix, iy + 1);
-                        }
+                    for (int iy = 0; iy < row_count; iy++) {
+                        ui_screen_modify_tiles(bitmap_screen2, ~WS_SCREEN_ATTR_PALETTE_MASK,
+                            iy == sel ? WS_SCREEN_ATTR_PALETTE(1) : 0, 0, iy*(row_height>>3) + 1, screen_width>>3, row_height>>3);
                     }
                 } else {
                     uint16_t prev_sel_tile = prev_sel;
@@ -148,26 +140,20 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                         prev_sel_tile <<= 1;
                         sel_tile <<= 1;
                     }
-                    for (int ix = 0; ix < 28; ix++) {
-                        ws_screen_put_tile(bitmap_screen2, ((prev_sel_tile + 1) + (ix * 18)), ix, prev_sel_tile + 1);
-                        ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel_tile + 1) + (ix * 18)), ix, sel_tile + 1);
-
-                        if (row_height > 8) {
-                            ws_screen_put_tile(bitmap_screen2, ((prev_sel_tile + 2) + (ix * 18)), ix, prev_sel_tile + 2);
-                            ws_screen_put_tile(bitmap_screen2, WS_SCREEN_ATTR_PALETTE(1) | ((sel_tile + 2) + (ix * 18)), ix, sel_tile + 2);
-                        }
-                    }
+                    
+                    ui_screen_modify_tiles(bitmap_screen2, ~WS_SCREEN_ATTR_PALETTE_MASK, 0, 0, prev_sel_tile + 1, screen_width>>3, row_height >> 3);
+                    ui_screen_modify_tiles(bitmap_screen2, ~WS_SCREEN_ATTR_PALETTE_MASK, WS_SCREEN_ATTR_PALETTE(1), 0, sel_tile + 1, screen_width>>3, row_height >> 3);
                 }
 
                 if (ui_has_wallpaper()) {
                     ui_selector_set_active_font(config);
                     // Redraw previous and current selected filename
                     if (!draw_filenames && prev_offset < config->count) {
-                        bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(0));
+                        bitmap_rect_fill(&ui_bitmap, 0, prev_sel * row_height + SELECTOR_Y_OFFSET, screen_width, row_height, BITMAP_COLOR_4BPP(0));
                         config->draw(config, prev_offset, prev_sel * row_height + SELECTOR_Y_OFFSET + row_offset, 0);
                     }
                     if (config->offset < config->count) {
-                        bitmap_rect_fill(&ui_bitmap, 0, sel * row_height + SELECTOR_Y_OFFSET, 28 * 8, row_height, BITMAP_COLOR_4BPP(2));
+                        bitmap_rect_fill(&ui_bitmap, 0, sel * row_height + SELECTOR_Y_OFFSET, screen_width, row_height, BITMAP_COLOR_4BPP(2));
                         config->draw(config, config->offset, sel * row_height + SELECTOR_Y_OFFSET + row_offset, 0);
                     }
                 }

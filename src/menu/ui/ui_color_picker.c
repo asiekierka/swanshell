@@ -28,8 +28,8 @@
 #include "settings.h"
 #include "util/input.h"
 
-#define COLORBAR_WIDTH (WS_DISPLAY_WIDTH_PIXELS - 32)
-#define COLORBAR_X ((WS_DISPLAY_WIDTH_PIXELS - COLORBAR_WIDTH) >> 1)
+#define COLORBAR_WIDTH (screen_width - 32)
+#define COLORBAR_X ((screen_width - COLORBAR_WIDTH) >> 1)
 #define COLORBAR_ENTRY_WIDTH (COLORBAR_WIDTH / 16)
 #define COLORBAR_ENTRY_HEIGHT 16
 _Static_assert(((COLORBAR_ENTRY_WIDTH * 8) & 7) == 0, "Incompatible colorbar entry width");
@@ -60,7 +60,7 @@ static const uint8_t __far colorbar_mono_gradient[] = {
 static void draw_colorbar_mono(uint8_t y, uint8_t start_palette, uint16_t rgb, uint8_t rgb_shift, uint16_t lang_key, bool full_redraw, bool masked) {
     // Set rectangle palettes
     if (full_redraw) {
-        ws_screen_modify_tiles(bitmap_screen2,
+        ui_screen_modify_tiles(bitmap_screen2,
             ~WS_SCREEN_ATTR_PALETTE(0xF),
             WS_SCREEN_ATTR_PALETTE(start_palette),
             COLORBAR_X >> 3, y >> 3,
@@ -93,12 +93,12 @@ static void draw_colorbar_mono(uint8_t y, uint8_t start_palette, uint16_t rgb, u
 static void draw_colorbar(uint8_t y, uint8_t start_palette, uint16_t rgb, uint8_t rgb_shift, uint16_t lang_key, bool full_redraw) {
     // Set rectangle palettes
     if (full_redraw) {
-        ws_screen_modify_tiles(bitmap_screen2,
+        ui_screen_modify_tiles(bitmap_screen2,
             ~WS_SCREEN_ATTR_PALETTE(0xF),
             WS_SCREEN_ATTR_PALETTE(start_palette),
             COLORBAR_X >> 3, y >> 3,
             COLORBAR_ENTRY_WIDTH, COLORBAR_ENTRY_HEIGHT >> 3);
-        ws_screen_modify_tiles(bitmap_screen2,
+        ui_screen_modify_tiles(bitmap_screen2,
             ~WS_SCREEN_ATTR_PALETTE(0xF),
             WS_SCREEN_ATTR_PALETTE(start_palette + 1),
             (COLORBAR_X >> 3) + COLORBAR_ENTRY_WIDTH, y >> 3,
@@ -136,14 +136,14 @@ void ui_color_picker(uint16_t *rgb) {
     // Draw preview
     if (mono) {
         bitmap_rect_fill(&ui_bitmap, COLOR_PREVIEW_X, COLOR_PREVIEW_Y, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT, BITMAP_COLOR_2BPP(3));
-        ws_screen_modify_tiles(bitmap_screen2,
+        ui_screen_modify_tiles(bitmap_screen2,
             ~WS_SCREEN_ATTR_PALETTE(0xF),
             WS_SCREEN_ATTR_PALETTE(8),
             COLOR_PREVIEW_X >> 3, COLOR_PREVIEW_Y >> 3,
             COLOR_PREVIEW_WIDTH >> 3, COLOR_PREVIEW_HEIGHT >> 3);
     } else {
         bitmap_rect_fill(&ui_bitmap, COLOR_PREVIEW_X, COLOR_PREVIEW_Y, COLOR_PREVIEW_WIDTH, COLOR_PREVIEW_HEIGHT, BITMAP_COLOR_4BPP(5));
-        ws_screen_modify_tiles(bitmap_screen2,
+        ui_screen_modify_tiles(bitmap_screen2,
             ~WS_SCREEN_ATTR_PALETTE(0xF),
             WS_SCREEN_ATTR_PALETTE(10),
             COLOR_PREVIEW_X >> 3, COLOR_PREVIEW_Y >> 3,
@@ -287,5 +287,5 @@ void ui_color_picker(uint16_t *rgb) {
 
     if (!mono)
         memset(WS_DISPLAY_COLOR_MEM(8) + 1, (settings.accent_color_high & SETTING_THEME_DARK_MODE) ? 0x00 : 0xFF, 254);
-    bitmap_rect_fill(&ui_bitmap, COLORBAR_X - 8, 12, COLORBAR_WIDTH + 16, WS_DISPLAY_HEIGHT_PIXELS - 24, BITMAP_COLOR_4BPP(2));
+    bitmap_rect_fill(&ui_bitmap, COLORBAR_X - 8, 12, COLORBAR_WIDTH + 16, screen_height - 24, BITMAP_COLOR_4BPP(2));
 }

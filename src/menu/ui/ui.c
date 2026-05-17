@@ -52,16 +52,23 @@ bitmap_t ui_bitmap;
 static uint8_t icons_visible;
 
 void ui_draw_titlebar(const char __far* text) {
-    bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, 8, BITMAP_COLOR_2BPP(2));
+    bitmap_rect_fill(&ui_bitmap, 0, 0, screen_width, 8, BITMAP_COLOR_2BPP(2));
     if (text != NULL) {
         bitmapfont_set_active_font(font8_bitmap);
-        bitmapfont_draw_string(&ui_bitmap, 2, 0, text, WS_DISPLAY_WIDTH_PIXELS - 4);
+        bitmapfont_draw_string(&ui_bitmap, 2, 0, text, screen_width - 4);
     }
 }
 
 static void ui_draw_icon(int x, int idx) {
-    const uint8_t __far* src = &gfx_bar_icons[idx * 8];
-    uint8_t *dest = ((uint8_t*) ui_bitmap.start) + (ui_bitmap.x_pitch * x) + (ui_bitmap.y_pitch * (WS_DISPLAY_HEIGHT_PIXELS - 8));
+    const uint8_t __far* src;
+    uint8_t *dest;
+    if (!bitmap_rotation) {
+        src = &gfx_bar_icons[idx * 8]; // TODOROT
+        dest = ((uint8_t*) ui_bitmap.start) + (ui_bitmap.y_pitch * x * 8);
+    } else {
+        src = &gfx_bar_icons[idx * 8];
+        dest = ((uint8_t*) ui_bitmap.start) + (ui_bitmap.x_pitch * x) + (ui_bitmap.y_pitch * (screen_height - 8));
+    }
     if (ui_bitmap.bpp == 4) {
         dest[0x00] = src[0x0];
         dest[0x04] = src[0x1];
@@ -84,9 +91,9 @@ static void ui_draw_icon(int x, int idx) {
 }
 
 uint16_t ui_icon_update(void) {
-    if (!icons_visible) return WS_DISPLAY_WIDTH_PIXELS;
+    if (!icons_visible) return screen_width;
     uint16_t prev_icon_pos = icons_visible;
-    uint16_t icon_pos = WS_DISPLAY_WIDTH_TILES;
+    uint16_t icon_pos = (screen_width >> 3);
     bool mcu_present = cart_status.present & CART_PRESENT_MCU;
     bool mcu_info_ok = cart_status.present & CART_PRESENT_MCU_INFO_OK;
     bool mcu_data_valid = mcu_present && cart_status.version >= CART_FW_VERSION_1_1_0 && mcu_info_ok;
@@ -126,22 +133,22 @@ uint16_t ui_icon_update(void) {
 }
 
 void ui_draw_statusbar(const char __far* text) {
-    icons_visible = WS_DISPLAY_WIDTH_TILES;
+    icons_visible = (screen_width >> 3);
     uint16_t icon_end = ui_icon_update();
-    bitmap_rect_fill(&ui_bitmap, 0, WS_DISPLAY_HEIGHT_PIXELS-8, icon_end, 8, BITMAP_COLOR_2BPP(2));
+    bitmap_rect_fill(&ui_bitmap, 0, screen_height-8, icon_end, 8, BITMAP_COLOR_2BPP(2));
     bitmapfont_set_active_font(font8_bitmap);
     if (text != NULL) {
-        bitmapfont_draw_string(&ui_bitmap, 2, WS_DISPLAY_HEIGHT_PIXELS-8, text, icon_end - 4);
+        bitmapfont_draw_string(&ui_bitmap, 2, screen_height-8, text, icon_end - 4);
     }
 }
 
 void ui_draw_statusbar_right(const char __far* text) {
-    for (int i = icons_visible; i < WS_DISPLAY_WIDTH_TILES; i++)
+    for (int i = icons_visible; i < (screen_width >> 3); i++)
         ui_draw_icon(i, UI_BAR_ICON_NONE);
     icons_visible = 0;
     bitmapfont_set_active_font(font8_bitmap);
     if (text != NULL) {
-        bitmapfont_draw_string(&ui_bitmap, WS_DISPLAY_WIDTH_PIXELS - 2 - bitmapfont_get_string_width(text, WS_DISPLAY_WIDTH_PIXELS), WS_DISPLAY_HEIGHT_PIXELS-8, text, WS_DISPLAY_WIDTH_PIXELS);
+        bitmapfont_draw_string(&ui_bitmap, screen_width - 2 - bitmapfont_get_string_width(text, screen_width), screen_height-8, text, screen_width);
     }
 }
 
@@ -248,7 +255,7 @@ static inline void load_wallpaper(void) {
 
         bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
         if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
-            bmp->width != WS_DISPLAY_WIDTH_PIXELS || bmp->height != WS_DISPLAY_HEIGHT_PIXELS ||
+            bmp->width != screen_width || bmp->height != screen_height ||
             bmp->compression != 0 || bmp->bpp != 4) return;
 
         uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
@@ -294,18 +301,26 @@ void ui_show(void) {
 void ui_layout_clear(uint16_t pal) {
     icons_visible = 0;
     if (pal == 0 && !ui_has_wallpaper()) {
-        bitmap_rect_fill(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS, BITMAP_COLOR_4BPP(2));
+        bitmap_rect_fill(&ui_bitmap, 0, 0, screen_width, screen_height, BITMAP_COLOR_4BPP(2));
     } else {
-        bitmap_rect_clear(&ui_bitmap, 0, 0, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS);
+        bitmap_rect_clear(&ui_bitmap, 0, 0, screen_width, screen_height);
     }
     INIT_SCREEN_PATTERN(bitmap_screen2, pal, 0);
 }
 
 void ui_layout_bars(void) {
     if (!ui_has_wallpaper()) {
-        bitmap_rect_fill(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16, BITMAP_COLOR_4BPP(2));
+        bitmap_rect_fill(&ui_bitmap, 0, 8, screen_width, screen_height - 16, BITMAP_COLOR_4BPP(2));
     } else {
-        bitmap_rect_clear(&ui_bitmap, 0, 8, WS_DISPLAY_WIDTH_PIXELS, WS_DISPLAY_HEIGHT_PIXELS - 16);
+        bitmap_rect_clear(&ui_bitmap, 0, 8, screen_width, screen_height - 16);
     }
-    INIT_SCREEN_PATTERN(bitmap_screen2, (iy == 0 || iy == 17) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
+    INIT_SCREEN_PATTERN(bitmap_screen2, (!bitmap_rotation ? (ix == 0 || ix == 27) : (iy == 0 || iy == 17)) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
+}
+
+void ui_screen_modify_tiles(void ws_iram *dest, uint16_t mask, uint16_t value, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+    if (!bitmap_rotation) {
+        ws_screen_modify_tiles(dest, mask, value, WS_DISPLAY_WIDTH_TILES - height - y, x, height, width);
+    } else {
+        ws_screen_modify_tiles(dest, mask, value, x, y, width, height);
+    }
 }

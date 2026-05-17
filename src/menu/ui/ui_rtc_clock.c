@@ -37,8 +37,8 @@
 #define RTC_TIMER_GLYPH_WIDTH (8)
 #define RTC_TIMER_GLYPH_HEIGHT (16)
 #define RTC_TIMER_WIDTH (19*RTC_TIMER_GLYPH_WIDTH)
-#define RTC_TIMER_TEXT_X (((((WS_DISPLAY_WIDTH_PIXELS - RTC_TIMER_WIDTH) >> 1) & ~7)) + 8)
-#define RTC_TIMER_TEXT_Y ((WS_DISPLAY_HEIGHT_PIXELS - 16) >> 1)
+#define RTC_TIMER_TEXT_X (((((screen_width - RTC_TIMER_WIDTH) >> 1) & ~7)) + 8)
+#define RTC_TIMER_TEXT_Y ((screen_height - 16) >> 1)
 #define RTC_TIMER_TEXT_X_OFFSET 1
 #define RTC_TIMER_TEXT_Y_OFFSET 2
 
@@ -118,12 +118,12 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
     if (selected_value >= 10) selected_x++;
 
     // adjust selection
-    ws_screen_modify_tiles(bitmap_screen2,
+    ui_screen_modify_tiles(bitmap_screen2,
         ~WS_SCREEN_ATTR_PALETTE(0xF),
         WS_SCREEN_ATTR_PALETTE(0),
         RTC_TIMER_TEXT_X >> 3, RTC_TIMER_TEXT_Y >> 3,
         RTC_TIMER_WIDTH >> 3, RTC_TIMER_GLYPH_HEIGHT >> 3);
-    ws_screen_modify_tiles(bitmap_screen2,
+    ui_screen_modify_tiles(bitmap_screen2,
         ~WS_SCREEN_ATTR_PALETTE(0xF),
         WS_SCREEN_ATTR_PALETTE(1),
         (RTC_TIMER_TEXT_X + (RTC_TIMER_GLYPH_WIDTH * selected_x)) >> 3, RTC_TIMER_TEXT_Y >> 3,

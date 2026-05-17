@@ -50,7 +50,7 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
     const setting_t __far* s = sconfig->category->entries[offset];
 
     int x_offset = 4;
-    int len = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, lang_keys[s->name], WS_DISPLAY_WIDTH_PIXELS - x_offset);
+    int len = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, lang_keys[s->name], screen_width - x_offset);
 
     if ((s->type == SETTING_TYPE_CATEGORY || s->type == SETTING_TYPE_ACTION) && !(s->flags & SETTING_FLAG_ACTION_NO_ARROW)) {
         strcpy(buf, s_arrow);
@@ -62,8 +62,8 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
         snprintf(buf, sizeof(buf), s_color, *s->color.value & 0xFFF);
     }
 
-    x_offset = WS_DISPLAY_WIDTH_PIXELS - x_offset - bitmapfont_get_string_width(buf, WS_DISPLAY_WIDTH_PIXELS - x_offset - len);
-    bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, WS_DISPLAY_WIDTH_PIXELS - x_offset);
+    x_offset = screen_width - x_offset - bitmapfont_get_string_width(buf, screen_width - x_offset - len);
+    bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, screen_width - x_offset);
 }
 
 static bool ui_settings_can_select(struct ui_selector_config *config, uint16_t offset) {
@@ -97,7 +97,7 @@ static void ui_settings_selector_draw(struct ui_selector_config *config, uint16_
         s->choice.name(offset + s->choice.min, buf, sizeof(buf));
     }
 
-    bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, WS_DISPLAY_WIDTH_PIXELS - x_offset);
+    bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, screen_width - x_offset);
 }
 
 static bool ui_settings_selector_can_select(struct ui_selector_config *config, uint16_t offset) {
@@ -170,13 +170,13 @@ reload_menu:
         if (keys_pressed & WS_KEY_Y1) {
             if (s->help) {
                 ui_layout_bars();
-                bitmap_rect_fill(&ui_bitmap, 0, 8, 28 * 8, 16 * 8, BITMAP_COLOR_4BPP(2));
+                bitmap_rect_fill(&ui_bitmap, 0, 8, screen_width, screen_height - 16, BITMAP_COLOR_4BPP(2));
 
                 ui_draw_titlebar(lang_keys[s->name]);
                 ui_draw_statusbar(NULL);
 
                 bitmapfont_set_active_font(font16_bitmap);
-                bitmapfont_draw_string_box(&ui_bitmap, 2, 10, lang_keys[s->help], WS_DISPLAY_WIDTH_PIXELS - 4, 0, 0);
+                bitmapfont_draw_string_box(&ui_bitmap, 2, 10, lang_keys[s->help], screen_width - 4, 0, 0);
 
                 input_wait_any_key();
 

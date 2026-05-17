@@ -30,8 +30,8 @@
     uint8_t osk_width = state->width * glyph_width; \
     uint8_t osk_height = (state->height + 1) * glyph_height + buffer_key_pad_height; \
     uint8_t osk_kheight = (state->height) * glyph_height; \
-    uint8_t osk_x = ((WS_DISPLAY_WIDTH_PIXELS - osk_width) >> 1) & ~7; \
-    uint8_t osk_by = ((WS_DISPLAY_HEIGHT_PIXELS - osk_height) >> 1) & ~7; \
+    uint8_t osk_x = ((screen_width - osk_width) >> 1) & ~7; \
+    uint8_t osk_by = ((screen_height - osk_height) >> 1) & ~7; \
     uint8_t osk_ky = osk_by + buffer_key_pad_height + glyph_height
 
 static const char __far* get_osk_string(uint8_t tab) {
@@ -73,7 +73,7 @@ static int16_t get_button_width(ui_osk_state_t *state) {
 static void clear_osk_xy(ui_osk_state_t *state) {
     CALC_OSK_DIMENSIONS;
 
-    ws_screen_modify_tiles(bitmap_screen2,
+    ui_screen_modify_tiles(bitmap_screen2,
         ~WS_SCREEN_ATTR_PALETTE(0xF),
         WS_SCREEN_ATTR_PALETTE(0),
         (osk_x + state->x * glyph_width) >> 3,
@@ -131,7 +131,7 @@ static void set_osk_xy(ui_osk_state_t *state, int8_t x, int8_t y, bool after_mov
     state->x = x;
     state->y = y;
 
-    ws_screen_modify_tiles(bitmap_screen2,
+    ui_screen_modify_tiles(bitmap_screen2,
         ~WS_SCREEN_ATTR_PALETTE(0xF),
         WS_SCREEN_ATTR_PALETTE(1),
         (osk_x + state->x * glyph_width) >> 3,
@@ -210,9 +210,9 @@ static void redraw_osk_buffer_text(ui_osk_state_t *state, bool clear) {
     CALC_OSK_DIMENSIONS;
 
     if (clear)
-        bitmap_rect_fill(&ui_bitmap, 0, osk_by, WS_DISPLAY_WIDTH_PIXELS, glyph_height, BITMAP_COLOR_2BPP(2));
+        bitmap_rect_fill(&ui_bitmap, 0, osk_by, screen_width, glyph_height, BITMAP_COLOR_2BPP(2));
 
-    bitmapfont_draw_string(&ui_bitmap, 4, osk_by, state->buffer, WS_DISPLAY_WIDTH_PIXELS - 8);
+    bitmapfont_draw_string(&ui_bitmap, 4, osk_by, state->buffer, screen_width - 8);
 }
 
 static void redraw_osk(ui_osk_state_t *state) {

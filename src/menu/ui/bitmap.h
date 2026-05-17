@@ -23,6 +23,13 @@
 #include <stdint.h>
 #include <wonderful.h>
 
+// 0 - vertical
+// 1 - horizontal
+// 2 - vertical, forced horizontal
+// 3 - horizontal, forced horizontal
+extern uint8_t bitmap_rotation;
+extern uint8_t screen_width, screen_height;
+
 // Expected layout (tile order ABCDEFGH):
 //
 // AE ; width = 2
@@ -58,6 +65,9 @@ typedef struct {
 #define BITMAP_COLOR_4BPP(value) BITMAP_COLOR(value, 15, BITMAP_COLOR_MODE_STORE)
 
 uint32_t bitmap_c2p_4bpp_pixel(uint32_t pixel);
+
+void bitmap_set_screen_rotation(bool vertical);
+void bitmap_set_screen_force_horizontal(bool forced);
 
 void bitmap_clear(const bitmap_t *bitmap);
 void bitmap_rect_draw(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color, bool rounded);

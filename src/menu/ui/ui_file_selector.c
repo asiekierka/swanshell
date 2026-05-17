@@ -21,6 +21,7 @@
 #include <wonderful.h>
 #include <ws.h>
 #include <nilefs.h>
+#include <ws/display.h>
 #include <wsx/utf8.h>
 #include "bitmap.h"
 #include "cart/status.h"
@@ -136,7 +137,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     file_selector_entry_t __far *fno = ui_file_selector_open_fno(offset);
     
     const char __far *s = fno->fno.fname;
-    int max_width = WS_DISPLAY_WIDTH_PIXELS - x_offset;
+    int max_width = screen_width - x_offset;
     if (scroll_tick) {
         int width = bitmapfont_get_string_width(s, 65535);
         if (width <= max_width)
@@ -155,7 +156,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
                 wsx_utf8_decode_next(&s);
 
             while (inportb(WS_DISPLAY_LINE_PORT) != (y + bitmapfont_get_font_height() - 1));
-            bitmap_rect_fill(&ui_bitmap, x_offset & ~7, y, 28 * 8 - (x_offset & ~7), bitmapfont_get_font_height(), BITMAP_COLOR_2BPP(ui_has_wallpaper() ? 0 : 2));
+            bitmap_rect_fill(&ui_bitmap, x_offset & ~7, y, screen_width - (x_offset & ~7), bitmapfont_get_font_height(), BITMAP_COLOR_2BPP(ui_has_wallpaper() ? 0 : 2));
         }
     }
 
@@ -188,20 +189,20 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     }
 
     if (!(settings.file_flags & SETTING_FILE_HIDE_ICONS)) {
-        uint16_t i = y >> 3;
+        uint16_t tile_idx = bitmap_rotation ? (y >> 3) : (((WS_DISPLAY_WIDTH_TILES - 2) - (y >> 3)) * 18);
         if (config->style == UI_SELECTOR_STYLE_16) {
             if (ws_system_is_color_active()) {
-                ws_gdma_copy(WS_TILE_4BPP_MEM(i), gfx_icons_16color + (icon_idx * 128), 64);
-                ws_gdma_copy(WS_TILE_4BPP_MEM(i + 18), gfx_icons_16color + (icon_idx * 128) + 64, 64);
+                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), gfx_icons_16color + (icon_idx * 128), 64);
+                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx + 18), gfx_icons_16color + (icon_idx * 128) + 64, 64);
             } else {
-                memcpy(WS_TILE_MEM(i), gfx_icons_16mono + (icon_idx * 64), 32);
-                memcpy(WS_TILE_MEM(i + 18), gfx_icons_16mono + (icon_idx * 64) + 32, 32);
+                memcpy(WS_TILE_MEM(tile_idx), gfx_icons_16mono + (icon_idx * 64), 32);
+                memcpy(WS_TILE_MEM(tile_idx + 18), gfx_icons_16mono + (icon_idx * 64) + 32, 32);
             }
         } else {
             if (ws_system_is_color_active()) {
-                ws_gdma_copy(WS_TILE_4BPP_MEM(i), gfx_icons_8color + (icon_idx * 32), 32);
+                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), gfx_icons_8color + (icon_idx * 32), 32);
             } else {
-                memcpy(WS_TILE_MEM(i), gfx_icons_8mono + (icon_idx * 16), 16);
+                memcpy(WS_TILE_MEM(tile_idx), gfx_icons_8mono + (icon_idx * 16), 16);
             }
         }
     }

@@ -126,7 +126,7 @@ static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t
         // TODO: Implement version information
         sprintf(name, s_athenabios_tpl, lang_keys[offset == WW_UI_SELECT_BIOSATHC ? LK_ATHENABIOS_SUFFIX_COMPATIBLE : LK_ATHENABIOS_SUFFIX_NATIVE]);
     }
-    bitmapfont_draw_string(&ui_bitmap, 2, y, name, WS_DISPLAY_WIDTH_PIXELS - 2);
+    bitmapfont_draw_string(&ui_bitmap, 2, y, name, screen_width - 2);
 }
 
 // FIXME: compiler bug?
