@@ -276,6 +276,18 @@ msgstr "Ciemny"
 msgid "SETTINGS_THEME_LIGHT"
 msgstr "Jasny"
 
+msgid "SETTINGS_DISPLAY_ORIENTATION"
+msgstr "Orientacja ekranu"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_AUTO"
+msgstr "Automatyczna"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_HORIZONTAL"
+msgstr "Pozioma"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_VERTICAL"
+msgstr "Pionowa"
+
 msgid "SETTINGS_THEME_KEY"
 msgstr "Motyw"
 
