@@ -41,6 +41,7 @@
 #include "shell/shell.h"
 
 volatile uint16_t vbl_ticks;
+static uint8_t last_signaled_icon = 0;
 
 __attribute__((assume_ss_data, interrupt))
 void __far vblank_int_handler(void) {
@@ -55,16 +56,24 @@ bool idle_until_vblank(void) {
 	bool refresh_view = false;
 
 	switch (vbl_ticks & 63) {
-	    case 31:
+	    case 31: {
 			cart_irq_update();
-			break;
-		case 63:
+		} break;
+		case 63: {
 			cart_status_update();
 			ui_icon_update();
-			break;
-		default:
+
+			uint8_t next_signaled_icon = bitmap_rotation ? WS_LCD_ICON_ORIENT_H : WS_LCD_ICON_ORIENT_V;
+			if (last_signaled_icon != next_signaled_icon) {
+				outportb(WS_LCD_ICON_PORT, (inportb(WS_LCD_ICON_PORT) & ~(WS_LCD_ICON_ORIENT_H | WS_LCD_ICON_ORIENT_V)) | next_signaled_icon);
+				last_signaled_icon = next_signaled_icon;
+			} else {
+				outportb(WS_LCD_ICON_PORT, inportb(WS_LCD_ICON_PORT) & ~(WS_LCD_ICON_ORIENT_H | WS_LCD_ICON_ORIENT_V));
+			}
+		} break;
+		default: {
 			refresh_view = shell_tick();
-			break;
+		} break;
 	}
 	while (vbl_ticks == vbl_ticks_last) {
 		ia16_halt();
