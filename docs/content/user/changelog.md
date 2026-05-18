@@ -3,6 +3,18 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.2.0 (?)
+
+- Added: Vertical display orientation support.
+  - By default, orientation is changed automatically by rotating the console at an
+    angle. A horizontal or vertical display lock can be toggled in the settings.
+  - For the time being, a few screens do not currently support the vertical display
+    and will automatically revert to a horizontal display.
+- Added: New USB shell command: `date`.
+- Changed: Reworked cartridge image launch code for (hopefully) slightly higher
+  internal RAM initialization accuracy.
+- Fixed: Incorrect key prompts in PCv2 mode.
+
 ## swanshell 1.1.7 (10th May 2026)
 
 - Fixed: PCv2 input layout mapping.
