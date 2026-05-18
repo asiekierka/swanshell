@@ -192,17 +192,21 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
         uint16_t tile_idx = bitmap_rotation ? (y >> 3) : (((WS_DISPLAY_WIDTH_TILES - 2) - (y >> 3)) * 18);
         if (config->style == UI_SELECTOR_STYLE_16) {
             if (ws_system_is_color_active()) {
-                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), gfx_icons_16color + (icon_idx * 128), 64);
-                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx + 18), gfx_icons_16color + (icon_idx * 128) + 64, 64);
+                const uint8_t __far* src = bitmap_rotation ? gfx_icons_16color : gfx_icons_16color_rot;
+                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), src + (icon_idx * 128), 64);
+                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx + 18), src + (icon_idx * 128) + 64, 64);
             } else {
-                memcpy(WS_TILE_MEM(tile_idx), gfx_icons_16mono + (icon_idx * 64), 32);
-                memcpy(WS_TILE_MEM(tile_idx + 18), gfx_icons_16mono + (icon_idx * 64) + 32, 32);
+                const uint8_t __far* src = bitmap_rotation ? gfx_icons_16mono : gfx_icons_16mono_rot;
+                memcpy(WS_TILE_MEM(tile_idx), src + (icon_idx * 64), 32);
+                memcpy(WS_TILE_MEM(tile_idx + 18), src + (icon_idx * 64) + 32, 32);
             }
         } else {
             if (ws_system_is_color_active()) {
-                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), gfx_icons_8color + (icon_idx * 32), 32);
+                const uint8_t __far* src = bitmap_rotation ? gfx_icons_8color : gfx_icons_8color_rot;
+                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), src + (icon_idx * 32), 32);
             } else {
-                memcpy(WS_TILE_MEM(tile_idx), gfx_icons_8mono + (icon_idx * 16), 16);
+                const uint8_t __far* src = bitmap_rotation ? gfx_icons_8mono : gfx_icons_8mono_rot;
+                memcpy(WS_TILE_MEM(tile_idx), src + (icon_idx * 16), 16);
             }
         }
     }

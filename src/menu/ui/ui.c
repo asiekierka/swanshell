@@ -63,7 +63,7 @@ static void ui_draw_icon(int x, int idx) {
     const uint8_t __far* src;
     uint8_t *dest;
     if (!bitmap_rotation) {
-        src = &gfx_bar_icons[idx * 8]; // TODOROT
+        src = &gfx_bar_icons_rot[idx * 8];
         dest = ((uint8_t*) ui_bitmap.start) + (ui_bitmap.y_pitch * x * 8);
     } else {
         src = &gfx_bar_icons[idx * 8];

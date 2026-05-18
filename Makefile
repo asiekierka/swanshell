@@ -111,7 +111,7 @@ DEPS		:= $(OBJS:.o=.d)
 # Targets
 # -------
 
-.PHONY: all clean dist distclean fonts athenaos-compatible athenaos-native libnile-bootfriend libnile-medium plugin-uxnws usage usage-symbols
+.PHONY: all clean dist distclean fonts athenaos-compatible athenaos-native libnile-bootfriend libnile-medium plugin-uxnws usage usage-symbols rotate-icons
 
 all: $(ROM) compile_commands.json
 
@@ -265,6 +265,15 @@ $(BUILDDIR)/%.lua.o : %.lua
 	@$(MKDIR) -p $(@D)
 	$(_V)$(WF)/bin/wf-process -o $(BUILDDIR)/$*.s -t $(TARGET) --depfile $(BUILDDIR)/$*.lua.d --depfile-target $(BUILDDIR)/$*.lua.o $<
 	$(_V)$(CC) $(ASFLAGS) -c -o $(BUILDDIR)/$*.lua.o $(BUILDDIR)/$*.s
+
+# Utility functions
+
+rotate-icons:
+	wf-lua tools/icon_rotate.lua assets/menu/icons/8mono.png assets/menu/icons/8mono_rot.png 8 8
+	wf-lua tools/icon_rotate.lua assets/menu/icons/8color.png assets/menu/icons/8color_rot.png 8 8
+	wf-lua tools/icon_rotate.lua assets/menu/icons/16mono.png assets/menu/icons/16mono_rot.png 16 16
+	wf-lua tools/icon_rotate.lua assets/menu/icons/16color.png assets/menu/icons/16color_rot.png 16 16
+	wf-lua tools/icon_rotate.lua assets/menu/bar_icons.png assets/menu/bar_icons_rot.png 8 8
 
 # Include dependency files if they exist
 # --------------------------------------

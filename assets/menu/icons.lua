@@ -34,34 +34,34 @@ local function swap_rows(data, bpp)
 end
 
 process.emit_symbol("gfx_icons_palmono", palette_mono)
-process.emit_symbol("gfx_icons_8mono", superfamiconv.tiles(
-	"icons/8mono.png", palette_mono,
-	superfamiconv.config()
-		:mode("ws"):bpp(2)
-		:color_zero("#ffffff")
-		:no_discard():no_flip()
-))
-process.emit_symbol("gfx_icons_16mono", swap_rows(superfamiconv.tiles(
-	"icons/16mono.png", palette_mono,
-	superfamiconv.config()
-		:mode("ws"):bpp(2)
-		:color_zero("#ffffff")
-		:no_discard():no_flip()
-), 2))
-
 process.emit_symbol("gfx_icons_palcolor", palette_color)
-process.emit_symbol("gfx_icons_8color", superfamiconv.tiles(
-	"icons/8color.png", palette_color,
-	superfamiconv.config()
-		:mode("wsc"):bpp(4)
-		:color_zero("#ffffff")
-		:no_discard():no_flip()
-))
-process.emit_symbol("gfx_icons_16color", swap_rows(superfamiconv.tiles(
-	"icons/16color.png", palette_color,
-	superfamiconv.config()
-		:mode("wsc"):bpp(4)
-		:color_zero("#ffffff")
-		:no_discard():no_flip()
-), 4))
-
+for _,suffix in pairs({"", "_rot"}) do
+	process.emit_symbol("gfx_icons_8mono" .. suffix, superfamiconv.tiles(
+		"icons/8mono" .. suffix .. ".png", palette_mono,
+		superfamiconv.config()
+			:mode("ws"):bpp(2)
+			:color_zero("#ffffff")
+			:no_discard():no_flip()
+	))
+	process.emit_symbol("gfx_icons_16mono" .. suffix, swap_rows(superfamiconv.tiles(
+		"icons/16mono" .. suffix .. ".png", palette_mono,
+		superfamiconv.config()
+			:mode("ws"):bpp(2)
+			:color_zero("#ffffff")
+			:no_discard():no_flip()
+	), 2))
+	process.emit_symbol("gfx_icons_8color" .. suffix, superfamiconv.tiles(
+		"icons/8color" .. suffix .. ".png", palette_color,
+		superfamiconv.config()
+			:mode("wsc"):bpp(4)
+			:color_zero("#ffffff")
+			:no_discard():no_flip()
+	))
+	process.emit_symbol("gfx_icons_16color" .. suffix, swap_rows(superfamiconv.tiles(
+		"icons/16color" .. suffix .. ".png", palette_color,
+		superfamiconv.config()
+			:mode("wsc"):bpp(4)
+			:color_zero("#ffffff")
+			:no_discard():no_flip()
+	), 4))
+end

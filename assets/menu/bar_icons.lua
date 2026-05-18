@@ -18,10 +18,12 @@ local function skip_second_layer(data)
     return new_data
 end
 
-process.emit_symbol("gfx_bar_icons", skip_second_layer(superfamiconv.tiles(
-    "bar_icons.png", palette_mono,
-    superfamiconv.config()
-    :mode("ws"):bpp(2)
-    :color_zero("#ffffff")
-    :no_discard():no_flip()
-)))
+for _,suffix in pairs({"", "_rot"}) do
+    process.emit_symbol("gfx_bar_icons" .. suffix, skip_second_layer(superfamiconv.tiles(
+        "bar_icons" .. suffix .. ".png", palette_mono,
+        superfamiconv.config()
+        :mode("ws"):bpp(2)
+        :color_zero("#ffffff")
+        :no_discard():no_flip()
+    )))
+end
