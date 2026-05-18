@@ -20,6 +20,7 @@
 #include "lang.h"
 #include "main.h"
 #include <wsx/utf8.h>
+#include "ui/bitmap.h"
 #include "util/input.h"
 
 #define CALC_OSK_DIMENSIONS \
@@ -289,6 +290,8 @@ void ui_osk(ui_osk_state_t *state) {
     state->tab = 0;
     state->x = 0;
 
+    bitmap_set_screen_force_horizontal(true);
+
 osk_full_redraw:
     fetch_osk_dimensions(state);
     redraw_osk(state);
@@ -309,6 +312,7 @@ osk_full_redraw:
                         goto osk_full_redraw;
                     case UI_OSK_FR_OK:
                         clear_osk_xy(state);
+                        bitmap_set_screen_force_horizontal(false);
                         return;
                 }
             } else {

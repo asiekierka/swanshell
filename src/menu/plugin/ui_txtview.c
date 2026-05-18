@@ -279,9 +279,14 @@ int ui_txtview(const char *path) {
             } else {
                 if (file_pos < size) {
                     file_start_pos = file_next_pos;
-                    for (int i = 0; i < (screen_width >> 3); i++) {
-                        bitmap_vscroll_row(&ui_bitmap, i, 8 + font_height, 8, 128 - font_height);
-                        bitmap_rect_fill(&ui_bitmap, i << 3, 8 + 128 - font_height, 8, font_height, BITMAP_COLOR_2BPP(2));
+                    if (bitmap_rotation) {
+                        for (int i = 0; i < (screen_width >> 3); i++) {
+                            bitmap_vscroll_row(&ui_bitmap, i, 8 + font_height, 8, 128 - font_height);
+                            bitmap_rect_fill(&ui_bitmap, i << 3, 8 + 128 - font_height, 8, font_height, BITMAP_COLOR_2BPP(2));
+                        }
+                    } else {
+                        // TODO: add fast path for vertical mode
+                        reader_redraw = true;
                     }
                 }
             }

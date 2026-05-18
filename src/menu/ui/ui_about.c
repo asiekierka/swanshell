@@ -46,7 +46,7 @@ void ui_about(void) {
     ui_draw_titlebar(lang_keys[LK_SETTINGS_ABOUT]);
     ui_draw_statusbar(NULL);
 
-    int y = 23;
+    int y = bitmap_rotation ? 23 : 43;
     sprintf(buf, s_name_version, lang_keys[LK_NAME]);
     bitmapfont_set_active_font(font16_bitmap);
     bitmapfont_draw_string(&ui_bitmap,

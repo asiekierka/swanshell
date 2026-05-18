@@ -67,7 +67,7 @@ typedef struct {
 uint32_t bitmap_c2p_4bpp_pixel(uint32_t pixel);
 
 void bitmap_set_screen_rotation(bool vertical);
-void bitmap_set_screen_force_horizontal(bool forced);
+bool bitmap_set_screen_force_horizontal(bool forced);
 
 void bitmap_clear(const bitmap_t *bitmap);
 void bitmap_rect_draw(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color, bool rounded);

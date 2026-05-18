@@ -318,11 +318,11 @@ static const setting_t __far setting_cart_mcu_spi_speed = {
 };
 
 static void setting_cart_set_rtc_time_action(const struct setting *set) {
+    bitmap_set_screen_force_horizontal(true);
     int16_t result = ui_rtc_clock();
-    if (result != 0) {
-        ui_layout_bars();
-        ui_dialog_error_check(result, lang_keys[LK_SETTINGS_CART_SET_RTC_TIME], 0);
-    }
+    bitmap_set_screen_force_horizontal(false);
+    ui_layout_bars();
+    ui_dialog_error_check(result, lang_keys[LK_SETTINGS_CART_SET_RTC_TIME], 0);
 }
 
 static const setting_t __far setting_cart_set_rtc_time = {

@@ -44,9 +44,10 @@ void bitmap_set_screen_rotation(bool vertical) {
     bitmap_update_screen_size();
 }
 
-void bitmap_set_screen_force_horizontal(bool forced) {
+bool bitmap_set_screen_force_horizontal(bool forced) {
     bitmap_rotation = (bitmap_rotation & ~2) | (forced ? 2 : 0);
     bitmap_update_screen_size();
+    return !(bitmap_rotation & 1);
 }
 
 #define BITMAP_AT(bitmap, x, y) (((uint8_t*) (bitmap)->start) + ((y) * (bitmap)->y_pitch) + (((x) >> (bitmap)->x_shift) * (bitmap)->x_pitch))
