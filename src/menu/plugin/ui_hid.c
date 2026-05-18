@@ -15,13 +15,14 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
 #include <wonderful.h>
 #include <ws.h>
 #include <ws/display.h>
 #include <ws/system.h>
 
 #include "../lang.h"
-#include "lang_gen.h"
+#include "strings.h"
 #include "cart/mcu.h"
 #include "../main.h"
 #include "../ui/ui.h"
@@ -29,6 +30,8 @@
 #include "ui/bitmap.h"
 
 int ui_hidctrl(void) {
+    bitmap_set_screen_force_horizontal(true);
+
     ui_layout_bars();
     ui_draw_titlebar(lang_keys[LK_SUBMENU_OPTION_CONTROLLER_MODE]);
     ui_draw_statusbar(NULL);
@@ -37,10 +40,11 @@ int ui_hidctrl(void) {
 
     ws_system_model_t model = ws_system_get_model();
 
+    char bottom_text[65];
     uint16_t s1 = LK_CONTROLLER_MODE_ACTIVE;
-    uint16_t s2 = model == WS_MODEL_PCV2 ? LK_CONTROLLER_MODE_PRESS_VIEW_TO_EXIT : LK_CONTROLLER_MODE_PRESS_SOUND_TO_EXIT;
+    snprintf(bottom_text, sizeof(bottom_text)-1, lang_keys[LK_CONTROLLER_MODE_PRESS_TO_EXIT], model == WS_MODEL_PCV2 ? s_key_pcv2_clear : s_key_sound);
     uint16_t width1 = bitmapfont_get_string_width(lang_keys[s1], 65535);
-    uint16_t width2 = bitmapfont_get_string_width(lang_keys[s2], 65535);
+    uint16_t width2 = bitmapfont_get_string_width(bottom_text, 65535);
     bitmapfont_draw_string(&ui_bitmap,
         (screen_width - width1) >> 1,
         (screen_height >> 1) - 20,
@@ -48,7 +52,7 @@ int ui_hidctrl(void) {
     bitmapfont_draw_string(&ui_bitmap,
         (screen_width - width2) >> 1,
         (screen_height >> 1) + 4,
-        lang_keys[s2], 65535);
+        bottom_text, 65535);
 
     // TODO: more than 75 Hz polling
 
@@ -58,7 +62,7 @@ int ui_hidctrl(void) {
 
         // test for exit key: 1 << 12 on PCv2, SOUND button on WS/WSC
         if (model == WS_MODEL_PCV2) {
-            if (input_held & KEY_PCV2_VIEW)
+            if (input_held & KEY_PCV2_CLEAR)
                 break;
         } else {
             if (inportb(WS_LCD_ICON_LATCH_PORT) & (WS_LCD_ICON_LATCH_VOLUME | WS_LCD_ICON_LATCH_VOLUME_A | WS_LCD_ICON_LATCH_VOLUME_B))
@@ -73,5 +77,7 @@ int ui_hidctrl(void) {
     // disable buttons
     mcu_native_hid_update(0);
 
+    bitmap_set_screen_force_horizontal(false);
+    
     return 0;
 }

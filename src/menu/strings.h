@@ -111,6 +111,11 @@ DEFINE_STRING(s_key_y3, "Y3");
 DEFINE_STRING(s_key_y4, "Y4");
 DEFINE_STRING(s_key_b, "B");
 DEFINE_STRING(s_key_a, "A");
+DEFINE_STRING(s_key_start, "Start");
+DEFINE_STRING(s_key_sound, "Sound");
+
+DEFINE_STRING(s_key_x, "X");
+DEFINE_STRING(s_key_y, "Y");
 
 DEFINE_STRING(s_key_pcv2_view, "View");
 DEFINE_STRING(s_key_pcv2_clear, "Clear");

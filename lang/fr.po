@@ -324,11 +324,8 @@ msgstr "Natif"
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Mode manette actif ."
 
-msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
-msgstr "Appuyez sur SOUND pour quitter."
-
-msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
-msgstr "Appuyez sur VIEW pour quitter."
+msgid "CONTROLLER_MODE_PRESS_TO_EXIT"
+msgstr "Appuyez sur %s pour quitter."
 
 msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "%d octets IRAM libres"

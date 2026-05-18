@@ -306,11 +306,8 @@ msgstr "未找到 OS 文件！"
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "手柄模式已激活。"
 
-msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
-msgstr "按 SOUND 键退出。"
-
-msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
-msgstr "按 VIEW 键退出。"
+msgid "CONTROLLER_MODE_PRESS_TO_EXIT"
+msgstr "按 %s 键退出。"
 
 msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "%d IRAM 字节空闲"

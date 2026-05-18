@@ -304,11 +304,8 @@ msgstr "Nativ"
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Controllermodus aktiv."
 
-msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
-msgstr "SOUND drücken zum Verlassen."
-
-msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
-msgstr "VIEW drücken zum Verlassen."
+msgid "CONTROLLER_MODE_PRESS_TO_EXIT"
+msgstr "%s drücken zum Verlassen."
 
 msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "%d Bytes IRAM verfügbar"

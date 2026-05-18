@@ -317,11 +317,8 @@ msgstr "Nativo"
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Modo mando activo"
 
-msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
-msgstr "SOUND: salir"
-
-msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
-msgstr "VIEW: salir"
+msgid "CONTROLLER_MODE_PRESS_TO_EXIT"
+msgstr "%s: salir"
 
 msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "IRAM libre: %d bytes"

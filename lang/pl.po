@@ -324,11 +324,8 @@ msgstr "Tryb kontrolera"
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Tryb kontrolera aktywny."
 
-msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
-msgstr "Wciśnij SOUND, aby wyjść."
-
-msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
-msgstr "Wciśnij VIEW, aby wyjść."
+msgid "CONTROLLER_MODE_PRESS_TO_EXIT"
+msgstr "Wciśnij %s, aby wyjść."
 
 msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "%d bajtów IRAM wolne"

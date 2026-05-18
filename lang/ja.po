@@ -442,11 +442,8 @@ msgstr "メモリカードが取り外されました！"
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "コントローラーモードが有効です。"
 
-msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
-msgstr "終了するには SOUND を押してください。"
-
-msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
-msgstr "終了するには VIEW を押してください。"
+msgid "CONTROLLER_MODE_PRESS_TO_EXIT"
+msgstr "終了するには %s を押してください。"
 
 msgid "ABOUT_RAM_BYTES_FREE"
 msgstr "IRAM 空き容量 %d bytes"

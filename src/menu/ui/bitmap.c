@@ -40,11 +40,13 @@ static inline void bitmap_update_screen_size(void) {
 }
 
 void bitmap_set_screen_rotation(bool vertical) {
+    if (ws_system_get_model() == WS_MODEL_PCV2) return;
     bitmap_rotation = (bitmap_rotation & ~1) | (!vertical ? 1 : 0);
     bitmap_update_screen_size();
 }
 
 bool bitmap_set_screen_force_horizontal(bool forced) {
+    if (ws_system_get_model() == WS_MODEL_PCV2) return false;
     bitmap_rotation = (bitmap_rotation & ~2) | (forced ? 2 : 0);
     bitmap_update_screen_size();
     return !(bitmap_rotation & 1);

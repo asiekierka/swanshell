@@ -19,6 +19,7 @@
 #include "input.h"
 #include "../main.h"
 #include "settings.h"
+#include "ui/bitmap.h"
 
 extern volatile uint16_t vbl_ticks;
 
@@ -26,6 +27,33 @@ uint16_t input_keys = 0;
 uint16_t input_keys_repressed = 0;
 uint16_t input_keys_released = 0;
 uint16_t input_pressed, input_held, input_released;
+
+// Key layout:
+// - Horizontal WS:
+//   Y1
+// Y4  Y2
+//   Y3
+//
+//   X1
+// X4  X2               A
+//   X3     START    B
+//
+// - Vertical WS:
+//              Y1
+//                Y2
+//
+//             START
+//
+//    X1        !X!
+//  X4  X2     !Y! A
+//    X3         B
+//
+// - PCv2:
+//
+//     START  Y1
+//   X1          !Clr!
+// X4  X2        A
+//   X3        B
 
 void vblank_input_update(void) {
 	uint16_t keys = ws_keypad_scan();
@@ -44,6 +72,17 @@ void vblank_input_update(void) {
 			| ((keys & 0x0008) <<  1) /*u*/
 			| ((keys & 0x0004) <<  4) /*d*/
 			| ((keys & 0x0001) <<  7);/*l*/
+	} else if (!bitmap_rotation) {
+		// WS:   ....yyyyxxxxbas.
+		// remapped:
+		//       .xx...bayyyyxxs.
+		keys =
+			  ((keys & 0x0E00) >> 5)
+			| ((keys & 0x0100) >> 1)
+			| ((keys & 0x0002))
+			| ((keys & 0x000C) << 6)
+			| ((keys & 0x00C0) >> 4)
+			| ((keys & 0x0030) << 9);
 	}
 	input_keys |= keys;
 	input_keys_repressed |= (keys & input_keys_released);

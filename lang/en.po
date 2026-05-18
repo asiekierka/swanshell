@@ -406,11 +406,8 @@ msgstr "Native"
 msgid "CONTROLLER_MODE_ACTIVE"
 msgstr "Gamepad mode active."
 
-msgid "CONTROLLER_MODE_PRESS_SOUND_TO_EXIT"
-msgstr "Press SOUND to exit."
-
-msgid "CONTROLLER_MODE_PRESS_VIEW_TO_EXIT"
-msgstr "Press VIEW to exit."
+msgid "CONTROLLER_MODE_PRESS_TO_EXIT"
+msgstr "Press %s to exit."
 
 
 msgid "ABOUT_RAM_BYTES_FREE"
