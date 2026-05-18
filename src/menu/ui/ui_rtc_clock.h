@@ -23,4 +23,8 @@
 
 int16_t ui_rtc_clock(void);
 
+#define RTC_DATETIME_SIZE 7
+#define RTC_DATETIME_STRING_LEN 19
+void rtc_datetime_to_string(char *text, ws_cart_rtc_datetime_t *dt);
+
 #endif /* UI_RTC_CLOCK_H_ */

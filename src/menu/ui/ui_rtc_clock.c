@@ -32,8 +32,6 @@
 #include "util/input.h"
 #include "util/util.h"
 
-#define RTC_DATETIME_SIZE 7
-
 #define RTC_TIMER_GLYPH_WIDTH (8)
 #define RTC_TIMER_GLYPH_HEIGHT (16)
 #define RTC_TIMER_WIDTH (19*RTC_TIMER_GLYPH_WIDTH)
@@ -75,9 +73,7 @@ static uint8_t correct_hour_24_to_12(uint8_t value, uint8_t rtc_status) {
     }
 }
 
-static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool full_redraw) {
-    char text[20];
-
+void rtc_datetime_to_string(char *text, ws_cart_rtc_datetime_t *dt) {
     // Handle AM/PM correction in 12-hour mode
     uint8_t hour = correct_hour_12_to_24(dt->time.hour);
 
@@ -101,6 +97,12 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
     text[17] = util_hex_chars[dt->time.second >> 4];
     text[18] = util_hex_chars[dt->time.second & 0xF];
     text[19] = 0;
+}
+
+static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool full_redraw) {
+    char text[20];
+
+    rtc_datetime_to_string(text, dt);
 
     if (full_redraw) {
         bitmap_rect_draw(&ui_bitmap, RTC_TIMER_TEXT_X - 2, RTC_TIMER_TEXT_Y - 1, RTC_TIMER_WIDTH + 3, RTC_TIMER_GLYPH_HEIGHT + 2, BITMAP_COLOR_4BPP(3), false);

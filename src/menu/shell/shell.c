@@ -16,16 +16,15 @@
  */
 
 #include <nile.h>
-#include <nile/fpga.h>
-#include <nile/mcu/protocol.h>
 #include <nilefs.h>
-#include <nilefs/ff.h>
 #include <string.h>
+#include <ws.h>
 #include "shell.h"
 #include "cart/status.h"
 #include "lang_gen.h"
 #include "launch/launch_athena.h"
 #include "strings.h"
+#include "ui/ui_rtc_clock.h"
 #include "util/file.h"
 #include "util/task/task.h"
 #include "errors.h"
@@ -51,6 +50,7 @@ DEFINE_STRING_LOCAL(s_dot_local, ".");
 DEFINE_STRING_LOCAL(s_about, "about");
 DEFINE_STRING_LOCAL(s_cat, "cat");
 DEFINE_STRING_LOCAL(s_cd, "cd");
+DEFINE_STRING_LOCAL(s_date, "date");
 DEFINE_STRING_LOCAL(s_download, "download");
 DEFINE_STRING_LOCAL(s_echo, "echo");
 DEFINE_STRING_LOCAL(s_help, "help");
@@ -66,12 +66,14 @@ DEFINE_STRING_LOCAL(s_missing_argument, "Missing argument");
 DEFINE_STRING_LOCAL(s_unknown_command, "Unknown command");
 DEFINE_STRING_LOCAL(s_backspace, "\x08 \x08");
 DEFINE_STRING_LOCAL(s_awaiting_xmodem_transfer, "Awaiting XMODEM transfer");
+DEFINE_STRING_LOCAL(s_rtc_communication_error, "RTC communication error");
 DEFINE_STRING_LOCAL(s_saving_file, "Saving file");
 DEFINE_STRING_LOCAL(s_help_output,
 "Commands:\n"
 "about            \tAbout swanshell\n"
 "cat <path>       \tPrint text from file at path\n"
 "cd <path>        \tChange current directory to specified path\n"
+"date             \tQuery RTC date\n"
 "download <path>  \tDownload file from storage card via XMODEM\n"
 "echo <text>      \tEcho text\n"
 "help             \tPrint help information\n"
@@ -367,6 +369,18 @@ static inline bool shell_usb_active(void) {
     return cart_status_mcu_info_valid() && (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT);
 }
 
+static void shell_date_get(void) {
+    char text[RTC_DATETIME_STRING_LEN+1];
+    ws_cart_rtc_datetime_t dt;
+
+    if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_DATETIME, NULL, 0, &dt, RTC_DATETIME_SIZE) < RTC_DATETIME_SIZE) {
+        nile_mcu_native_cdc_write_string_const(s_rtc_communication_error);
+    } else {
+        rtc_datetime_to_string(text, &dt);
+        nile_mcu_native_cdc_write_string(text);        
+    }
+}
+
 int shell_func(task_t *task) {
     while (true) {
         shell_task_yield(SHELL_RET_IDLE);
@@ -453,6 +467,8 @@ int shell_func(task_t *task) {
                         }
                     } else if (!strcmp(shell_line, s_pwd)) {
                         shell_pwd();
+                    } else if (!strcmp(shell_line, s_date)) {
+                        shell_date_get();
                     } else {
                         nile_mcu_native_cdc_write_string_const(s_unknown_command);
                     }
