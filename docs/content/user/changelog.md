@@ -13,6 +13,8 @@ weight: 100
 - Added: New USB shell command: `date`.
 - Changed: Reworked cartridge image launch code for (hopefully) slightly higher
   internal RAM initialization accuracy.
+- Changed: Updated translations: German (Generic), Spanish (Aitor Ramajo Olazabal),
+  Japanese (bigmoonur).
 - Fixed: Incorrect key prompts in PCv2 mode.
 
 ## swanshell 1.1.7 (10th May 2026)
