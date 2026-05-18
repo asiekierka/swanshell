@@ -32,8 +32,8 @@ msgstr "OK"
 msgid "CANCEL"
 msgstr "Abbrechen"
 
-msgid "SETTINGS_INFO_WS"
-msgstr "Y1: Hilfe"
+msgid "SETTINGS_INFO"
+msgstr "%s: Hilfe"
 
 msgid "SETTINGS_KEY"
 msgstr "Einstellungen"
@@ -339,9 +339,6 @@ msgstr "Programmstarter"
 
 msgid "SETTINGS_CART_KEY"
 msgstr "Spielmodul"
-
-msgid "SETTINGS_INFO_PC2"
-msgstr "View: Hilfe"
 
 msgid "SETTINGS_PROG_FX_BIOS"
 msgstr "BIOS-Variante für .fx"

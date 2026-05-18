@@ -142,6 +142,7 @@ uint16_t ui_settings_selector(const setting_t __far *setting, uint16_t prev_valu
 void ui_settings(const setting_category_t __far* root_category) {
     ui_settings_config_t config = {{0}, root_category};
     bool reinit_ui = true;
+    char info_str[25];
 
     uint16_t offset_category_stack[4];
     uint8_t offset_category_stack_pos = 0;
@@ -150,7 +151,8 @@ void ui_settings(const setting_category_t __far* root_category) {
     config.config.draw = ui_settings_draw;
     config.config.can_select = ui_settings_can_select;
     config.config.key_mask = WS_KEY_A | WS_KEY_B | WS_KEY_START | WS_KEY_Y1;
-    config.config.info_key = ws_system_get_model() == WS_MODEL_PCV2 ? LK_SETTINGS_INFO_PC2 : LK_SETTINGS_INFO_WS;
+    config.config.info_str = info_str;
+    snprintf(info_str, sizeof(info_str) - 1, lang_keys[LK_SETTINGS_INFO], ws_system_get_model() == WS_MODEL_PCV2 ? s_key_pcv2_view : s_key_y1);
 
 reload_menu:
     config.config.count = config.category->entry_count;

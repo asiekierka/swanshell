@@ -26,7 +26,7 @@
 typedef struct ui_selector_config {
     uint16_t offset; ///< Currently selected entry. Controlled by ui_selector().
     uint16_t count; ///< Maximum number of entries.
-    uint16_t info_key; ///< Language key for auxilliary information.
+    const char __far *info_str; ///< Auxilliary information text.
     uint16_t key_mask; ///< Keys which exit the ui_selector() main loop.
     uint8_t style; ///< Style.
     void *userdata; ///< Data to pass to selector functions.

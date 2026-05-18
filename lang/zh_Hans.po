@@ -29,8 +29,8 @@ msgstr "好的"
 msgid "CANCEL"
 msgstr "取消"
 
-msgid "SETTINGS_INFO_WS"
-msgstr "Y1: 帮助"
+msgid "SETTINGS_INFO"
+msgstr "%s: 帮助"
 
 msgid "SETTINGS_KEY"
 msgstr "设置"
@@ -329,9 +329,6 @@ msgstr "蓝色"
 
 msgid "COLOR_PREVIEW"
 msgstr "预览"
-
-msgid "SETTINGS_INFO_PC2"
-msgstr "View: 帮助"
 
 msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
 msgstr "兼容"

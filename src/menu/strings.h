@@ -101,4 +101,21 @@ DEFINE_STRING(s_my_board_revision, "rev. %d%c");
 DEFINE_STRING(s_my_firmware_version, "%d.%d.%d (%02x%02x%02x%02x)");
 DEFINE_STRING(s_my_mcu_protocol_version, "%d.%d");
 
+DEFINE_STRING(s_key_x1, "X1");
+DEFINE_STRING(s_key_x2, "X2");
+DEFINE_STRING(s_key_x3, "X3");
+DEFINE_STRING(s_key_x4, "X4");
+DEFINE_STRING(s_key_y1, "Y1");
+DEFINE_STRING(s_key_y2, "Y2");
+DEFINE_STRING(s_key_y3, "Y3");
+DEFINE_STRING(s_key_y4, "Y4");
+DEFINE_STRING(s_key_b, "B");
+DEFINE_STRING(s_key_a, "A");
+
+DEFINE_STRING(s_key_pcv2_view, "View");
+DEFINE_STRING(s_key_pcv2_clear, "Clear");
+DEFINE_STRING(s_key_pcv2_circle, "Circle");
+DEFINE_STRING(s_key_pcv2_pass, "Pass");
+DEFINE_STRING(s_key_pcv2_esc, "Esc");
+
 #endif /* _STRINGS_H_ */

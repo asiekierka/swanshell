@@ -30,11 +30,8 @@ msgstr "Ładowanie..."
 msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
 msgstr "Strona %d/%d"
 
-msgid "SETTINGS_INFO_WS"
-msgstr "Y1: Pomoc"
-
-msgid "SETTINGS_INFO_PC2"
-msgstr "View: Pomoc"
+msgid "SETTINGS_INFO"
+msgstr "%s: Pomoc"
 
 msgid "SETTINGS_KEY"
 msgstr "Ustawienia"

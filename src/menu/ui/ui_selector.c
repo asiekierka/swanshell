@@ -122,8 +122,8 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
                 snprintf(sbuf, sizeof(sbuf), lang_keys[LK_UI_FILE_SELECTOR_PAGE_FORMAT], (config->offset / row_count) + 1, ((config->count + row_count - 1) / row_count));
                 ui_draw_statusbar(sbuf);
-                if (config->info_key)
-                    ui_draw_statusbar_right(lang_keys[config->info_key]);
+                if (config->info_str)
+                    ui_draw_statusbar_right(config->info_str);
                 draw_highlights |= ui_has_wallpaper();
             }
             if (draw_highlights) {

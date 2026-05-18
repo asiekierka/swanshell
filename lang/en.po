@@ -21,11 +21,8 @@ msgid "CANCEL"
 msgstr "Cancel"
 
 
-msgid "SETTINGS_INFO_WS"
-msgstr "Y1: Help"
-
-msgid "SETTINGS_INFO_PC2"
-msgstr "View: Help"
+msgid "SETTINGS_INFO"
+msgstr "%s: Help"
 
 
 msgid "SETTINGS_KEY"

@@ -35,11 +35,8 @@ msgstr "OK"
 msgid "CANCEL"
 msgstr "Cancelar"
 
-msgid "SETTINGS_INFO_WS"
-msgstr "Y1: Ayuda"
-
-msgid "SETTINGS_INFO_PC2"
-msgstr "View: Ayuda"
+msgid "SETTINGS_INFO"
+msgstr "%s: Ayuda"
 
 msgid "SETTINGS_KEY"
 msgstr "Opciones"
