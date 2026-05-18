@@ -42,15 +42,14 @@ typedef struct ui_settings_config {
 
 DEFINE_STRING_LOCAL(s_arrow, "→");
 
+#define SETTINGS_X_OFFSET 4
+
 static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y, uint16_t scroll_tick) {
     char buf[96];
     buf[0] = 0;
 
     ui_settings_config_t *sconfig = (ui_settings_config_t*) config;
     const setting_t __far* s = sconfig->category->entries[offset];
-
-    int x_offset = 4;
-    int len = x_offset + bitmapfont_draw_string(&ui_bitmap, x_offset, y, lang_keys[s->name], screen_width - x_offset);
 
     if ((s->type == SETTING_TYPE_CATEGORY || s->type == SETTING_TYPE_ACTION) && !(s->flags & SETTING_FLAG_ACTION_NO_ARROW)) {
         strcpy(buf, s_arrow);
@@ -62,8 +61,11 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
         snprintf(buf, sizeof(buf), s_color, *s->color.value & 0xFFF);
     }
 
-    x_offset = screen_width - x_offset - bitmapfont_get_string_width(buf, screen_width - x_offset - len);
-    bitmapfont_draw_string(&ui_bitmap, x_offset, y, buf, screen_width - x_offset);
+    int right_side_x = screen_width - SETTINGS_X_OFFSET - bitmapfont_get_string_width(buf, screen_width - (SETTINGS_X_OFFSET * 2));
+    bitmapfont_draw_string(&ui_bitmap, right_side_x, y, buf, screen_width - right_side_x);
+
+    int left_max_width = right_side_x - SETTINGS_X_OFFSET - 1;
+    bitmapfont_draw_string(&ui_bitmap, SETTINGS_X_OFFSET, y, lang_keys[s->name], left_max_width);
 }
 
 static bool ui_settings_can_select(struct ui_selector_config *config, uint16_t offset) {
