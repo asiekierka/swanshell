@@ -135,7 +135,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
         x_offset = config->style == UI_SELECTOR_STYLE_16 ? 16 : 10;
 
     file_selector_entry_t __far *fno = ui_file_selector_open_fno(offset);
-    
+
     const char __far *s = fno->fno.fname;
     int max_width = screen_width - x_offset;
     if (scroll_tick) {
@@ -323,12 +323,7 @@ exit_no_launch:
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_wav)) {
-                        // TODO: This crashes (due to memory corruption?) in vertical mode
-                        if (bitmap_set_screen_force_horizontal(true)) {
-                            ui_layout_clear(0);
-                        }
                         ui_dialog_error_check(ui_wavplay(path), NULL, 0);
-                        bitmap_set_screen_force_horizontal(false);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_bmp)) {

@@ -145,7 +145,7 @@ int ui_wavplay(const char *path) {
         f_close(&fp);
         return ERR_FILE_FORMAT_INVALID;
     }
-    
+
     if (!ws_system_is_color_active()) {
         ui_hide();
     }
@@ -265,7 +265,7 @@ int ui_wavplay(const char *path) {
 
         outportb(WS_SDMA_CTRL_PORT, WS_SDMA_CTRL_ENABLE | rate | WS_SDMA_CTRL_REPEAT | WS_SDMA_CTRL_TARGET_CH2);
     }
-    
+
     uint32_t data_start = f_tell(&fp);
     uint8_t next_buffer = 0;
     bool redraw_seek_position = false;
@@ -331,10 +331,12 @@ int ui_wavplay(const char *path) {
                         BITMAP_COLOR_4BPP(MAINPAL_COLOR_WHITE));
                     redraw_seek_position = false;
                 }
-                bitmap_rect_fill(&ui_bitmap,
-                    UI_WAV_DURATION_BAR_X + 1, UI_WAV_DURATION_BAR_Y + 1,
-                    bar_width, UI_WAV_DURATION_BAR_HEIGHT - 2,
-                    BITMAP_COLOR_4BPP(MAINPAL_COLOR_RED));
+                if (bar_width) {
+                    bitmap_rect_fill(&ui_bitmap,
+                        UI_WAV_DURATION_BAR_X + 1, UI_WAV_DURATION_BAR_Y + 1,
+                        bar_width, UI_WAV_DURATION_BAR_HEIGHT - 2,
+                        BITMAP_COLOR_4BPP(MAINPAL_COLOR_RED));
+                }
             }
         }
 
