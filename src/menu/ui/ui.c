@@ -132,24 +132,21 @@ uint16_t ui_icon_update(void) {
     return icon_pos * 8;
 }
 
-void ui_draw_statusbar(const char __far* text) {
-    icons_visible = (screen_width >> 3);
+void ui_draw_statusbar_lr(const char __far* text, const char __far* right_text) {
+    icons_visible = right_text == NULL ? (screen_width >> 3) : 0;
     uint16_t icon_end = ui_icon_update();
     bitmap_rect_fill(&ui_bitmap, 0, screen_height-8, icon_end, 8, BITMAP_COLOR_2BPP(2));
     bitmapfont_set_active_font(font8_bitmap);
     if (text != NULL) {
         bitmapfont_draw_string(&ui_bitmap, 2, screen_height-8, text, icon_end - 4);
     }
+    if (right_text != NULL) {
+        bitmapfont_draw_string(&ui_bitmap, screen_width - 2 - bitmapfont_get_string_width(right_text, screen_width), screen_height-8, right_text, screen_width);
+    }
 }
 
-void ui_draw_statusbar_right(const char __far* text) {
-    for (int i = icons_visible; i < (screen_width >> 3); i++)
-        ui_draw_icon(i, UI_BAR_ICON_NONE);
-    icons_visible = 0;
-    bitmapfont_set_active_font(font8_bitmap);
-    if (text != NULL) {
-        bitmapfont_draw_string(&ui_bitmap, screen_width - 2 - bitmapfont_get_string_width(text, screen_width), screen_height-8, text, screen_width);
-    }
+void ui_draw_statusbar(const char __far* text) {
+    ui_draw_statusbar_lr(text, NULL);
 }
 
 #define INIT_SCREEN_PATTERN(screen_loc, pal, ofs) \

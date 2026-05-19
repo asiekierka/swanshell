@@ -154,12 +154,13 @@ void ui_settings(const setting_category_t __far* root_category) {
     config.config.can_select = ui_settings_can_select;
     config.config.key_mask = WS_KEY_A | WS_KEY_B | WS_KEY_START | WS_KEY_Y1;
     config.config.info_str = info_str;
+
+reload_menu:
     snprintf(info_str, sizeof(info_str) - 1, lang_keys[LK_SETTINGS_INFO],
         ws_system_get_model() == WS_MODEL_PCV2
         ? s_key_pcv2_view
         : (bitmap_rotation ? s_key_y1 : s_key_a));
 
-reload_menu:
     config.config.count = config.category->entry_count;
 
     if (reinit_ui) {
@@ -173,6 +174,10 @@ reload_menu:
     while (true) {
         uint16_t keys_pressed = ui_selector(&config.config);
         const setting_t __far* s = config.category->entries[config.config.offset];
+
+        if (keys_pressed == UI_SELECTOR_RELOAD_REQUESTED) {
+            goto reload_menu;
+        }
 
         if (keys_pressed & WS_KEY_Y1) {
             if (s->help) {

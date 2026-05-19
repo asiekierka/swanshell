@@ -82,7 +82,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
     if (config->count == 0) {
         ui_layout_bars();
         ui_selector_set_active_font(config);
-        ui_draw_statusbar(lang_keys[LK_UI_FILE_SELECTOR_EMPTY]);
+        ui_draw_statusbar_lr(lang_keys[LK_UI_FILE_SELECTOR_EMPTY], config->info_str);
 
         while (true) {
             if (idle_until_vblank() || cart_status_apply_orientation_change())
@@ -107,7 +107,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                 }
                 scroll_ticks = 0;
             }
-            
+
             bool draw_filenames = prev_offset == 0xFFFF || ((prev_offset / row_count) != (config->offset / row_count));
             bool draw_highlights = prev_offset == 0xFFFF || ((prev_offset % row_count) != (config->offset % row_count));
             if (draw_filenames) {
@@ -121,9 +121,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                 }
 
                 snprintf(sbuf, sizeof(sbuf), lang_keys[LK_UI_FILE_SELECTOR_PAGE_FORMAT], (config->offset / row_count) + 1, ((config->count + row_count - 1) / row_count));
-                ui_draw_statusbar(sbuf);
-                if (config->info_str)
-                    ui_draw_statusbar_right(config->info_str);
+                ui_draw_statusbar_lr(sbuf, config->info_str);
                 draw_highlights |= ui_has_wallpaper();
             }
             if (draw_highlights) {
@@ -141,7 +139,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
                         prev_sel_tile <<= 1;
                         sel_tile <<= 1;
                     }
-                    
+
                     ui_screen_modify_tiles(bitmap_screen2, ~WS_SCREEN_ATTR_PALETTE_MASK, 0, 0, prev_sel_tile + 1, screen_width>>3, row_height >> 3);
                     ui_screen_modify_tiles(bitmap_screen2, ~WS_SCREEN_ATTR_PALETTE_MASK, WS_SCREEN_ATTR_PALETTE(1), 0, sel_tile + 1, screen_width>>3, row_height >> 3);
                 }
