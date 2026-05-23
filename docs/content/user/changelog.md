@@ -16,6 +16,7 @@ weight: 100
 - Changed: Updated translations: German (Generic), Spanish (Aitor Ramajo Olazabal),
   Japanese (bigmoonur).
 - Fixed: Incorrect key prompts in PCv2 mode.
+- Fixed: Missing error messages for some cartridge image loading errors.
 
 ## swanshell 1.1.7 (10th May 2026)
 
