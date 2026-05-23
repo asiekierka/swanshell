@@ -28,7 +28,7 @@
 #include "util/math.h"
 
 #define SCREEN ((uint16_t *) 0x2800)
-static bool is_vertical;
+bool is_vertical;
 
 // memcpy_expand_8_16.s
 extern void memcpy_expand_8_16(void *dst, const void *src, uint16_t count, uint16_t fill_value);
@@ -45,11 +45,14 @@ static void report_fatfs_error(uint8_t result) {
 	uint8_t buffer[12];
 
 	// print FatFs error
-	outportw(WS_SCR_PAL_0_PORT, 0x5207);
-	outportw(WS_SCR_PAL_3_PORT, 0x7777);
+	for (int i = 0; i < 12; i++)
+	    outportw(WS_SCR_PAL_PORT(i), 0x5207);
+	outportb(WS_DISPLAY_BACK_PORT, 0x7);
+	ws_system_set_mode(WS_MODE_MONO);
+
 	memcpy_expand_8_16(SCREEN + (2 * 32) + 2, fatfs_error_header, sizeof(fatfs_error_header) - 1, 0x0100);
-	ws_screen_put_tile(SCREEN, 23, 2, hexchars[result >> 4] | 0x0100);
-	ws_screen_put_tile(SCREEN, 24, 2, hexchars[result & 0xF] | 0x0100);
+	ws_screen_put_tile(SCREEN, hexchars[result >> 4] | 0x0100, is_vertical ? 4 : 23, 2);
+	ws_screen_put_tile(SCREEN, hexchars[result & 0xF] | 0x0100, is_vertical ? 3 : 24, 2);
 
 	const char *error_detail = NULL;
 	switch (result) {
@@ -69,8 +72,8 @@ static void report_fatfs_error(uint8_t result) {
 	nile_flash_sleep();
 	if (result) {
 		for (int i = 0; i < 8; i++) {
-			ws_screen_put_tile(SCREEN, 6 + i*2, 15, hexchars[buffer[i] >> 4] | 0x0100);
-			ws_screen_put_tile(SCREEN, 7 + i*2, 15, hexchars[buffer[i] & 0xF] | 0x0100);
+			ws_screen_put_tile(SCREEN, hexchars[buffer[i] >> 4] | 0x0100, is_vertical ? (21 - i*2) : (6 + i*2), 15);
+			ws_screen_put_tile(SCREEN, hexchars[buffer[i] & 0xF] | 0x0100, is_vertical ? (20 - i*2) : (7 + i*2), 15);
 		}
 	}
 
@@ -104,11 +107,11 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 			for (int i = 0; i < 12; i++)
 			    WS_DISPLAY_COLOR_MEM(i)[3] = (i < 3) ? 0xCC0 : 0xDD2;
 		}
-	} else {
-		ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT_DEFAULT);
-		for (int i = 0; i < 12; i++)
-			outportw(WS_SCR_PAL_PORT(i), 0x2570);
 	}
+
+	ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT_DEFAULT);
+	for (int i = 0; i < 12; i++)
+		outportw(WS_SCR_PAL_PORT(i), 0x2570);
 
 	outportb(WS_SCR_BASE_PORT, WS_SCR_BASE_ADDR1(SCREEN) | WS_SCR_BASE_ADDR2(SCREEN));
 	// Initialize screen 1
@@ -255,8 +258,6 @@ int main(void) {
 
 		outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 	}
-
-	while(1);
 
 	outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
 	outportw(WS_CART_EXTBANK_RAM_PORT, NILE_SEG_RAM_IPC);

@@ -25,7 +25,7 @@
     .section .text, "ax"
     // ax = destination
     // dx = source
-    // cx = count
+    // cx = count, decrement if negative
     // stack = fill value
     .global memcpy_expand_8_16
 memcpy_expand_8_16:
@@ -39,16 +39,29 @@ memcpy_expand_8_16:
 
     mov di, ax
     mov si, dx
-    mov ax, [IA16_CALL_STACK_OFFSET(10)]
+    mov ax, [bp + IA16_CALL_STACK_OFFSET(8)]
 
     cld
-memcpy_expand_8_16_loop:
+    cmp byte ptr [is_vertical], 0
+    jnz memcpy_expand_8_16_dec
+1:
     lodsb
     stosw
-    loop memcpy_expand_8_16_loop
+    loop 1b
 
+2:
     pop bp
     pop di
     pop si
     pop es
     IA16_RET 0x2
+
+memcpy_expand_8_16_dec:
+    add di, cx
+    add di, cx
+1:
+    sub di, 2
+    lodsb
+    mov [di], ax
+    loop 1b
+    jmp 2b
