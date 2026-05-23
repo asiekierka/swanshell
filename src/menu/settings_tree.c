@@ -187,7 +187,7 @@ static const setting_t __far setting_display_orientation = {
     LK_SETTINGS_DISPLAY_ORIENTATION,
     0,
     SETTING_TYPE_CHOICE_BYTE,
-    0,
+    SETTING_FLAG_CHOICE_LIST,
     settings_display_orientation_on_change,
     .choice = {
         &settings.display_orientation,

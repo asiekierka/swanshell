@@ -223,11 +223,12 @@ reload_menu:
                         }
                     }
                     *((uint8_t*) s->choice.value) = value;
+                }
 
-                    if (s->choice.value == &settings.display_orientation) {
-                        reload_required = true;
-                        reinit_ui = true;
-                    }
+                if (s->choice.value == &settings.display_orientation) {
+                    input_wait_clear();
+                    reload_required = true;
+                    reinit_ui = true;
                 }
             } else if (s->type == SETTING_TYPE_COLOR) {
                 bitmap_set_screen_force_horizontal(true);
