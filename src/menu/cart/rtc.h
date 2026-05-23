@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025 Adrian Siekierka
+ * Copyright (c) 2026 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free
@@ -15,13 +15,18 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef UI_RTC_CLOCK_H_
-#define UI_RTC_CLOCK_H_
+#ifndef CART_RTC_H_
+#define CART_RTC_H_
 
 #include <ws.h>
-#include "ui.h"
-#include "cart/rtc.h"
+#include <stdint.h>
 
-int16_t ui_rtc_clock(void);
+#define RTC_DATETIME_SIZE 7
+#define RTC_DATETIME_STRING_LEN 19
 
-#endif /* UI_RTC_CLOCK_H_ */
+void rtc_datetime_to_string(char *text, const ws_cart_rtc_datetime_t *dt);
+bool rtc_string_to_datetime(const char *text, ws_cart_rtc_datetime_t *dt, uint8_t rtc_status);
+void rtc_correct_day_of_week(ws_cart_rtc_datetime_t *dt);
+void rtc_adjust_component(ws_cart_rtc_datetime_t *dt, uint8_t rtc_status, int sel_value, int delta);
+
+#endif /* CART_RTC_H_ */

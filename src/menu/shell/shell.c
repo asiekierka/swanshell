@@ -20,6 +20,7 @@
 #include <string.h>
 #include <ws.h>
 #include "shell.h"
+#include "cart/rtc.h"
 #include "cart/status.h"
 #include "lang_gen.h"
 #include "launch/launch_athena.h"
@@ -67,13 +68,14 @@ DEFINE_STRING_LOCAL(s_unknown_command, "Unknown command");
 DEFINE_STRING_LOCAL(s_backspace, "\x08 \x08");
 DEFINE_STRING_LOCAL(s_awaiting_xmodem_transfer, "Awaiting XMODEM transfer");
 DEFINE_STRING_LOCAL(s_rtc_communication_error, "RTC communication error");
+DEFINE_STRING_LOCAL(s_invalid_date_format, "Invalid date format");
 DEFINE_STRING_LOCAL(s_saving_file, "Saving file");
 DEFINE_STRING_LOCAL(s_help_output,
 "Commands:\n"
 "about            \tAbout swanshell\n"
 "cat <path>       \tPrint text from file at path\n"
 "cd <path>        \tChange current directory to specified path\n"
-"date             \tQuery RTC date\n"
+"date [date]      \tQuery or change RTC date and time\n"
 "download <path>  \tDownload file from storage card via XMODEM\n"
 "echo <text>      \tEcho text\n"
 "help             \tPrint help information\n"
@@ -369,6 +371,25 @@ static inline bool shell_usb_active(void) {
     return cart_status_mcu_info_valid() && (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT);
 }
 
+static bool shell_date_set(const char *text) {
+    uint8_t status;
+    ws_cart_rtc_datetime_t dt;
+
+    if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_STATUS, NULL, 0, &status, 1) < 1) {
+        nile_mcu_native_cdc_write_string_const(s_rtc_communication_error);
+        return false;
+    }
+    if (!rtc_string_to_datetime(text, &dt, status)) {
+        nile_mcu_native_cdc_write_string_const(s_invalid_date_format);
+        return false;
+    }
+    if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_WRITE_DATETIME, &dt, RTC_DATETIME_SIZE, NULL, 0) < 0) {
+        nile_mcu_native_cdc_write_string_const(s_rtc_communication_error);
+        return false;
+    }
+    return true;
+}
+
 static void shell_date_get(void) {
     char text[RTC_DATETIME_STRING_LEN+1];
     ws_cart_rtc_datetime_t dt;
@@ -377,7 +398,7 @@ static void shell_date_get(void) {
         nile_mcu_native_cdc_write_string_const(s_rtc_communication_error);
     } else {
         rtc_datetime_to_string(text, &dt);
-        nile_mcu_native_cdc_write_string(text);        
+        nile_mcu_native_cdc_write_string(text);
     }
 }
 
@@ -467,8 +488,14 @@ int shell_func(task_t *task) {
                         }
                     } else if (!strcmp(shell_line, s_pwd)) {
                         shell_pwd();
-                    } else if (!strcmp(shell_line, s_date)) {
-                        shell_date_get();
+                    } else if (!memcmp(shell_line, s_date, 4)) {
+                        if (shell_line_pos > 5 && shell_line[4] == ' ') {
+                            if (shell_date_set(shell_line + 5)) {
+                                shell_date_get();
+                            }
+                        } else {
+                            shell_date_get();
+                        }
                     } else {
                         nile_mcu_native_cdc_write_string_const(s_unknown_command);
                     }
