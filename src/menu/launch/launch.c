@@ -745,6 +745,7 @@ extern void launch_jump_to_bootstub(uint16_t size, uint16_t flags);
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     extern const void __bank_bootstub;
     extern const void __bank_gfx_bootstub_tiles;
+    extern const void __bank_gfx_bootstub_tiles_rot;
 
     if (bootstub_data->prog.size > 16*1024*1024L) {
         return ERR_FILE_TOO_LARGE;
@@ -813,14 +814,26 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
 
     // Initialize bootstub data
     uint16_t color = 0;
+    bool is_vertical = bootstub_data->prog_flags & 1;
+
     if (ws_system_is_color_model()) {
         ws_system_set_mode(WS_MODE_COLOR);
-        outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
-        ws_gdma_copy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
+        if (is_vertical) {
+            outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles_rot);
+            ws_gdma_copy((void*) 0x3200, gfx_bootstub_tiles_rot, gfx_bootstub_tiles_rot_size);
+        } else {
+            outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
+            ws_gdma_copy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
+        }
         color = 1;
     } else {
-        outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
-        memcpy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
+        if (is_vertical) {
+            outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles_rot);
+            memcpy((void*) 0x3200, gfx_bootstub_tiles_rot, gfx_bootstub_tiles_rot_size);
+        } else {
+            outportw(WS_CART_EXTBANK_ROM0_PORT, (uint8_t) &__bank_gfx_bootstub_tiles);
+            memcpy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
+        }
     }
 
     // Jump to bootstub

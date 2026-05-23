@@ -274,6 +274,7 @@ rotate-icons:
 	wf-lua tools/icon_rotate.lua assets/menu/icons/16mono.png assets/menu/icons/16mono_rot.png 16 16
 	wf-lua tools/icon_rotate.lua assets/menu/icons/16color.png assets/menu/icons/16color_rot.png 16 16
 	wf-lua tools/icon_rotate.lua assets/menu/bar_icons.png assets/menu/bar_icons_rot.png 8 8
+	wf-lua tools/icon_rotate.lua assets/menu/bootstub_tiles.png assets/menu/bootstub_tiles_rot.png 8 8
 
 # Include dependency files if they exist
 # --------------------------------------

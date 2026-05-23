@@ -28,6 +28,7 @@
 #include "util/math.h"
 
 #define SCREEN ((uint16_t *) 0x2800)
+static bool is_vertical;
 
 // memcpy_expand_8_16.s
 extern void memcpy_expand_8_16(void *dst, const void *src, uint16_t count, uint16_t fill_value);
@@ -86,7 +87,10 @@ static uint16_t bank_count;
 static uint16_t bank_count_max;
 static uint16_t progress_pos;
 
-#define PROGRESS_BAR_Y 13
+#define PROGRESS_BAR_XH (6 << 3)
+#define PROGRESS_BAR_YH ((13 << 3) + 4)
+#define PROGRESS_BAR_XV ((6 << 3) + 4)
+#define PROGRESS_BAR_YV (1 << 3)
 
 static void progress_init(uint16_t graphic, uint16_t max_value) {
 	if (ws_system_is_color_active()) {
@@ -98,7 +102,7 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 		}
 		if (graphic == 0) {
 			for (int i = 0; i < 12; i++)
-				WS_DISPLAY_COLOR_MEM(i)[3] = (!(i & 3)) ? 0xCC0 : 0xDD2;
+			    WS_DISPLAY_COLOR_MEM(i)[3] = (i < 3) ? 0xCC0 : 0xDD2;
 		}
 	} else {
 		ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT_DEFAULT);
@@ -111,16 +115,26 @@ static void progress_init(uint16_t graphic, uint16_t max_value) {
 	outportw(WS_SCR1_SCRL_X_PORT, 0);
 	ws_screen_fill_tiles(SCREEN, 0x120, 0, 0, 28, 18);
 	if (graphic != 0xFFFF) {
-		for (int i = 0; i < 12; i++) {
-			ws_screen_put_tile(SCREEN, 0x180 + graphic * 12 + i + WS_SCREEN_ATTR_PALETTE(i), (i & 3) + 12, (i >> 2) + 7);
-		}
-
 		// Initialize screen 2
-		ws_screen_fill_tiles(SCREEN, ((uint8_t) '-') | 0x100, 0, 31, 28, 1);
-		outportw(WS_SCR2_SCRL_X_PORT, ((31 - PROGRESS_BAR_Y) << 11));
-		outportw(WS_SCR2_WIN_X1_PORT, (6 | (PROGRESS_BAR_Y << 8)) << 3);
-		outportw(WS_SCR2_WIN_X2_PORT, ((6 | ((PROGRESS_BAR_Y + 1) << 8)) << 3) - 0x101);
+		if (is_vertical) {
+    		for (int i = 0; i < 12; i++) {
+    			ws_screen_put_tile(SCREEN, 0x180 + i + WS_SCREEN_ATTR_PALETTE(i), 12 + 3 - (i >> 2), (i & 3) + 7);
+    		}
 
+		    ws_screen_fill_tiles(SCREEN, 0x17F, 31, 0, 1, 18);
+		    outportw(WS_SCR2_SCRL_X_PORT, ((255 - PROGRESS_BAR_XV) >> 3) << 3);
+			outportw(WS_SCR2_WIN_X1_PORT, PROGRESS_BAR_XV | (PROGRESS_BAR_YV << 8));
+			outportw(WS_SCR2_WIN_X2_PORT, PROGRESS_BAR_XV | (PROGRESS_BAR_YV << 8));
+		} else {
+    		for (int i = 0; i < 12; i++) {
+    			ws_screen_put_tile(SCREEN, 0x180 + i + WS_SCREEN_ATTR_PALETTE(i), (i & 3) + 12, (i >> 2) + 7);
+    		}
+
+            ws_screen_fill_tiles(SCREEN, 0x17F, 0, 31, 28, 1);
+            outportw(WS_SCR2_SCRL_X_PORT, ((255 - PROGRESS_BAR_YH) >> 3) << 11);
+            outportw(WS_SCR2_WIN_X1_PORT, PROGRESS_BAR_XH | (PROGRESS_BAR_YH << 8));
+            outportw(WS_SCR2_WIN_X2_PORT, PROGRESS_BAR_XH | (PROGRESS_BAR_YH << 8));
+		}
 		// Show screens
 		outportw(WS_DISPLAY_CTRL_PORT, WS_DISPLAY_CTRL_SCR1_ENABLE | WS_DISPLAY_CTRL_SCR2_ENABLE | WS_DISPLAY_CTRL_SCR2_WIN_INSIDE);
 	} else {
@@ -136,7 +150,11 @@ void progress_tick(void) {
 	if (!bank_count_max) return;
 	uint16_t progress_end = ((uint32_t)(++bank_count) << 7) / bank_count_max;
 	if (progress_end > 128) progress_end = 128;
-	outportb(WS_SCR2_WIN_X2_PORT, (6 << 3) + progress_end - 1);
+	if (is_vertical) {
+	    outportb(WS_SCR2_WIN_Y2_PORT, (1 << 3) + progress_end - 1);
+	} else {
+	    outportb(WS_SCR2_WIN_X2_PORT, (6 << 3) + progress_end - 1);
+	}
 }
 
 /* === Hardware configuration === */
@@ -193,7 +211,9 @@ int main(void) {
 	uint16_t start_bank = (real_size - size) >> 16;
 	uint16_t total_banks = real_size >> 16;
 
-	outportb(WS_LCD_ICON_PORT, (bootstub_data->prog_flags & 1) ? WS_LCD_ICON_ORIENT_V : WS_LCD_ICON_ORIENT_H);
+	is_vertical = bootstub_data->prog_flags & 1;
+	outportb(WS_LCD_ICON_PORT, is_vertical ? WS_LCD_ICON_ORIENT_V : WS_LCD_ICON_ORIENT_H);
+
 	if (bootstub_data->prog.cluster) {
 		outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
 
@@ -208,7 +228,7 @@ int main(void) {
 			progress_init(0, (total_banks - start_bank) * 2 - (start_offset >= 0x8000 ? 1 : 0));
 
 			uint16_t bank = start_bank;
-			uint16_t offset = start_offset; 
+			uint16_t offset = start_offset;
 
 			cluster_open(bootstub_data->prog.cluster);
 			while (bank < total_banks) {
@@ -235,6 +255,8 @@ int main(void) {
 
 		outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 	}
+
+	while(1);
 
 	outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
 	outportw(WS_CART_EXTBANK_RAM_PORT, NILE_SEG_RAM_IPC);
@@ -267,7 +289,7 @@ int main(void) {
 	// jump to cartridge
 	outportb(WS_INT_ACK_PORT, 0xFF);
 	if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_IPC_RESERVED) {
-		cold_jump_via_iram(bootstub_data->start_pointer);		
+		cold_jump_via_iram(bootstub_data->start_pointer);
 	} else {
 		cold_jump_via_ipc(bootstub_data->start_pointer);
 	}
