@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-26 16:57+0000\n"
+"PO-Revision-Date: 2026-05-29 17:51+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/"
 "projects/49bitcat/swanshell/zh_Hans/>\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 5.17.1\n"
 
 msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
 msgstr "第%d/%d页"
@@ -449,3 +449,15 @@ msgstr "删除存档数据"
 
 msgid "DIALOG_FILE_ERASE_SAVE_CONFIRM"
 msgstr "确定要删除此文件的存档数据？"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION"
+msgstr "屏幕方向"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_AUTO"
+msgstr "自动"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_HORIZONTAL"
+msgstr "横屏"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_VERTICAL"
+msgstr "竖屏"
