@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-03-29 11:00+0000\n"
+"PO-Revision-Date: 2026-05-29 17:51+0000\n"
 "Last-Translator: bigmoonur <bigmoon_ur@outlook.jp>\n"
 "Language-Team: Japanese <https://weblate.asie.pl/projects/49bitcat/swanshell/"
 "ja/>\n"
@@ -9,7 +9,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 5.17.1\n"
 
 msgid "SUBMENU_OPTION_WITCH"
 msgstr "ウィッチ..."
@@ -141,15 +141,15 @@ msgstr ""
 "カラー表示のできる機種においてゲーム起動時に SRAM と I/O の高速動作を有効にし"
 "ます。\n"
 "\n"
-"一部のプログラムでの処理落ちを軽減させる場合がありますが、互換性の低下や RTA "
+"一部のプログラムでの処理落ちを軽減させる場合はありますが、互換性の低下や RTA "
 "の成績無効につながる場合があります。"
 
 msgid "SETTINGS_PROG_FX_BIOS"
-msgstr ".fx 用 BIOS バージョン"
+msgstr ".fx 用 BIOS バリアント"
 
 msgid "SETTINGS_PROG_FX_BIOS_HELP"
 msgstr ""
-".fx プログラムで使用する BIOS バージョンを選択します。\n"
+".fx プログラムで使用する BIOS バリアントを選択します。\n"
 "\n"
 "シリアル通信では、標準は USB 端子、互換は本体の EXT 端子を使用します。"
 
@@ -386,7 +386,7 @@ msgid "PROGRESS_COPYING_DATA"
 msgstr "コピー中..."
 
 msgid "SUBMENU_OPTION_CONTROLLER_MODE"
-msgstr "コントローラーモード"
+msgstr "ゲームパッドモード"
 
 msgid "DIALOG_INITIALIZING_RTC"
 msgstr "RTC 初期化中..."
@@ -440,7 +440,7 @@ msgid "PROMPT_TF_CARD_REMOVED_TITLE"
 msgstr "メモリカードが取り外されました！"
 
 msgid "CONTROLLER_MODE_ACTIVE"
-msgstr "コントローラーモードが有効です。"
+msgstr "ゲームパッドモードが有効です。"
 
 msgid "CONTROLLER_MODE_PRESS_TO_EXIT"
 msgstr "終了するには %s を押してください。"
@@ -450,3 +450,15 @@ msgstr "IRAM 空き容量 %d bytes"
 
 msgid "ATHENABIOS_SUFFIX_NATIVE"
 msgstr "標準"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION"
+msgstr "表示方向"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_AUTO"
+msgstr "自動"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_HORIZONTAL"
+msgstr "横画面"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_VERTICAL"
+msgstr "縦画面"
