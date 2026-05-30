@@ -189,7 +189,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     }
 
     if (!(settings.file_flags & SETTING_FILE_HIDE_ICONS)) {
-        uint16_t tile_idx = bitmap_rotation ? (y >> 3) : (((WS_DISPLAY_WIDTH_TILES - 2) - (y >> 3)) * 18);
+        uint16_t tile_idx = bitmap_rotation ? (y >> 3) : (((WS_DISPLAY_WIDTH_TILES - (config->style == UI_SELECTOR_STYLE_16 ? 2 : 1)) - (y >> 3)) * 18);
         if (config->style == UI_SELECTOR_STYLE_16) {
             if (ws_system_is_color_active()) {
                 const uint8_t __far* src = bitmap_rotation ? gfx_icons_16color : gfx_icons_16color_rot;
