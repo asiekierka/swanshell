@@ -15,6 +15,7 @@ weight: 100
   internal RAM initialization accuracy.
 - Changed: Updated translations: German (Generic), Spanish (Aitor Ramajo Olazabal),
   Japanese (bigmoonur).
+- Fixed: Corrupt GD3 metadata in .vgm music player UI.
 - Fixed: Error when trying to load Gzip-compressed files containing original
   filename information.
 - Fixed: Incorrect key prompts in PCv2 mode.
