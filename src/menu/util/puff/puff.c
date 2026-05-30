@@ -3,7 +3,7 @@
  * Copyright (C) 2002-2013 Mark Adler
  * Modifications for Wonderful (C) 2025 Adrian "asie" Siekierka:
  * - support RAM/ROM0/ROM1 banks as > 64KB sources
- * 
+ *
  * For conditions of distribution and use, see copyright notice in puff.h
  *
  * puff.c is a simple inflate written to be an unambiguous way to specify the
@@ -90,7 +90,8 @@
 #define local static            /* for local function definitions */
 
 #define INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
-#define CACHE_TABLES
+// 0 = per-run cache, 1 = static cache, 2 = ROM cache
+#define CACHE_TABLES 2
 
 /*
  * Maximums for allocations and loops.  It is not useful to change these --
@@ -131,13 +132,17 @@ struct state {
     /* input limit error return state for bits() and decode() */
     jmp_buf env;
 
-#ifndef CACHE_TABLES
+#if CACHE_TABLES != 1
     bool initialized;
     short lencnt[MAXBITS+1], lensym[FIXLCODES];
     short distcnt[MAXBITS+1], distsym[MAXDCODES];
     struct huffman lencode, distcode;
 #endif
 };
+
+#if CACHE_TABLES == 2
+#include "puff_tables.inc"
+#endif
 
 local void advance_bank(unsigned int segment, unsigned count)
 {
@@ -636,7 +641,24 @@ local int codes(struct state *s,
  */
 local int fixed(struct state *s)
 {
-#ifdef CACHE_TABLES
+#if CACHE_TABLES == 2
+    if (!s->initialized) {
+        s->lencode.count = s->lencnt;
+        s->lencode.symbol = s->lensym;
+        s->distcode.count = s->distcnt;
+        s->distcode.symbol = s->distsym;
+
+        memcpy(s->lencnt, fixed_lencnt, sizeof(fixed_lencnt));
+        memcpy(s->lensym, fixed_lensym, sizeof(fixed_lensym));
+        memcpy(s->distcnt, fixed_distcnt, sizeof(fixed_distcnt));
+        memcpy(s->distsym, fixed_distsym, sizeof(fixed_distsym));
+
+        s->initialized = true;
+    }
+
+    /* decode data until end-of-block code */
+    return codes(s, &s->lencode, &s->distcode);
+#elif CACHE_TABLES == 1
     static bool initialized = false;
     static short lencnt[MAXBITS+1], lensym[FIXLCODES];
     static short distcnt[MAXBITS+1], distsym[MAXDCODES];
