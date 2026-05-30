@@ -22,7 +22,10 @@
 #include <nilefs.h>
 #include "bitmap.h"
 #include "config.h"
+#include "lang.h"
+#include "settings.h"
 #include "strings.h"
+#include "ui/ui_dialog.h"
 #include "util/file.h"
 #include "util/math.h"
 #include "util/types.h"
@@ -37,13 +40,16 @@ uint16_t font_offsets[4] = {
     __builtin_ia16_FP_OFF(font_tiny16)
 };
 uint8_t active_font = font16_bitmap;
+uint8_t min_font_bank = 0xF2;
+
+void bitmapfont_set_active_font_inner(uint8_t value, bool quiet);
 
 void bitmapfont_set_active_font(uint16_t font) {
-    active_font = font | (bitmap_rotation ? 0 : 1);
+    bitmapfont_set_active_font_inner(font | (bitmap_rotation ? 0 : 1), false);
 }
 
 void bitmapfont_update_active_font(void) {
-    active_font = (active_font & ~1) | (bitmap_rotation ? 0 : 1);
+    bitmapfont_set_active_font_inner((active_font & ~1) | (bitmap_rotation ? 0 : 1), true);
 }
 
 // __-prefixed functions corrupt/do not use ROM0; non-__-prefixed preserve/do not use ROM0
@@ -334,7 +340,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
 }
 
 static int16_t bitmapfont_load_font(uint16_t id, uint16_t end_bank, const char __far *filename) {
-    char buf[81];
+    char buf[49];
     int16_t result;
     FIL fp;
 
@@ -352,22 +358,32 @@ static int16_t bitmapfont_load_font(uint16_t id, uint16_t end_bank, const char _
     return result;
 }
 
-int16_t bitmapfont_load(void) {
-    int16_t result;
-    uint16_t system_end_bank = 0xF2;
+void bitmapfont_set_active_font_inner(uint8_t value, bool quiet) {
+    if (value > 3) value = 0;
+    active_font = value;
 
-    result = bitmapfont_load_font(font8_bitmap, system_end_bank, s_path_font8);
-    if (result != FR_OK) return result;
-    system_end_bank = MIN(system_end_bank, font_banks[font8_bitmap]);
+    if (min_font_bank && font_banks[active_font] == 0xFF) {
+        const char __far *path;
+        switch (active_font) {
+        case 0: path = s_path_font8; break;
+        case 1: path = s_path_font8v; break;
+        case 2: path = s_path_font16; break;
+        case 3: path = s_path_font16v; break;
+        }
 
-    result = bitmapfont_load_font(font8_bitmap + 1, system_end_bank, s_path_font8v);
-    if (result != FR_OK) return result;
-    system_end_bank = MIN(system_end_bank, font_banks[font8_bitmap + 1]);
+        int16_t result = bitmapfont_load_font(active_font, min_font_bank, path);
+        if (result != FR_OK) {
+            // Without fonts, all we can definitely display is English. Reset language.
+			settings.language = 0;
 
-    result = bitmapfont_load_font(font16_bitmap, system_end_bank, s_path_font16);
-    if (result != FR_OK) return result;
-    system_end_bank = MIN(system_end_bank, font_banks[font16_bitmap]);
-
-    result = bitmapfont_load_font(font16_bitmap + 1, system_end_bank, s_path_font16v);
-    return result;
+			if (!quiet) {
+			    uint8_t old_min_font_bank = min_font_bank;
+				min_font_bank = 0;
+			    ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_FONTS_LOAD], UI_DIALOG_ERROR_FLAG_CLEAR);
+				min_font_bank = old_min_font_bank;
+			}
+        }
+        min_font_bank = MIN(min_font_bank, font_banks[active_font]);
+        active_font = value;
+    }
 }

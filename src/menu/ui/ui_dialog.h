@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <wonderful.h>
 
+#define UI_DIALOG_ERROR_FLAG_CLEAR 0x0001
 int16_t ui_dialog_error_check(int16_t error, const char __far* title, uint16_t flags);
 
 #endif /* UI_DIALOG_H__ */

@@ -40,6 +40,9 @@ int16_t ui_dialog_error_check(int16_t error, const char __far *title, uint16_t f
     ui_popup_dialog_draw(&dlg);
     ui_show();
     ui_popup_dialog_action(&dlg, 0);
+    if (flags & UI_DIALOG_ERROR_FLAG_CLEAR) {
+        ui_popup_dialog_clear(&dlg);
+    }
 
     return error;
 }

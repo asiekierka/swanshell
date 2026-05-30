@@ -78,7 +78,7 @@ bool idle_until_vblank(void) {
 	while (vbl_ticks == vbl_ticks_last) {
 		ia16_halt();
 	}
-	
+
 	return refresh_view;
 }
 
@@ -115,7 +115,6 @@ void main(void) {
 	ui_init();
 	ui_layout_clear(0);
 
-	bitmapfont_set_active_font(font16_bitmap);
 	{
 		const char __far *title = lang_keys[LK_NAME];
 		bitmapfont_draw_string(&ui_bitmap,
@@ -127,16 +126,6 @@ void main(void) {
 
 	fs_init();
 	outportw(WS_CART_EXTBANK_RAM_PORT, 0);
-
-	{
-		int16_t result = bitmapfont_load();
-		if (result != FR_OK) {
-			// Without fonts, all we can definitely display is English. Reset language.
-			settings.language = 0;
-
-			ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_FONTS_LOAD], 0);
-		}
-	}
 
 	bitmap_set_screen_force_horizontal(false);
 
