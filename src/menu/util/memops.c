@@ -25,7 +25,7 @@ __attribute__((optimize("-O0")))
 int16_t memops_unpack_psram_data_if_gzip(uint16_t *bank, uint16_t dest_bank) {
     uint16_t src_bank = *bank;
     uint8_t __far* header = MK_FP(WS_ROM0_SEGMENT, 0x0000);
-    
+
     ws_bank_with_rom0(src_bank, {
         if (((uint16_t __far*) header)[0] != 0x8B1F) {
             // not a gzip file
@@ -36,7 +36,7 @@ int16_t memops_unpack_psram_data_if_gzip(uint16_t *bank, uint16_t dest_bank) {
             // Not DEFLATE-compressed
             return ERR_MCU_BIN_CORRUPT;
         }
-        
+
         if (header[3] & 0xE0) {
             // Unsupported header flags
             return ERR_MCU_BIN_CORRUPT;
@@ -49,11 +49,11 @@ int16_t memops_unpack_psram_data_if_gzip(uint16_t *bank, uint16_t dest_bank) {
         }
         if (header[3] & 0x08) {
             // Skip FNAME
-            offset += strlen((const char*) header + offset) + 1;
+            offset += strlen((const char __far*) header + offset) + 1;
         }
         if (header[3] & 0x10) {
             // Skip FCOMMENT
-            offset += strlen((const char*) header + offset) + 1;
+            offset += strlen((const char __far*) header + offset) + 1;
         }
         if (header[3] & 0x02) {
             // Skip FHCRC
