@@ -32,6 +32,7 @@
 #include "settings.h"
 #include "strings.h"
 #include "ui/bitmap.h"
+#include "util/asset_heap.h"
 
 typedef enum {
     TXT_ENCODING_UTF8,
@@ -153,7 +154,7 @@ int ui_txtview(const char *path) {
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
 
     uint32_t size = f_size(&fp);
-    if (size > 4L*1024*1024) {
+    if ((size >> 16) > asset_heap_get_free_first_banks()) {
         return ERR_FILE_TOO_LARGE;
     }
 

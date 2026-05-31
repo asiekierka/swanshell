@@ -15,18 +15,16 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <nile/mcu.h>
-#include <nile/mcu/cdc.h>
 #include <string.h>
 #include <wonderful.h>
 #include <ws.h>
 #include <nile.h>
 #include <nilefs.h>
-#include <ws/system.h>
 #include "errors.h"
 #include "main.h"
 #include "cart/mcu.h"
 #include "settings.h"
+#include "util/asset_heap.h"
 #include "util/math.h"
 #include "xmodem.h"
 
@@ -218,7 +216,7 @@ int xmodem_recv_to_psram(uint16_t bank, uint32_t *size) {
                             offset += 128;
                             if (!offset) {
                                 bank++;
-                                if (bank >= 192) {
+                                if (bank >= asset_heap_get_free_first_banks()) {
                                     data[0] = CAN; SEND_DATA(1);
                                     result = ERR_FILE_TOO_LARGE; goto finish;
                                 }

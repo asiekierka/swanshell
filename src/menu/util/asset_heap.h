@@ -23,16 +23,21 @@
 #include <ws.h>
 
 /**
- * Allocate N banks from the asset heap.
+ * Allocate N banks from the PSRAM asset heap.
  * @param bank_count Number of banks to allocate.
  * @return Starting bank of allocated area.
  */
 uint8_t asset_heap_alloc_banks(uint8_t bank_count);
 
 /**
- * Free the last allocation from the asset heap.
+ * Free the last allocation from the PSRAM asset heap.
  * @param bank_count Number of banks to allocate.
  */
 void asset_heap_free_last_banks(uint8_t bank_count);
+
+/**
+ * Get the number of free first PSRAM banks (bank 0 onwards).
+ */
+uint8_t asset_heap_get_free_first_banks(void);
 
 #endif /* UTIL_ASSET_HEAP_H_ */

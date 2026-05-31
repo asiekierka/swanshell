@@ -27,3 +27,7 @@ uint8_t asset_heap_alloc_banks(uint8_t bank_count) {
 void asset_heap_free_last_banks(uint8_t bank_count) {
     asset_heap_min_bank += bank_count;
 }
+
+uint8_t asset_heap_get_free_first_banks(void) {
+    return asset_heap_min_bank;
+}

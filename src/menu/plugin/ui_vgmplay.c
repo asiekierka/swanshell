@@ -33,6 +33,7 @@
 #include "plugin.h"
 #include "settings.h"
 #include "ui/bitmap.h"
+#include "util/asset_heap.h"
 #include "vgm/vgm.h"
 
 static vgm_state_t *vgm_state;
@@ -117,7 +118,7 @@ int ui_vgmplay(const char *path) {
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
 
     uint32_t size = f_size(&fp);
-    if (size > 4L*1024*1024) {
+    if ((size >> 16) > asset_heap_get_free_first_banks()) {
         return ERR_FILE_TOO_LARGE;
     }
 
