@@ -25,7 +25,6 @@
 #include "lang_gen.h"
 #include "launch/launch_athena.h"
 #include "strings.h"
-#include "ui/ui_rtc_clock.h"
 #include "util/file.h"
 #include "util/task/task.h"
 #include "errors.h"
@@ -378,6 +377,17 @@ static bool shell_date_set(const char *text) {
     if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_STATUS, NULL, 0, &status, 1) < 1) {
         nile_mcu_native_cdc_write_string_const(s_rtc_communication_error);
         return false;
+    }
+    if (status & WS_CART_RTC_STATUS_POWER_LOST) {
+        if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_RESET, NULL, 0, NULL, 0) < 0) {
+            nile_mcu_native_cdc_write_string_const(s_rtc_communication_error);
+            return false;
+        }
+        status = WS_CART_RTC_STATUS_24_HOUR;
+        if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_WRITE_STATUS, &status, 1, NULL, 0) < 0) {
+            nile_mcu_native_cdc_write_string_const(s_rtc_communication_error);
+            return false;
+        }
     }
     if (!rtc_string_to_datetime(text, &dt, status)) {
         nile_mcu_native_cdc_write_string_const(s_invalid_date_format);
