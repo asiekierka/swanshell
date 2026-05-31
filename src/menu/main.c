@@ -15,26 +15,25 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <nilefs/ff.h>
 #include <wonderful.h>
 #include <ws.h>
 #include <ws/display.h>
 #include <ws/util.h>
 #include <wsx/planar_unpack.h>
-#include <nilefs.h>
 #include "cart/irq.h"
 #include "cart/status.h"
 #include "errors.h"
+#include "fs.h"
 #include "lang.h"
 #include "lang_gen.h"
 #include "main.h"
 #include "cart/mcu.h"
+#include "launch/launch.h"
 #include "settings.h"
 #include "ui/bitmap.h"
 #include "ui/ui.h"
 #include "ui/ui_dialog.h"
 #include "ui/ui_file_selector.h"
-#include "launch/launch.h"
 #include "ui/ui_popup_dialog.h"
 #include "ui/ui_settings.h"
 #include "util/input.h"
@@ -88,15 +87,6 @@ void wait_for_vblank(void) {
 	while (vbl_ticks == vbl_ticks_last) {
 		ia16_halt();
 	}
-}
-
-FATFS fs;
-
-void fs_init(void) {
-	char blank = 0;
-	int16_t result;
-	result = f_mount(&fs, &blank, 1);
-	if (result) while(1) ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_FS_INIT], 0);
 }
 
 void main(void) {
@@ -171,6 +161,9 @@ void main(void) {
 	ui_dialog_error_check(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
 
 	shell_init();
+
+	// Run ui_show() again to intiialize wallpaper
+	ui_show();
 	ui_file_selector();
 
 	while(1);

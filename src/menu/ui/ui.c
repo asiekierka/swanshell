@@ -15,10 +15,8 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <nile/mcu/protocol.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
 #include <ws.h>
 #include <ws/display.h>
 #include <wsx/planar_convert.h>
@@ -28,8 +26,7 @@
 #include "ui.h"
 #include "util/bmp.h"
 #include "util/file.h"
-#include "util/input.h"
-#include "main.h"
+#include "fs.h"
 #include "settings.h"
 #include "../../../build/menu/assets/menu/bar_icons.h"
 #include "../../../build/menu/assets/menu/icons.h"
@@ -288,7 +285,7 @@ void ui_unload_wallpaper(void) {
 
 void ui_show(void) {
 #ifdef CONFIG_ENABLE_WALLPAPER
-    if (!wallpaper_status) {
+    if (!wallpaper_status && fs_initialized()) {
         load_wallpaper();
     }
 #endif

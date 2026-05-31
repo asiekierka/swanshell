@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -91,7 +91,7 @@ int ui_bmpview(const char *path) {
             ws_screen_put_tile(bitmap_screen2, (ip++), ix, iy);
         }
     }
-    
+
     // configure palette
     uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
     if (ws_system_is_color_active()) {
