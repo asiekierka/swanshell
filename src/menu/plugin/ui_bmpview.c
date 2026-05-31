@@ -157,7 +157,7 @@ int ui_bmpview(const char *path) {
     uint8_t xo = (WS_DISPLAY_WIDTH_PIXELS - bmp->width) >> 1;
     uint8_t yo = ((WS_DISPLAY_HEIGHT_PIXELS - bmp->height) >> 1);
 
-    outportb(WS_SCR2_SCRL_X_PORT, -xo);
+    outportb(WS_SCR2_SCRL_X_PORT, -xo + inportb(WS_SCR2_SCRL_X_PORT));
     outportb(WS_SCR2_SCRL_Y_PORT, -yo + inportb(WS_SCR2_SCRL_Y_PORT));
     outportb(WS_SCR2_WIN_X1_PORT, xo);
     outportb(WS_SCR2_WIN_Y1_PORT, yo);
