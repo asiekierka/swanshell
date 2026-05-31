@@ -25,6 +25,7 @@
 #include <nilefs.h>
 #include "bootstub.h"
 #include "cluster_read.h"
+#include "config.h"
 
 #define FF_WF_FAST_CONTIGUOUS_READ 1
 
@@ -50,30 +51,31 @@ static inline bool is_valid_cluster(uint32_t cluster) {
 }
 
 static uint32_t read_next_cluster(uint32_t cluster) {
-	uint32_t result = 0xFFFFFFFF;
-	uint16_t i;
-	if (!is_valid_cluster(cluster)) {
+    uint32_t result = 0xFFFFFFFF;
+    uint16_t i;
+    if (!is_valid_cluster(cluster)) {
         return 1;
     }
     switch (bootstub_data->fs_type) {
-        case FS_FAT12:
-            cluster += cluster >> 1;
-            if (move_window(bootstub_data->cluster_table_base + (cluster >> 9))) break;
-            i = drive_window[cluster++ & 0x1FF];
-            if (move_window(bootstub_data->cluster_table_base + (cluster >> 9))) break;
-            i |= drive_window[cluster & 0x1FF] << 4;
+        case FS_FAT12: {
+            uint16_t bc = cluster;
+            bc += bc >> 1;
+            if (move_window(bootstub_data->cluster_table_base + (bc >> 9))) break;
+            i = drive_window[bc++ & 0x1FF];
+            if (move_window(bootstub_data->cluster_table_base + (bc >> 9))) break;
+            i |= drive_window[bc & 0x1FF] << 8;
             result = (cluster & 1) ? (i >> 4) : (i & 0xFFF);
-            break;
-        case FS_FAT16:
+        } break;
+        case FS_FAT16: {
             if (move_window(bootstub_data->cluster_table_base + (cluster >> 8))) break;
             result = ((uint16_t*) drive_window)[cluster & 0xFF];
-            break;
-        case FS_FAT32:
+        } break;
+        case FS_FAT32: {
             if (move_window(bootstub_data->cluster_table_base + (cluster >> 7))) break;
             result = ((uint32_t*) drive_window)[cluster & 0x7F] & 0x0FFFFFFF;
-            break;
+        } break;
     }
-	return result;
+    return result;
 }
 
 /* Cluster read code */

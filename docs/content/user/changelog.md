@@ -3,6 +3,10 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.2.1
+
+- Fixed: Loading cartridge images not working on FAT12 partitions.
+
 ## swanshell 1.2.0 (31st May 2026)
 
 - Added: Vertical display orientation support.
