@@ -13,6 +13,7 @@ weight: 100
 - Added: New USB shell command: `date` - allows getting/setting RTC time.
 - Changed: Reworked cartridge image launch code for (hopefully) slightly higher
   internal RAM initialization accuracy.
+- Changed: Slightly larger .txt, .vgm files and XMODEM transfers are now supported.
 - Changed: Updated translations: German (Generic), Spanish (Aitor Ramajo Olazabal),
   Japanese, etc. (bigmoonur).
 - Fixed: Corrupt GD3 metadata display in .vgm music player UI.
