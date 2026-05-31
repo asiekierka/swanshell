@@ -36,7 +36,7 @@
 #include "lang.h"
 #include "config.h"
 
-__attribute__((section(".iramx_1b80")))
+__attribute__((section(".iramx_1b88")))
 uint16_t bitmap_screen2[32 * 18 - 4];
 
 __attribute__((section(".iramx_2000")))
@@ -201,7 +201,7 @@ void ui_init(void) {
     }
 
     outportb(WS_SCR_BASE_PORT, WS_SCR_BASE_ADDR1(0x3800) | WS_SCR_BASE_ADDR2(bitmap_screen2));
-    outportw(WS_SCR2_SCRL_X_PORT, (14*8) << 8);
+    outportw(WS_SCR2_SCRL_X_PORT, ((14*8) << 8) + (4*8));
 }
 
 void ui_hide(void) {
