@@ -149,8 +149,8 @@ void ui_draw_statusbar(const char __far* text) {
 #define INIT_SCREEN_PATTERN(screen_loc, pal, ofs) \
     { \
         int ip = (ofs); \
-        for (int ix = 0; ix < 28; ix++) { \
-            for (int iy = 0; iy < 18; iy++) { \
+        for (int ix = 0; ix < WS_DISPLAY_WIDTH_TILES; ix++) { \
+            for (int iy = 0; iy < WS_DISPLAY_HEIGHT_TILES; iy++) { \
                 ws_screen_put_tile(screen_loc, (pal) | (ip++), ix, iy); \
             } \
         } \
@@ -167,7 +167,7 @@ void ui_init(void) {
     if (ws_system_is_color_model()) {
 #endif
         ws_system_set_mode(WS_MODE_COLOR_4BPP);
-        ui_bitmap = BITMAP(WS_TILE_4BPP_MEM(0), 28, 18, 4);
+        ui_bitmap = BITMAP(WS_TILE_4BPP_MEM(0), WS_DISPLAY_WIDTH_TILES, WS_DISPLAY_HEIGHT_TILES, 4);
 
         // palette 0 - icon palette
         WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
@@ -186,7 +186,7 @@ void ui_init(void) {
         WS_DISPLAY_COLOR_MEM(2)[2] = SETTING_THEME_ACCENT_COLOR_DEFAULT;
         WS_DISPLAY_COLOR_MEM(2)[3] = 0xFFF;
     } else {
-        ui_bitmap = BITMAP(WS_TILE_MEM(0), 28, 18, 2);
+        ui_bitmap = BITMAP(WS_TILE_MEM(0), WS_DISPLAY_WIDTH_TILES, WS_DISPLAY_HEIGHT_TILES, 2);
 
         ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT_DEFAULT);
         // palette 0 - icon palette
@@ -248,7 +248,7 @@ static inline void load_wallpaper(void) {
         if (result != FR_OK) return;
 
         bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
-        if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
+        if (bmp->magic != BMP_MAGIC || bmp->header_size < BMP_MIN_HEADER_SIZE ||
             bmp->width != screen_width || bmp->height != screen_height ||
             bmp->compression != 0 || bmp->bpp != 4) return;
 
@@ -267,7 +267,7 @@ static inline void load_wallpaper(void) {
         for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
             uint32_t __far *line_src = (uint32_t __far*) data;
             uint32_t *line_dst = (uint32_t*) (0x8000 + (((uint16_t)bmp->height - 1 - y) * 4));
-            for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += 18 * 8) {
+            for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += WS_DISPLAY_HEIGHT_TILES * 8) {
                 *line_dst = wsx_planar_convert_4bpp_packed_row(*line_src);
             }
         }

@@ -50,7 +50,7 @@ int ui_bmpview(const char *path) {
     }
 
     bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
-    if (bmp->magic != 0x4d42 || bmp->header_size < 40 ||
+    if (bmp->magic != BMP_MAGIC || bmp->header_size < BMP_MIN_HEADER_SIZE ||
         bmp->width <= 0 || bmp->width > WS_DISPLAY_WIDTH_PIXELS || bmp->height <= 0 || bmp->height > WS_DISPLAY_HEIGHT_PIXELS ||
         bmp->compression != 0) {
         return ERR_FILE_FORMAT_INVALID;
@@ -86,8 +86,8 @@ int ui_bmpview(const char *path) {
 
     // set screen
     int ip = 0;
-    for (int ix = 0; ix < 28; ix++) {
-        for (int iy = 0; iy < 18; iy++) {
+    for (int ix = 0; ix < WS_DISPLAY_WIDTH_TILES; ix++) {
+        for (int iy = 0; iy < WS_DISPLAY_HEIGHT_TILES; iy++) {
             ws_screen_put_tile(bitmap_screen2, (ip++), ix, iy);
         }
     }
@@ -124,7 +124,7 @@ int ui_bmpview(const char *path) {
         for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
             uint16_t __far *line_src = (uint16_t __far*) data;
             uint8_t *line_dst = (uint8_t*) (0x4000 + (((uint16_t)bmp->height - 1 - y) * 4));
-            for (uint8_t x = 0; x < bmp->width; x += 8, line_dst += 18 * 32 - 4) {
+            for (uint8_t x = 0; x < bmp->width; x += 8, line_dst += WS_DISPLAY_HEIGHT_TILES * 32 - 4) {
                 uint16_t s;
                 s = *(line_src++);
                 *(line_dst++) = (s << 4) | (s >> 8);
@@ -140,7 +140,7 @@ int ui_bmpview(const char *path) {
         for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
             uint32_t __far *line_src = (uint32_t __far*) data;
             uint32_t *line_dst = (uint32_t*) (0x4000 + (((uint16_t)bmp->height - 1 - y) * 4));
-            for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += 18 * 8) {
+            for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += WS_DISPLAY_HEIGHT_TILES * 8) {
                 *line_dst = *line_src;
             }
         }
@@ -148,7 +148,7 @@ int ui_bmpview(const char *path) {
         for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
             uint8_t __far *line_src = (uint8_t __far*) data;
             uint16_t *line_dst = (uint16_t*) (0x2000 + (((uint16_t)bmp->height - 1 - y) * 2));
-            for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += 18 * 8) {
+            for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += WS_DISPLAY_HEIGHT_TILES * 8) {
                 *line_dst = *line_src;
             }
         }

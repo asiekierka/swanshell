@@ -194,11 +194,11 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
             if (ws_system_is_color_active()) {
                 const uint8_t __far* src = bitmap_rotation ? gfx_icons_16color : gfx_icons_16color_rot;
                 ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), src + (icon_idx * 128), 64);
-                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx + 18), src + (icon_idx * 128) + 64, 64);
+                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx + WS_DISPLAY_HEIGHT_TILES), src + (icon_idx * 128) + 64, 64);
             } else {
                 const uint8_t __far* src = bitmap_rotation ? gfx_icons_16mono : gfx_icons_16mono_rot;
                 memcpy(WS_TILE_MEM(tile_idx), src + (icon_idx * 64), 32);
-                memcpy(WS_TILE_MEM(tile_idx + 18), src + (icon_idx * 64) + 32, 32);
+                memcpy(WS_TILE_MEM(tile_idx + WS_DISPLAY_HEIGHT_TILES), src + (icon_idx * 64) + 32, 32);
             }
         } else {
             if (ws_system_is_color_active()) {

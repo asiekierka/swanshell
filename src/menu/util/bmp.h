@@ -39,4 +39,8 @@ typedef struct {
     uint32_t important_color_count;
 } bmp_header_t;
 
+#define BMP_MIN_HEADER_SIZE 40
+// 'BM'
+#define BMP_MAGIC 0x4D42
+
 #endif /* UTIL_BMP_H_ */
