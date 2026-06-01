@@ -35,7 +35,7 @@ int16_t launch_bfb(const char *path) {
     FIL fp;
     uint32_t br;
     uint16_t header[2];
-    
+
     if (!ws_system_is_color_active()) {
         return FR_INT_ERR;
     }
@@ -63,7 +63,7 @@ int16_t launch_bfb(const char *path) {
 
     // Disable IRQs - avoid other code interfering/overwriting memory
     ia16_disable_irq();
-    outportw(WS_DISPLAY_CTRL_PORT, 0);
+    ui_hide();
 
     result = f_read(&fp, ptr, max_size, &br);
 	if (result != FR_OK) {
@@ -102,7 +102,7 @@ int16_t launch_bfb_in_psram(void) {
 
         // Disable IRQs - avoid other code interfering/overwriting memory
         ia16_disable_irq();
-        outportw(WS_DISPLAY_CTRL_PORT, 0);
+        ui_hide();
         memcpy(ptr, MK_FP(WS_ROM0_SEGMENT, 0x0004), max_size);
 
         outportb(0x60, 0x80);

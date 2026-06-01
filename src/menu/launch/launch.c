@@ -751,7 +751,7 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
         return ERR_FILE_TOO_LARGE;
     }
 
-    outportw(WS_DISPLAY_CTRL_PORT, 0);
+    ui_hide();
 
     // Disable IRQs - avoid other code interfering/overwriting memory
     ia16_disable_irq();

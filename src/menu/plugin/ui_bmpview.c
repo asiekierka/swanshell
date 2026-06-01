@@ -82,7 +82,8 @@ int ui_bmpview(const char *path) {
         }
     }
 
-    outportw(WS_DISPLAY_CTRL_PORT, 0);
+    ui_hide();
+    ui_hide_icons();
 
     // set screen
     int ip = 0;
@@ -168,6 +169,7 @@ int ui_bmpview(const char *path) {
 
     ui_init();
     settings_load();
+
     ui_layout_clear(0);
 
     return 0;

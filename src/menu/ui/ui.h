@@ -43,6 +43,7 @@ void ui_draw_statusbar_lr(const char __far* text, const char __far* right_text);
 #ifdef CONFIG_ENABLE_WALLPAPER
 bool ui_has_wallpaper(void);
 void ui_unload_wallpaper(void);
+void ui_hide_icons(void);
 uint16_t ui_icon_update(void);
 #else
 static inline bool ui_has_wallpaper(void) { return false; }

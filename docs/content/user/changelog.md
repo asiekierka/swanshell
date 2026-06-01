@@ -6,6 +6,7 @@ weight: 100
 ## swanshell 1.2.1
 
 - Fixed: Loading cartridge images not working on FAT12 partitions.
+- Fixed: Status icon drawing glitches during/after opening .bmp file.
 
 ## swanshell 1.2.0 (31st May 2026)
 

@@ -21,6 +21,7 @@
 #include <nile.h>
 #include <nilefs.h>
 #include "errors.h"
+#include "ui/ui.h"
 
 extern FATFS fs;
 
@@ -41,7 +42,7 @@ _Static_assert(sizeof(dos_psp_t) == 256, "Invalid DOS PSP size!");
 int16_t launch_com(const char *path) {
     FIL fp;
     uint32_t br;
-    
+
     int16_t result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
 	if (result != FR_OK) return result;
     if (f_size(&fp) > 0xFF00) return ERR_FILE_TOO_LARGE;
@@ -53,7 +54,7 @@ int16_t launch_com(const char *path) {
 
     // Disable IRQs - avoid other code interfering/overwriting memory
     ia16_disable_irq();
-    outportw(WS_DISPLAY_CTRL_PORT, 0);
+    ui_hide();
 
     // Initialize PSP segment
     dos_psp_t __far *psp = (dos_psp_t __far*) MK_FP(0x1000, 0x0000);

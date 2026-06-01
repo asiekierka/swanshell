@@ -24,6 +24,7 @@
 
 #include <string.h>
 #include "plugin/vgm/vgm.h"
+#include "ui/ui.h"
 #include "vgm_internal.h"
 
 void dprint(const char __far* format, ...);
@@ -62,10 +63,10 @@ static void vgm_jump_to_start_point(vgm_state_t *state) {
     state->pos = state->start_pos;
 
     uint8_t __far* ptr = vgm_state_to_ptr(state, &bank_backup);
-    
+
     uint16_t offset = vgm_get_offset(ptr);
     state->pos += offset;
-    
+
     outportw(WS_CART_EXTBANK_ROM0_PORT, bank_backup);
 }
 
@@ -89,13 +90,13 @@ static void vgm_jump_to_loop_point(vgm_state_t *state) {
         state->pos = loop_point;
         state->bank = (loop_point >> 16) + state->bank;
     }
-    
+
     outportw(WS_CART_EXTBANK_ROM0_PORT, bank_backup);
 }
 
 bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
     uint16_t bank_backup;
-    
+
     memset(state, 0, sizeof(vgm_state_t));
     state->start_bank = bank;
     state->start_pos = pos;
@@ -123,7 +124,7 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
         }
 
         if (sn76489_clock & 0x80000000) { error = true; goto on_error; }
-        
+
         if (!vgm_init_sn76489(state, ptr)) { error = true; goto on_error; }
         detected_systems++;
     }
@@ -195,7 +196,7 @@ bool vgm_init(vgm_state_t *state, uint8_t bank, uint16_t pos) {
 #ifdef VGM_USE_PCM
     state->pcm_data_block_location = 0x8000;
 #endif
-    
+
 on_error:
     outportw(WS_CART_EXTBANK_ROM0_PORT, bank_backup);
     return !error && state->cmd_driver && detected_systems == 1;
@@ -246,7 +247,7 @@ try_copy_pcm:
                     max_ofs = 0xFE00;
                     next_ofs = 0x1800;
                 } else {
-                    outportw(WS_DISPLAY_CTRL_PORT, 0);
+                    ui_hide();
                     max_ofs = (ws_system_is_color_active() ? 0x8000 : 0x4000);
                 }
                 if (((uint32_t)ofs + len) > max_ofs) {
@@ -282,7 +283,7 @@ try_copy_pcm:
         case 0x92: { /* Set Stream Frequency */
             uint8_t stream_id = *(state->ptr++);
             uint16_t frequency = *((uint16_t __far*) state->ptr); state->ptr += 4;
-            
+
             if (!ws_system_is_color_active()) break;
             state->pcm_stream_flags[stream_id] &= 0xFC;
             if (frequency >= 16000) {
@@ -327,7 +328,7 @@ try_copy_pcm:
             } break;
             case 2: {
                 outportw(WS_SDMA_LENGTH_L_PORT, length * 44);
-                outportb(WS_SDMA_LENGTH_H_PORT, 0);                
+                outportb(WS_SDMA_LENGTH_H_PORT, 0);
             } break;
             }
             outportb(WS_SDMA_CTRL_PORT, (state->pcm_stream_flags[stream_id] & 0x03) | ((flags & 0x80) ? WS_SDMA_CTRL_REPEAT : 0) | WS_SDMA_CTRL_ENABLE);
@@ -335,7 +336,7 @@ try_copy_pcm:
         } break;
         case 0x94: { /* Stop Stream */
             state->ptr++;
-            
+
             if (!ws_system_is_color_active()) break;
             outportb(WS_SDMA_CTRL_PORT, 0);
         } break;
@@ -343,7 +344,7 @@ try_copy_pcm:
             uint8_t stream_id = *(state->ptr++);
             uint8_t block_id = *(state->ptr); state->ptr += 2;
             uint8_t flags = *(state->ptr++);
-            
+
             if (!ws_system_is_color_active()) break;
             outportb(WS_SDMA_CTRL_PORT, 0);
             outportw(WS_SDMA_SOURCE_L_PORT, state->pcm_data_block_offset[block_id]);
