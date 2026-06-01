@@ -28,7 +28,7 @@
 #include "settings.h"
 #include "util/input.h"
 
-#define COLORBAR_WIDTH (screen_width - 32)
+#define COLORBAR_WIDTH (screen_width == 224 ? 192 : 128)
 #define COLORBAR_X ((screen_width - COLORBAR_WIDTH) >> 1)
 #define COLORBAR_ENTRY_WIDTH (COLORBAR_WIDTH / 16)
 #define COLORBAR_ENTRY_HEIGHT 16
@@ -71,7 +71,7 @@ static void draw_colorbar_mono(uint8_t y, uint8_t start_palette, uint16_t rgb, u
     bitmap_rect_fill(&ui_bitmap, COLORBAR_X, full_redraw ? y : y + COLORBAR_SEL_Y,
         COLORBAR_WIDTH, full_redraw ? COLORBAR_ENTRY_HEIGHT : COLORBAR_SEL_HEIGHT, BITMAP_COLOR_2BPP(2));
     for (int i = full_redraw ? 0 : 4; i < (full_redraw ? 16 : 12); i += 4) {
-        bitmap_draw_glyph(&ui_bitmap, COLORBAR_X, y + i, COLORBAR_WIDTH, 4, 0, colorbar_mono_gradient); 
+        bitmap_draw_glyph(&ui_bitmap, COLORBAR_X, y + i, COLORBAR_WIDTH, 4, 0, colorbar_mono_gradient);
     }
     if (full_redraw) {
         bitmap_rect_draw(&ui_bitmap, COLORBAR_X - 1, y - 1, COLORBAR_WIDTH + 2, COLORBAR_ENTRY_HEIGHT + 2, BITMAP_COLOR_2BPP(3), false);
@@ -162,7 +162,7 @@ void ui_color_picker(uint16_t *rgb) {
         // Set selector colors
         if (mono) {
             outportw(WS_SCR_PAL_PORT(8), ui_rgb_to_shade(new_rgb) << 12);
-            
+
             for (int i = 0; i < 3; i++) {
                 outportw(WS_SCR_PAL_PORT(9 + i), (selector_offset == i || selector_offset == 3)
                     ? WS_DISPLAY_MONO_PALETTE(0, 7, 4, 1)

@@ -137,7 +137,9 @@ void ui_draw_statusbar_lr(const char __far* text, const char __far* right_text) 
     icons_visible = right_text == NULL ? (screen_width >> 3) : 0;
     uint16_t icon_end = ui_icon_update();
     bitmap_rect_fill(&ui_bitmap, 0, screen_height-8, icon_end, 8, BITMAP_COLOR_2BPP(2));
-    bitmap_rect_fill(&ui_bitmap, icon_end, screen_height-8, screen_width-icon_end, 8, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
+    if (icon_end < screen_width) {
+        bitmap_rect_fill(&ui_bitmap, icon_end, screen_height-8, screen_width-icon_end, 8, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
+    }
     bitmapfont_set_active_font(font8_bitmap);
     if (text != NULL) {
         bitmapfont_draw_string(&ui_bitmap, 2, screen_height-8, text, icon_end - 4);
