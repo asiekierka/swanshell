@@ -42,7 +42,9 @@ _Static_assert(((COLORBAR_ENTRY_WIDTH * 8) & 7) == 0, "Incompatible colorbar ent
 #define COLOR_PREVIEW_WIDTH 16
 #define COLOR_PREVIEW_HEIGHT 16
 #define COLOR_PREVIEW_X (COLORBAR_X + COLORBAR_ENTRY_WIDTH*16 - COLOR_PREVIEW_WIDTH)
-#define COLOR_PREVIEW_Y 16
+
+#define COLORBAR_Y (screen_width == 224 ? 48 : 80)
+#define COLOR_PREVIEW_Y (COLORBAR_Y - 32)
 
 // === Mono mode implementation ===
 
@@ -70,6 +72,7 @@ static void draw_colorbar_mono(uint8_t y, uint8_t start_palette, uint16_t rgb, u
     // Draw rectangles
     bitmap_rect_fill(&ui_bitmap, COLORBAR_X, full_redraw ? y : y + COLORBAR_SEL_Y,
         COLORBAR_WIDTH, full_redraw ? COLORBAR_ENTRY_HEIGHT : COLORBAR_SEL_HEIGHT, BITMAP_COLOR_2BPP(2));
+    // TODO: vertical mode support
     for (int i = full_redraw ? 0 : 4; i < (full_redraw ? 16 : 12); i += 4) {
         bitmap_draw_glyph(&ui_bitmap, COLORBAR_X, y + i, COLORBAR_WIDTH, 4, 0, colorbar_mono_gradient);
     }
@@ -204,18 +207,18 @@ void ui_color_picker(uint16_t *rgb) {
         if (redraw_colorbars) {
             if (mono) {
                 if (redraw_colorbars & 1)
-                    draw_colorbar_mono(48, 9, new_rgb, 8, LK_COLOR_RED, full_redraw_colorbars, colorbars_masked);
+                    draw_colorbar_mono(COLORBAR_Y, 9, new_rgb, 8, LK_COLOR_RED, full_redraw_colorbars, colorbars_masked);
                 if (redraw_colorbars & 2)
-                    draw_colorbar_mono(80, 10, new_rgb, 4, LK_COLOR_GREEN, full_redraw_colorbars, colorbars_masked);
+                    draw_colorbar_mono(COLORBAR_Y + (COLORBAR_ENTRY_HEIGHT * 2), 10, new_rgb, 4, LK_COLOR_GREEN, full_redraw_colorbars, colorbars_masked);
                 if (redraw_colorbars & 4)
-                    draw_colorbar_mono(112, 11, new_rgb, 0, LK_COLOR_BLUE, full_redraw_colorbars, colorbars_masked);
+                    draw_colorbar_mono(COLORBAR_Y + (COLORBAR_ENTRY_HEIGHT * 4), 11, new_rgb, 0, LK_COLOR_BLUE, full_redraw_colorbars, colorbars_masked);
             } else {
                 if (redraw_colorbars & 1)
-                    draw_colorbar(48, 10, new_rgb, 8, LK_COLOR_RED, full_redraw_colorbars);
+                    draw_colorbar(COLORBAR_Y, 10, new_rgb, 8, LK_COLOR_RED, full_redraw_colorbars);
                 if (redraw_colorbars & 2)
-                    draw_colorbar(80, 12, new_rgb, 4, LK_COLOR_GREEN, full_redraw_colorbars);
+                    draw_colorbar(COLORBAR_Y + (COLORBAR_ENTRY_HEIGHT * 2), 12, new_rgb, 4, LK_COLOR_GREEN, full_redraw_colorbars);
                 if (redraw_colorbars & 4)
-                    draw_colorbar(112, 14, new_rgb, 0, LK_COLOR_BLUE, full_redraw_colorbars);
+                    draw_colorbar(COLORBAR_Y + (COLORBAR_ENTRY_HEIGHT * 4), 14, new_rgb, 0, LK_COLOR_BLUE, full_redraw_colorbars);
             }
 
             redraw_colorbars = 0;

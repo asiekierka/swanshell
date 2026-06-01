@@ -231,7 +231,7 @@ reload_menu:
                     reinit_ui = true;
                 }
             } else if (s->type == SETTING_TYPE_COLOR) {
-                bitmap_set_screen_force_horizontal(true);
+                bitmap_set_screen_force_horizontal(!ws_system_is_color_active());
                 ui_draw_titlebar(lang_keys[s->name]);
                 ui_color_picker(s->color.value);
                 bitmap_set_screen_force_horizontal(false);
