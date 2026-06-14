@@ -99,6 +99,12 @@ msgstr "Wariant BIOS dla .fx"
 msgid "SETTINGS_PROG_FX_BIOS_HELP"
 msgstr "Wariant BIOSu używany przez programy .fx.\n\nDo komunikacji serial, Natywny używa port USB, Kompatybilny zaś portu EXT konsoli."
 
+msgid "SETTINGS_PROG_VERIFY_SAVES"
+msgstr "Weryfikuj dane zapisu przy kopiowaniu"
+
+msgid "SETTINGS_PROG_VERIFY_SAVES_HELP"
+msgstr "Weryfikuj dane zapisu przy kopiowaniu z kartridża do karty pamięci. Pozwala wykryć uszkodzenia karty pamięci."
+
 msgid "SETTINGS_CART_MCU_SPI_SPEED"
 msgstr "Prędkość komunikacji MCU"
 
@@ -311,6 +317,9 @@ msgstr "Dane uszkodzone"
 
 msgid "ERROR_OUT_OF_MEMORY"
 msgstr "Brak wolnej pamięci"
+
+msgid "ERROR_SAVE_VERIFY_FAILED"
+msgstr "Błąd weryfikacji danych zapisu na karcie"
 
 msgid "SUBMENU_OPTION_TOOLS"
 msgstr "Narzędzia"

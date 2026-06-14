@@ -3,8 +3,9 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell 1.2.1
+## swanshell 1.2.1 (14th June 2026)
 
+- Added: Option to verify save data as it is written to the storage card.
 - Fixed: Loading cartridge images not working on FAT12 partitions.
 - Fixed: Status icon drawing glitches during/after opening .bmp file.
 

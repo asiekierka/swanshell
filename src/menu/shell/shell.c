@@ -237,7 +237,7 @@ static void shell_upload(void) {
         nile_mcu_native_cdc_write_string_const(s_saving_file);
         result = f_open(&fp, shell_line + 7, FA_WRITE | FA_CREATE_ALWAYS);
         if (result == FR_OK) {
-            result = f_write_rom_banked(&fp, 0, size, shell_file_callback, NULL);
+            result = f_write_rom_banked(&fp, 0, size, shell_file_callback, NULL, false);
             f_close(&fp);
         }
         nile_mcu_native_cdc_write_string_const(s_new_line);

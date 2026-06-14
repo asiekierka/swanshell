@@ -133,6 +133,12 @@ msgstr "BIOS variant for .fx loader"
 msgid "SETTINGS_PROG_FX_BIOS_HELP"
 msgstr "The BIOS variant used by .fx programs.\n\nFor serial communication, Native uses the USB port, Compatible uses the console EXT port."
 
+msgid "SETTINGS_PROG_VERIFY_SAVES"
+msgstr "Verify save data after write"
+
+msgid "SETTINGS_PROG_VERIFY_SAVES_HELP"
+msgstr "Verify save data when copying it from the cartridge to the storage card. Allows detecting storage card damage."
+
 msgid "SETTINGS_CART_MCU_SPI_SPEED"
 msgstr "MCU communication speed"
 
@@ -286,6 +292,8 @@ msgstr "Data corrupt"
 msgid "ERROR_OUT_OF_MEMORY"
 msgstr "Out of memory"
 
+msgid "ERROR_SAVE_VERIFY_FAILED"
+msgstr "Written save data verification error"
 
 msgid "ERROR_TITLE_FS_INIT"
 msgstr "Could not mount storage!"

@@ -37,6 +37,7 @@ DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
 DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
 DEFINE_STRING_LOCAL(s_file_hide_icons_key, "FileHideIcons");
 DEFINE_STRING_LOCAL(s_program_fast_sram_key, "ProgFastSRAM");
+DEFINE_STRING_LOCAL(s_program_verify_saves_key, "ProgVerifySave");
 DEFINE_STRING_LOCAL(s_program_fx_bios_key, "ProgFxCmptBios");
 DEFINE_STRING_LOCAL(s_cart_mcu_spi_speed_key, "CartMcuSpiSpeed");
 DEFINE_STRING_LOCAL(s_display_orientation_key, "DispOrient");
@@ -259,6 +260,19 @@ static const setting_t __far setting_program_fast_sram = {
     }
 };
 
+static const setting_t __far setting_program_verify_saves = {
+    s_program_verify_saves_key,
+    LK_SETTINGS_PROG_VERIFY_SAVES,
+    LK_SETTINGS_PROG_VERIFY_SAVES_HELP,
+    SETTING_TYPE_FLAG,
+    0,
+    .flag = {
+        &settings.file_flags,
+        SETTING_FILE_VERIFY_SAVES_SHIFT,
+        LK_NO, LK_YES
+    }
+};
+
 static const setting_t __far setting_program_fx_bios = {
     s_program_fx_bios_key,
     LK_SETTINGS_PROG_FX_BIOS,
@@ -276,9 +290,10 @@ static const setting_category_t __far settings_program = {
     LK_SETTINGS_PROG_KEY,
     0,
     &settings_root,
-    2,
+    3,
     {
         &setting_program_fast_sram,
+        &setting_program_verify_saves,
         &setting_program_fx_bios
     }
 };

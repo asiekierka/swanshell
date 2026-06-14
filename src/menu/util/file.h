@@ -49,7 +49,7 @@ static inline int16_t f_read_rom_banked(FIL* fp, uint16_t bank, uint32_t btr, fb
     });
 }
 
-int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata);
-int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata);
+int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata, bool verify);
+int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata, bool verify);
 
 #endif /* UTIL_FILE_H_ */

@@ -354,7 +354,7 @@ preallocate_file_end_no_dialog:
 
 #define MAX_WRITE_EEPROM_WORDS 64
 
-static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words) {
+static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words, bool verify) {
     int16_t result = FR_OK;
 
     for (uint16_t i = 0; i < words; i += MAX_WRITE_EEPROM_WORDS) {
@@ -369,6 +369,27 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words) {
         result = f_write(fp, buffer, to_read << 1, NULL);
         if (result != FR_OK)
             break;
+    }
+
+    if (verify) {
+        uint8_t *cmp_buffer = buffer + (MAX_WRITE_EEPROM_WORDS * 2);
+        f_rewind(fp);
+        for (uint16_t i = 0; i < words; i += MAX_WRITE_EEPROM_WORDS) {
+            int to_read = words > MAX_WRITE_EEPROM_WORDS ? MAX_WRITE_EEPROM_WORDS : words;
+            nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
+            if (!mcu_native_eeprom_read_data(buffer, i, to_read)) {
+                result = ERR_MCU_COMM_FAILED;
+                break;
+            }
+
+            nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+            result = f_read(fp, cmp_buffer, to_read << 1, NULL);
+            if (result != FR_OK)
+                break;
+
+            if (_fmemcmp(buffer, cmp_buffer, MAX_WRITE_EEPROM_WORDS * 2))
+                return ERR_SAVE_VERIFY_FAILED;
+        }
     }
 
     return result;
@@ -402,9 +423,13 @@ static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
 }
 
 static void launch_backup_progress_update(ui_popup_dialog_config_t *dlg, uint32_t step, uint32_t max) {
-    dlg->progress_step = step >> 7;
-    dlg->progress_max = max >> 7;
-    ui_popup_dialog_draw_update(dlg);
+    if (!step) {
+        ui_popup_dialog_clear_progress(dlg);
+    } else {
+        dlg->progress_step = step >> 7;
+        dlg->progress_max = max >> 7;
+        ui_popup_dialog_draw_update(dlg);
+    }
 }
 
 int16_t launch_backup_save_data(void) {
@@ -416,6 +441,7 @@ int16_t launch_backup_save_data(void) {
     ui_popup_dialog_config_t dlg = {0};
     uint32_t id = 0;
     uint16_t value_num;
+    bool verify = (settings.file_flags & SETTING_FILE_VERIFY_SAVES) != 0;
 
     strcpy(buffer, s_path_save_ini);
     result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
@@ -476,7 +502,7 @@ int16_t launch_backup_save_data(void) {
                     goto launch_backup_save_data_return_result;
                 }
 
-                result = f_open(&save_fp, value, FA_OPEN_EXISTING | FA_WRITE);
+                result = f_open(&save_fp, value, FA_OPEN_EXISTING | FA_READ | FA_WRITE);
                 if (result != FR_OK) {
                     // TODO: Handle FR_NO_FILE by preallocating a new file?
                     goto launch_backup_save_data_return_result;
@@ -485,9 +511,9 @@ int16_t launch_backup_save_data(void) {
                 ui_popup_dialog_clear_progress(&dlg);
                 if (file_type == SAVE_ID_FOR_SRAM) {
                     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
-                    result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), (fbanked_progress_callback_t) launch_backup_progress_update, &dlg);
+                    result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), (fbanked_progress_callback_t) launch_backup_progress_update, &dlg, verify);
                 } else if (file_type == SAVE_ID_FOR_EEPROM) {
-                    result = launch_write_eeprom(&save_fp, buffer, value_num >> 1);
+                    result = launch_write_eeprom(&save_fp, buffer, value_num >> 1, verify);
                 } else if (file_type == SAVE_ID_FOR_FLASH) {
                     uint16_t prev_bank = inportw(WS_CART_EXTBANK_ROM0_PORT);
                     outportw(WS_CART_EXTBANK_ROM0_PORT, (f_size(&save_fp) - 1) >> 16);
@@ -498,7 +524,7 @@ int16_t launch_backup_save_data(void) {
                     // FIXME: This skips the ROM footer to avoid losing the original entrypoint
                     // for runtime patches, which is not ideal.
                     if (((uint8_t) buffer[0]) == 0xEA && ((uint8_t) buffer[4]) >= 0x10) {
-                        result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp) - 16, (fbanked_progress_callback_t) launch_backup_progress_update, &dlg);
+                        result = f_write_rom_banked(&save_fp, 0, f_size(&save_fp) - 16, (fbanked_progress_callback_t) launch_backup_progress_update, &dlg, verify);
                     } else {
                         result = ERR_SAVE_PSRAM_CORRUPT;
                     }
