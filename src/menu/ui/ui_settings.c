@@ -126,12 +126,17 @@ uint16_t ui_settings_selector(const setting_t __far *setting, uint16_t prev_valu
     config.config.offset = prev_value - setting->choice.min;
     config.config.count = setting->choice.max + 1 - setting->choice.min;
 
+reload_menu:
     ui_layout_bars();
     ui_draw_titlebar(lang_keys[setting->name]);
     ui_show();
 
     while (true) {
         uint16_t keys_pressed = ui_selector(&config.config);
+
+        if (keys_pressed == UI_SELECTOR_RELOAD_REQUESTED) {
+            goto reload_menu;
+        }
 
         if (keys_pressed & WS_KEY_A) {
             return setting->choice.min + config.config.offset;
@@ -176,6 +181,7 @@ reload_menu:
         const setting_t __far* s = config.category->entries[config.config.offset];
 
         if (keys_pressed == UI_SELECTOR_RELOAD_REQUESTED) {
+            reinit_ui = true;
             goto reload_menu;
         }
 

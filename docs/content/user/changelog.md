@@ -8,6 +8,7 @@ weight: 100
 - Added: Option to verify save data as it is written to the storage card.
 - Fixed: Loading cartridge images not working on FAT12 partitions.
 - Fixed: Status icon drawing glitches during/after opening .bmp file.
+- Fixed: Visual glitches when auto-rotating the screen within the settings menu.
 
 ## swanshell 1.2.0 (31st May 2026)
 

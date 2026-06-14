@@ -45,7 +45,7 @@
 static bool ww_is_bin_file(const FILINFO __far *fno) {
     if (fno->fattrib & AM_DIR)
         return false;
-    
+
     const char __far* ext_loc = strrchr(fno->fname, '.');
     if (ext_loc == NULL || strcasecmp(ext_loc, s_file_ext_bin))
         return false;
@@ -56,7 +56,7 @@ static bool ww_is_bin_file(const FILINFO __far *fno) {
 static bool ww_is_raw_file(const FILINFO __far *fno) {
     if (fno->fattrib & AM_DIR)
         return false;
-    
+
     const char __far* ext_loc = strrchr(fno->fname, '.');
     if (ext_loc == NULL || strcasecmp(ext_loc, s_file_ext_raw))
         return false;
@@ -137,9 +137,9 @@ static bool ww_ui_select_file_inner(
 ) {
     char path[32];
     strcpy(path, s_path_fbin);
-    
+
     ui_selector_config_t config = {0};
-    
+
     ui_draw_titlebar(NULL);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
 
@@ -163,10 +163,17 @@ static bool ww_ui_select_file_inner(
     if (config.count <= 0)
         return false;
 
+reload_menu:
     ui_draw_titlebar(lang_keys[LK_SELECT_FILE]);
 
     while (true) {
         uint16_t keys_pressed = ui_selector(&config);
+
+        if (keys_pressed == UI_SELECTOR_RELOAD_REQUESTED) {
+            ui_layout_bars();
+            ui_draw_statusbar(NULL);
+            goto reload_menu;
+        }
 
         if (keys_pressed & WS_KEY_A) {
             int16_t offset = get_ui_select_file_offset(flags, config.offset);
@@ -282,7 +289,7 @@ static int16_t ww_ui_replace_component_path(char *input_path, char *output_path,
         uint32_t bytes_write_pos = 0;
         while (bytes_write_pos < bytes_to_write) {
             uint16_t bw;
-            
+
             bw = MIN(bytes_to_write - bytes_write_pos, buffer_size);
             memcpy(buffer, MK_FP(0x1000, f_tell(&fp)), bw);
 
@@ -320,9 +327,9 @@ static int16_t ww_ui_replace_component_path(char *input_path, char *output_path,
                 return result;
             }
         }
-        
+
         f_close(&fp);
-        
+
         // If the file under edit is not .flash, edit the .flash file too
         if (!dynamic_size)
             break;
