@@ -55,6 +55,7 @@ static void cart_tf_removed_handler(void) {
 
         if (irq & NILE_MCU_NATIVE_IRQ_TF_INSERT) {
             nilefs_eject();
+            ws_delay_ms(1500);
             nile_soft_reset();
         }
     }

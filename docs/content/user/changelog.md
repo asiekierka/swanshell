@@ -3,6 +3,10 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.2.2
+
+- Fixed: Reset on new storage card insert occuring too quickly.
+
 ## swanshell 1.2.1 (14th June 2026)
 
 - Added: Option to verify save data as it is written to the storage card.
