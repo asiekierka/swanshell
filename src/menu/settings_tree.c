@@ -52,6 +52,9 @@ DEFINE_STRING_LOCAL(s_joy_repeat_next, "JoyRepeatNext");
 
 settings_t settings;
 
+static const setting_category_t __far settings_system;
+static const setting_category_t __far settings_interface;
+
 static const setting_t __far setting_file_show_hidden = {
     s_file_show_hidden_key,
     LK_SETTINGS_FILE_SHOW_HIDDEN_KEY,
@@ -162,7 +165,7 @@ static const setting_t __far setting_scroll_long_names = {
 static const setting_category_t __far settings_file = {
     LK_SETTINGS_FILE_KEY,
     0,
-    &settings_root,
+    &settings_interface,
     6,
     {
         &setting_file_view,
@@ -372,11 +375,10 @@ static const setting_t __far setting_factory_reset = {
     setting_factory_reset_action
 };
 
-
 static const setting_category_t __far settings_sys_advanced = {
     LK_SETTINGS_ADVANCED_KEY,
     0,
-    &settings_root,
+    &settings_system,
     4,
     {
         &setting_program_fast_sram,
@@ -487,7 +489,7 @@ static const setting_t __far setting_txtview_font_size = {
 static const setting_category_t __far settings_theme = {
     LK_SETTINGS_THEME_KEY,
     0,
-    &settings_root,
+    &settings_interface,
     3,
     {
         &setting_theme_dark_mode,
