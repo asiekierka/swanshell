@@ -212,8 +212,11 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     }
 }
 
+// Width of "...", in pixels.
+#define DOT3_WIDTH 6
+
 void ui_file_selector(void) {
-    char path[FF_LFN_BUF + 1];
+    char strbuf[FF_LFN_BUF + 1];
 
     ui_selector_config_t config = {0};
     bool reinit_ui = true;
@@ -237,25 +240,46 @@ rescan_directory:
         ui_layout_bars();
     }
     if (reinit_ui || reinit_dirs) {
-        f_getcwd(path, sizeof(path) - 1);
+        char *path = strbuf + 3;
+        f_getcwd(path, sizeof(strbuf) - 4);
+
         // "/" = depth 0
         // "/a" = depth 1
         // "/a/b" = depth 2
         path_depth_pos = (path[0] != 0 && path[1] != 0) ? 1 : 0;
+
+        bitmapfont_set_active_font(font8_bitmap);
+        char *draw_path = path;
+        int16_t draw_path_len = bitmapfont_get_string_width(draw_path, screen_width + DOT3_WIDTH) - DOT3_WIDTH;
         char *p = path + 1;
         while (*p) {
-            if (*p == '/') path_depth_pos++;
+            if (*p == '/') {
+                if (draw_path_len > screen_width - 4 - DOT3_WIDTH) {
+                    draw_path = p;
+                    draw_path_len = bitmapfont_get_string_width(draw_path, screen_width);
+                }
+                path_depth_pos++;
+            }
             p++;
         }
-        ui_draw_titlebar(path);
+        while (draw_path_len > screen_width - 4 - DOT3_WIDTH) {
+            draw_path++;
+            draw_path_len = bitmapfont_get_string_width(draw_path, screen_width);
+        }
+        if (draw_path != path) {
+            *(--draw_path) = '.';
+            *(--draw_path) = '.';
+            *(--draw_path) = '.';
+        }
+        ui_draw_titlebar(draw_path);
     }
     if (reinit_dirs) {
         config.offset = path_depth_pos >= CONFIG_FILESELECT_PATH_MEMORY_DEPTH ? 0 : path_depth[path_depth_pos];
-        strcpy(path, s_dot);
-        int16_t result = ui_file_selector_scan_directory(path, ui_file_selector_default_predicate, &config.count);
+        strcpy(strbuf, s_dot);
+        int16_t result = ui_file_selector_scan_directory(strbuf, ui_file_selector_default_predicate, &config.count);
         if (ui_dialog_error_check(result, NULL, 0)) {
-            strcpy(path, s_dotdot);
-            f_chdir(path);
+            strcpy(strbuf, s_dotdot);
+            f_chdir(strbuf);
             if (path_depth_pos) path_depth_pos--;
             goto rescan_directory;
         }
@@ -276,19 +300,19 @@ rescan_directory:
             path_depth[path_depth_pos] = config.offset;
 
             file_selector_entry_t __far *fno = ui_file_selector_open_fno(config.offset);
-            strncpy(path, fno->fno.fname, sizeof(fno->fno.fname));
+            strncpy(strbuf, fno->fno.fname, sizeof(fno->fno.fname));
             if (fno->fno.fattrib & AM_DIR) {
                 path_depth[++path_depth_pos] = 0;
-                f_chdir(path);
+                f_chdir(strbuf);
             } else {
                 ui_selector_clear_selection(&config);
                 if (fno->extension_loc < 255) {
                     const char __far* ext = fno->fno.fname + fno->extension_loc;
                     if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
                         launch_rom_metadata_t meta;
-                        int16_t result = launch_get_rom_metadata(path, &meta);
+                        int16_t result = launch_get_rom_metadata(strbuf, &meta);
                         if (result == FR_OK) {
-                            result = launch_restore_save_data(path, &meta);
+                            result = launch_restore_save_data(strbuf, &meta);
                             reinit_dirs = true;
                             if (result == ERR_MCU_COMM_FAILED) {
                                 if (launch_ui_handle_mcu_comm_error(&meta))
@@ -302,7 +326,7 @@ rescan_directory:
                                             goto exit_no_launch;
                             }
                             if (result == FR_OK) {
-                                result = launch_set_bootstub_file_entry(path, &bootstub_data->prog);
+                                result = launch_set_bootstub_file_entry(strbuf, &bootstub_data->prog);
                                 if (result == FR_OK) {
                                     result = launch_rom_via_bootstub(&meta);
                                 }
@@ -319,31 +343,31 @@ exit_no_launch:
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_vgm) || !strcasecmp(ext, s_file_ext_vgz)) {
-                        ui_dialog_error_check(ui_vgmplay(path), NULL, 0);
+                        ui_dialog_error_check(ui_vgmplay(strbuf), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_wav)) {
-                        ui_dialog_error_check(ui_wavplay(path), NULL, 0);
+                        ui_dialog_error_check(ui_wavplay(strbuf), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_bmp)) {
-                        ui_dialog_error_check(ui_bmpview(path), NULL, 0);
+                        ui_dialog_error_check(ui_bmpview(strbuf), NULL, 0);
                     } else if (!strcasecmp(ext, s_file_ext_bfb)) {
                         ui_selector_clear_selection(&config);
                         int option = ui_file_selector_actions_bfb();
                         if (option == 0) {
-                            ui_dialog_error_check(launch_bfb(path), NULL, 0);
+                            ui_dialog_error_check(launch_bfb(strbuf), NULL, 0);
                         }
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_com)) {
                         ui_selector_clear_selection(&config);
-                        ui_dialog_error_check(launch_com(path), NULL, 0);
+                        ui_dialog_error_check(launch_com(strbuf), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_rom)) {
                         ui_selector_clear_selection(&config);
-                        ui_dialog_error_check(launch_plugin_via_ipc(s_path_plugin_uxn, path), NULL, 0);
+                        ui_dialog_error_check(launch_plugin_via_ipc(s_path_plugin_uxn, strbuf), NULL, 0);
                         reinit_ui = true;
                         goto rescan_directory;
                     } else {
@@ -352,7 +376,7 @@ exit_no_launch:
                 } else {
 txtview:
                     ui_selector_clear_selection(&config);
-                    ui_dialog_error_check(ui_txtview(path), NULL, 0);
+                    ui_dialog_error_check(ui_txtview(strbuf), NULL, 0);
                     reinit_ui = true;
                     goto rescan_directory;
                 }
@@ -362,8 +386,8 @@ txtview:
             goto rescan_directory;
         }
         if (keys_pressed & WS_KEY_B) {
-            strcpy(path, s_dotdot);
-            f_chdir(path);
+            strcpy(strbuf, s_dotdot);
+            f_chdir(strbuf);
             if (path_depth_pos) path_depth_pos--;
             reinit_ui = true;
             reinit_dirs = true;
