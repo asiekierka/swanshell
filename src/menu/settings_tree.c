@@ -142,14 +142,30 @@ static const setting_t __far setting_file_view = {
     }
 };
 
+static const setting_t __far setting_scroll_long_names = {
+    s_text_reader_font_key,
+    LK_SETTINGS_SCROLL_LONG_NAMES_KEY,
+    LK_SETTINGS_SCROLL_LONG_NAMES_HELP,
+    SETTING_TYPE_FLAG,
+    0,
+    NULL,
+    .flag = {
+        &settings.file_flags,
+        SETTING_THEME_SCROLL_LONG_NAMES_SHIFT,
+        LK_NO,
+        LK_YES
+    }
+};
+
 static const setting_category_t __far settings_file = {
     LK_SETTINGS_FILE_KEY,
     0,
     &settings_root,
-    5,
+    6,
     {
         &setting_file_view,
         &setting_file_sort_order,
+        &setting_scroll_long_names,
         &setting_file_show_saves,
         &setting_file_show_hidden,
         &setting_file_hide_icons
@@ -286,28 +302,6 @@ static const setting_t __far setting_program_fx_bios = {
     }
 };
 
-static const setting_category_t __far settings_program = {
-    LK_SETTINGS_PROG_KEY,
-    0,
-    &settings_root,
-    3,
-    {
-        &setting_program_fast_sram,
-        &setting_program_verify_saves,
-        &setting_program_fx_bios
-    }
-};
-
-static const setting_t __far setting_program = {
-    NULL,
-    LK_SETTINGS_PROG_KEY,
-    0,
-    SETTING_TYPE_CATEGORY,
-    0,
-    NULL,
-    .category = { &settings_program }
-};
-
 static const uint16_t __wf_rom settings_spi_speed_table[] = {
     LK_SETTINGS_CART_MCU_SPI_SPEED_384KHZ,
     LK_SETTINGS_CART_MCU_SPI_SPEED_6MHZ,
@@ -349,25 +343,48 @@ static const setting_t __far setting_cart_set_rtc_time = {
     setting_cart_set_rtc_time_action
 };
 
-static const setting_category_t __far settings_cart = {
-    LK_SETTINGS_CART_KEY,
+static const setting_category_t __far settings_sys_advanced = {
+    LK_SETTINGS_ADVANCED_KEY,
     0,
     &settings_root,
-    2,
+    3,
     {
+        &setting_program_fast_sram,
         &setting_cart_mcu_spi_speed,
-        &setting_cart_set_rtc_time
+        &setting_program_fx_bios
     }
 };
 
-static const setting_t __far setting_cart = {
+static const setting_t __far setting_sys_advanced = {
     NULL,
-    LK_SETTINGS_CART_KEY,
+    LK_SETTINGS_ADVANCED_KEY,
     0,
     SETTING_TYPE_CATEGORY,
     0,
     NULL,
-    .category = { &settings_cart }
+    .category = { &settings_sys_advanced }
+};
+
+static const setting_category_t __far settings_system = {
+    LK_SETTINGS_SYSTEM_KEY,
+    0,
+    &settings_root,
+    3,
+    {
+        &setting_program_verify_saves,
+        &setting_cart_set_rtc_time,
+        &setting_sys_advanced
+    }
+};
+
+static const setting_t __far setting_system = {
+    NULL,
+    LK_SETTINGS_SYSTEM_KEY,
+    0,
+    SETTING_TYPE_CATEGORY,
+    0,
+    NULL,
+    .category = { &settings_system }
 };
 
 static void settings_theme_accent_color_on_change(const struct setting *set) {
@@ -436,30 +453,14 @@ static const setting_t __far setting_txtview_font_size = {
     }
 };
 
-static const setting_t __far setting_scroll_long_names = {
-    s_text_reader_font_key,
-    LK_SETTINGS_SCROLL_LONG_NAMES_KEY,
-    LK_SETTINGS_SCROLL_LONG_NAMES_HELP,
-    SETTING_TYPE_FLAG,
-    0,
-    NULL,
-    .flag = {
-        &settings.file_flags,
-        SETTING_THEME_SCROLL_LONG_NAMES_SHIFT,
-        LK_NO,
-        LK_YES
-    }
-};
-
 static const setting_category_t __far settings_theme = {
     LK_SETTINGS_THEME_KEY,
     0,
     &settings_root,
-    4,
+    3,
     {
         &setting_theme_dark_mode,
         &setting_theme_accent_color,
-        &setting_scroll_long_names,
         &setting_txtview_font_size
     }
 };
@@ -582,18 +583,37 @@ static const setting_t __far setting_sys_info = {
     .category = { &settings_sys_info }
 };
 
+static const setting_category_t __far settings_interface = {
+    LK_SETTINGS_INTERFACE_KEY,
+    0,
+    &settings_root,
+    3,
+    {
+        &setting_display_orientation,
+        &setting_theme,
+        &setting_file
+    }
+};
+
+static const setting_t __far setting_interface = {
+    NULL,
+    LK_SETTINGS_INTERFACE_KEY,
+    0,
+    SETTING_TYPE_CATEGORY,
+    0,
+    NULL,
+    .category = { &settings_interface }
+};
+
 const setting_category_t __far settings_root = {
     LK_SETTINGS_KEY,
     0,
     NULL,
-    8,
+    5,
     {
-        &setting_file,
-        &setting_display_orientation,
-        &setting_theme,
+        &setting_interface,
         &setting_controls,
-        &setting_program,
-        &setting_cart,
+        &setting_system,
         &setting_sys_info,
         &setting_language
     }

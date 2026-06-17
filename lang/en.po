@@ -28,6 +28,15 @@ msgstr "%s: Help"
 msgid "SETTINGS_KEY"
 msgstr "Settings"
 
+msgid "SETTINGS_INTERFACE_KEY"
+msgstr "Interface"
+
+msgid "SETTINGS_SYSTEM_KEY"
+msgstr "System"
+
+msgid "SETTINGS_ADVANCED_KEY"
+msgstr "Advanced"
+
 msgid "SETTINGS_LANGUAGE_KEY"
 msgstr "Language"
 
@@ -115,7 +124,7 @@ msgid "SETTINGS_FONT_SIZE_SMALL"
 msgstr "Small"
 
 msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
-msgstr "Scroll long names in list"
+msgstr "Scroll long file names"
 
 msgid "SETTINGS_SCROLL_LONG_NAMES_HELP"
 msgstr "Enable automatically scrolling long names, such as file names, in the list view."
@@ -134,7 +143,7 @@ msgid "SETTINGS_PROG_FX_BIOS_HELP"
 msgstr "The BIOS variant used by .fx programs.\n\nFor serial communication, Native uses the USB port, Compatible uses the console EXT port."
 
 msgid "SETTINGS_PROG_VERIFY_SAVES"
-msgstr "Verify save data after write"
+msgstr "Verify written save data"
 
 msgid "SETTINGS_PROG_VERIFY_SAVES_HELP"
 msgstr "Verify save data when copying it from the cartridge to the storage card. Allows detecting storage card damage."

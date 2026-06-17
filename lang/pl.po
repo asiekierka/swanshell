@@ -36,6 +36,15 @@ msgstr "%s: Pomoc"
 msgid "SETTINGS_KEY"
 msgstr "Ustawienia"
 
+msgid "SETTINGS_INTERFACE_KEY"
+msgstr "Interfejs"
+
+msgid "SETTINGS_SYSTEM_KEY"
+msgstr "System"
+
+msgid "SETTINGS_ADVANCED_KEY"
+msgstr "Zaawansowane"
+
 msgid "SETTINGS_LANGUAGE_KEY"
 msgstr "Język"
 
@@ -100,7 +109,7 @@ msgid "SETTINGS_PROG_FX_BIOS_HELP"
 msgstr "Wariant BIOSu używany przez programy .fx.\n\nDo komunikacji serial, Natywny używa port USB, Kompatybilny zaś portu EXT konsoli."
 
 msgid "SETTINGS_PROG_VERIFY_SAVES"
-msgstr "Weryfikuj dane zapisu przy kopiowaniu"
+msgstr "Weryfikuj skopiowane dane zapisu"
 
 msgid "SETTINGS_PROG_VERIFY_SAVES_HELP"
 msgstr "Weryfikuj dane zapisu przy kopiowaniu z kartridża do karty pamięci. Pozwala wykryć uszkodzenia karty pamięci."
@@ -361,7 +370,7 @@ msgid "SETTINGS_FONT_SIZE_SMALL"
 msgstr "Mała"
 
 msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
-msgstr "Przewijanie długich nazw"
+msgstr "Przewijanie długich nazw plików"
 
 msgid "SETTINGS_SCROLL_LONG_NAMES_HELP"
 msgstr "Włącz automatyczne przewijanie długich nazw, takich jak nazwy plików, w widoku listy."
