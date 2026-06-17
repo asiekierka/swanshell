@@ -766,6 +766,7 @@ int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *
     return FR_OK;
 }
 
+__attribute__((noreturn))
 extern void launch_jump_to_bootstub(uint16_t size, uint16_t flags);
 
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {

@@ -22,11 +22,10 @@
 #include <string.h>
 #include <ws.h>
 #include <nilefs.h>
-#include <ws/system.h>
 #include "errors.h"
 #include "lang.h"
+#include "plugin.h"
 #include "settings.h"
-#include "strings.h"
 #include "../ui/ui.h"
 #include "../util/input.h"
 #include "../main.h"
@@ -34,7 +33,7 @@
 
 #define WAV_BUFFER_SIZE 4096
 #define WAV_BUFFER_SHIFT 12
-#define WAV_BUFFER_LINEAR0 (!ws_system_is_color_active() ? 0x2000 : 0xC000)
+#define WAV_BUFFER_LINEAR0 (!ws_system_is_color_active() ? 0x2000L : 0xC000L)
 #define WAV_BUFFER_LINEAR1 (WAV_BUFFER_LINEAR0 + WAV_BUFFER_SIZE)
 #define WAV_BUFFER0 MK_FP(WAV_BUFFER_LINEAR0 >> 16, WAV_BUFFER_LINEAR0 & 0xFFFF)
 #define WAV_BUFFER1 MK_FP(WAV_BUFFER_LINEAR1 >> 16, WAV_BUFFER_LINEAR1 & 0xFFFF)
