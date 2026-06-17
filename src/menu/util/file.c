@@ -77,6 +77,14 @@ FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode) {
     return f_open(fp, local_path, mode);
 }
 
+FRESULT f_unlink_far(const char __far* path) {
+    char local_path[FF_LFN_BUF + 1];
+    local_path[FF_LFN_BUF] = 0;
+    strncpy(local_path, path, FF_LFN_BUF);
+
+    return f_unlink(local_path);
+}
+
 int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata) {
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
 

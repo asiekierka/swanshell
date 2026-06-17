@@ -338,6 +338,12 @@ msgstr "System information"
 msgid "SETTINGS_SYS_INFO_MY_CARTRIDGE"
 msgstr "My cartridge"
 
+msgid "SETTINGS_FACTORY_RESET"
+msgstr "Factory reset"
+
+msgid "SETTINGS_FACTORY_RESET_WARNING"
+msgstr "This option will erase all settings! Do you want to continue?"
+
 msgid "SUBMENU_OPTION_WITCH"
 msgstr "Witch..."
 

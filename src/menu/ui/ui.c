@@ -309,6 +309,10 @@ void ui_layout_clear(uint16_t pal) {
     INIT_SCREEN_PATTERN(bitmap_screen2, pal, 0);
 }
 
+void ui_layout_bars_pattern(void) {
+    INIT_SCREEN_PATTERN(bitmap_screen2, (!bitmap_rotation ? (ix == 0 || ix == 27) : (iy == 0 || iy == 17)) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
+}
+
 void ui_layout_bars(void) {
     if (!ui_has_wallpaper()) {
         bitmap_rect_fill(&ui_bitmap, 0, 8, screen_width, screen_height - 16, BITMAP_COLOR_4BPP(2));

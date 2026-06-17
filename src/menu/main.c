@@ -15,6 +15,8 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <nile/fpga.h>
+#include <nilefs/ff.h>
 #include <wonderful.h>
 #include <ws.h>
 #include <ws/display.h>
@@ -38,6 +40,7 @@
 #include "ui/ui_settings.h"
 #include "util/input.h"
 #include "shell/shell.h"
+#include "strings.h"
 
 volatile uint16_t vbl_ticks;
 static uint8_t last_signaled_icon = 0;
@@ -87,6 +90,12 @@ void wait_for_vblank(void) {
 	while (vbl_ticks == vbl_ticks_last) {
 		ia16_halt();
 	}
+}
+
+void factory_reset(void) {
+    f_unlink_far(s_path_save_ini);
+    f_unlink_far(s_path_config_ini);
+    nile_soft_reset();
 }
 
 void main(void) {

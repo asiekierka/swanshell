@@ -132,6 +132,12 @@ msgstr "Wysoka"
 msgid "SETTINGS_CART_SET_RTC_TIME"
 msgstr "Data i godzina RTC"
 
+msgid "SETTINGS_FACTORY_RESET"
+msgstr "Powrót do ustawień fabrycznych"
+
+msgid "SETTINGS_FACTORY_RESET_WARNING"
+msgstr "Ta opcja zresetuje wszystkie ustawienia. Czy chcesz kontynuować?"
+
 msgid "DIALOG_UPDATING_MCU"
 msgstr "Aktualizacja MCU"
 

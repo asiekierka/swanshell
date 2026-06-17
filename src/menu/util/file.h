@@ -39,6 +39,7 @@ bool f_anymatch(filinfo_predicate_t predicate, const char __far* path);
 
 bool f_exists_far(const char __far* path);
 FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode);
+FRESULT f_unlink_far(const char __far* path);
 
 typedef void (*fbanked_progress_callback_t)(void *userdata, uint32_t step, uint32_t max);
 

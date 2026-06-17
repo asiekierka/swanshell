@@ -21,6 +21,7 @@
 #include <nilefs.h>
 #include "lang.h"
 #include "settings.h"
+#include "lang_gen.h"
 #include "strings.h"
 #include "util/ini.h"
 
@@ -149,5 +150,5 @@ int16_t settings_save(void) {
 }
 
 bool settings_language_prefer_large_fonts(void) {
-    return settings.language == 5;
+    return settings.language == 5 || settings.language == 6;
 }

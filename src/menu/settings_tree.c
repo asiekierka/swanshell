@@ -22,6 +22,7 @@
 
 #include "cart/status.h"
 #include "lang_gen.h"
+#include "main.h"
 #include "settings.h"
 #include "lang.h"
 #include "strings.h"
@@ -29,6 +30,7 @@
 #include "ui/ui.h"
 #include "ui/ui_about.h"
 #include "ui/ui_dialog.h"
+#include "ui/ui_popup_dialog.h"
 #include "ui/ui_rtc_clock.h"
 
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
@@ -343,15 +345,44 @@ static const setting_t __far setting_cart_set_rtc_time = {
     setting_cart_set_rtc_time_action
 };
 
+void setting_factory_reset_action(const struct setting *set) {
+    ui_popup_dialog_config_t dlg = {0};
+
+    ui_layout_bars_pattern();
+
+    dlg.title = lang_keys[LK_SETTINGS_FACTORY_RESET];
+    dlg.description = lang_keys[LK_SETTINGS_FACTORY_RESET_WARNING];
+    dlg.buttons[0] = LK_YES;
+    dlg.buttons[1] = LK_NO;
+
+    ui_popup_dialog_draw(&dlg);
+    ui_show();
+
+    if (ui_popup_dialog_action(&dlg, 1) == 0) {
+        factory_reset();
+    }
+}
+
+static const setting_t __far setting_factory_reset = {
+    NULL,
+    LK_SETTINGS_FACTORY_RESET,
+    NULL,
+    SETTING_TYPE_ACTION,
+    0,
+    setting_factory_reset_action
+};
+
+
 static const setting_category_t __far settings_sys_advanced = {
     LK_SETTINGS_ADVANCED_KEY,
     0,
     &settings_root,
-    3,
+    4,
     {
         &setting_program_fast_sram,
         &setting_cart_mcu_spi_speed,
-        &setting_program_fx_bios
+        &setting_program_fx_bios,
+        &setting_factory_reset
     }
 };
 
