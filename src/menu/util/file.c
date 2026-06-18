@@ -88,7 +88,7 @@ FRESULT f_unlink_far(const char __far* path) {
 int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata) {
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
 
-    uint16_t lbr;
+    unsigned int lbr;
     uint32_t br = 0;
     uint32_t bytes_total = btr;
 
@@ -120,7 +120,7 @@ int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progres
 
 int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata, bool verify) {
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_ROM0_PORT);
-    uint16_t lbw;
+    unsigned int lbw;
     uint32_t bytes_total = btw;
 
     uint16_t write_bank = bank;
@@ -173,7 +173,7 @@ int16_t f_write_rom_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progres
 
 int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progress_callback_t cb, void *userdata, bool verify) {
     // Reading directly from SRAM would conflict with the SPI buffer.
-    uint16_t lbw;
+    unsigned int lbw;
     uint32_t bytes_total = btw;
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
     INIT_SECTOR_BUFFER;

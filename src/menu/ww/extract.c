@@ -174,6 +174,7 @@ static int16_t ww_copy_to_file(FIL *fp, const char __far* filename, uint16_t _si
 int16_t ww_ui_extract_from_rom(const char __far* filename) {
     FIL fp;
     int16_t result;
+    unsigned int br;
     const ww_hash_entry_t __far *found_entry;
     rom_footer_t bios_footer;
 
@@ -193,7 +194,7 @@ int16_t ww_ui_extract_from_rom(const char __far* filename) {
         f_close(&fp);
         return result;
     }
-    if ((result = f_read(&fp, &bios_footer, 16, &result) != FR_OK)) {
+    if ((result = f_read(&fp, &bios_footer, 16, &br)) != FR_OK) {
         f_close(&fp);
         return result;
     }

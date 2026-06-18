@@ -141,7 +141,7 @@ int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta) {
 __attribute__((noinline))
 static bool launch_is_rom_static_freya(FIL *f) {
     uint8_t buffer[512 - 16];
-    uint16_t br;
+    unsigned int br;
     int16_t result;
 
     result = f_lseek(f, 0x7fe00);
@@ -169,7 +169,7 @@ bool launch_is_battery_required(launch_rom_metadata_t *meta) {
 
 int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     uint8_t tmp[5];
-    uint16_t br;
+    unsigned int br;
 
     FIL f;
     int16_t result = f_open(&f, path, FA_OPEN_EXISTING | FA_READ);
@@ -252,7 +252,7 @@ static int16_t preallocate_file(const char *path, FIL *fp, uint8_t fill_byte, ui
     uint8_t *buffer;
     uint16_t buffer_size;
     int16_t result, result2;
-    uint16_t bw;
+    unsigned int bw;
     ui_popup_dialog_config_t dlg = {0};
 
     if (sector_buffer_is_active()) {
@@ -397,7 +397,7 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words, boo
 
 static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
     uint16_t w;
-    uint16_t br;
+    unsigned int br;
     int16_t result;
 
     ws_eeprom_handle_t h = ws_eeprom_handle_cartridge(eeprom_bits[mode]);
@@ -513,7 +513,7 @@ int16_t launch_backup_save_data(void) {
                     outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
                     result = f_write_sram_banked(&save_fp, 0, f_size(&save_fp), (fbanked_progress_callback_t) launch_backup_progress_update, &dlg, verify);
                 } else if (file_type == SAVE_ID_FOR_EEPROM) {
-                    result = launch_write_eeprom(&save_fp, buffer, value_num >> 1, verify);
+                    result = launch_write_eeprom(&save_fp, (uint8_t*) buffer, value_num >> 1, verify);
                 } else if (file_type == SAVE_ID_FOR_FLASH) {
                     uint16_t prev_bank = inportw(WS_CART_EXTBANK_ROM0_PORT);
                     outportw(WS_CART_EXTBANK_ROM0_PORT, (f_size(&save_fp) - 1) >> 16);

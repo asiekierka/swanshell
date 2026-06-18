@@ -42,14 +42,14 @@ static const uint8_t __wf_rom mcu_header_u0_v1[] = {'M', 'C', 'U', '0'};
 int16_t mcu_reset(bool flash) {
 	FIL fp;
 	uint8_t result;
-	uint16_t br;
+	unsigned int br;
 	uint8_t buffer[READ_BUFFER_SIZE];
 	uint8_t read_buffer[READ_BUFFER_SIZE];
 	ui_popup_dialog_config_t dlg = {0};
 
 	if (flash) {
-		strcpy(buffer, s_mcu_path);
-		result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
+		strcpy((char*) buffer, s_mcu_path);
+		result = f_open(&fp, (char*) buffer, FA_OPEN_EXISTING | FA_READ);
 
 		// If no file is present, assume the user did not want to update the MCU.
 		if (result == FR_NO_FILE) {

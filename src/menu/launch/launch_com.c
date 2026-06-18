@@ -41,7 +41,7 @@ _Static_assert(sizeof(dos_psp_t) == 256, "Invalid DOS PSP size!");
 
 int16_t launch_com(const char *path) {
     FIL fp;
-    uint32_t br;
+    unsigned int br;
 
     int16_t result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
 	if (result != FR_OK) return result;

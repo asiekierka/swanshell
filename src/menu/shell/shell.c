@@ -250,7 +250,7 @@ static void shell_upload(void) {
 
 static bool shell_download_callback(uint8_t *buffer, void *userdata) {
     FIL *fp = (FIL*) userdata;
-    uint16_t br = 0;
+    unsigned int br = 0;
     int16_t result = f_read(fp, buffer, 128, &br);
     if (result != FR_OK || br == 0) {
         return false;
@@ -319,7 +319,7 @@ static void shell_cat(void) {
     buf[sizeof(buf) - 1] = 0;
     int16_t result = f_open(&fp, shell_line + 4, FA_READ | FA_OPEN_EXISTING);
     if (result == FR_OK) {
-        uint16_t br;
+        unsigned int br;
         while (!f_eof(&fp)) {
             result = f_read(&fp, buf, sizeof(buf) - 1, &br);
             if (result != FR_OK) break;

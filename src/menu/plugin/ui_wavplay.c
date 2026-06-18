@@ -85,7 +85,7 @@ int ui_wavplay(const char *path) {
     char seconds_buffer[6];
     FIL fp;
     wave_fmt_t fmt;
-    uint16_t br;
+    unsigned int br;
 
     ui_layout_bars();
 

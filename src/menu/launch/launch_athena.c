@@ -105,7 +105,7 @@ typedef struct {
 int16_t launch_athena_begin(const char __far *bios_path, const char __far *os_path) {
     char buffer[64];
     FIL fp;
-    uint32_t br;
+    unsigned int br;
     int16_t result;
 
     ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
@@ -180,7 +180,7 @@ static const uint8_t __far ww_file_header[64] = {
 int16_t launch_athena_restore_ram0(char *pathbuf) {
     FIL fp;
     int16_t result;
-    uint16_t bw;
+    unsigned int bw;
     uint8_t local_buffer[64];
 
     outportw(WS_CART_EXTBANK_RAM_PORT, 3);
@@ -308,7 +308,7 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, 
     int16_t result;
     FIL fp;
     uint8_t buffer[64];
-    uint16_t br;
+    unsigned int br;
     bool read_non_ww_files = true;
 
     ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
@@ -377,7 +377,7 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, 
             entry->count = (entry->len + 127) >> 7;
             entry->mode = type == ATHENA_ROMFILE_TYPE_RAM0 ? 6 : (type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? 5 : 4);
             entry->mtime = 0; // TODO
-            entry->il = NULL;
+            entry->il = 0; // TODO
             entry->resource = -1;
         }
         if (result != FR_OK) goto launch_athena_romfile_add_done;

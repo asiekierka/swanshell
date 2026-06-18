@@ -24,7 +24,6 @@
 #include <ws.h>
 #include <nilefs.h>
 #include "lang_gen.h"
-#include "util/input.h"
 #include "ww.h"
 #include "../../shared/util/math.h"
 #include "../ui/ui.h"
@@ -42,34 +41,32 @@
 #define PROGRESS_DIALOG_READ_SHIFT 5
 #define PROGRESS_DIALOG_WRITE_SHIFT 2
 
-static bool ww_is_bin_file(const FILINFO __far *fno) {
+static bool ww_is_bin_file(const FILINFO __far *fno, const char __far* ext) {
     if (fno->fattrib & AM_DIR)
         return false;
 
-    const char __far* ext_loc = strrchr(fno->fname, '.');
-    if (ext_loc == NULL || strcasecmp(ext_loc, s_file_ext_bin))
+    if (ext == NULL || strcasecmp(ext, s_file_ext_bin))
         return false;
 
     return true;
 }
 
-static bool ww_is_raw_file(const FILINFO __far *fno) {
+static bool ww_is_raw_file(const FILINFO __far *fno, const char __far* ext) {
     if (fno->fattrib & AM_DIR)
         return false;
 
-    const char __far* ext_loc = strrchr(fno->fname, '.');
-    if (ext_loc == NULL || strcasecmp(ext_loc, s_file_ext_raw))
+    if (ext == NULL || strcasecmp(ext, s_file_ext_raw))
         return false;
 
     return true;
 }
 
-static bool ww_is_raw_bios_file(const FILINFO __far *fno) {
-    return ww_is_raw_file(fno) && !memcmp(fno->fname, s_bios, 4);
+static bool ww_is_raw_bios_file(const FILINFO __far *fno, const char __far* ext) {
+    return ww_is_raw_file(fno, ext) && !memcmp(fno->fname, s_bios, 4);
 }
 
-static bool ww_is_raw_os_file(const FILINFO __far *fno) {
-    return ww_is_raw_file(fno) && memcmp(fno->fname, s_bios, 4);
+static bool ww_is_raw_os_file(const FILINFO __far *fno, const char __far* ext) {
+    return ww_is_raw_file(fno, ext) && memcmp(fno->fname, s_bios, 4);
 }
 
 #define WW_UI_SELECT_HAS_BIOSATHC 0x0002
@@ -99,7 +96,7 @@ static int16_t get_ui_select_file_offset(uint16_t flags, uint16_t offset) {
 
 // FIXME: compiler bug?
 __attribute__((optimize("-O1")))
-static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t ui_offset, uint16_t y) {
+static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t ui_offset, uint16_t y, uint16_t scroll_tick) {
     char name[FF_LFN_BUF+9];
     name[0] = 0;
 
@@ -240,7 +237,7 @@ static int16_t ww_ui_replace_component_path(char *input_path, char *output_path,
     uint32_t bytes_to_write;
     outportw(WS_CART_EXTBANK_RAM_PORT, 7);
     while (!f_eof(&fp)) {
-        uint16_t bw;
+        unsigned int bw;
         if ((result = f_read(&fp, MK_FP(0x1000, f_tell(&fp)), MIN(f_size(&fp), 16384), &bw)) != FR_OK) {
             f_close(&fp);
             return result;
@@ -287,9 +284,8 @@ static int16_t ww_ui_replace_component_path(char *input_path, char *output_path,
         }
 
         uint32_t bytes_write_pos = 0;
+        unsigned int bw;
         while (bytes_write_pos < bytes_to_write) {
-            uint16_t bw;
-
             bw = MIN(bytes_to_write - bytes_write_pos, buffer_size);
             memcpy(buffer, MK_FP(0x1000, f_tell(&fp)), bw);
 
@@ -322,7 +318,7 @@ static int16_t ww_ui_replace_component_path(char *input_path, char *output_path,
                 return result;
             }
 
-            if ((result = f_write(&fp, input_path, 16, &bytes_write_pos)) != FR_OK) {
+            if ((result = f_write(&fp, input_path, 16, &bw)) != FR_OK) {
                 f_close(&fp);
                 return result;
             }

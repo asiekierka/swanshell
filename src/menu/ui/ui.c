@@ -234,7 +234,7 @@ static inline void ui_show_inner(void) {
 #ifdef CONFIG_ENABLE_WALLPAPER
 static inline void load_wallpaper(void) {
     FIL fp;
-    uint16_t br;
+    unsigned int br;
 
     wallpaper_status = 2;
     if (ws_system_get_mode() != WS_MODE_COLOR_4BPP) return;

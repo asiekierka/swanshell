@@ -127,6 +127,29 @@ int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t pr
     return FR_OK;
 }
 
+static void ui_file_selector_draw_icon(uint16_t x, uint16_t y, uint16_t icon_idx, uint16_t style) {
+    uint16_t tile_idx = bitmap_rotation ? ((y >> 3) + ((x >> 3) * 18)) : ((((WS_DISPLAY_WIDTH_TILES - (style == UI_SELECTOR_STYLE_16 ? 2 : 1)) - (y >> 3)) * 18) + (x >> 3));
+    if (style == UI_SELECTOR_STYLE_16) {
+        if (ws_system_is_color_active()) {
+            const uint8_t __far* src = bitmap_rotation ? gfx_icons_16color : gfx_icons_16color_rot;
+            ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), src + (icon_idx * 128), 64);
+            ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx + WS_DISPLAY_HEIGHT_TILES), src + (icon_idx * 128) + 64, 64);
+        } else {
+            const uint8_t __far* src = bitmap_rotation ? gfx_icons_16mono : gfx_icons_16mono_rot;
+            memcpy(WS_TILE_MEM(tile_idx), src + (icon_idx * 64), 32);
+            memcpy(WS_TILE_MEM(tile_idx + WS_DISPLAY_HEIGHT_TILES), src + (icon_idx * 64) + 32, 32);
+        }
+    } else {
+        if (ws_system_is_color_active()) {
+            const uint8_t __far* src = bitmap_rotation ? gfx_icons_8color : gfx_icons_8color_rot;
+            ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), src + (icon_idx * 32), 32);
+        } else {
+            const uint8_t __far* src = bitmap_rotation ? gfx_icons_8mono : gfx_icons_8mono_rot;
+            memcpy(WS_TILE_MEM(tile_idx), src + (icon_idx * 16), 16);
+        }
+    }
+}
+
 static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t offset, uint16_t y, uint16_t scroll_tick) {
     int x_offset;
     if (settings.file_flags & SETTING_FILE_HIDE_ICONS)
@@ -189,26 +212,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     }
 
     if (!(settings.file_flags & SETTING_FILE_HIDE_ICONS)) {
-        uint16_t tile_idx = bitmap_rotation ? (y >> 3) : (((WS_DISPLAY_WIDTH_TILES - (config->style == UI_SELECTOR_STYLE_16 ? 2 : 1)) - (y >> 3)) * 18);
-        if (config->style == UI_SELECTOR_STYLE_16) {
-            if (ws_system_is_color_active()) {
-                const uint8_t __far* src = bitmap_rotation ? gfx_icons_16color : gfx_icons_16color_rot;
-                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), src + (icon_idx * 128), 64);
-                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx + WS_DISPLAY_HEIGHT_TILES), src + (icon_idx * 128) + 64, 64);
-            } else {
-                const uint8_t __far* src = bitmap_rotation ? gfx_icons_16mono : gfx_icons_16mono_rot;
-                memcpy(WS_TILE_MEM(tile_idx), src + (icon_idx * 64), 32);
-                memcpy(WS_TILE_MEM(tile_idx + WS_DISPLAY_HEIGHT_TILES), src + (icon_idx * 64) + 32, 32);
-            }
-        } else {
-            if (ws_system_is_color_active()) {
-                const uint8_t __far* src = bitmap_rotation ? gfx_icons_8color : gfx_icons_8color_rot;
-                ws_gdma_copy(WS_TILE_4BPP_MEM(tile_idx), src + (icon_idx * 32), 32);
-            } else {
-                const uint8_t __far* src = bitmap_rotation ? gfx_icons_8mono : gfx_icons_8mono_rot;
-                memcpy(WS_TILE_MEM(tile_idx), src + (icon_idx * 16), 16);
-            }
-        }
+        ui_file_selector_draw_icon(0, y, icon_idx, config->style);
     }
 }
 
