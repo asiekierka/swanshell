@@ -94,8 +94,6 @@ static int16_t get_ui_select_file_offset(uint16_t flags, uint16_t offset) {
     while(1);
 }
 
-// FIXME: compiler bug?
-__attribute__((optimize("-O1")))
 static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t ui_offset, uint16_t y, uint16_t scroll_tick) {
     char name[FF_LFN_BUF+9];
     name[0] = 0;
@@ -111,8 +109,7 @@ static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t
             if (filename_ext != NULL) *filename_ext = 0;
             if (!memcmp(s_freya, fno->fno.fname, 5)) {
                 sprintf(name, s_freyaos_tpl, fno->fno.fname[5], fno->fno.fname[6], fno->fno.fname + 7);
-            }
-            if (!memcmp(s_bios, fno->fno.fname, 4) && fno->fno.fname[4] == 'f') {
+            } else if (!memcmp(s_bios, fno->fno.fname, 4) && fno->fno.fname[4] == 'f') {
                 sprintf(name, s_freyabios_tpl, fno->fno.fname[5], fno->fno.fname[6], fno->fno.fname + 7);
             }
             if (filename_ext != NULL) *filename_ext = '.';
@@ -127,7 +124,6 @@ static void ww_bios_os_selector_draw(struct ui_selector_config *config, uint16_t
 }
 
 // FIXME: compiler bug?
-__attribute__((optimize("-O1")))
 static bool ww_ui_select_file_inner(
     bool is_os,
     char *buffer, size_t buflen

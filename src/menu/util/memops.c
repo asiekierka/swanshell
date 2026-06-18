@@ -21,7 +21,6 @@
 #include "memops.h"
 #include "puff/puff.h"
 
-__attribute__((optimize("-O0")))
 int16_t memops_unpack_psram_data_if_gzip(uint16_t *bank, uint16_t dest_bank) {
     uint16_t src_bank = *bank;
     uint8_t __far* header = MK_FP(WS_ROM0_SEGMENT, 0x0000);

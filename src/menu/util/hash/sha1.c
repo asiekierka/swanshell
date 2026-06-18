@@ -107,6 +107,7 @@ void SHA1_Transform(uint32_t state[5], const uint8_t __far buffer[64]);
 #define R4(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0xCA62C1D6+rol(v,5);w=rol(w,30);
 
 /* Hash a single 512-bit block. This is the core of the algorithm. */
+__attribute__((optimize("-Os")))
 void
 SHA1_Transform(uint32_t state[5], const uint8_t __far buffer[64])
 {
