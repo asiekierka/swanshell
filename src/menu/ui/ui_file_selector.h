@@ -35,6 +35,9 @@ typedef struct {
     uint8_t extension_loc;
 } file_selector_entry_t;
 
+#define FILE_SELECTOR_ENTRY_HAS_EXTENSION(entry) ((entry)->extension_loc != 255)
+#define FILE_SELECTOR_ENTRY_GET_EXTENSION(entry) ((entry)->fno.fname + (entry)->extension_loc)
+
 __attribute__((always_inline))
 static inline bool ui_file_selector_fno_direct_same_bank(uint16_t a, uint16_t b) {
     return (a >> FILE_SELECTOR_ENTRY_SHIFT) == (b >> FILE_SELECTOR_ENTRY_SHIFT);
@@ -56,6 +59,9 @@ static inline file_selector_entry_t __far *ui_file_selector_open_fno(uint16_t of
     outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_INDEX_BANK);
     return ui_file_selector_open_fno_direct(FILE_SELECTOR_INDEXES[offset]);
 }
+
+int ui_file_selector_get_file_icon_idx(const char __far *ext);
+void ui_file_selector_draw_icon(uint16_t x, uint16_t y, uint16_t icon_idx, uint16_t style);
 
 void ui_file_selector(void);
 bool ui_file_selector_default_predicate(const FILINFO __far *fno, const char __far *ext);

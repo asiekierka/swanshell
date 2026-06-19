@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2024 Adrian Siekierka
  *
  * swanshell is free software: you can redistribute it and/or modify it under
@@ -21,7 +21,6 @@
 #include <wonderful.h>
 #include <ws.h>
 #include <nilefs.h>
-#include <ws/display.h>
 #include <wsx/utf8.h>
 #include "bitmap.h"
 #include "cart/status.h"
@@ -50,20 +49,21 @@ static int compare_filenames(const file_selector_entry_t __far* a, const file_se
         return -1;
     } else if (!a_dir && b_dir) {
         return 1;
-    } else if (mode == SETTING_FILE_SORT_NAME_ASC) {
-        return strcasecmp(a->fno.fname, b->fno.fname);
-    } else if (mode == SETTING_FILE_SORT_NAME_DESC) {
-        return strcasecmp(b->fno.fname, a->fno.fname);
-    } else if (mode == SETTING_FILE_SORT_DATE_ASC) {
-        return COMPARE(a->fno.fdate, b->fno.fdate) || COMPARE(a->fno.ftime, b->fno.ftime);
-    } else if (mode == SETTING_FILE_SORT_DATE_DESC) {
-        return COMPARE(b->fno.fdate, a->fno.fdate) || COMPARE(b->fno.ftime, a->fno.ftime);
-    } else if (mode == SETTING_FILE_SORT_SIZE_ASC) {
-        return COMPARE(a->fno.fsize, b->fno.fsize);
-    } else if (mode == SETTING_FILE_SORT_SIZE_DESC) {
-        return COMPARE(b->fno.fsize, a->fno.fsize);
-    } else {
-        return 0;
+    } else switch(mode) {
+        case SETTING_FILE_SORT_NAME_ASC:
+            return strcasecmp(a->fno.fname, b->fno.fname);
+        case SETTING_FILE_SORT_NAME_DESC:
+            return strcasecmp(b->fno.fname, a->fno.fname);
+        case SETTING_FILE_SORT_DATE_ASC:
+            return COMPARE(a->fno.fdate, b->fno.fdate) || COMPARE(a->fno.ftime, b->fno.ftime);
+        case SETTING_FILE_SORT_DATE_DESC:
+            return COMPARE(b->fno.fdate, a->fno.fdate) || COMPARE(b->fno.ftime, a->fno.ftime);
+        case SETTING_FILE_SORT_SIZE_ASC:
+            return COMPARE(a->fno.fsize, b->fno.fsize);
+        case SETTING_FILE_SORT_SIZE_DESC:
+            return COMPARE(b->fno.fsize, a->fno.fsize);
+        default:
+            return 0;
     }
 }
 
@@ -127,7 +127,30 @@ int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t pr
     return FR_OK;
 }
 
-static void ui_file_selector_draw_icon(uint16_t x, uint16_t y, uint16_t icon_idx, uint16_t style) {
+int ui_file_selector_get_file_icon_idx(const char __far *ext) {
+    if (ext != NULL) {
+        if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
+            return 2;
+        } else if (!strcasecmp(ext, s_file_ext_fx)) {
+            return 9;
+        } else if (!strcasecmp(ext, s_file_ext_zip)) {
+            return 8;
+        } else if (!strcasecmp(ext, s_file_ext_fr) || !strcasecmp(ext, s_file_ext_il)) {
+            return 7;
+        } else if (!strcasecmp(ext, s_file_ext_wav) || !strcasecmp(ext, s_file_ext_vgm) || !strcasecmp(ext, s_file_ext_vgz)) {
+            return 4;
+        } else if (!strcasecmp(ext, s_file_ext_bmp)) {
+            return 3;
+        } else if (!strcasecmp(ext, s_file_ext_bfb)) {
+            return 5;
+        } else if (!strcasecmp(ext, s_file_ext_com)) {
+            return 6;
+        }
+    }
+    return 1;
+}
+
+void ui_file_selector_draw_icon(uint16_t x, uint16_t y, uint16_t icon_idx, uint16_t style) {
     uint16_t tile_idx = bitmap_rotation ? ((y >> 3) + ((x >> 3) * 18)) : ((((WS_DISPLAY_WIDTH_TILES - (style == UI_SELECTOR_STYLE_16 ? 2 : 1)) - (y >> 3)) * 18) + (x >> 3));
     if (style == UI_SELECTOR_STYLE_16) {
         if (ws_system_is_color_active()) {
@@ -188,27 +211,8 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     if (fno->fno.fattrib & AM_DIR) {
         icon_idx = 0;
         bitmapfont_draw_char(&ui_bitmap, x + CONFIG_FONT_CHAR_GAP, y, '/');
-    } else if (fno->extension_loc < 255) {
-        const char __far* ext = fno->fno.fname + fno->extension_loc;
-        if (ext != NULL) {
-            if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
-                icon_idx = 2;
-            } else if (!strcasecmp(ext, s_file_ext_fx)) {
-                icon_idx = 9;
-            } else if (!strcasecmp(ext, s_file_ext_zip)) {
-                icon_idx = 8;
-            } else if (!strcasecmp(ext, s_file_ext_fr) || !strcasecmp(ext, s_file_ext_il)) {
-                icon_idx = 7;
-            } else if (!strcasecmp(ext, s_file_ext_wav) || !strcasecmp(ext, s_file_ext_vgm) || !strcasecmp(ext, s_file_ext_vgz)) {
-                icon_idx = 4;
-            } else if (!strcasecmp(ext, s_file_ext_bmp)) {
-                icon_idx = 3;
-            } else if (!strcasecmp(ext, s_file_ext_bfb)) {
-                icon_idx = 5;
-            } else if (!strcasecmp(ext, s_file_ext_com)) {
-                icon_idx = 6;
-            }
-        }
+    } else if (FILE_SELECTOR_ENTRY_HAS_EXTENSION(fno)) {
+        icon_idx = ui_file_selector_get_file_icon_idx(FILE_SELECTOR_ENTRY_GET_EXTENSION(fno));
     }
 
     if (!(settings.file_flags & SETTING_FILE_HIDE_ICONS)) {
@@ -310,8 +314,8 @@ rescan_directory:
                 f_chdir(strbuf);
             } else {
                 ui_selector_clear_selection(&config);
-                if (fno->extension_loc < 255) {
-                    const char __far* ext = fno->fno.fname + fno->extension_loc;
+                if (FILE_SELECTOR_ENTRY_HAS_EXTENSION(fno)) {
+                    const char __far* ext = FILE_SELECTOR_ENTRY_GET_EXTENSION(fno);
                     if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
                         launch_rom_metadata_t meta;
                         int16_t result = launch_get_rom_metadata(strbuf, &meta);
