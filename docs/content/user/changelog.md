@@ -7,6 +7,7 @@ weight: 100
 
 - Added: Factory reset settings option.
 - Changed: Cleaned up settings layout.
+- Changed: Improved performance on loading directories with many long filenames.
 - Fixed: Reset on new storage card insert occuring too quickly.
 - Fixed: The file selector's top bar now correctly shows the end of the current directory path.
 - Fixed: The Japanese language using small fonts for dialog descriptions.
