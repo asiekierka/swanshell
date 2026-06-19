@@ -105,8 +105,8 @@ int16_t ui_file_selector_scan_directory(const char *path, filinfo_predicate_t pr
 		if (fno->fno.fname[0] == 0)
 			break;
 
-		const char __far* ext_loc = strrchr(fno->fno.fname, '.');
-		if (!predicate(&fno->fno, ext_loc))
+  		const char __far* ext_loc = (fno->fno.fattrib & AM_DIR) ? NULL : strrchr(fno->fno.fname, '.');
+  		if (!predicate(&fno->fno, ext_loc))
             continue;
 
         // Cache extension location
