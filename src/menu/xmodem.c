@@ -96,7 +96,7 @@ int xmodem_send(xmodem_send_callback_t cb, void *userdata) {
     bool new_data_requested = true;
     uint8_t data_available = 0;
 
-    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+    mcu_native_start();
     mcu_native_enter_speed(settings.mcu_spi_speed);
 
     while (true) {
@@ -158,7 +158,7 @@ int xmodem_recv_to_psram(uint16_t bank, uint32_t *size) {
     int result = 0;
     bool received_soh = false;
 
-    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+    mcu_native_start();
     nile_mcu_native_cdc_clear_sync();
     mcu_native_enter_speed(settings.mcu_spi_speed);
 

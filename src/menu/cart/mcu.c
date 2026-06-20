@@ -16,7 +16,6 @@
  */
 
 #include <assert.h>
-#include <nile/mcu.h>
 #include <nilefs/ff.h>
 #include <string.h>
 #include <ws.h>
@@ -162,14 +161,8 @@ mcu_compare_success:
 	return FR_OK;
 }
 
-bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen) {
-	if (!mcu_native_start())
-		return false;
-	return nile_mcu_native_send_cmd(cmd, buffer, buflen) >= 0;
-}
-
 bool mcu_native_set_mode(uint8_t mode) {
-	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x01, mode), NULL, 0)) {
+	if (!nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x01, mode), NULL, 0)) {
 		mcu_reset(false);
 		return false;
 	} else {
@@ -180,28 +173,21 @@ bool mcu_native_set_mode(uint8_t mode) {
 }
 
 bool mcu_native_save_id_set(uint32_t id, uint16_t target) {
-	uint8_t tmp;
-	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x16, target & 0x1FF), &id, 4))
-		return false;
-	if (nile_mcu_native_recv_cmd(&tmp, 1) < 1)
-		return false;
-	return true;
+    return nile_mcu_native_mcu_set_save_id_sync(target & 0x1FF, id) > 0;
 }
 
 bool mcu_native_save_id_get(uint32_t *id, uint16_t target) {
-        if (!(target & 0x1FF)) {
+    if (!(target & 0x1FF)) {
 		*id = SAVE_ID_NONE;
 	} else {
-		if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x17, target & 0x1FF), NULL, 0))
-			return false;
-		if (nile_mcu_native_recv_cmd(id, 4) < 4)
+	    if (nile_mcu_native_mcu_get_save_id_sync(target & 0x1FF, id) < 0)
 			return false;
 	}
 	return true;
 }
 
 bool mcu_native_hid_update(uint16_t value) {
-	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x42, 2), &value, 2))
+	if (!nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(NILE_MCU_NATIVE_CMD_USB_HID_WRITE, 2), &value, 2))
 		return false;
 	return nile_mcu_native_recv_cmd(NULL, 0) >= 0;
 }
@@ -209,7 +195,6 @@ bool mcu_native_hid_update(uint16_t value) {
 void mcu_native_enter_speed(uint16_t speed) {
 	if (speed > 2 || (speed == 1 && !ws_system_is_color_active()))
 		speed = 0;
-	mcu_native_start();
     nile_mcu_native_mcu_spi_set_speed_sync(speed);
 	if (speed == 2)
 	    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_MCU);

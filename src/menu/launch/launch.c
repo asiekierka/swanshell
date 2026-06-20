@@ -15,13 +15,11 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <nilefs/ff.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
-#include <ws/system.h>
 #include <wsx/zx0.h>
 #include <nile.h>
 #include <nilefs.h>
@@ -63,6 +61,8 @@ uint32_t launch_get_save_id(uint16_t target) {
             return save_id;
     }
 
+    mcu_native_start();
+
     if (mcu_native_save_id_get(&save_id, target)) {
         mcu_native_finish();
         return save_id;
@@ -81,6 +81,7 @@ bool launch_set_save_id(uint32_t v, uint16_t target) {
     outportw(WS_CART_EXTBANK_RAM_PORT, prev_sram_bank);
     outportb(WS_CART_BANK_FLASH_PORT, prev_cart_flash);
 
+    mcu_native_start();
     bool result = mcu_native_save_id_set(v, target);
     mcu_native_finish();
     return result;
@@ -359,8 +360,8 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words, boo
 
     for (uint16_t i = 0; i < words; i += MAX_WRITE_EEPROM_WORDS) {
         int to_read = words > MAX_WRITE_EEPROM_WORDS ? MAX_WRITE_EEPROM_WORDS : words;
-        nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
-        if (!mcu_native_eeprom_read_data(buffer, i, to_read)) {
+        mcu_native_start();
+        if (!nile_mcu_native_eeprom_read_sync(buffer, i, to_read)) {
             result = ERR_MCU_COMM_FAILED;
             break;
         }
@@ -376,8 +377,8 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words, boo
         f_rewind(fp);
         for (uint16_t i = 0; i < words; i += MAX_WRITE_EEPROM_WORDS) {
             int to_read = words > MAX_WRITE_EEPROM_WORDS ? MAX_WRITE_EEPROM_WORDS : words;
-            nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
-            if (!mcu_native_eeprom_read_data(buffer, i, to_read)) {
+            mcu_native_start();
+            if (!nile_mcu_native_eeprom_read_sync(buffer, i, to_read)) {
                 result = ERR_MCU_COMM_FAILED;
                 break;
             }
@@ -600,11 +601,11 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
             goto launch_restore_save_data_return_result;
 
         // initialize MCU
-        if (!mcu_native_eeprom_set_type(eeprom_mcu_control[meta->footer.save_type >> 4])) {
+        mcu_native_start();
+        if (!nile_mcu_native_eeprom_set_mode_sync(eeprom_mcu_control[meta->footer.save_type >> 4])) {
             result = ERR_MCU_COMM_FAILED;
             goto launch_restore_save_data_return_result;
         }
-	    mcu_native_finish();
 
         // switch MCU to EEPROM mode
         if (!mcu_native_set_mode(1)) {
@@ -827,6 +828,7 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
 
     // Switch MCU to RTC mode
     if (meta == NULL || !meta->eeprom_size) {
+        mcu_native_start();
         if (meta != NULL && meta->footer.mapper == 1) {
             outportb(IO_NILE_IRQ_ENABLE, NILE_IRQ_MCU);
             mcu_native_set_mode(2);

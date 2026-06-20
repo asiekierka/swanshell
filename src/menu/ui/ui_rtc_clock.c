@@ -22,6 +22,7 @@
 #include <wsx/bcd.h>
 #include <nile.h>
 #include "ui_rtc_clock.h"
+#include "cart/mcu.h"
 #include "cart/rtc.h"
 #include "errors.h"
 #include "lang.h"
@@ -107,7 +108,7 @@ int16_t ui_rtc_clock(void) {
     uint8_t new_rtc_data[RTC_DATETIME_SIZE];
     uint8_t rtc_status = WS_CART_RTC_STATUS_24_HOUR;
 
-	nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
+    mcu_native_start();
 
     // FIXME: Why does the first RTC transaction fail sometimes? Is it a timeout issue?
     if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_STATUS, NULL, 0, &rtc_status, 1) < 0) {

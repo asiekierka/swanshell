@@ -612,6 +612,7 @@ int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
     if (result != FR_OK) return result;
 
     // Write save ID to MCU
+    mcu_native_start();
     result = mcu_native_save_id_set(id, SAVE_ID_FOR_SRAM) ? FR_OK : ERR_MCU_COMM_FAILED;
     mcu_native_finish();
     if (result != FR_OK) return result;

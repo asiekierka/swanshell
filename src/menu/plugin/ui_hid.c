@@ -60,6 +60,7 @@ int ui_hidctrl(void) {
         wait_for_vblank();
         input_update();
 
+        mcu_native_start();
         // test for exit key: 1 << 12 on PCv2, SOUND button on WS/WSC
         if (model == WS_MODEL_PCV2) {
             if (input_held & KEY_PCV2_CLEAR)
@@ -78,6 +79,6 @@ int ui_hidctrl(void) {
     mcu_native_hid_update(0);
 
     bitmap_set_screen_force_horizontal(false);
-    
+
     return 0;
 }

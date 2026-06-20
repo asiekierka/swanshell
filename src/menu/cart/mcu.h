@@ -31,7 +31,6 @@
 #define SAVE_ID_NONE       ((uint32_t) 0xFFFFFFFF)
 
 int16_t mcu_reset(bool flash);
-bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen);
 
 static inline bool mcu_is_native_mode(void) {
     extern bool mcu_native_mode;
@@ -46,23 +45,6 @@ static inline void mcu_reset_if_not_native(void) {
 
 bool mcu_native_save_id_set(uint32_t id, uint16_t target);
 bool mcu_native_save_id_get(uint32_t *id, uint16_t target);
-
-static inline bool mcu_native_eeprom_set_type(uint8_t type) {
-	uint8_t tmp;
-	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x10, type), NULL, 0))
-		return false;
-	if (nile_mcu_native_recv_cmd(&tmp, 1) < 1)
-		return false;
-	return true;
-}
-
-static inline bool mcu_native_eeprom_read_data(uint8_t *buffer, uint16_t offset, uint16_t words) {
-	if (!mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x12, words), &offset, 2))
-		return false;
-	if (nile_mcu_native_recv_cmd(buffer, words * 2) < words * 2)
-		return false;
-	return true;
-}
 
 bool mcu_native_set_mode(uint8_t mode);
 bool mcu_native_hid_update(uint16_t value);
