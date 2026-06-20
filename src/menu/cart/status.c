@@ -95,17 +95,17 @@ int16_t cart_status_init(bool is_safe_mode, bool is_mcu_reset_ok) {
 
 void cart_status_update(void) {
     if (cart_status.version < CART_FW_VERSION_1_1_0) return;
-    
+
     int16_t accel_data[3];
     mcu_native_start();
     int16_t result = nile_mcu_native_mcu_get_info_sync(&cart_status.mcu_info, sizeof(nile_mcu_native_info_t));
-    nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(NILE_MCU_NATIVE_CMD_ACCEL_READ, 0), NULL, 0);
     int16_t accel_result = 0;
     if (cart_status.orientation_state & 0x80) {
+        nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(NILE_MCU_NATIVE_CMD_ACCEL_READ, 0), NULL, 0);
         accel_result = nile_mcu_native_recv_cmd(&accel_data, 6);
     }
     mcu_native_finish();
-    
+
     if (result >= 4) {
         cart_status.present |= CART_PRESENT_MCU_INFO_OK;
         cart_status.present &= ~CART_PRESENT_MCU_INFO_ERROR;
@@ -120,7 +120,7 @@ void cart_status_update(void) {
         bool current_vertical = (cart_status.orientation_state & 1) != 0;
         bool toggle = (accel_data[1] >= CART_ORIENTATION_MIN_ACCEL_VAL && current_vertical)
             || (accel_data[0] <= -CART_ORIENTATION_MIN_ACCEL_VAL && !current_vertical);
-        
+
         if (toggle) {
             if (cart_status.orientation_state & 2) {
                 cart_status.orientation_state ^= 3;
