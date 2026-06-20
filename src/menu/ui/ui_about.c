@@ -215,6 +215,18 @@ void ui_about_cartridge(void) {
     UI_ABOUT_CARTRIDGE_NEWLINE;
 
     if (cart_status.version >= CART_FW_VERSION_1_1_0) {
+        if (inportb(IO_NILE_BOARD_REVISION) >= 3) {
+            if (cart_status_mcu_info_valid()) {
+                int volt_sub = ((uint32_t)cart_status.mcu_info.bat_voltage * 330) / 4096;
+                int volt = volt_sub / 100;
+                volt_sub %= 100;
+                sprintf(buf, lang_keys[LK_MY_CARTRIDGE_BATTERY_VOLTAGE], volt, volt_sub);
+
+                text_x += bitmapfont_draw_string(&ui_bitmap, text_x, text_y, buf, 65535);
+            }
+            UI_ABOUT_CARTRIDGE_NEWLINE;
+        }
+
         text_x += bitmapfont_draw_string(&ui_bitmap, text_x, text_y, lang_keys[LK_MY_CARTRIDGE_RTC_STATUS], 65535);
         text_x += UI_ABOUT_CARTRIDGE_SPACING;
 

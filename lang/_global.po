@@ -79,6 +79,9 @@ msgstr "detected"
 msgid "MY_CARTRIDGE_USB_STATUS_CONNECTED"
 msgstr "connected"
 
+msgid "MY_CARTRIDGE_BATTERY_VOLTAGE"
+msgstr "Battery voltage: ~ %d.%02d V"
+
 msgid "MY_CARTRIDGE_NOT_SUPPORTED"
 msgstr "not supported"
 

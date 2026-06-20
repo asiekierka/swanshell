@@ -31,8 +31,12 @@
 #define SAVE_ID_NONE       ((uint32_t) 0xFFFFFFFF)
 
 int16_t mcu_reset(bool flash);
-bool mcu_is_native_mode(void);
 bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen);
+
+static inline bool mcu_is_native_mode(void) {
+    extern bool mcu_native_mode;
+    return mcu_native_mode;
+}
 
 static inline void mcu_reset_if_not_native(void) {
     if (!mcu_is_native_mode()) {
