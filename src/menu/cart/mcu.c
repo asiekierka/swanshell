@@ -33,11 +33,16 @@
 DEFINE_STRING_LOCAL(s_mcu_path, "/NILESWAN/MCU.BIN");
 
 static const uint8_t __wf_rom mcu_header_u0_v1[] = {'M', 'C', 'U', '0'};
+bool native_mode = false;
 
 #define NILE_MCU_FLASH_SIZE 262144
 #define NILE_MCU_FLASH_FOOTER_START (NILE_MCU_FLASH_START + NILE_MCU_FLASH_SIZE - NILE_MCU_FLASH_PAGE_SIZE)
 #define NILE_MCU_FLASH_FOOTER_PAGE ((NILE_MCU_FLASH_FOOTER_START - NILE_MCU_FLASH_START) / NILE_MCU_FLASH_PAGE_SIZE)
 #define READ_BUFFER_SIZE 128
+
+bool mcu_is_native_mode(void) {
+    return native_mode;
+}
 
 int16_t mcu_reset(bool flash) {
 	FIL fp;
@@ -156,6 +161,8 @@ mcu_compare_success:
 		f_close(&fp);
 	}
 
+	native_mode = true;
+
 	return FR_OK;
 }
 
@@ -170,6 +177,7 @@ bool mcu_native_set_mode(uint8_t mode) {
 		mcu_reset(false);
 		return false;
 	} else {
+	    native_mode = false;
 		ws_delay_us(NILE_MCU_NATIVE_MODESWITCH_TIME_US);
 		return true;
 	}

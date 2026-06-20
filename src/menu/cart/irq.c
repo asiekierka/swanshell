@@ -64,6 +64,8 @@ static void cart_tf_removed_handler(void) {
 void cart_irq_update(void) {
     if (cart_status.version < CART_FW_VERSION_1_1_0 || !cart_status_mcu_info_valid())
         return;
+    if (!mcu_is_native_mode()) return;
+
     mcu_native_start();
     int16_t irq = nile_mcu_native_mcu_reg_read_sync(NILE_MCU_NATIVE_REG_IRQ_STATUS_AUTOACK);
     mcu_native_finish();

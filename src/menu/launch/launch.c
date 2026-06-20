@@ -886,5 +886,7 @@ int16_t launch_in_psram(uint32_t size) {
         launch_bfb_in_psram();
     }
 
+    mcu_reset_if_not_native();
+
     return FR_INT_ERR;
 }

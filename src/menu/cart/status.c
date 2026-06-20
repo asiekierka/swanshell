@@ -95,6 +95,7 @@ int16_t cart_status_init(bool is_safe_mode, bool is_mcu_reset_ok) {
 
 void cart_status_update(void) {
     if (cart_status.version < CART_FW_VERSION_1_1_0) return;
+    if (!mcu_is_native_mode()) return;
 
     int16_t accel_data[3];
     mcu_native_start();

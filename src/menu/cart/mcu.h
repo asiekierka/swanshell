@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef CART_MCU_H_
 #define CART_MCU_H_
 
@@ -31,7 +31,14 @@
 #define SAVE_ID_NONE       ((uint32_t) 0xFFFFFFFF)
 
 int16_t mcu_reset(bool flash);
+bool mcu_is_native_mode(void);
 bool mcu_native_send_cmd(uint16_t cmd, const void *buffer, int buflen);
+
+static inline void mcu_reset_if_not_native(void) {
+    if (!mcu_is_native_mode()) {
+        mcu_reset(false);
+    }
+}
 
 bool mcu_native_save_id_set(uint32_t id, uint16_t target);
 bool mcu_native_save_id_get(uint32_t *id, uint16_t target);

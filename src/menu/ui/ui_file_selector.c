@@ -23,6 +23,7 @@
 #include <nilefs.h>
 #include <wsx/utf8.h>
 #include "bitmap.h"
+#include "cart/mcu.h"
 #include "cart/status.h"
 #include "config.h"
 #include "errors.h"
@@ -343,6 +344,7 @@ rescan_directory:
 
                         ui_dialog_error_check(result, NULL, 0);
 exit_no_launch:
+                        mcu_reset_if_not_native();
                         reinit_ui = true;
                         goto rescan_directory;
                     } else if (!strcasecmp(ext, s_file_ext_fx) || !strcasecmp(ext, s_file_ext_bin)) {
