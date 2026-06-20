@@ -171,7 +171,7 @@ void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
             __bitmap_bitop_fill_c(color0, tile, height * (bitmap->bpp >= 4 ? 2 : 1));
             tile += bitmap->x_pitch;
             x += row_width;
-            width -= row_width;  
+            width -= row_width;
         }
     } else {
         if (bitmap->bpp == 4 && cmask1) {
@@ -180,14 +180,14 @@ void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
                 __bitmap_bitop_row_c(cxor, color1, height, cmask1, bitmap, tile + 2);
                 tile += bitmap->x_pitch;
                 x += row_width;
-                width -= row_width;  
+                width -= row_width;
             }
         } else {
             while (width >= row_width) {
                 __bitmap_bitop_row_c(cxor, color0, height, cmask0, bitmap, tile);
                 tile += bitmap->x_pitch;
                 x += row_width;
-                width -= row_width;  
+                width -= row_width;
             }
         }
     }
@@ -258,7 +258,7 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
             pixel_fifo >>= px_row_left;
             pixel_fifo_left -= px_row_left;
         }
-        
+
         tile += bitmap->bpp;
     }
 }
@@ -266,7 +266,7 @@ void bitmap_draw_glyph(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uin
 void bitmap_vscroll_row(const bitmap_t *bitmap, uint16_t ix, uint16_t row_from, uint16_t row_to, uint16_t height) {
     if (ws_system_is_color_active()) {
         uint16_t dst = (uint16_t) BITMAP_AT(bitmap, ix << 3, row_to);
-        uint16_t src = (uint16_t) BITMAP_AT(bitmap, ix << 3, row_from); 
+        uint16_t src = (uint16_t) BITMAP_AT(bitmap, ix << 3, row_from);
         uint8_t mode = WS_GDMA_CTRL_INC | WS_GDMA_CTRL_START;
         if (row_from < row_to) {
             src += (bitmap->bpp * height) - 2;

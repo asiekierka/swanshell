@@ -28,7 +28,6 @@
 per_row_offset:
     .byte 0
 
-    .section .fartext.s.bitmap, "ax"
     // Perform an operation, given a bitmap row r:
     // r = (r & ~mask) | (r & and ^ xor) & mask
     // BX = and
@@ -36,27 +35,29 @@ per_row_offset:
     // DX = xor
     // BP = mask
     // DS:SI = bitmap data
-    // DS:DI = bitmap location
+    // DI = bitmap pitch
     // clobbers AX, CX, SI
 __bitmap_bitop_row:
-__bitmap_bitop_row_loop:
+1:
     // r = (r & ~mask) | (r & and ^ xor) & mask
     mov ax, [si]
+    mov bp, ax
+__bitmap_bitop_row_inject_inv_mask:
+    and bp, 0x1234 // bp = r & ~mask, ax = r
     and ax, bx
     xor ax, dx
-    and ax, bp
-    push bp
-    not bp
-    and bp, [si]
+__bitmap_bitop_row_inject_mask:
+    and ax, 0x1234 // bp = r & ~mask, ax = (r & and ^ xor) & mask
     or ax, bp
-    pop bp
     mov [si], ax
     // next row
-    add si, [di + BITMAP_T_CURRENT_PITCH]
-    loop __bitmap_bitop_row_loop
-    ret
+    add si, di
+    loop 1b
+    IA16_RET
 
-    /* 
+    .section .fartext.s.bitmap, "ax"
+
+    /*
     // left border
     if (x & 7) {
         uint16_t next_x = (x + 7) & (~7);
@@ -81,7 +82,7 @@ __bitmap_bitop_row_loop:
         memset(tile, 0, height * bitmap->bpp);
         tile += bitmap->x_pitch;
         x += 8;
-        width -= 8;    
+        width -= 8;
     }
 
     // right border
@@ -112,16 +113,24 @@ __bitmap_bitop_fill_c:
 __bitmap_bitop_row_c:
     mov bx, ax
     push ds
-    push ss
-    pop ds
+    /* push ss
+    pop ds */
     push si
     push di
     push bp
     mov bp, sp
+
     mov si, [bp + IA16_CALL_STACK_OFFSET(12)]
     mov di, [bp + IA16_CALL_STACK_OFFSET(10)]
+    mov di, [di + BITMAP_T_CURRENT_PITCH]
     mov bp, [bp + IA16_CALL_STACK_OFFSET(8)]
-    call __bitmap_bitop_row
+
+    mov [__bitmap_bitop_row_inject_mask + 1], bp
+    not bp
+    mov [__bitmap_bitop_row_inject_inv_mask + 2], bp
+
+    IA16_CALL __bitmap_bitop_row
+
     pop bp
     pop di
     pop si
