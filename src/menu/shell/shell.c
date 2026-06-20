@@ -518,7 +518,9 @@ int shell_func(task_t *task) {
                 // CTRL+C
                 shell_flags |= SHELL_FLAG_INTERACTIVE;
                 shell_new_prompt();
-            } else if (c == 8) {
+            } else if (c == 27) {
+                // TOOD: ANSI escape codes
+            } else if (c == 8 || c == 127) {
                 // Backspace
                 if (shell_line_pos > 0) {
                     if (shell_flags & SHELL_FLAG_INTERACTIVE) {
