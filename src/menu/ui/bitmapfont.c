@@ -291,7 +291,9 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
     uint16_t line_width = 0;
     const char __far* start_str = str;
     const char __far* prev_str = str;
+    uint16_t prev_line_width = 0;
     const char __far* break_str = NULL;
+    uint16_t break_line_width = 0;
     uint16_t start_yofs = yofs;
 
     ws_bank_with_rom0(font_banks[active_font], {
@@ -305,16 +307,19 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
             uint16_t new_line_width = line_width + bitmapfont_get_char_width(ch);
             if (is_soft_break || is_hard_break) {
                 break_str = str;
+                break_line_width = line_width;
             }
             if (new_line_width > width || is_hard_break || !ch) {
                 if (!ch) {
                     break_str = str;
+                    break_line_width = line_width;
                 } else if (break_str == NULL) {
                     break_str = prev_str;
+                    break_line_width = prev_line_width;
                 }
                 uint16_t local_xofs = xofs;
                 if (flags & BITMAPFONT_BOX_CENTERED) {
-                    local_xofs += (width - line_width) >> 1;
+                    local_xofs += (width - break_line_width) >> 1;
                 }
                 while (start_str < break_str) {
                     ch = wsx_utf8_decode_next(&start_str);
@@ -323,7 +328,9 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
                 str = break_str;
                 start_str = break_str;
                 prev_str = break_str;
+                prev_line_width = 0;
                 break_str = NULL;
+                break_line_width = 0;
                 line_width = 0;
                 yofs += bitmapfont_get_font_height() + linegap;
                 if (!ch) {
@@ -332,6 +339,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
             } else {
                 line_width = new_line_width + CONFIG_FONT_CHAR_GAP;
                 prev_str = str;
+                prev_line_width = linegap;
             }
         }
     });

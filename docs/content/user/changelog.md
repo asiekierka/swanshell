@@ -16,6 +16,7 @@ weight: 100
 - Fixed: LCD display not initializing when loading non-PCv2 programs on PCv2.
 - Fixed: Reset on new storage card insert occuring too quickly.
 - Fixed: The Japanese language using small fonts for dialog descriptions.
+- Fixed: Text in dialogs not being centered correctly in some cases.
 
 ## swanshell 1.2.1 (14th June 2026)
 
