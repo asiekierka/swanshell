@@ -195,7 +195,14 @@ void ui_init(void) {
     } else {
         ui_bitmap = BITMAP(WS_TILE_MEM(0), WS_DISPLAY_WIDTH_TILES, WS_DISPLAY_HEIGHT_TILES, 2);
 
-        ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT_DEFAULT);
+        // TODO: Add gamma configuration option.
+        //
+        // STN (color correction):
+        // WS_DISPLAY_SHADE_LUT(0, 5, 8, 11, 12, 13, 14, 15)
+        //
+        // IPS (no color correction):
+        // WS_DISPLAY_SHADE_LUT(0, 2, 4, 6, 9, 11, 13, 15)
+        ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT(0, 3, 5, 7, 9, 11, 13, 15));
         // palette 0 - icon palette
         outportw(WS_SCR_PAL_0_PORT, 0x7052);
         // palette 1 - icon palette (selected)
