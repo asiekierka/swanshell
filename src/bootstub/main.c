@@ -166,13 +166,19 @@ void progress_tick(void) {
 extern void restore_cold_boot_io_state(bool disable_color_mode);
 
 void init_launch_io_state(void) {
+    bool expected_post_bios_init = bootstub_data->prog_rom_type != ROM_TYPE_PCV2;
+    bool actual_post_bios_init = (inportb(WS_SYSTEM_CTRL_PORT) & WS_SYSTEM_CTRL_IPL_LOCK) != 0;
+    bool emulate_post_bios = expected_post_bios_init && !actual_post_bios_init;
+
+    if (emulate_post_bios) {
+        // PCv2 does not enable the LCD by default.
+        MEM_NILE_IPC->boot_io[0x14] |= 0x1;
+    }
+
 	restore_cold_boot_io_state(true);
 
 	if (bootstub_data->prog_rom_type != ROM_TYPE_UNKNOWN) {
-		bool expected_post_bios_init = bootstub_data->prog_rom_type != ROM_TYPE_PCV2;
-		bool actual_post_bios_init = (inportb(WS_SYSTEM_CTRL_PORT) & WS_SYSTEM_CTRL_IPL_LOCK) != 0;
-
-		if (expected_post_bios_init && !actual_post_bios_init) {
+		if (emulate_post_bios) {
 			// Adjust some I/O port values to mimic a BIOS boot
 			outportb(0x07, 0);
 			outportw(0x10, 0);
@@ -251,13 +257,14 @@ int main(void) {
 				bank++;
 			}
 		}
-
-		if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET) {
-			patch_apply_freya_soft_reset(total_banks - 1);
-		}
-
-		outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
+	} else {
+	    outportw(WS_CART_EXTBANK_RAM_PORT, total_banks - 1);
 	}
+
+	if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET) {
+		patch_apply_freya_soft_reset(total_banks - 1);
+	}
+	outportw(IO_NILE_SPI_CNT, NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 
 	outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
 	outportw(WS_CART_EXTBANK_RAM_PORT, NILE_SEG_RAM_IPC);

@@ -13,6 +13,7 @@ weight: 100
 - Fixed: Backspace not working correctly via the USB shell on some terminals.
 - Fixed: File selector top bar not showing the end of the current directory path for long paths.
 - Fixed: Further MCU communication instability problems.
+- Fixed: LCD display not initializing when loading non-PCv2 programs on PCv2.
 - Fixed: Reset on new storage card insert occuring too quickly.
 - Fixed: The Japanese language using small fonts for dialog descriptions.
 
