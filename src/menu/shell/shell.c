@@ -488,7 +488,7 @@ static void shell_run_command(void) {
         }
         shell_download(arg);
     } else if (!strcmp_const(shell_line, s_upload)) {
-        if ((arg = shell_token_next(arg))) {
+        if (!(arg = shell_token_next(arg))) {
             nile_mcu_native_cdc_write_string_const(s_missing_argument);
             return;
         }

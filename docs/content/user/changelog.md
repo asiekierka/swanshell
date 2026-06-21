@@ -3,7 +3,7 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell 1.2.2 (21st June 2026)
+## swanshell 1.2.3 (21st June 2026)
 
 - **Fixed: Restored old cartridge image launch code.** This solves an SRAM save regression
   introduced in swanshell 1.2.0.

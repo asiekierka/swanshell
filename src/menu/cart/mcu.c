@@ -162,7 +162,7 @@ mcu_compare_success:
 }
 
 bool mcu_native_set_mode(uint8_t mode) {
-	if (!nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x01, mode), NULL, 0)) {
+	if (nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(0x01, mode), NULL, 0) < 0) {
 		mcu_reset(false);
 		return false;
 	} else {
@@ -187,7 +187,7 @@ bool mcu_native_save_id_get(uint32_t *id, uint16_t target) {
 }
 
 bool mcu_native_hid_update(uint16_t value) {
-	if (!nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(NILE_MCU_NATIVE_CMD_USB_HID_WRITE, 2), &value, 2))
+	if (nile_mcu_native_send_cmd(NILE_MCU_NATIVE_CMD(NILE_MCU_NATIVE_CMD_USB_HID_WRITE, 2), &value, 2) < 0)
 		return false;
 	return nile_mcu_native_recv_cmd(NULL, 0) >= 0;
 }

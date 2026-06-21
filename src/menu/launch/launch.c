@@ -361,7 +361,7 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words, boo
     for (uint16_t i = 0; i < words; i += MAX_WRITE_EEPROM_WORDS) {
         int to_read = words > MAX_WRITE_EEPROM_WORDS ? MAX_WRITE_EEPROM_WORDS : words;
         mcu_native_start();
-        if (!nile_mcu_native_eeprom_read_sync(buffer, i, to_read)) {
+        if (nile_mcu_native_eeprom_read_sync(buffer, i, to_read) < (to_read * 2)) {
             result = ERR_MCU_COMM_FAILED;
             break;
         }
@@ -378,7 +378,7 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words, boo
         for (uint16_t i = 0; i < words; i += MAX_WRITE_EEPROM_WORDS) {
             int to_read = words > MAX_WRITE_EEPROM_WORDS ? MAX_WRITE_EEPROM_WORDS : words;
             mcu_native_start();
-            if (!nile_mcu_native_eeprom_read_sync(buffer, i, to_read)) {
+            if (nile_mcu_native_eeprom_read_sync(buffer, i, to_read) < (to_read * 2)) {
                 result = ERR_MCU_COMM_FAILED;
                 break;
             }
@@ -602,7 +602,7 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
         // initialize MCU
         mcu_native_start();
-        if (!nile_mcu_native_eeprom_set_mode_sync(eeprom_mcu_control[meta->footer.save_type >> 4])) {
+        if (nile_mcu_native_eeprom_set_mode_sync(eeprom_mcu_control[meta->footer.save_type >> 4]) <= 0) {
             result = ERR_MCU_COMM_FAILED;
             goto launch_restore_save_data_return_result;
         }
