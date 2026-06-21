@@ -20,6 +20,7 @@
 #include <string.h>
 #include <ws.h>
 #include "shell.h"
+#include "cart/mcu.h"
 #include "cart/rtc.h"
 #include "cart/status.h"
 #include "lang_gen.h"
@@ -382,9 +383,8 @@ static void shell_rm(const char *path) {
 }
 
 static inline bool shell_usb_active(void) {
+    if (!mcu_is_native_mode()) return false;
     if (cart_status.version < CART_FW_VERSION_1_1_0) return true;
-    // TODO: remove after emulator update
-    if (cart_status.present & CART_PRESENT_MCU_INFO_ERROR) return true;
     return cart_status_mcu_info_valid() && (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT);
 }
 
