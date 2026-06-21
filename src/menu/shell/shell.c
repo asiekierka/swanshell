@@ -30,13 +30,14 @@
 #include "errors.h"
 #include "lang.h"
 #include "launch/launch.h"
+#include "tokenizer.h"
 #include "xmodem.h"
 
 uint8_t shell_task_mem[1152];
 #define shell_task ((task_t*) shell_task_mem)
 
 #define SHELL_LINE_LENGTH 128
-char shell_line[SHELL_LINE_LENGTH + 1];
+char shell_line[SHELL_LINE_LENGTH + 2];
 uint8_t shell_line_pos;
 
 #define SHELL_FLAG_NOT_INITIALIZED 0xFF
@@ -47,6 +48,7 @@ DEFINE_STRING_LOCAL(s_line_too_long, "\r\nLine too long");
 DEFINE_STRING_LOCAL(s_new_line, "\r\n");
 DEFINE_STRING_LOCAL(s_new_prompt, "\r\n> ");
 DEFINE_STRING_LOCAL(s_dot_local, ".");
+DEFINE_STRING_LOCAL(s_space, " ");
 DEFINE_STRING_LOCAL(s_about, "about");
 DEFINE_STRING_LOCAL(s_cat, "cat");
 DEFINE_STRING_LOCAL(s_cd, "cd");
@@ -62,6 +64,7 @@ DEFINE_STRING_LOCAL(s_reboot, "reboot");
 DEFINE_STRING_LOCAL(s_rm, "rm");
 DEFINE_STRING_LOCAL(s_rmdir, "rmdir");
 DEFINE_STRING_LOCAL(s_upload, "upload");
+DEFINE_STRING_LOCAL(s_invalid_argument, "Invalid argument");
 DEFINE_STRING_LOCAL(s_missing_argument, "Missing argument");
 DEFINE_STRING_LOCAL(s_unknown_command, "Unknown command");
 DEFINE_STRING_LOCAL(s_backspace, "\x08 \x08");
@@ -91,6 +94,8 @@ DEFINE_STRING_LOCAL(s_help_output,
 static const char __far s_version_suffix[] = " " VERSION;
 
 #define nile_mcu_native_cdc_write_string_const(s) nile_mcu_native_cdc_write_sync(s, sizeof(s)-1)
+#define strcmp_const(buf,val) memcmp((buf),(val),sizeof((val)))
+
 void nile_mcu_native_cdc_write_string(const char __far* s) {
     int last_pos = 0;
     int pos = 0;
@@ -224,7 +229,7 @@ static void shell_file_callback(void *userdata, uint32_t step, uint32_t max) {
     nile_mcu_native_cdc_write_string_const(s_dot_local);
 }
 
-static void shell_upload(void) {
+static void shell_upload(const char *path) {
     if (shell_flags & SHELL_FLAG_INTERACTIVE) {
         nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
     }
@@ -235,7 +240,7 @@ static void shell_upload(void) {
     if (result == FR_OK) {
         FIL fp;
         nile_mcu_native_cdc_write_string_const(s_saving_file);
-        result = f_open(&fp, shell_line + 7, FA_WRITE | FA_CREATE_ALWAYS);
+        result = f_open(&fp, path, FA_WRITE | FA_CREATE_ALWAYS);
         if (result == FR_OK) {
             result = f_write_rom_banked(&fp, 0, size, shell_file_callback, NULL, false);
             f_close(&fp);
@@ -261,9 +266,9 @@ static bool shell_download_callback(uint8_t *buffer, void *userdata) {
     }
 }
 
-static void shell_download(void) {
+static void shell_download(const char *path) {
     FIL fp;
-    int16_t result = f_open(&fp, shell_line + 9, FA_READ | FA_OPEN_EXISTING);
+    int16_t result = f_open(&fp, path, FA_READ | FA_OPEN_EXISTING);
     if (result == FR_OK) {
         if (shell_flags & SHELL_FLAG_INTERACTIVE) {
             nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
@@ -277,24 +282,30 @@ static void shell_download(void) {
     }
 }
 
-static void shell_cd(void) {
-    int16_t result = f_chdir(shell_line + 3);
+static void shell_cd(const char *path) {
+    char buf[2];
+    if (path == NULL) {
+        buf[0] = '/';
+        buf[1] = 0;
+        path = buf;
+    }
+    int16_t result = f_chdir(path);
     if (result != FR_OK) {
         shell_print_error(result);
     }
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
-static void shell_mkdir(void) {
-    int16_t result = f_mkdir(shell_line + 6);
+static void shell_mkdir(const char *path) {
+    int16_t result = f_mkdir(path);
     if (result != FR_OK) {
         shell_print_error(result);
     }
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
-static void shell_rmdir(void) {
-    int16_t result = f_rmdir(shell_line + 6);
+static void shell_rmdir(const char *path) {
+    int16_t result = f_rmdir(path);
     if (result != FR_OK) {
         shell_print_error(result);
     }
@@ -313,11 +324,11 @@ static void shell_pwd(void) {
 }
 
 __attribute__((noinline))
-static void shell_cat(void) {
+static void shell_cat(const char *path) {
     FIL fp;
     char buf[129];
     buf[sizeof(buf) - 1] = 0;
-    int16_t result = f_open(&fp, shell_line + 4, FA_READ | FA_OPEN_EXISTING);
+    int16_t result = f_open(&fp, path, FA_READ | FA_OPEN_EXISTING);
     if (result == FR_OK) {
         unsigned int br;
         while (!f_eof(&fp)) {
@@ -333,10 +344,17 @@ static void shell_cat(void) {
     }
 }
 
-static void shell_ls(void) {
+static void shell_ls(char *path) {
     DIR dp;
     FILINFO fno;
-    int16_t result = f_opendir(&dp, shell_line + 3);
+    char buf[2];
+
+    if (path == NULL) {
+        buf[0] = '.';
+        buf[1] = 0;
+        path = buf;
+    }
+    int16_t result = f_opendir(&dp, path);
     if (result == FR_OK) {
         while (true) {
     		result = f_readdir(&dp, &fno);
@@ -355,8 +373,8 @@ static void shell_ls(void) {
     }
 }
 
-static void shell_rm(void) {
-    int16_t result = f_unlink(shell_line + 3);
+static void shell_rm(const char *path) {
+    int16_t result = f_unlink(path);
     if (result != FR_OK) {
         shell_print_error(result);
     }
@@ -412,6 +430,96 @@ static void shell_date_get(void) {
     }
 }
 
+static void shell_run_command(void) {
+    if (shell_line_pos == 0) {
+        shell_flags |= SHELL_FLAG_INTERACTIVE;
+        return;
+    }
+
+    // ENTER pressed, parse line
+    shell_line[shell_line_pos] = 0;
+    char *arg = shell_token_start(shell_line);
+
+    nile_mcu_native_cdc_write_string_const(s_new_line);
+    if (!arg) {
+        nile_mcu_native_cdc_write_string_const(s_invalid_argument);
+        return;
+    }
+
+    shell_token_lower(arg);
+    if (!strcmp_const(arg, s_about)) {
+        shell_about();
+    } else if (!strcmp_const(arg, s_cd)) {
+        shell_cd(shell_token_next(arg));
+    } else if (!strcmp_const(arg, s_rmdir)) {
+        if (!(arg = shell_token_next(arg))) {
+            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+            return;
+        }
+        shell_rmdir(arg);
+    } else if (!strcmp_const(arg, s_rm)) {
+        if (!(arg = shell_token_next(arg))) {
+            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+            return;
+        }
+        shell_rm(arg);
+    } else if (!strcmp_const(arg, s_mkdir)) {
+        if (!(arg = shell_token_next(arg))) {
+            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+            return;
+        }
+        shell_mkdir(arg);
+    } else if (!strcmp_const(shell_line, s_help)) {
+        shell_help();
+    } else if (!strcmp_const(shell_line, s_reboot)) {
+        shell_reboot();
+    } else if (!strcmp_const(shell_line, s_ls)) {
+        shell_ls(shell_token_next(arg));
+    } else if (!strcmp_const(shell_line, s_launch)) {
+        if ((arg = shell_token_next(arg))) {
+            shell_print_error(shell_launch_file(arg));
+        } else {
+            shell_launch();
+        }
+    } else if (!strcmp_const(shell_line, s_download)) {
+        if (!(arg = shell_token_next(arg))) {
+            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+            return;
+        }
+        shell_download(arg);
+    } else if (!strcmp_const(shell_line, s_upload)) {
+        if ((arg = shell_token_next(arg))) {
+            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+            return;
+        }
+        shell_upload(arg);
+    } else if (!strcmp_const(shell_line, s_echo)) {
+        int i = 0;
+        while ((arg = shell_token_next(arg))) {
+            nile_mcu_native_cdc_write_string(arg);
+            if (i++) nile_mcu_native_cdc_write_string_const(s_space);
+        }
+    } else if (!strcmp_const(shell_line, s_cat)) {
+        if (!(arg = shell_token_next(arg))) {
+            nile_mcu_native_cdc_write_string_const(s_missing_argument);
+            return;
+        }
+        shell_cat(arg);
+    } else if (!strcmp_const(shell_line, s_pwd)) {
+        shell_pwd();
+    } else if (!strcmp_const(shell_line, s_date)) {
+        if ((arg = shell_token_next(arg))) {
+            if (shell_date_set(arg)) {
+                shell_date_get();
+            }
+        } else {
+            shell_date_get();
+        }
+    } else {
+        nile_mcu_native_cdc_write_string_const(s_unknown_command);
+    }
+}
+
 int shell_func(task_t *task) {
     while (true) {
         shell_task_yield(SHELL_RET_IDLE);
@@ -426,93 +534,7 @@ int shell_func(task_t *task) {
         if (bytes_read > 0) {
             char c = shell_line[shell_line_pos];
             if (c == 13) {
-                if (shell_line_pos > 0) {
-                    // ENTER pressed, parse line
-                    shell_line[shell_line_pos] = 0;
-                    nile_mcu_native_cdc_write_string_const(s_new_line);
-
-                    if (!strcmp(shell_line, s_about)) {
-                        shell_about();
-                    } else if (!memcmp(shell_line, s_cd, 2)) {
-                        if (shell_line_pos <= 3 || shell_line[2] != ' ') {
-                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
-                        } else {
-                            shell_cd();
-                        }
-                    } else if (!memcmp(shell_line, s_rmdir, 5)) {
-                        if (shell_line_pos <= 6 || shell_line[5] != ' ') {
-                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
-                        } else {
-                            shell_rmdir();
-                        }
-                    } else if (!memcmp(shell_line, s_rm, 2)) {
-                        if (shell_line_pos <= 3 || shell_line[2] != ' ') {
-                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
-                        } else {
-                            shell_rm();
-                        }
-                    } else if (!memcmp(shell_line, s_mkdir, 5)) {
-                        if (shell_line_pos <= 6 || shell_line[5] != ' ') {
-                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
-                        } else {
-                            shell_mkdir();
-                        }
-                    } else if (!strcmp(shell_line, s_help)) {
-                        shell_help();
-                    } else if (!strcmp(shell_line, s_reboot)) {
-                        shell_reboot();
-                    } else if (!memcmp(shell_line, s_ls, 2)) {
-                        if (shell_line_pos <= 3 || shell_line[2] != ' ') {
-                            strcpy(shell_line + 3, s_dot_local);
-                        }
-                        shell_ls();
-                    } else if (!memcmp(shell_line, s_launch, 6)) {
-                        if (shell_line_pos <= 7 || shell_line[6] != ' ') {
-                            shell_launch();
-                        } else{
-                            shell_print_error(shell_launch_file(shell_line + 7));
-                        }
-                    } else if (!memcmp(shell_line, s_download, 8)) {
-                        if (shell_line_pos <= 9 || shell_line[8] != ' ') {
-                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
-                        } else {
-                            shell_download();
-                        }
-                    } else if (!memcmp(shell_line, s_upload, 6)) {
-                        if (shell_line_pos <= 7 || shell_line[6] != ' ') {
-                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
-                        } else {
-                            shell_upload();
-                        }
-                    } else if (!memcmp(shell_line, s_echo, 4)) {
-                        if (shell_line_pos <= 5 || shell_line[4] != ' ') {
-                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
-                        } else {
-                            nile_mcu_native_cdc_write_string(shell_line + 5);
-                        }
-                    } else if (!memcmp(shell_line, s_cat, 3)) {
-                        if (shell_line_pos <= 4 || shell_line[3] != ' ') {
-                            nile_mcu_native_cdc_write_string_const(s_missing_argument);
-                        } else {
-                            shell_cat();
-                        }
-                    } else if (!strcmp(shell_line, s_pwd)) {
-                        shell_pwd();
-                    } else if (!memcmp(shell_line, s_date, 4)) {
-                        if (shell_line_pos > 5 && shell_line[4] == ' ') {
-                            if (shell_date_set(shell_line + 5)) {
-                                shell_date_get();
-                            }
-                        } else {
-                            shell_date_get();
-                        }
-                    } else {
-                        nile_mcu_native_cdc_write_string_const(s_unknown_command);
-                    }
-                } else {
-                    shell_flags |= SHELL_FLAG_INTERACTIVE;
-                }
-
+                shell_run_command();
                 shell_new_prompt();
             } else if (c == 3) {
                 // CTRL+C

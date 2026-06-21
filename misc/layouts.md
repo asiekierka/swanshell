@@ -21,3 +21,7 @@
 - Palette 2: title bar palette
 - Palette 3: wallpaper
 - Palette 8..15: general use
+
+## IPC layout
+
+- 0x1FC..0x1FF stores the save ID for emulated NOR flash.

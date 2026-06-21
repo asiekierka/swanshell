@@ -9,6 +9,7 @@ weight: 100
 - Changed: Cleaned up settings layout.
 - Changed: General performance improvements.
 - Changed: Slightly larger file icons in "Large list" mode.
+- Changed: The USB shell now relies on single and double quotes.
 - Fixed: Backspace not working correctly via the USB shell on some terminals.
 - Fixed: File selector top bar not showing the end of the current directory path for long paths.
 - Fixed: Further MCU communication instability problems.

@@ -53,7 +53,7 @@ __bitmap_bitop_row_inject_mask:
     // next row
     add si, di
     loop 1b
-    IA16_RET
+    retf
 
     .section .fartext.s.bitmap, "ax"
 
@@ -129,7 +129,7 @@ __bitmap_bitop_row_c:
     not bp
     mov [__bitmap_bitop_row_inject_inv_mask + 2], bp
 
-    IA16_CALL __bitmap_bitop_row
+    IA16_CALLF __bitmap_bitop_row
 
     pop bp
     pop di
