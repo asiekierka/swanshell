@@ -90,3 +90,6 @@ msgstr "[error]"
 
 msgid "SETTINGS_ABOUT"
 msgstr "About..."
+
+msgid "ERROR_MCU_BIN_CORRUPT"
+msgstr "Invalid MCU.BIN format!"

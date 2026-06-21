@@ -199,9 +199,6 @@ msgstr "État PSRAM corrompu"
 msgid "ERROR_MCU_COMM_FAILED"
 msgstr "Erreur de communication MCU"
 
-msgid "ERROR_MCU_BIN_CORRUPT"
-msgstr "Format MCU.BIN invalide!"
-
 msgid "ERROR_FILE_TOO_LARGE"
 msgstr "Fichier trop volumineux"
 

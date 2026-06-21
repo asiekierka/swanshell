@@ -177,9 +177,6 @@ msgstr "Dane zapisu pamięci flash utracone"
 msgid "ERROR_MCU_COMM_FAILED"
 msgstr "Błąd komunikacji z MCU"
 
-msgid "ERROR_MCU_BIN_CORRUPT"
-msgstr "Nieznany format MCU.BIN!"
-
 msgid "ERROR_FILE_TOO_LARGE"
 msgstr "Zbyt duży plik"
 

@@ -280,9 +280,6 @@ msgstr "未対応のカートリッジリビジョンです"
 msgid "UI_FILE_SELECTOR_EMPTY"
 msgstr "空"
 
-msgid "ERROR_MCU_BIN_CORRUPT"
-msgstr "MCU.BIN の形式が無効です！"
-
 msgid "ERROR_FILE_TOO_LARGE"
 msgstr "ファイルが大きすぎます"
 

@@ -184,9 +184,6 @@ msgstr "PSRAM-Zustand beschädigt"
 msgid "ERROR_MCU_COMM_FAILED"
 msgstr "Fehler bei Kommunikation mit Mikrokontroller"
 
-msgid "ERROR_MCU_BIN_CORRUPT"
-msgstr "Ungültiges Format von MCU.bin!"
-
 msgid "ERROR_FILE_TOO_LARGE"
 msgstr "Datei zu groß"
 

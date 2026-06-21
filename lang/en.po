@@ -277,9 +277,6 @@ msgstr "Invalid firmware installation"
 msgid "ERROR_UNSUPPORTED_CARTRIDGE_REVISION"
 msgstr "Unsupported cartridge revision"
 
-msgid "ERROR_MCU_BIN_CORRUPT"
-msgstr "Invalid MCU.BIN format!"
-
 msgid "ERROR_FILE_TOO_LARGE"
 msgstr "File too large"
 

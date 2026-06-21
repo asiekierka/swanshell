@@ -246,9 +246,6 @@ msgstr "PSRAM 状态损坏"
 msgid "ERROR_MCU_COMM_FAILED"
 msgstr "MCU 通信错误"
 
-msgid "ERROR_MCU_BIN_CORRUPT"
-msgstr "无效的 MCU.BIN 格式！"
-
 msgid "ERROR_DATA_TRANSFER_TIMEOUT"
 msgstr "数据传输超时"
 
