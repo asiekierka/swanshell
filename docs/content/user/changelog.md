@@ -5,6 +5,8 @@ weight: 100
 
 ## swanshell 1.2.2 (21st June 2026)
 
+- **Fixed: Restored old cartridge image launch code.** This solves an SRAM save regression
+  introduced in swanshell 1.2.0.
 - Added: Factory reset settings option.
 - Changed: Cleaned up settings layout.
 - Changed: General performance improvements.

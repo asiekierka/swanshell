@@ -296,7 +296,8 @@ int main(void) {
 	outportb(IO_NILE_POW_CNT, (inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET) | bootstub_data->prog_pow_cnt);
 	// jump to cartridge
 	outportb(WS_INT_ACK_PORT, 0xFF);
-	if (bootstub_data->prog_patches & BOOTSTUB_PROG_PATCH_IPC_RESERVED) {
+	// FIXME: Because cart register access is already disabled, writing to IPC won't work.
+	if (1) {
 		cold_jump_via_iram(bootstub_data->start_pointer);
 	} else {
 		cold_jump_via_ipc(bootstub_data->start_pointer);
