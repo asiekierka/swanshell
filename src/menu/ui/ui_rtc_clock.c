@@ -120,6 +120,8 @@ int16_t ui_rtc_clock(void) {
         dlg.title = lang_keys[LK_DIALOG_INITIALIZING_RTC];
 
         idle_until_vblank();
+        mcu_native_start();
+
         ui_popup_dialog_draw(&dlg);
 
         if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_RESET, NULL, 0, NULL, 0) < 0) {
@@ -129,9 +131,11 @@ int16_t ui_rtc_clock(void) {
         if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_WRITE_STATUS, &rtc_status, 1, NULL, 0) < 0) {
             return ERR_MCU_COMM_FAILED;
         }
+
         // wait slightly over a second
         for (int i = 0; i < 100; i++)
             idle_until_vblank();
+        mcu_native_start();
 
         ui_popup_dialog_clear(&dlg);
     } else if (!(rtc_status & WS_CART_RTC_STATUS_24_HOUR)) {
@@ -169,6 +173,7 @@ int16_t ui_rtc_clock(void) {
         }
 
         idle_until_vblank();
+        mcu_native_start();
         input_update();
 
         if (input_pressed & WS_KEY_X2) {

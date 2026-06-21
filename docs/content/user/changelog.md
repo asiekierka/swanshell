@@ -3,6 +3,10 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.2.4
+
+- Fixed: Minor glitches in the RTC clock editor menu.
+
 ## swanshell 1.2.3 (21st June 2026)
 
 - **Fixed: Restored old cartridge image launch code.** This solves an SRAM save regression
