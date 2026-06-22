@@ -15,6 +15,7 @@
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <nile/spi.h>
 #include <stdbool.h>
 #include <string.h>
 #include <ws.h>
@@ -99,7 +100,7 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
     bitmap_draw_glyph(&ui_bitmap, RTC_TIMER_TEXT_X + (RTC_TIMER_GLYPH_WIDTH * selected_x), RTC_TIMER_TEXT_Y + 19, 8, 3, 0, &arrow_down_glyph);
 }
 
-int16_t ui_rtc_clock(void) {
+static int16_t ui_rtc_clock_inner(void) {
     ui_draw_titlebar(lang_keys[LK_SETTINGS_CART_SET_RTC_TIME]);
     ui_draw_statusbar(NULL);
 
@@ -110,7 +111,6 @@ int16_t ui_rtc_clock(void) {
 
     mcu_native_start();
 
-    // FIXME: Why does the first RTC transaction fail sometimes? Is it a timeout issue?
     if (nile_mcu_native_rtc_transaction_sync(WS_CART_RTC_CTRL_CMD_READ_STATUS, NULL, 0, &rtc_status, 1) < 0) {
         return ERR_MCU_COMM_FAILED;
     }
@@ -238,4 +238,13 @@ int16_t ui_rtc_clock(void) {
     }
 
     return 0;
+}
+
+int16_t ui_rtc_clock(void) {
+    // Initial RTC communications may take longer than the default timeout to be handled.
+    uint16_t old_timeout = nile_spi_get_timeout();
+    nile_spi_set_timeout(2000);
+    int16_t result = ui_rtc_clock_inner();
+    nile_spi_set_timeout(old_timeout);
+    return result;
 }

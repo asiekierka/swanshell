@@ -555,6 +555,9 @@ static void shell_run_command(void) {
     } else if (!strcmp_const(shell_line, s_pwd)) {
         shell_pwd();
     } else if (!strcmp_const(shell_line, s_date)) {
+        // Initial RTC communications may take longer than the default timeout to be handled.
+        uint16_t old_timeout = nile_spi_get_timeout();
+        nile_spi_set_timeout(2000);
         if ((arg = shell_token_next(arg))) {
             if (shell_date_set(arg)) {
                 shell_date_get();
@@ -562,6 +565,7 @@ static void shell_run_command(void) {
         } else {
             shell_date_get();
         }
+        nile_spi_set_timeout(old_timeout);
     } else {
         nile_mcu_native_cdc_write_string_const(s_unknown_command);
     }
