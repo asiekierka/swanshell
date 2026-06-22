@@ -17,6 +17,7 @@
 
 #include <nile.h>
 #include <nilefs.h>
+#include <stdio.h>
 #include <string.h>
 #include <ws.h>
 #include "shell.h"
@@ -34,7 +35,7 @@
 #include "tokenizer.h"
 #include "xmodem.h"
 
-uint8_t shell_task_mem[1152];
+uint8_t shell_task_mem[1216];
 #define shell_task ((task_t*) shell_task_mem)
 
 #define SHELL_LINE_LENGTH 128
@@ -65,7 +66,10 @@ DEFINE_STRING_LOCAL(s_reboot, "reboot");
 DEFINE_STRING_LOCAL(s_rm, "rm");
 DEFINE_STRING_LOCAL(s_rmdir, "rmdir");
 DEFINE_STRING_LOCAL(s_upload, "upload");
+DEFINE_STRING_LOCAL(s_ls_size, "%10ld ");
+DEFINE_STRING_LOCAL(s_ls_date, "%04d-%02d-%02d %02d:%02d ");
 DEFINE_STRING_LOCAL(s_invalid_argument, "Invalid argument");
+DEFINE_STRING_LOCAL(s_too_many_arguments, "Too many arguments");
 DEFINE_STRING_LOCAL(s_missing_argument, "Missing argument");
 DEFINE_STRING_LOCAL(s_unknown_command, "Unknown command");
 DEFINE_STRING_LOCAL(s_backspace, "\x08 \x08");
@@ -344,17 +348,45 @@ static void shell_cat(const char *path) {
         shell_print_error(result);
     }
 }
-
-static void shell_ls(char *path) {
+static void shell_ls(char *arg) {
     DIR dp;
     FILINFO fno;
-    char buf[2];
+    char *path = NULL;
+    bool flag_size = false;
+    bool flag_date = false;
+    char buf[20];
+    bool parsing_flags = true;
+
+    while (true) {
+        if (arg == NULL) break;
+        if (parsing_flags && arg[0] == '-') {
+            if (arg[1] == '-' && arg[2] == 0) {
+                parsing_flags = false;
+            } else {
+                char *c = arg + 1;
+                while (*c) {
+                    switch ((*c)++) {
+                        case 'l': flag_size = true; flag_date = true; break;
+                        case 's': flag_size = true; break;
+                    }
+                }
+            }
+        } else {
+            if (path != NULL) {
+                nile_mcu_native_cdc_write_string(s_too_many_arguments);
+                return;
+            }
+            path = arg;
+        }
+        arg = shell_token_next(arg);
+    }
 
     if (path == NULL) {
         buf[0] = '.';
         buf[1] = 0;
         path = buf;
     }
+
     int16_t result = f_opendir(&dp, path);
     if (result == FR_OK) {
         while (true) {
@@ -363,6 +395,21 @@ static void shell_ls(char *path) {
                 break;
     		if (fno.fname[0] == 0)
     			break;
+            if (flag_size) {
+                sprintf(buf, s_ls_size, fno.fsize);
+                nile_mcu_native_cdc_write_string(buf);
+            }
+            if (flag_date) {
+                sprintf(buf, s_ls_date,
+                    1980 + (fno.fdate >> 9),
+                    (fno.fdate >> 5) & 0xF,
+                    fno.fdate & 0x1F,
+                    fno.ftime >> 11,
+                    (fno.ftime >> 5) & 0x3F,
+                    (fno.ftime & 0x1F) << 1
+                );
+                nile_mcu_native_cdc_write_string(buf);
+            }
             nile_mcu_native_cdc_write_string(fno.fname);
             nile_mcu_native_cdc_write_string_const(s_new_line);
     	}
