@@ -1,5 +1,5 @@
 msgid ""
-msgstr "PO-Revision-Date: 2026-06-21 09:52+0000\nLast-Translator: Kemal Afzal <Kemal-Afzal@outlook.de>\nLanguage-Team: German <https://weblate.asie.pl/projects/49bitcat/swanshell/de/>\nLanguage: de\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=n != 1;\nX-Generator: Weblate 2026.6.1\n"
+msgstr "PO-Revision-Date: 2026-06-24 20:14+0000\nLast-Translator: Kemal Afzal <Kemal-Afzal@outlook.de>\nLanguage-Team: German <https://weblate.asie.pl/projects/49bitcat/swanshell/de/>\nLanguage: de\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=2; plural=n != 1;\nX-Generator: Weblate 2026.6.1\n"
 
 msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
 msgstr "Seite %d/%d"
@@ -443,7 +443,6 @@ msgstr "Speicherdaten löschen"
 msgid "DIALOG_FILE_ERASE_SAVE_CONFIRM"
 msgstr "Sollen die Speicherdaten dieser Datei wirklich gelöscht werden?"
 
-#, fuzzy
 msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
 msgstr "Lange Namen scrollen lassen"
 
@@ -463,3 +462,27 @@ msgstr "Querformat"
 
 msgid "SETTINGS_DISPLAY_ORIENTATION_VERTICAL"
 msgstr "Hochformat"
+
+msgid "SETTINGS_INTERFACE_KEY"
+msgstr "Benutzeroberfläche"
+
+msgid "SETTINGS_SYSTEM_KEY"
+msgstr "System"
+
+msgid "SETTINGS_ADVANCED_KEY"
+msgstr "Erweitert"
+
+msgid "SETTINGS_PROG_VERIFY_SAVES"
+msgstr "Geschriebene Speicherdaten überprüfen"
+
+msgid "SETTINGS_PROG_VERIFY_SAVES_HELP"
+msgstr "Überprüft Speicherdaten beim Kopieren von Spielmodul auf die Speicherkarte. Erlaubt es defekte Speicherkarten zu erkennen."
+
+msgid "ERROR_SAVE_VERIFY_FAILED"
+msgstr "Fehler in geschriebenen Speicherdaten"
+
+msgid "SETTINGS_FACTORY_RESET"
+msgstr "Werkseinstellungen"
+
+msgid "SETTINGS_FACTORY_RESET_WARNING"
+msgstr "Diese Option löscht alle Einstellungen! Soll fortgefahren werden?"
