@@ -1,5 +1,5 @@
 msgid ""
-msgstr "PO-Revision-Date: 2026-06-21 09:52+0000\nLast-Translator: bigmoonur <bigmoon_ur@outlook.jp>\nLanguage-Team: Japanese <https://weblate.asie.pl/projects/49bitcat/swanshell/ja/>\nLanguage: ja\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\nX-Generator: Weblate 2026.6.1\n"
+msgstr "PO-Revision-Date: 2026-07-02 10:33+0000\nLast-Translator: bigmoonur <bigmoon_ur@outlook.jp>\nLanguage-Team: Japanese <https://weblate.asie.pl/projects/49bitcat/swanshell/ja/>\nLanguage: ja\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\nX-Generator: Weblate 2026.6.1\n"
 
 msgid "SUBMENU_OPTION_WITCH"
 msgstr "ウィッチ..."
@@ -117,7 +117,6 @@ msgstr "小"
 msgid "SETTINGS_TEXT_READER_FONT_SIZE_HELP"
 msgstr "テキストファイル表示時のフォントを選択します。"
 
-#, fuzzy
 msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
 msgstr "長い項目名のスクロール表示"
 
@@ -450,3 +449,27 @@ msgstr "横画面"
 
 msgid "SETTINGS_DISPLAY_ORIENTATION_VERTICAL"
 msgstr "縦画面"
+
+msgid "SETTINGS_INTERFACE_KEY"
+msgstr "インタフェース"
+
+msgid "SETTINGS_SYSTEM_KEY"
+msgstr "システム"
+
+msgid "SETTINGS_PROG_VERIFY_SAVES"
+msgstr "保存後のセーブデータを検証"
+
+msgid "SETTINGS_PROG_VERIFY_SAVES_HELP"
+msgstr "カートリッジから SD カードへセーブデータを保存する際に、保存後のデータを検証します。SD カードの破損を検出できます。"
+
+msgid "ERROR_SAVE_VERIFY_FAILED"
+msgstr "保存後セーブデータの検証エラー"
+
+msgid "SETTINGS_FACTORY_RESET"
+msgstr "初期化"
+
+msgid "SETTINGS_FACTORY_RESET_WARNING"
+msgstr "この操作を行うと、すべての設定が出荷時の状態にリセットされます。続行しますか？"
+
+msgid "SETTINGS_ADVANCED_KEY"
+msgstr "Advanced"
