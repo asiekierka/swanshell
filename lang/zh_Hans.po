@@ -1,5 +1,5 @@
 msgid ""
-msgstr "PO-Revision-Date: 2026-06-21 09:52+0000\nLast-Translator: bigmoonur <bigmoon_ur@outlook.jp>\nLanguage-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/projects/49bitcat/swanshell/zh_Hans/>\nLanguage: zh_Hans\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\nX-Generator: Weblate 2026.6.1\n"
+msgstr "PO-Revision-Date: 2026-07-02 10:33+0000\nLast-Translator: bigmoonur <bigmoon_ur@outlook.jp>\nLanguage-Team: Chinese (Simplified Han script) <https://weblate.asie.pl/projects/49bitcat/swanshell/zh_Hans/>\nLanguage: zh_Hans\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPlural-Forms: nplurals=1; plural=0;\nX-Generator: Weblate 2026.6.1\n"
 
 msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
 msgstr "第%d/%d页"
@@ -425,7 +425,6 @@ msgstr "为用户界面的主要区域使用深色背景。"
 msgid "DIALOG_SAVE_OVERDUMP_TITLE_SRAM"
 msgstr ".ram 文件太大"
 
-#, fuzzy
 msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
 msgstr "滚动显示长项目名"
 
@@ -449,3 +448,27 @@ msgstr "横屏"
 
 msgid "SETTINGS_DISPLAY_ORIENTATION_VERTICAL"
 msgstr "竖屏"
+
+msgid "SETTINGS_INTERFACE_KEY"
+msgstr "页面"
+
+msgid "SETTINGS_SYSTEM_KEY"
+msgstr "系统"
+
+msgid "SETTINGS_ADVANCED_KEY"
+msgstr "高级"
+
+msgid "SETTINGS_PROG_VERIFY_SAVES"
+msgstr "验证已保存存档数据"
+
+msgid "SETTINGS_PROG_VERIFY_SAVES_HELP"
+msgstr "验证由卡带保存至 SD 卡的存档数据。可用于检测 SD 卡损坏。"
+
+msgid "ERROR_SAVE_VERIFY_FAILED"
+msgstr "已保存存档数据验证错误"
+
+msgid "SETTINGS_FACTORY_RESET"
+msgstr "初始化"
+
+msgid "SETTINGS_FACTORY_RESET_WARNING"
+msgstr "此操作将使所有设置初始化至出厂状态！确定要继续吗？"
