@@ -6,6 +6,8 @@ weight: 100
 ## swanshell 1.2.4
 
 - Added: In the USB shell, `ls` now supports `-l` and `-s` arguments.
+- Changed: Updated translations: German (Generic), Spanish (Jurek),
+  Japanese, etc. (bigmoonur).
 - Fixed: Remaining known issues in the RTC clock editor menu.
 
 ## swanshell 1.2.3 (21st June 2026)
