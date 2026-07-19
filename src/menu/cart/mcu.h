@@ -60,4 +60,6 @@ static inline bool mcu_native_finish(void) {
 void mcu_native_enter_speed(uint16_t speed);
 void mcu_native_exit_speed(void);
 
+int16_t mcu_native_cdc_write_sync_until_ok(const void __far* buffer, uint16_t buflen);
+
 #endif /* CART_MCU_H_ */

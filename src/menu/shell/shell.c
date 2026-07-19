@@ -98,7 +98,7 @@ DEFINE_STRING_LOCAL(s_help_output,
 
 static const char __far s_version_suffix[] = " " VERSION;
 
-#define nile_mcu_native_cdc_write_string_const(s) nile_mcu_native_cdc_write_sync(s, sizeof(s)-1)
+#define nile_mcu_native_cdc_write_string_const(s) mcu_native_cdc_write_sync_until_ok(s, sizeof(s)-1)
 #define strcmp_const(buf,val) memcmp((buf),(val),sizeof((val)))
 
 void nile_mcu_native_cdc_write_string(const char __far* s) {
@@ -107,7 +107,7 @@ void nile_mcu_native_cdc_write_string(const char __far* s) {
     while (true) {
         if (s[pos] == 0 || s[pos] == 10) {
             if (last_pos != pos) {
-                nile_mcu_native_cdc_write_sync(s + last_pos, pos - last_pos);
+                mcu_native_cdc_write_sync_until_ok(s + last_pos, pos - last_pos);
             }
             last_pos = pos + 1;
             if (s[pos] == 10) {
@@ -232,6 +232,7 @@ static void shell_launch(void) {
 
 static void shell_file_callback(void *userdata, uint32_t step, uint32_t max) {
     nile_mcu_native_cdc_write_string_const(s_dot_local);
+    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
 }
 
 static void shell_upload(const char *path) {
@@ -245,6 +246,7 @@ static void shell_upload(const char *path) {
     if (result == FR_OK) {
         FIL fp;
         nile_mcu_native_cdc_write_string_const(s_saving_file);
+        nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
         result = f_open(&fp, path, FA_WRITE | FA_CREATE_ALWAYS);
         if (result == FR_OK) {
             result = f_write_rom_banked(&fp, 0, size, shell_file_callback, NULL, false);
@@ -261,7 +263,9 @@ static void shell_upload(const char *path) {
 static bool shell_download_callback(uint8_t *buffer, void *userdata) {
     FIL *fp = (FIL*) userdata;
     unsigned int br = 0;
+    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
     int16_t result = f_read(fp, buffer, 128, &br);
+    nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
     if (result != FR_OK || br == 0) {
         return false;
     } else {
@@ -581,6 +585,7 @@ int shell_func(task_t *task) {
             continue;
         }
 
+        mcu_native_start();
         int bytes_read = nile_mcu_native_cdc_read_sync(shell_line + shell_line_pos, 1);
         if (bytes_read > 0) {
             char c = shell_line[shell_line_pos];
@@ -604,7 +609,7 @@ int shell_func(task_t *task) {
             } else if (c >= 32 && c <= 126) {
                 // Echo byte back
                 if (shell_flags & SHELL_FLAG_INTERACTIVE) {
-                    nile_mcu_native_cdc_write_sync(shell_line + shell_line_pos, 1);
+                    mcu_native_cdc_write_sync_until_ok(shell_line + shell_line_pos, 1);
                 }
 
                 if (shell_line_pos == SHELL_LINE_LENGTH) {

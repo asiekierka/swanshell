@@ -16,6 +16,7 @@
  */
 
 #include <assert.h>
+#include <nile/mcu/cdc.h>
 #include <nilefs/ff.h>
 #include <string.h>
 #include <ws.h>
@@ -207,4 +208,14 @@ void mcu_native_exit_speed(void) {
     if (ws_system_is_color_active())
         outportb(WS_SYSTEM_CTRL_COLOR_PORT, inportb(WS_SYSTEM_CTRL_COLOR_PORT) & ~WS_SYSTEM_CTRL_COLOR_CART_FAST_CLOCK);
     nile_mcu_native_mcu_spi_set_speed_sync(0);
+}
+
+int16_t mcu_native_cdc_write_sync_until_ok(const void __far* buffer, uint16_t buflen) {
+    int retries = 10;
+    int result = -1;
+    mcu_native_start();
+    while (result < 0 && retries--) {
+        result = nile_mcu_native_cdc_write_sync(buffer, buflen);
+    }
+    return result;
 }
