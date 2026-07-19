@@ -228,7 +228,7 @@ void ui_file_selector(void) {
     char strbuf[FF_LFN_BUF + 1];
 
     ui_selector_config_t config = {0};
-    bool reinit_ui = true;
+    bool reinit_ui = false;
     bool reinit_dirs = true;
 
     uint16_t path_depth[CONFIG_FILESELECT_PATH_MEMORY_DEPTH] = {0};

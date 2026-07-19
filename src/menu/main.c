@@ -172,6 +172,7 @@ void main(void) {
 	shell_init();
 
 	// Run ui_show() again to intiialize wallpaper
+	ui_layout_bars();
 	ui_show();
 	ui_file_selector();
 
