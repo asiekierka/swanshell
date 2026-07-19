@@ -232,7 +232,7 @@ static void shell_launch(void) {
 
 static void shell_file_callback(void *userdata, uint32_t step, uint32_t max) {
     nile_mcu_native_cdc_write_string_const(s_dot_local);
-    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
 }
 
 static void shell_upload(const char *path) {
@@ -246,7 +246,7 @@ static void shell_upload(const char *path) {
     if (result == FR_OK) {
         FIL fp;
         nile_mcu_native_cdc_write_string_const(s_saving_file);
-        nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+        nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
         result = f_open(&fp, path, FA_WRITE | FA_CREATE_ALWAYS);
         if (result == FR_OK) {
             result = f_write_rom_banked(&fp, 0, size, shell_file_callback, NULL, false);
@@ -263,7 +263,7 @@ static void shell_upload(const char *path) {
 static bool shell_download_callback(uint8_t *buffer, void *userdata) {
     FIL *fp = (FIL*) userdata;
     unsigned int br = 0;
-    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
     int16_t result = f_read(fp, buffer, 128, &br);
     nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_MCU);
     if (result != FR_OK || br == 0) {

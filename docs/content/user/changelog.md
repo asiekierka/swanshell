@@ -3,12 +3,14 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell 1.2.4
+## swanshell 1.2.4 (19th July 2026)
 
+- **Fixed: Worked around some cases of EEPROM save corruption.**
 - Added: In the USB shell, `ls` now supports `-l` and `-s` arguments.
 - Changed: Updated translations: German (Generic), Spanish (Jurek),
   Japanese, etc. (bigmoonur).
 - Fixed: Remaining known issues in the RTC clock editor menu.
+- Fixed: Text glitches when using the USB shell `upload` command.
 
 ## swanshell 1.2.3 (21st June 2026)
 

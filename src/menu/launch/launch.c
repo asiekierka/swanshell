@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ws.h>
+#include <ws/util.h>
 #include <wsx/zx0.h>
 #include <nile.h>
 #include <nilefs.h>
@@ -366,7 +367,7 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words, boo
             break;
         }
 
-        nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+        nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
         result = f_write(fp, buffer, to_read << 1, NULL);
         if (result != FR_OK)
             break;
@@ -383,7 +384,7 @@ static int16_t launch_write_eeprom(FIL *fp, uint8_t *buffer, uint16_t words, boo
                 break;
             }
 
-            nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+            nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
             result = f_read(fp, cmp_buffer, to_read << 1, NULL);
             if (result != FR_OK)
                 break;
@@ -407,7 +408,7 @@ static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
     nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
     ws_eeprom_write_unlock(h);
     for (uint16_t i = 0; i < words; i++) {
-         nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_TF);
+         nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
          result = f_read(fp, &w, 2, &br);
          if (result != FR_OK)
              break;
@@ -419,6 +420,7 @@ static int16_t launch_read_eeprom(FIL *fp, uint8_t mode, uint16_t words) {
     }
     nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
     ws_eeprom_write_lock(h);
+    nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
 
     return result;
 }
@@ -594,39 +596,6 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         if (result != FR_OK)
             goto launch_restore_save_data_return_result;
     }
-    if (meta->eeprom_size != 0) {
-        strcpy(ext_loc, s_file_ext_eeprom);
-        result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL, LK_DIALOG_PREPARE_SAVE, LK_DIALOG_SAVE_OVERDUMP_TITLE_EEPROM);
-        if (result != FR_OK)
-            goto launch_restore_save_data_return_result;
-
-        // initialize MCU
-        mcu_native_start();
-        if (nile_mcu_native_eeprom_set_mode_sync(eeprom_mcu_control[meta->footer.save_type >> 4]) <= 0) {
-            result = ERR_MCU_COMM_FAILED;
-            goto launch_restore_save_data_return_result;
-        }
-
-        // switch MCU to EEPROM mode
-        if (!mcu_native_set_mode(1)) {
-            result = ERR_MCU_COMM_FAILED;
-            goto launch_restore_save_data_return_result;
-        }
-
-        // copy data to EEPROM
-        result = launch_read_eeprom(&fp, meta->footer.save_type >> 4,
-            f_size(&fp) >> 1);
-        if (result != FR_OK) {
-            f_close(&fp);
-            goto launch_restore_save_data_return_result;
-        }
-
-        mcu_native_finish();
-
-        result = f_close(&fp);
-        if (result != FR_OK)
-            goto launch_restore_save_data_return_result;
-    }
     if (meta->flash_size != 0) {
         strcpy(ext_loc, s_file_ext_flash);
         result = preallocate_file(dst_path, &fp, 0xFF, meta->flash_size, path, LK_DIALOG_PREPARE_FLASH, LK_DIALOG_SAVE_OVERDUMP_TITLE_FLASH);
@@ -713,6 +682,46 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
 
 launch_restore_save_data_ini_end:
     result = result || f_close(&fp);
+    if (result == FR_OK) {
+        // TODO: Move this back between meta->sram_size and meta->flash_size.
+        // There appears to be a bug which causes some part of this EEPROM save operation
+        // to spill through to the MCU SPI bus, causing data corruption  on the EEPROM save
+        // (in particular, rewriting word 2 with 0xFFFF). To avoid this issue, switch the
+        // MCU into EEPROM mode after all TF write operations.
+        if (meta->eeprom_size != 0) {
+            strcpy(ext_loc, s_file_ext_eeprom);
+            result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL, LK_DIALOG_PREPARE_SAVE, LK_DIALOG_SAVE_OVERDUMP_TITLE_EEPROM);
+            if (result != FR_OK)
+                goto launch_restore_save_data_return_result;
+
+            // initialize MCU
+            mcu_native_start();
+            if (nile_mcu_native_eeprom_set_mode_sync(eeprom_mcu_control[meta->footer.save_type >> 4]) <= 0) {
+                result = ERR_MCU_COMM_FAILED;
+                goto launch_restore_save_data_return_result;
+            }
+
+            // switch MCU to EEPROM mode
+            if (!mcu_native_set_mode(1)) {
+                result = ERR_MCU_COMM_FAILED;
+                goto launch_restore_save_data_return_result;
+            }
+
+            // copy data to EEPROM
+            result = launch_read_eeprom(&fp, meta->footer.save_type >> 4,
+                f_size(&fp) >> 1);
+            if (result != FR_OK) {
+                f_close(&fp);
+                goto launch_restore_save_data_return_result;
+            }
+
+            mcu_native_finish();
+
+            result = f_close(&fp);
+            if (result != FR_OK)
+                goto launch_restore_save_data_return_result;
+        }
+    }
 launch_restore_save_data_return_result:
     return result;
 }
