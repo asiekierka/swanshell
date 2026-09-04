@@ -41,7 +41,7 @@ static inline void ui_selector_set_active_font(ui_selector_config_t *config) {
     uint16_t row_count, row_height, row_offset; \
     if (config->style == UI_SELECTOR_STYLE_16) { \
         row_height = 16; \
-        row_offset = 3; \
+        row_offset = 2; \
     } else { \
         row_height = 8; \
         row_offset = 0; \

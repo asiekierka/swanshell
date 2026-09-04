@@ -127,6 +127,7 @@ dist: all athenaos-compatible athenaos-native plugin-uxnws dist/NILESWAN/font8/d
 	@cp fonts/misaki/LICENSE dist/NILESWAN/license/font/default8/LICENSE.misaki
 	@cp fonts/boutique/LICENSE dist/NILESWAN/license/font/default8/LICENSE.boutique
 	@cp fonts/baekmuk/COPYRIGHT dist/NILESWAN/license/font/default16/LICENSE.baekmuk
+	@cp fonts/mplus/LICENSE_E dist/NILESWAN/license/font/default16/LICENSE.mplus
 	@cp vendor/modified-ark-pixel-font/LICENSE-OFL dist/NILESWAN/license/font/default16/LICENSE.arkpixel
 	@cp vendor/uxnws/uxnws.nileswan.wsc dist/NILESWAN/PLUG_UXN.BIN
 

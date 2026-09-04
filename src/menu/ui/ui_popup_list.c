@@ -75,11 +75,11 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
         if (selected != prev_selected) {
             if (prev_selected != 0xFF) {
                 bitmap_rect_fill(&ui_bitmap, list_x + 2, list_y + 2 + bitmapfont_get_font_height() * prev_selected,
-                    list_width - 4, bitmapfont_get_font_height(), BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));    
+                    list_width - 4, bitmapfont_get_font_height(), BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));
             }
 
             bitmap_rect_fill(&ui_bitmap, list_x + 2, list_y + 2 + bitmapfont_get_font_height() * selected,
-                list_width - 4, bitmapfont_get_font_height(), BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));    
+                list_width - 4, bitmapfont_get_font_height(), BITMAP_COLOR(1, 1, BITMAP_COLOR_MODE_XOR));
             prev_selected = selected;
         }
 

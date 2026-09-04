@@ -9,19 +9,23 @@ local stringx = require("pl.stringx")
 
 local M = {}
 
-M.parse = function(filename, reverse)
+M.parse = function(filename, from, to)
     local file <close> = io.open(filename)
     local trans_table = {}
+    if from == true then
+        from = 2
+        to = 1
+    elseif from == nil or type(from) == "boolean" then
+        from = 1
+        to = 2
+    end
+    
     if reverse == nil then reverse = false end
 
     for line in file:lines() do
         if not stringx.startswith(line, "#") then
             local parts = stringx.split(line)
-            if reverse == true then
-                trans_table[tonumber(parts[2])] = tonumber(parts[1])
-            else
-                trans_table[tonumber(parts[1])] = tonumber(parts[2])
-            end
+            trans_table[tonumber(parts[from])] = tonumber(parts[to])
         end
     end
 

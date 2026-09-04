@@ -43,7 +43,7 @@ end
 local function add_char_gap(font, amount)
     for id, char in pairs(font.chars) do
         char.gap = (char.gap or 0) + amount
-    end                
+    end
 end
 
 -- 90 degree clockwise rotate the provided font bitmap entry
@@ -70,15 +70,22 @@ local function rotate_font_entry(char, height)
     }
 end
 
-local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y_offset, is_allowed_char)
+local function build_font_entry_tables(height, tiny_font, fonts, x_offset_tbl, y_offset_tbl, is_allowed_char)
     local chars = {}
     local i = 0
     local max_glyph_id = 0
 
     for font_idx, font in pairs(fonts) do
         local x_offset = x_offset_tbl[font_idx]
-        if y_offset == nil then
-            local a_char = font.chars[91] -- [
+        local y_offset
+        if y_offset_tbl ~= nil then
+            if type(y_offset_tbl) == "number" then
+                y_offset = y_offset_tbl
+            else
+                y_offset = y_offset_tbl[font_idx]
+            end
+        else
+            local a_char = font.chars[91] or font.chars[0xFF3B]
             local a_y = font.ascent - a_char.y - a_char.height
             y_offset = -a_y
             for i=1,#a_char.bitmap do
@@ -341,7 +348,7 @@ end
 
 local function filter_default(ch, font)
     -- control codes
-    if (ch < 0x20) or (ch >= 0x80 and ch < 0xA0) then return false end 
+    if (ch < 0x20) or (ch >= 0x80 and ch < 0xA0) then return false end
     -- Braille
     if ch >= 0x2800 and ch < 0x2900 then return false end
     -- UTF-16 surrogates, PUA
@@ -349,8 +356,26 @@ local function filter_default(ch, font)
     return true
 end
 
+local function filter_kana_kanji(ch, font)
+    return (ch >= 0x3040) and (ch < 0xA000)
+end
+
 local function filter_tiny(ch, font)
     return ch >= 0x20 and ch < 0x80
+end
+
+local function filter_font_by(font, filter)
+    local old_chars = font.chars
+    font = tablex.copy(font)
+    font.chars = {}
+
+    for id, char in pairs(old_chars) do
+        if filter(id, font) then
+            font.chars[id] = char
+        end
+    end
+
+    return font
 end
 
 if args.type == "default8" then
@@ -373,13 +398,17 @@ if args.type == "default8" then
 end
 
 if args.type == "default16" then
-    local arkpixel12
+    local arkpixel12 = nil
+    local mplus12 = nil
     if args.language or "" == "zh_hans" then
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_cn.bdf")
     elseif args.language or "" == "zh_hant" then
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_tw.bdf")
     else
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-ja.bdf")
+        local jis0208table = unicode_table.parse("fonts/tables/JIS0208.TXT", 2, 3)
+        mplus12 = bdf.parse("fonts/mplus/mplus_j12r.bdf", jis0208table)
+        mplus12 = filter_font_by(mplus12, filter_kana_kanji)
     end
     local ksx1001table = unicode_table.parse("fonts/tables/KSX1001.TXT")
     local baekmukdotum12 = bdf.parse("fonts/baekmuk/dotum12.bdf", ksx1001table)
@@ -387,7 +416,16 @@ if args.type == "default16" then
     add_char_gap(arkpixel12, 1)
     add_char_gap(baekmukdotum12, 1)
 
-    write_font(args.output, 16, build_font_entry_tables(16, false, {arkpixel12, baekmukdotum12}, {-1, 0}, nil, filter_default))
+    local font_order = {arkpixel12, baekmukdotum12}
+    local font_offsets = {0, 0}
+    local font_y_offsets = {-2, 0}
+    if mplus12 ~= nil then
+        font_order = {mplus12, arkpixel12, baekmukdotum12}
+        font_offsets = {0, 0, 0}
+        font_y_offsets = {0, -2, 0}
+    end
+
+    write_font(args.output, 16, build_font_entry_tables(16, false, font_order, font_offsets, font_y_offsets, filter_default))
 end
 
 if args.type == "tiny8" then

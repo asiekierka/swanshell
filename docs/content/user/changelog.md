@@ -3,6 +3,10 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.2.5 (?? September 2026)
+
+- Changed: Updated font data, including improved Japanese support.
+
 ## swanshell 1.2.4 (19th July 2026)
 
 - **Fixed: Worked around some cases of EEPROM save corruption.**
