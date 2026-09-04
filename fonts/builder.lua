@@ -399,27 +399,31 @@ end
 
 if args.type == "default16" then
     local arkpixel12 = nil
-    local mplus12 = nil
+    local zh_font = false
     if args.language or "" == "zh_hans" then
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_cn.bdf")
+        zh_font = true
     elseif args.language or "" == "zh_hant" then
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_tw.bdf")
+        zh_font = true
     else
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-ja.bdf")
-        local jis0208table = unicode_table.parse("fonts/tables/JIS0208.TXT", 2, 3)
-        mplus12 = bdf.parse("fonts/mplus/mplus_j12r.bdf", jis0208table)
-        mplus12 = filter_font_by(mplus12, filter_kana_kanji)
     end
+
     local ksx1001table = unicode_table.parse("fonts/tables/KSX1001.TXT")
     local baekmukdotum12 = bdf.parse("fonts/baekmuk/dotum12.bdf", ksx1001table)
+
+    local jis0208table = unicode_table.parse("fonts/tables/JIS0208.TXT", 2, 3)
+    mplus12 = bdf.parse("fonts/mplus/mplus_j12r.bdf", jis0208table)
+    mplus12 = filter_font_by(mplus12, filter_kana_kanji)
 
     add_char_gap(arkpixel12, 1)
     add_char_gap(baekmukdotum12, 1)
 
-    local font_order = {arkpixel12, baekmukdotum12}
-    local font_offsets = {0, 0}
-    local font_y_offsets = {-2, 0}
-    if mplus12 ~= nil then
+    local font_order = {arkpixel12, mplus12, baekmukdotum12}
+    local font_offsets = {0, 0, 0}
+    local font_y_offsets = {-2, 0, 0}
+    if zh_font == false then
         font_order = {mplus12, arkpixel12, baekmukdotum12}
         font_offsets = {0, 0, 0}
         font_y_offsets = {0, -2, 0}

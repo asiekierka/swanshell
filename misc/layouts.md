@@ -1,4 +1,6 @@
-## Memory layout
+# Memory layout
+
+## Console RAM
 
 |  From  |   To   | Description |
 | ------ | ------ | ----------- |
@@ -14,6 +16,18 @@
 | 0xE000 | 0xFDFF | Unused |
 | 0xFE00 | 0xFFFF | WSC palettes |
 
+## Cartridge SRAM
+
+* File selector
+  * Banks 1 .. 6 inclusive store file entries
+    * Bank 6 0xF410 .. 0xFFF7 stores file selector indexes
+
+## Cartridge IPC RAM
+
+- 0x1FC..0x1FF stores the save ID for emulated NOR flash.
+
+# Graphics layout
+
 ## Menu palette layout
 
 - Palette 0: icon palette
@@ -21,7 +35,3 @@
 - Palette 2: title bar palette
 - Palette 3: wallpaper
 - Palette 8..15: general use
-
-## IPC layout
-
-- 0x1FC..0x1FF stores the save ID for emulated NOR flash.
