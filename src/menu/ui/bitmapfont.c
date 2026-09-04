@@ -381,6 +381,10 @@ void bitmapfont_set_active_font_inner(uint8_t value, bool quiet) {
         case 2: path = s_path_font16; break;
         case 3: path = s_path_font16v; break;
         }
+        if (active_font >= 2 && settings.language == SETTINGS_LANG_ZH_HANS) {
+            if (active_font == 2 && f_exists_far(s_path_font16hans)) path = s_path_font16hans;
+            if (active_font == 3 && f_exists_far(s_path_font16hansv)) path = s_path_font16hansv;
+        }
 
         int16_t result = bitmapfont_load_font(active_font, path);
         if (result != FR_OK) {

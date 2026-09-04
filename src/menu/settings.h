@@ -23,6 +23,14 @@
 #include <wonderful.h>
 #include <nilefs.h>
 
+#define SETTINGS_LANG_EN 0
+#define SETTINGS_LANG_PL 1
+#define SETTINGS_LANG_DE 2
+#define SETTINGS_LANG_FR 3
+#define SETTINGS_LANG_ES 4
+#define SETTINGS_LANG_ZH_HANS 5
+#define SETTINGS_LANG_JA 6
+
 #define SETTING_TYPE_CATEGORY    0
 #define SETTING_TYPE_FLAG        1
 #define SETTING_TYPE_CHOICE_BYTE 2

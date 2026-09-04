@@ -33,6 +33,7 @@ void settings_reset(void) {
     settings.joy_repeat_first_ticks = 18;
     settings.joy_repeat_next_ticks = 5;
     settings.file_sort = SETTING_FILE_SORT_NAME_ASC;
+    settings.language = 0xFF;
 }
 
 static int16_t settings_load_category(FIL *fp, const setting_category_t __far *cat, const char *key, const char *value) {
@@ -150,5 +151,5 @@ int16_t settings_save(void) {
 }
 
 bool settings_language_prefer_large_fonts(void) {
-    return settings.language == 5 || settings.language == 6;
+    return settings.language == SETTINGS_LANG_ZH_HANS || settings.language == SETTINGS_LANG_JA;
 }

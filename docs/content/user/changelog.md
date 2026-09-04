@@ -5,7 +5,7 @@ weight: 100
 
 ## swanshell 1.2.5 (?? September 2026)
 
-- Changed: Updated font data, including improved Japanese support.
+- Changed: Updated font data, including improved Chinese and Japanese support.
 
 ## swanshell 1.2.4 (19th July 2026)
 

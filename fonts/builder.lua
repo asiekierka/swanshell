@@ -438,5 +438,5 @@ end
 if args.type == "tiny16" then
     local font = bdf.parse("fonts/build/ark-pixel-12px-proportional-ja.bdf")
     add_char_gap(font, 1)
-    write_font(args.output, 16, build_font_entry_tables(16, true, {font}, {-1}, -3, filter_tiny))
+    write_font(args.output, 16, build_font_entry_tables(16, true, {font}, {0}, -2, filter_tiny))
 end
