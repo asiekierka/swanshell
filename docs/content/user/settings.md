@@ -1,9 +1,9 @@
 ---
-title: 'Settings'
+title: 'Configuration'
 weight: 10
 ---
 
-You can use the settings view to configure swanshell's functionality.
+You can use the settings view to configure swanshell's look and functionality.
 
 ![The settings view.](/swanshell/img/settings.png)
 

@@ -3,7 +3,7 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell 1.2.5 (?? September 2026)
+## swanshell 1.2.5 (5th September 2026)
 
 - Changed: Updated font data, including improved Chinese and Japanese support.
 - Fixed: Visual glitches in dialog box text rendering.
