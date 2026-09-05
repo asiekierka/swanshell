@@ -203,7 +203,7 @@ msgid "DIALOG_PREPARE_SAVE"
 msgstr "セーブデータ作成中"
 
 msgid "DIALOG_PREPARE_FLASH"
-msgstr "flash イメージ作成中"
+msgstr "Flash イメージ作成中"
 
 msgid "DIALOG_PREPARE_ROM"
 msgstr "ROM イメージ作成中"

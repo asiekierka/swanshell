@@ -300,7 +300,7 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
         while (true) {
             ch = wsx_utf8_decode_next(&str);
             bool is_soft_break = ch == ' ';
-            bool is_hard_break = ch == '\n';
+            bool is_hard_break = ch == '\n' || !ch;
             if (is_soft_break && !line_width) {
                 continue;
             }
@@ -309,11 +309,8 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
                 break_str = str;
                 break_line_width = line_width;
             }
-            if (new_line_width > width || is_hard_break || !ch) {
-                if (!ch) {
-                    break_str = str;
-                    break_line_width = line_width;
-                } else if (break_str == NULL) {
+            if (new_line_width > width || is_hard_break) {
+                if (break_str == NULL) {
                     break_str = prev_str;
                     break_line_width = prev_line_width;
                 }
@@ -333,13 +330,14 @@ uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint1
                 break_line_width = 0;
                 line_width = 0;
                 yofs += bitmapfont_get_font_height() + linegap;
+
                 if (!ch) {
                     break;
                 }
             } else {
                 line_width = new_line_width + CONFIG_FONT_CHAR_GAP;
                 prev_str = str;
-                prev_line_width = linegap;
+                prev_line_width = line_width;
             }
         }
     });
