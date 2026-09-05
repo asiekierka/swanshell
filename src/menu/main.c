@@ -136,10 +136,9 @@ void main(void) {
 		}
 		if (result) {
 			ui_popup_dialog_config_t dlg = {0};
-			char error_name_buffer[48];
+			char error_name_buffer[ERROR_TO_POINTER_BUFFER_SIZE];
 
-			error_to_string_buffer(result, error_name_buffer, sizeof(error_name_buffer));
-			dlg.title = error_name_buffer;
+			dlg.title = error_to_pointer(result, error_name_buffer, sizeof(error_name_buffer));
 			dlg.description = lang_keys[LK_PROMPT_FUNCTIONALITY_UNAVAILABLE];
 			dlg.buttons[0] = LK_OK;
 

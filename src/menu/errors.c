@@ -63,12 +63,13 @@ const char __far *error_to_string(int16_t value) {
     }
 }
 
-void error_to_string_buffer(int16_t value, char *buffer, size_t buflen) {
+const char __far *error_to_pointer(int16_t value, char *buffer, size_t buflen) {
     const char __far *name = error_to_string(value);
     if (name != NULL) {
-        strncpy(buffer, name, buflen);
+        return name;
     } else {
         snprintf(buffer, buflen, s_error_unknown, value);
+        buffer[buflen - 1] = '\0';
+        return buffer;
     }
-    buffer[buflen - 1] = '\0';
 }

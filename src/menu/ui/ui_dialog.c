@@ -24,17 +24,16 @@
 #include "ui_dialog.h"
 
 int16_t ui_dialog_error_check(int16_t error, const char __far *title, uint16_t flags) {
-    char error_name_buffer[48];
+    char error_name_buffer[ERROR_TO_POINTER_BUFFER_SIZE];
     ui_popup_dialog_config_t dlg = {0};
 
     if (!error || error == ERR_USER_EXIT_REQUESTED) return error;
-    error_to_string_buffer(error, error_name_buffer, sizeof(error_name_buffer));
 
     if (title) {
         dlg.title = title;
-        dlg.description = error_name_buffer;
+        dlg.description = error_to_pointer(error, error_name_buffer, sizeof(error_name_buffer));
     } else {
-        dlg.title = error_name_buffer;
+        dlg.title = error_to_pointer(error, error_name_buffer, sizeof(error_name_buffer));
     }
     dlg.buttons[0] = LK_OK;
     ui_popup_dialog_draw(&dlg);

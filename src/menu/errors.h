@@ -50,6 +50,8 @@ enum {
 };
 
 const char __far* error_to_string(int16_t value);
-void error_to_string_buffer(int16_t value, char *buffer, size_t buflen);
+const char __far* error_to_pointer(int16_t value, char *buffer, size_t buflen);
+
+#define ERROR_TO_POINTER_BUFFER_SIZE 22
 
 #endif /* ERRORS_H_ */
