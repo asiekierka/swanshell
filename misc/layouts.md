@@ -12,8 +12,7 @@
 | 0x2000 | 0x3FFF | Tiles |
 | 0x3800 | 0x3FFF | Screen 1 in WSC mode only |
 | 0x4000 | 0xBFFF | WSC Tiles |
-| 0xC000 | 0xDFFF | WSC I/O buffer |
-| 0xE000 | 0xFDFF | Unused |
+| 0xC000 | 0xFDFF | WSC-only C data/BSS (sector buffers/caches) |
 | 0xFE00 | 0xFFFF | WSC palettes |
 
 ## Cartridge SRAM
