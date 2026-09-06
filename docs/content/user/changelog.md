@@ -3,6 +3,10 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell 1.2.6
+
+- Fixed: Visual glitches in factory setup language selection menu.
+
 ## swanshell 1.2.5 (5th September 2026)
 
 - Changed: Updated font data, including improved Chinese and Japanese support.
