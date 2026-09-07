@@ -126,6 +126,7 @@ static void shell_reset(void) {
 }
 
 static void shell_task_yield(uint16_t ret) {
+    mcu_native_finish();
     task_yield(shell_task, ret);
     nile_spi_set_control(NILE_SPI_CLOCK_CART | NILE_SPI_DEV_NONE);
 }

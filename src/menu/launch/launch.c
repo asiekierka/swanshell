@@ -698,12 +698,14 @@ launch_restore_save_data_ini_end:
             mcu_native_start();
             if (nile_mcu_native_eeprom_set_mode_sync(eeprom_mcu_control[meta->footer.save_type >> 4]) <= 0) {
                 result = ERR_MCU_COMM_FAILED;
+                mcu_native_finish();
                 goto launch_restore_save_data_return_result;
             }
 
             // switch MCU to EEPROM mode
             if (!mcu_native_set_mode(1)) {
                 result = ERR_MCU_COMM_FAILED;
+                mcu_native_finish();
                 goto launch_restore_save_data_return_result;
             }
 
@@ -711,6 +713,7 @@ launch_restore_save_data_ini_end:
             result = launch_read_eeprom(&fp, meta->footer.save_type >> 4,
                 f_size(&fp) >> 1);
             if (result != FR_OK) {
+                mcu_native_finish();
                 f_close(&fp);
                 goto launch_restore_save_data_return_result;
             }

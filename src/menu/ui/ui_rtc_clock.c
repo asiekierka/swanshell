@@ -245,6 +245,7 @@ int16_t ui_rtc_clock(void) {
     uint16_t old_timeout = nile_spi_get_timeout();
     nile_spi_set_timeout(2000);
     int16_t result = ui_rtc_clock_inner();
+    mcu_native_finish();
     nile_spi_set_timeout(old_timeout);
     return result;
 }

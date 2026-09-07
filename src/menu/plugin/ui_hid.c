@@ -79,6 +79,7 @@ int ui_hidctrl(void) {
     mcu_native_hid_update(0);
 
     bitmap_set_screen_force_horizontal(false);
+    mcu_native_finish();
 
     return 0;
 }

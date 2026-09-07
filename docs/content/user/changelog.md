@@ -3,8 +3,9 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell 1.2.6
+## swanshell 1.2.6 (7th September 2026)
 
+- Fixed: Slow TF card performance in some situations.
 - Fixed: Visual glitches in factory setup language selection menu.
 
 ## swanshell 1.2.5 (5th September 2026)
