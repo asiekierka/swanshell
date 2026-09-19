@@ -3,6 +3,10 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell DEV
+
+- Fixed: Improved AthenaOS (.fx file loader) compatibility.
+
 ## swanshell 1.2.6 (7th September 2026)
 
 - Fixed: Slow TF card performance in some situations.
