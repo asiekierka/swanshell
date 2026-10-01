@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
 #include <wonderful.h>
 #include <ws.h>
 #include <nile.h>
@@ -60,12 +60,18 @@ restore_cold_boot_io_state:
 1:
     rep stosw
 
-    // reset I/O ports 0x00 - 0x5F
+    // reset I/O ports 0x00 - 0x17
     mov ax, 0x1000
     mov ds, ax
     mov si, 0x0020
     xor dx, dx
-    mov cx, (0x60 >> 1)
+    mov cx, (0x18 >> 1)
+    call __outsw_loop
+
+    // reset I/O ports 0x1C - 0x5F
+    mov si, 0x0020 + 0x1C
+    mov dx, 0x1C
+    mov cx, (0x44 >> 1)
     call __outsw_loop
 
     // reset I/O ports 0x80 - 0x9F

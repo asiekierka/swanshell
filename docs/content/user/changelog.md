@@ -3,9 +3,10 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell DEV
+## swanshell 1.2.7 (1st October 2026)
 
 - Fixed: Improved AthenaOS (.fx file loader) compatibility.
+* Fixed: Visual glitches on some types of IPS display mods.
 
 ## swanshell 1.2.6 (7th September 2026)
 
