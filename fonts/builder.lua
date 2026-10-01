@@ -401,10 +401,10 @@ if args.type == "default16" then
     local arkpixel12 = nil
     local zh_font = false
     if args.language or "" == "zh_hans" then
-        arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_cn.bdf")
+        arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_hans.bdf")
         zh_font = true
     elseif args.language or "" == "zh_hant" then
-        arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_tw.bdf")
+        arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-zh_hant.bdf")
         zh_font = true
     else
         arkpixel12 = bdf.parse("fonts/build/ark-pixel-12px-proportional-ja.bdf")

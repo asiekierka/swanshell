@@ -182,7 +182,7 @@ fonts/build/ark-pixel-12px-proportional-ja.bdf:
 	@echo "  UV      $@"
 	@$(MKDIR) -p $(@D)
 	$(_V)$(UV) --directory vendor/modified-ark-pixel-font sync
-	$(_V)$(UV) --directory vendor/modified-ark-pixel-font run -m tools.cli --cleanup --font-sizes 12 --width-modes proportional --font-formats bdf --attachments release
+	$(_V)$(UV) --directory vendor/modified-ark-pixel-font run -m tools.build_fonts --cleanup --font-sizes 12 --width-modes proportional --font-formats bdf
 	$(_V)cp vendor/modified-ark-pixel-font/build/outputs/* fonts/build/
 
 athenaos-compatible:
