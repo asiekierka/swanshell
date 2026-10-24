@@ -53,6 +53,11 @@ void __far vblank_int_handler(void) {
 	vblank_input_update();
 }
 
+void signal_display_orientation(uint8_t orientation) {
+    outportb(WS_LCD_ICON_PORT, (inportb(WS_LCD_ICON_PORT) & ~(WS_LCD_ICON_ORIENT_H | WS_LCD_ICON_ORIENT_V)) | orientation);
+    last_signaled_icon = orientation;
+}
+
 bool idle_until_vblank(void) {
 	uint16_t vbl_ticks_last = vbl_ticks;
 	bool refresh_view = false;

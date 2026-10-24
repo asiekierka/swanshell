@@ -23,6 +23,7 @@
 
 extern volatile uint16_t vbl_ticks;
 
+void signal_display_orientation(uint8_t orientation);
 void factory_reset(void);
 bool idle_until_vblank(void);
 void wait_for_vblank(void);

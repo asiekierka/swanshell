@@ -7,6 +7,7 @@ weight: 100
 
 - Changed: General performance improvements.
 - Changed: Updated font data.
+- Fixed: Not switching back to horizontal orientation before starting a .fx file.
 
 ## swanshell 1.2.7 (1st October 2026)
 

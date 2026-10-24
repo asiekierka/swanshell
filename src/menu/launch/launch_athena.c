@@ -24,6 +24,7 @@
 #include "cart/mcu.h"
 #include "errors.h"
 #include "lang.h"
+#include "main.h"
 #include "settings.h"
 #include "strings.h"
 #include "ui/bitmap.h"
@@ -603,8 +604,14 @@ static int16_t launch_athena_create_save_ini(uint32_t id) {
 }
 
 int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name) {
+    // Force horizontal orientation to handle capture cards which rely on it for automatic rotation.
+    // This could be done later in the chain to allow the loading message to be read correctly,
+    // but this scenario is rather obscure...
+	signal_display_orientation(WS_LCD_ICON_ORIENT_H);
+
     uint32_t id;
     int16_t result = launch_athena_boot_curdir_as_rom_wip_inner(name, &id);
+   	outportb(WS_LCD_ICON_PORT, 0);
     if (result != FR_OK) return result;
 
     // Write SAVE.INI
