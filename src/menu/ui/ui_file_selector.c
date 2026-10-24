@@ -30,6 +30,7 @@
 #include "lang_gen.h"
 #include "launch/launch.h"
 #include "launch/launch_athena.h"
+#include "launch/launch_router.h"
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
@@ -313,87 +314,27 @@ rescan_directory:
             if (fno->fno.fattrib & AM_DIR) {
                 path_depth[++path_depth_pos] = 0;
                 f_chdir(strbuf);
+                reinit_ui = true;
+                reinit_dirs = true;
+                goto rescan_directory;
             } else {
                 ui_selector_clear_selection(&config);
-                if (FILE_SELECTOR_ENTRY_HAS_EXTENSION(fno)) {
-                    const char __far* ext = FILE_SELECTOR_ENTRY_GET_EXTENSION(fno);
-                    if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
-                        launch_rom_metadata_t meta;
-                        int16_t result = launch_get_rom_metadata(strbuf, &meta);
-                        if (result == FR_OK) {
-                            result = launch_restore_save_data(strbuf, &meta);
-                            reinit_dirs = true;
-                            if (result == ERR_MCU_COMM_FAILED) {
-                                if (launch_ui_handle_mcu_comm_error(&meta))
-                                    result = FR_OK;
-                                else
-                                    goto exit_no_launch;
-                            } else {
-                                if (launch_is_battery_required(&meta))
-                                    if (cart_status_mcu_info_valid() && !cart_status_mcu_battery_ok())
-                                        if (!launch_ui_handle_battery_missing_error(&meta))
-                                            goto exit_no_launch;
-                            }
-                            if (result == FR_OK) {
-                                result = launch_set_bootstub_file_entry(strbuf, &bootstub_data->prog);
-                                if (result == FR_OK) {
-                                    result = launch_rom_via_bootstub(&meta);
-                                }
-                            }
-                        }
-
-                        ui_dialog_error_check(result, NULL, 0);
-exit_no_launch:
-                        mcu_reset_if_not_native();
-                        reinit_ui = true;
-                        goto rescan_directory;
-                    } else if (!strcasecmp(ext, s_file_ext_fx) || !strcasecmp(ext, s_file_ext_bin)) {
-                        // TODO: Do some checks on the .bin file
-                        ui_dialog_error_check(launch_athena_boot_curdir_as_rom_wip(fno->fno.fname), NULL, 0);
-                        reinit_ui = true;
-                        goto rescan_directory;
-                    } else if (!strcasecmp(ext, s_file_ext_vgm) || !strcasecmp(ext, s_file_ext_vgz)) {
-                        ui_dialog_error_check(ui_vgmplay(strbuf), NULL, 0);
-                        reinit_ui = true;
-                        goto rescan_directory;
-                    } else if (!strcasecmp(ext, s_file_ext_wav)) {
-                        ui_dialog_error_check(ui_wavplay(strbuf), NULL, 0);
-                        reinit_ui = true;
-                        goto rescan_directory;
-                    } else if (!strcasecmp(ext, s_file_ext_bmp)) {
-                        ui_dialog_error_check(ui_bmpview(strbuf), NULL, 0);
-                    } else if (!strcasecmp(ext, s_file_ext_bfb)) {
-                        ui_selector_clear_selection(&config);
-                        int option = ui_file_selector_actions_bfb();
-                        if (option == 0) {
-                            ui_dialog_error_check(launch_bfb(strbuf), NULL, 0);
-                        }
-                        reinit_ui = true;
-                        goto rescan_directory;
-                    } else if (!strcasecmp(ext, s_file_ext_com)) {
-                        ui_selector_clear_selection(&config);
-                        ui_dialog_error_check(launch_com(strbuf), NULL, 0);
-                        reinit_ui = true;
-                        goto rescan_directory;
-                    } else if (!strcasecmp(ext, s_file_ext_rom)) {
-                        ui_selector_clear_selection(&config);
-                        ui_dialog_error_check(launch_plugin_via_ipc(s_path_plugin_uxn, strbuf), NULL, 0);
-                        reinit_ui = true;
-                        goto rescan_directory;
-                    } else {
-                        goto txtview;
-                    }
-                } else {
-txtview:
+                const char *ext = strbuf + fno->extension_loc;
+                if (!strcasecmp(ext, s_file_ext_bfb)) {
                     ui_selector_clear_selection(&config);
-                    ui_dialog_error_check(ui_txtview(strbuf), NULL, 0);
+                    int option = ui_file_selector_actions_bfb();
+                    if (option == 0) {
+                        ui_dialog_error_check(launch_bfb(strbuf), NULL, 0);
+                    }
                     reinit_ui = true;
+                    goto rescan_directory;
+                } else {
+                    int16_t result = launch_router_file(strbuf, ext, 0);
+                    reinit_ui = true;
+                    reinit_dirs = result != LAUNCH_ROUTER_OK_SRAM_UNCHANGED;
                     goto rescan_directory;
                 }
             }
-            reinit_ui = true;
-            reinit_dirs = true;
-            goto rescan_directory;
         }
         if (keys_pressed & WS_KEY_B) {
             strcpy(strbuf, s_dotdot);

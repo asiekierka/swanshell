@@ -17,6 +17,7 @@
 
 #include <nile.h>
 #include <nilefs.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <ws.h>
@@ -26,6 +27,7 @@
 #include "cart/status.h"
 #include "lang_gen.h"
 #include "launch/launch_athena.h"
+#include "launch/launch_router.h"
 #include "strings.h"
 #include "util/file.h"
 #include "util/task/task.h"
@@ -158,59 +160,22 @@ static void shell_reboot(void) {
     nile_soft_reset();
 }
 
-__attribute__((noinline))
-static void shell_print_error(int16_t result) {
+void shell_print_error(int16_t result) {
     if (result == FR_OK) return;
     nile_mcu_native_cdc_write_string(error_to_string(result));
+}
+
+void shell_print_newline(void) {
+    nile_mcu_native_cdc_write_string_const(s_new_line);
 }
 
 __attribute__((noinline))
 static int16_t shell_launch_file(char *path) {
     const char *ext = (const char*) strrchr(path, '.');
     if (ext == NULL) return ERR_FILE_NOT_EXECUTABLE;
-    if (!strcasecmp(ext, s_file_ext_ws) || !strcasecmp(ext, s_file_ext_wsc) || !strcasecmp(ext, s_file_ext_pc2)) {
-        launch_rom_metadata_t meta;
-        int16_t result = launch_get_rom_metadata(path, &meta);
-        if (result == FR_OK) {
-            result = launch_restore_save_data(path, &meta);
-            if (result == ERR_MCU_COMM_FAILED) {
-                shell_print_error(result);
-                nile_mcu_native_cdc_write_string_const(s_new_line);
-                result = FR_OK;
-            }
-            if (launch_is_battery_required(&meta)) {
-                if (cart_status_mcu_info_valid() && !cart_status_mcu_battery_ok()) {
-                    nile_mcu_native_cdc_write_string(lang_keys[LK_PROMPT_NO_BATTERY_TITLE]);
-                    nile_mcu_native_cdc_write_string_const(s_new_line);
-                }
-            }
-            if (result == FR_OK) {
-                result = launch_set_bootstub_file_entry(path, &bootstub_data->prog);
-                if (result == FR_OK) {
-                    result = launch_rom_via_bootstub(&meta);
-                }
-            }
-            shell_task_yield(SHELL_RET_REFRESH_UI);
-        }
-        return result;
-    } else if (!strcasecmp(ext, s_file_ext_fx) || !strcasecmp(ext, s_file_ext_bin)) {
-        // TODO: Do some checks on the .bin file
-        return launch_athena_boot_curdir_as_rom_wip(path);
-    } else if (!strcasecmp(ext, s_file_ext_bfb)) {
-        int16_t result = launch_bfb(path);
-        shell_task_yield(SHELL_RET_REFRESH_UI);
-        return result;
-    } else if (!strcasecmp(ext, s_file_ext_com)) {
-        int16_t result = launch_com(path);
-        shell_task_yield(SHELL_RET_REFRESH_UI);
-        return result;
-    } else if (!strcasecmp(ext, s_file_ext_rom)) {
-        int16_t result = launch_plugin_via_ipc(s_path_plugin_uxn, path);
-        shell_task_yield(SHELL_RET_REFRESH_UI);
-        return result;
-    } else {
-        return ERR_FILE_NOT_EXECUTABLE;
-    }
+    int16_t code = launch_router_file(path, ext, 0);
+    shell_task_yield(SHELL_RET_REFRESH_UI);
+    return code == LAUNCH_ROUTER_OK_SRAM_UNCHANGED ? 0 : code;
 }
 
 __attribute__((noinline))
