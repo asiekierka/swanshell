@@ -30,6 +30,7 @@
 #include "settings.h"
 #include "../../../build/menu/assets/menu/bar_icons.h"
 #include "../../../build/menu/assets/menu/icons.h"
+#include "../../../build/menu/assets/menu/screen_patterns.h"
 #include "lang.h"
 #include "config.h"
 
@@ -313,11 +314,20 @@ void ui_layout_clear(uint16_t pal) {
     } else {
         bitmap_rect_clear(&ui_bitmap, 0, 0, screen_width, screen_height);
     }
+
+#ifdef CONFIG_UI_PRECOMPUTED_SCREEN_PATTERNS
+    memcpy(bitmap_screen2, ui_layout_clear_data, sizeof(ui_layout_clear_data));
+#else
     INIT_SCREEN_PATTERN(bitmap_screen2, pal, 0);
+#endif
 }
 
 void ui_layout_bars_pattern(void) {
+#ifdef CONFIG_UI_PRECOMPUTED_SCREEN_PATTERNS
+    memcpy(bitmap_screen2, !bitmap_rotation ? ui_layout_bars_v_data : ui_layout_bars_h_data, sizeof(ui_layout_clear_data));
+#else
     INIT_SCREEN_PATTERN(bitmap_screen2, (!bitmap_rotation ? (ix == 0 || ix == 27) : (iy == 0 || iy == 17)) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
+#endif
 }
 
 void ui_layout_bars(void) {
@@ -326,7 +336,7 @@ void ui_layout_bars(void) {
     } else {
         bitmap_rect_clear(&ui_bitmap, 0, 8, screen_width, screen_height - 16);
     }
-    INIT_SCREEN_PATTERN(bitmap_screen2, (!bitmap_rotation ? (ix == 0 || ix == 27) : (iy == 0 || iy == 17)) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
+    ui_layout_bars_pattern();
 }
 
 void ui_screen_modify_tiles(void ws_iram *dest, uint16_t mask, uint16_t value, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
