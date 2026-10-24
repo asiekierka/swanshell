@@ -3,6 +3,10 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell DEV
+
+- Changed: General performance improvements.
+
 ## swanshell 1.2.7 (1st October 2026)
 
 - Changed: Updated font data.

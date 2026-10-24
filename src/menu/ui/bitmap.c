@@ -166,12 +166,21 @@ void bitmap_rect_fill(bitmap_t *bitmap, uint16_t x, uint16_t y, uint16_t width, 
     }
 
     // center
-    if (cxor == 0 && cmask0 == 0xFFFF && (bitmap->bpp <= 2 || (color0 == color1 && cmask1 == 0xFFFF))) {
-        while (width >= row_width) {
-            __bitmap_bitop_fill_c(color0, tile, height * (bitmap->bpp >= 4 ? 2 : 1));
-            tile += bitmap->x_pitch;
-            x += row_width;
-            width -= row_width;
+    if (cxor == 0 && cmask0 == 0xFFFF && (bitmap->bpp <= 2 || cmask1 == 0xFFFF)) {
+        if (bitmap->bpp <= 2 || color0 == color1) {
+            while (width >= row_width) {
+                __bitmap_bitop_fill_c(color0, tile, height * (bitmap->bpp >= 4 ? 2 : 1));
+                tile += bitmap->x_pitch;
+                x += row_width;
+                width -= row_width;
+            }
+        } else {
+            while (width >= row_width) {
+                ws_memset32(tile, ((uint32_t) color1 << 16) | color0, height * 4);
+                tile += bitmap->x_pitch;
+                x += row_width;
+                width -= row_width;
+            }
         }
     } else {
         if (bitmap->bpp == 4 && cmask1) {

@@ -310,9 +310,15 @@ void ui_show(void) {
 void ui_layout_clear(uint16_t pal) {
     icons_visible = 0;
     if (pal == 0 && !ui_has_wallpaper()) {
-        bitmap_rect_fill(&ui_bitmap, 0, 0, screen_width, screen_height, BITMAP_COLOR_4BPP(2));
+        // bitmap_rect_fill(&ui_bitmap, 0, 0, screen_width, screen_height, BITMAP_COLOR_4BPP(2));
+        if (ui_bitmap.bpp == 4) {
+            ws_memset32(ui_bitmap.start, 0x0000FF00, WS_DISPLAY_WIDTH_PIXELS / 2 * WS_DISPLAY_HEIGHT_PIXELS);
+        } else {
+            ws_memset16(ui_bitmap.start, 0xFF00, WS_DISPLAY_WIDTH_PIXELS / 4 * WS_DISPLAY_HEIGHT_PIXELS);
+        }
     } else {
-        bitmap_rect_clear(&ui_bitmap, 0, 0, screen_width, screen_height);
+        // bitmap_rect_clear(&ui_bitmap, 0, 0, screen_width, screen_height);
+        memset(ui_bitmap.start, 0, (WS_DISPLAY_WIDTH_PIXELS / 8 * WS_DISPLAY_HEIGHT_PIXELS) * ui_bitmap.bpp);
     }
 
 #ifdef CONFIG_UI_PRECOMPUTED_SCREEN_PATTERNS
