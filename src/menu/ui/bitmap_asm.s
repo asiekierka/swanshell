@@ -112,18 +112,18 @@ __bitmap_bitop_fill_c:
     .global __bitmap_bitop_row_c
 __bitmap_bitop_row_c:
     mov bx, ax
-    push ds
-    /* push ss
+    /* push ds
+    push ss
     pop ds */
     push si
     push di
     push bp
     mov bp, sp
 
-    mov si, [bp + IA16_CALL_STACK_OFFSET(12)]
-    mov di, [bp + IA16_CALL_STACK_OFFSET(10)]
+    mov si, [bp + IA16_CALL_STACK_OFFSET(6 + 4)]
+    mov di, [bp + IA16_CALL_STACK_OFFSET(6 + 2)]
     mov di, [di + BITMAP_T_CURRENT_PITCH]
-    mov bp, [bp + IA16_CALL_STACK_OFFSET(8)]
+    mov bp, [bp + IA16_CALL_STACK_OFFSET(6 + 0)]
 
     mov [__bitmap_bitop_row_inject_mask + 1], bp
     not bp
@@ -134,7 +134,7 @@ __bitmap_bitop_row_c:
     pop bp
     pop di
     pop si
-    pop ds
+    /* pop ds */
     IA16_RET 0x6
 
 __bitmap_c2p_4bpp_table:
