@@ -6,6 +6,7 @@ weight: 100
 ## swanshell DEV
 
 - Changed: General performance improvements.
+- Changed: Updated font data.
 
 ## swanshell 1.2.7 (1st October 2026)
 
