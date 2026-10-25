@@ -71,7 +71,7 @@ static int compare_filenames(const file_selector_entry_t __far* a, const file_se
 
 bool ui_file_selector_default_predicate(const FILINFO __far *fno, const char __far* ext) {
     if (!(settings.file_flags & SETTING_FILE_SHOW_HIDDEN)) {
-        if ((fno->fattrib & AM_HID))
+        if (fno->fattrib & AM_HID)
             return false;
     }
 
@@ -212,7 +212,9 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
     uint8_t icon_idx = 1;
     if (fno->fno.fattrib & AM_DIR) {
         icon_idx = 0;
-        bitmapfont_draw_char(&ui_bitmap, x + CONFIG_FONT_CHAR_GAP, y, '/');
+        if (x < (screen_width - 6)) {
+            bitmapfont_draw_char(&ui_bitmap, x + CONFIG_FONT_CHAR_GAP, y, '/');
+        }
     } else if (FILE_SELECTOR_ENTRY_HAS_EXTENSION(fno)) {
         icon_idx = ui_file_selector_get_file_icon_idx(FILE_SELECTOR_ENTRY_GET_EXTENSION(fno));
     }
