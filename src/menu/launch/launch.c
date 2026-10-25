@@ -445,6 +445,7 @@ int16_t launch_backup_save_data(void) {
     uint32_t id = 0;
     uint16_t value_num;
     bool verify = (settings.file_flags & SETTING_FILE_VERIFY_SAVES) != 0;
+    bool dir_change_requested = (settings.file_flags & SETTING_FILE_OPEN_LAST_DIRECTORY) != 0;
 
     strcpy(buffer, s_path_save_ini);
     result = f_open(&fp, buffer, FA_OPEN_EXISTING | FA_READ);
@@ -481,10 +482,21 @@ int16_t launch_backup_save_data(void) {
                     goto launch_backup_save_data_return_result;
                 }
 
+                if (dir_change_requested) {
+                    char *last_path_delim = (char*) strrchr(value, '/');
+                    if (last_path_delim != NULL && last_path_delim != value) {
+                        *last_path_delim = 0;
+                        f_chdir(value);
+                        *last_path_delim = '/';
+                        dir_change_requested = false;
+                    }
+                }
+
                 result = launch_athena_restore_ram0(value);
                 if (result != FR_OK) {
                     goto launch_backup_save_data_return_result;
                 }
+
                 continue;
             }
 
@@ -536,6 +548,15 @@ int16_t launch_backup_save_data(void) {
                 f_close(&save_fp);
                 if (result != FR_OK) {
                     goto launch_backup_save_data_return_result;
+                }
+
+                if (dir_change_requested) {
+                    char *last_path_delim = (char*) strrchr(value, '/');
+                    if (last_path_delim != NULL && last_path_delim != value) {
+                        *last_path_delim = 0;
+                        f_chdir(value);
+                        dir_change_requested = false;
+                    }
                 }
             }
         }

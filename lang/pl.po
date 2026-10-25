@@ -360,6 +360,18 @@ msgstr "Wybiera sposób przedstawiania plików w przeglądarce plików."
 msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
 msgstr "Ukryj ikony"
 
+msgid "SETTINGS_FILE_OPEN_ROOT_DIRECTORY"
+msgstr "Katalog główny"
+
+msgid "SETTINGS_FILE_OPEN_LAST_DIRECTORY"
+msgstr "Ostatni katalog"
+
+msgid "SETTINGS_FILE_OPEN_DIRECTORY_KEY"
+msgstr "Lokalizacja startowa"
+
+msgid "SETTINGS_FILE_OPEN_DIRECTORY_HELP"
+msgstr "Wybierz katalog otwarty w momencie uruchomienia przeglądarki plików."
+
 msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
 msgstr "Czcionka czytnika tekstu"
 

@@ -36,6 +36,7 @@
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
 DEFINE_STRING_LOCAL(s_file_show_save_key, "FileShowSave");
 DEFINE_STRING_LOCAL(s_file_sort_order_key, "FileSortOrder");
+DEFINE_STRING_LOCAL(s_file_initial_path_key, "FileInitialPath");
 DEFINE_STRING_LOCAL(s_file_view_key, "FileView");
 DEFINE_STRING_LOCAL(s_file_hide_icons_key, "FileHideIcons");
 DEFINE_STRING_LOCAL(s_program_fast_sram_key, "ProgFastSRAM");
@@ -123,6 +124,19 @@ static const setting_t __far setting_file_sort_order = {
     }
 };
 
+static const setting_t __far setting_file_initial_path = {
+    s_file_initial_path_key,
+    LK_SETTINGS_FILE_OPEN_DIRECTORY_KEY,
+    LK_SETTINGS_FILE_OPEN_DIRECTORY_HELP,
+    SETTING_TYPE_FLAG,
+    0,
+    .flag = {
+        &settings.file_flags,
+        SETTING_FILE_OPEN_LAST_DIRECTORY_SHIFT,
+        LK_SETTINGS_FILE_OPEN_ROOT_DIRECTORY, LK_SETTINGS_FILE_OPEN_LAST_DIRECTORY
+    }
+};
+
 static const uint16_t __wf_rom settings_file_view_name_table[] = {
     LK_SETTINGS_FILE_VIEW_LARGE,
     LK_SETTINGS_FILE_VIEW_SMALL
@@ -155,7 +169,7 @@ static const setting_t __far setting_scroll_long_names = {
     0,
     NULL,
     .flag = {
-        &settings.file_flags,
+        &settings.accent_color_high,
         SETTING_THEME_SCROLL_LONG_NAMES_SHIFT,
         LK_NO,
         LK_YES
@@ -166,10 +180,11 @@ static const setting_category_t __far settings_file = {
     LK_SETTINGS_FILE_KEY,
     0,
     &settings_interface,
-    6,
+    7,
     {
         &setting_file_view,
         &setting_file_sort_order,
+        &setting_file_initial_path,
         &setting_scroll_long_names,
         &setting_file_show_saves,
         &setting_file_show_hidden,

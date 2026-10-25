@@ -34,6 +34,7 @@ void settings_reset(void) {
     settings.joy_repeat_next_ticks = 5;
     settings.file_sort = SETTING_FILE_SORT_NAME_ASC;
     settings.language = 0xFF;
+    settings.file_flags = SETTING_FILE_OPEN_LAST_DIRECTORY;
 }
 
 static int16_t settings_load_category(FIL *fp, const setting_category_t __far *cat, const char *key, const char *value) {
