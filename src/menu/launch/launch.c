@@ -462,8 +462,6 @@ int16_t launch_backup_save_data(void) {
 
     dlg.title = lang_keys[LK_DIALOG_STORE_SAVE];
     dlg.progress_max = 1;
-    ui_popup_dialog_draw(&dlg);
-    ui_show();
 
     while (true) {
         ini_result = ini_next(&fp, buffer, sizeof(buffer), &key, &value);
@@ -488,8 +486,13 @@ int16_t launch_backup_save_data(void) {
                 continue;
             }
 
-            if (!strcasecmp(key, s_save_ini_freya_ram0)) {
+            if (!had_save_data) {
+                ui_popup_dialog_draw(&dlg);
+                ui_show();
                 had_save_data = true;
+            }
+
+            if (!strcasecmp(key, s_save_ini_freya_ram0)) {
                 uint32_t fetched_id = launch_get_save_id(SAVE_ID_FOR_SRAM);
                 if (id != fetched_id) {
                     result = ERR_SAVE_CORRUPT;
@@ -519,8 +522,6 @@ int16_t launch_backup_save_data(void) {
             else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = SAVE_ID_FOR_EEPROM;
             else if (!strcasecmp(key, s_save_ini_flash)) file_type = SAVE_ID_FOR_FLASH;
             if (file_type) {
-                had_save_data = true;
-
                 key = (char*) strchr(value, '|');
                 if (key == NULL) continue;
                 key[0] = 0;
