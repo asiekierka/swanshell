@@ -5,8 +5,10 @@ weight: 100
 
 ## swanshell DEV
 
+- Added: Support for remembering and starting in the last launched directory.
 - Changed: General performance improvements.
 - Changed: Updated font data.
+- Fixed: Crash on opening zero-byte text files.
 - Fixed: Not switching back to horizontal orientation before starting a .fx file.
 
 ## swanshell 1.2.7 (1st October 2026)
