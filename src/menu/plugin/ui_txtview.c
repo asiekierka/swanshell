@@ -244,7 +244,7 @@ int ui_txtview(const char *path) {
         file_last_end_pos = file_pos;
 
         uint32_t file_drawn_pos = file_start_pos;
-        uint16_t percent = (file_pos * 100) / size;
+        uint16_t percent = size ? (file_pos * 100) / size : 0;
         snprintf(buf, sizeof(buf) - 1, s_percent, percent);
         ui_draw_statusbar(buf);
 
