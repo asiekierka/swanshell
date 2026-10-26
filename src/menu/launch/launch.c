@@ -435,6 +435,10 @@ static void launch_backup_progress_update(ui_popup_dialog_config_t *dlg, uint32_
     }
 }
 
+static inline bool launch_should_save_path_info(void) {
+    return (settings.file_flags & SETTING_FILE_OPEN_LAST_DIRECTORY);
+}
+
 int16_t launch_backup_save_data(void) {
     FIL fp, save_fp;
     char buffer[FF_LFN_BUF + 33];
@@ -445,6 +449,7 @@ int16_t launch_backup_save_data(void) {
     uint32_t id = 0;
     uint16_t value_num;
     bool verify = (settings.file_flags & SETTING_FILE_VERIFY_SAVES) != 0;
+    bool had_save_data = false;
     bool dir_change_requested = (settings.file_flags & SETTING_FILE_OPEN_LAST_DIRECTORY) != 0;
 
     strcpy(buffer, s_path_save_ini);
@@ -475,7 +480,16 @@ int16_t launch_backup_save_data(void) {
                 continue;
             }
 
+            if (!strcasecmp(key, s_save_ini_path)) {
+                if (dir_change_requested) {
+                    f_chdir(value);
+                    dir_change_requested = false;
+                }
+                continue;
+            }
+
             if (!strcasecmp(key, s_save_ini_freya_ram0)) {
+                had_save_data = true;
                 uint32_t fetched_id = launch_get_save_id(SAVE_ID_FOR_SRAM);
                 if (id != fetched_id) {
                     result = ERR_SAVE_CORRUPT;
@@ -505,6 +519,8 @@ int16_t launch_backup_save_data(void) {
             else if (!strcasecmp(key, s_save_ini_eeprom)) file_type = SAVE_ID_FOR_EEPROM;
             else if (!strcasecmp(key, s_save_ini_flash)) file_type = SAVE_ID_FOR_FLASH;
             if (file_type) {
+                had_save_data = true;
+
                 key = (char*) strchr(value, '|');
                 if (key == NULL) continue;
                 key[0] = 0;
@@ -564,8 +580,11 @@ int16_t launch_backup_save_data(void) {
 
 launch_backup_save_data_return_result:
     f_close(&fp);
-    strcpy(buffer, s_path_save_ini);
-    f_unlink(buffer);
+
+    // without meta provided, it either deletes SAVE.INI or generates a new one
+    if (had_save_data || !launch_should_save_path_info()) {
+        launch_restore_save_data(NULL, NULL);
+    }
     // Clear save ID
     launch_set_save_id(SAVE_ID_NONE, 0);
 
@@ -579,56 +598,73 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     char tmp_buf[20];
     FIL fp;
     int16_t result;
+    char *ext_loc;
 
     uint16_t save_target = 0;
-    if (meta->sram_size)   save_target |= SAVE_ID_FOR_SRAM;
-    if (meta->eeprom_size) save_target |= SAVE_ID_FOR_EEPROM;
-    if (meta->flash_size)  save_target |= SAVE_ID_FOR_FLASH;
 
-    // write save ID to MCU
-    // (error only if save ID was required)
-    if (!launch_set_save_id(meta->id, save_target) && save_target) {
-        result = ERR_MCU_COMM_FAILED;
-        goto launch_restore_save_data_return_result;
-    }
+    if (path) {
+        // extension-editable version of "path"
+        strcpy(dst_path, path);
+        ext_loc = (char*) strrchr(dst_path, '.');
+        if (ext_loc == NULL)
+            ext_loc = dst_path + strlen(dst_path);
 
-    // extension-editable version of "path"
-    strcpy(dst_path, path);
-    char *ext_loc = (char*) strrchr(dst_path, '.');
-    if (ext_loc == NULL)
-        ext_loc = dst_path + strlen(dst_path);
+        if (meta) {
+            if (meta->sram_size)   save_target |= SAVE_ID_FOR_SRAM;
+            if (meta->eeprom_size) save_target |= SAVE_ID_FOR_EEPROM;
+            if (meta->flash_size)  save_target |= SAVE_ID_FOR_FLASH;
 
-    // restore or create data
-    if (meta->sram_size != 0) {
-        strcpy(ext_loc, s_file_ext_sram);
-        result = preallocate_file(dst_path, &fp, 0x00, meta->sram_size, NULL, LK_DIALOG_PREPARE_SAVE, LK_DIALOG_SAVE_OVERDUMP_TITLE_SRAM);
-        if (result != FR_OK)
-            goto launch_restore_save_data_return_result;
+            // write save ID to MCU
+            // (error only if save ID was required)
+            if (!launch_set_save_id(meta->id, save_target) && save_target) {
+                result = ERR_MCU_COMM_FAILED;
+                goto launch_restore_save_data_return_result;
+            }
 
-        // copy data to SRAM
-        outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
-        result = f_read_sram_banked(&fp, 0, f_size(&fp), NULL, NULL);
-        if (result != FR_OK) {
-            f_close(&fp);
-            goto launch_restore_save_data_return_result;
+            // restore or create data
+            if (meta->sram_size != 0) {
+                strcpy(ext_loc, s_file_ext_sram);
+                result = preallocate_file(dst_path, &fp, 0x00, meta->sram_size, NULL, LK_DIALOG_PREPARE_SAVE, LK_DIALOG_SAVE_OVERDUMP_TITLE_SRAM);
+                if (result != FR_OK)
+                    goto launch_restore_save_data_return_result;
+
+                // copy data to SRAM
+                outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
+                result = f_read_sram_banked(&fp, 0, f_size(&fp), NULL, NULL);
+                if (result != FR_OK) {
+                    f_close(&fp);
+                    goto launch_restore_save_data_return_result;
+                }
+
+                result = f_close(&fp);
+                if (result != FR_OK)
+                    goto launch_restore_save_data_return_result;
+            }
+            if (meta->flash_size != 0) {
+                strcpy(ext_loc, s_file_ext_flash);
+                result = preallocate_file(dst_path, &fp, 0xFF, meta->flash_size, path, LK_DIALOG_PREPARE_FLASH, LK_DIALOG_SAVE_OVERDUMP_TITLE_FLASH);
+                if (result != FR_OK)
+                    goto launch_restore_save_data_return_result;
+
+                result = f_close(&fp);
+                if (result != FR_OK)
+                    goto launch_restore_save_data_return_result;
+
+                // Use .flash instead of .ws/.wsc to boot on this platform.
+                strcpy(path + (ext_loc - dst_path), s_file_ext_flash);
+            }
         }
-
-        result = f_close(&fp);
-        if (result != FR_OK)
-            goto launch_restore_save_data_return_result;
     }
-    if (meta->flash_size != 0) {
-        strcpy(ext_loc, s_file_ext_flash);
-        result = preallocate_file(dst_path, &fp, 0xFF, meta->flash_size, path, LK_DIALOG_PREPARE_FLASH, LK_DIALOG_SAVE_OVERDUMP_TITLE_FLASH);
-        if (result != FR_OK)
-            goto launch_restore_save_data_return_result;
 
-        result = f_close(&fp);
-        if (result != FR_OK)
-            goto launch_restore_save_data_return_result;
+    strcpy(tmp_buf, s_path_save_ini);
 
-        // Use .flash instead of .ws/.wsc to boot on this platform.
-        strcpy(path + (ext_loc - dst_path), s_file_ext_flash);
+    if (!save_target && !launch_should_save_path_info()) {
+        // remove .INI file, if it exists
+        result = f_unlink(tmp_buf);
+        if (result != FR_OK && result != FR_NO_FILE)
+            return result;
+        result = FR_OK;
+        goto launch_restore_save_data_return_result;
     }
 
     result = f_getcwd(dst_cwd, sizeof(dst_cwd) - 1);
@@ -641,17 +677,6 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
         *(++dst_cwd_end) = 0;
     }
 
-    strcpy(tmp_buf, s_path_save_ini);
-
-    if (!save_target) {
-        // remove .INI file, if it exists
-        result = f_unlink(tmp_buf);
-        if (result != FR_OK && result != FR_NO_FILE)
-            return result;
-        result = FR_OK;
-        goto launch_restore_save_data_return_result;
-    }
-
     // generate .INI file
     result = f_open(&fp, tmp_buf, FA_CREATE_ALWAYS | FA_WRITE);
     if (result != FR_OK)
@@ -661,44 +686,52 @@ int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta) 
     if (result != FR_OK)
         goto launch_restore_save_data_ini_end;
 
-    // ID has to be parsed before other entries
-    result = f_printf(&fp, s_save_ini_id_entry, meta->id) < 0 ? FR_INT_ERR : FR_OK;
-    if (result != FR_OK)
+    if (!save_target && launch_should_save_path_info()) {
+        // save Path= entry only
+        result = f_printf(&fp, s_save_ini_path_entry, (const char __far*) dst_cwd) < 0 ? FR_INT_ERR : FR_OK;
         goto launch_restore_save_data_ini_end;
-
-    // Write FLASH entry first, as it has a weaker save ID condition
-    // (present in IPC, as opposed to present on MCU)
-    if (meta->flash_size != 0) {
-        strcpy(ext_loc, s_file_ext_flash);
-        result = f_printf(&fp, s_save_ini_entry,
-            (const char __far*) s_save_ini_flash,
-            (uint32_t) meta->flash_size,
-            (const char __far*) dst_cwd,
-            (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
-        if (result != FR_OK)
-            goto launch_restore_save_data_ini_end;
     }
 
-    if (meta->sram_size != 0) {
-        strcpy(ext_loc, s_file_ext_sram);
-        result = f_printf(&fp, s_save_ini_entry,
-            (const char __far*) s_save_ini_sram,
-            (uint32_t) meta->sram_size,
-            (const char __far*) dst_cwd,
-            (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
+    if (meta) {
+        // ID has to be parsed before other entries
+        result = f_printf(&fp, s_save_ini_id_entry, meta->id) < 0 ? FR_INT_ERR : FR_OK;
         if (result != FR_OK)
             goto launch_restore_save_data_ini_end;
-    }
 
-    if (meta->eeprom_size != 0) {
-        strcpy(ext_loc, s_file_ext_eeprom);
-        result = f_printf(&fp, s_save_ini_entry,
-            (const char __far*) s_save_ini_eeprom,
-            (uint32_t) meta->eeprom_size,
-            (const char __far*) dst_cwd,
-            (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
-        if (result != FR_OK)
-            goto launch_restore_save_data_ini_end;
+        // Write FLASH entry first, as it has a weaker save ID condition
+        // (present in IPC, as opposed to present on MCU)
+        if (meta->flash_size != 0) {
+            strcpy(ext_loc, s_file_ext_flash);
+            result = f_printf(&fp, s_save_ini_entry,
+                (const char __far*) s_save_ini_flash,
+                (uint32_t) meta->flash_size,
+                (const char __far*) dst_cwd,
+                (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
+            if (result != FR_OK)
+                goto launch_restore_save_data_ini_end;
+        }
+
+        if (meta->sram_size != 0) {
+            strcpy(ext_loc, s_file_ext_sram);
+            result = f_printf(&fp, s_save_ini_entry,
+                (const char __far*) s_save_ini_sram,
+                (uint32_t) meta->sram_size,
+                (const char __far*) dst_cwd,
+                (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
+            if (result != FR_OK)
+                goto launch_restore_save_data_ini_end;
+        }
+
+        if (meta->eeprom_size != 0) {
+            strcpy(ext_loc, s_file_ext_eeprom);
+            result = f_printf(&fp, s_save_ini_entry,
+                (const char __far*) s_save_ini_eeprom,
+                (uint32_t) meta->eeprom_size,
+                (const char __far*) dst_cwd,
+                (const char __far*) dst_path) < 0 ? FR_INT_ERR : FR_OK;
+            if (result != FR_OK)
+                goto launch_restore_save_data_ini_end;
+        }
     }
 
 launch_restore_save_data_ini_end:
@@ -709,7 +742,7 @@ launch_restore_save_data_ini_end:
         // to spill through to the MCU SPI bus, causing data corruption  on the EEPROM save
         // (in particular, rewriting word 2 with 0xFFFF). To avoid this issue, switch the
         // MCU into EEPROM mode after all TF write operations.
-        if (meta->eeprom_size != 0) {
+        if (meta && meta->eeprom_size != 0) {
             strcpy(ext_loc, s_file_ext_eeprom);
             result = preallocate_file(dst_path, &fp, 0xFF, meta->eeprom_size, NULL, LK_DIALOG_PREPARE_SAVE, LK_DIALOG_SAVE_OVERDUMP_TITLE_EEPROM);
             if (result != FR_OK)

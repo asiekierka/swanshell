@@ -94,9 +94,11 @@ DEFINE_STRING(s_save_ini_id, "ID");
 DEFINE_STRING(s_save_ini_sram, "SRAM");
 DEFINE_STRING(s_save_ini_eeprom, "EEPROM");
 DEFINE_STRING(s_save_ini_flash, "Flash");
+DEFINE_STRING(s_save_ini_path, "Path");
 DEFINE_STRING(s_save_ini_freya_ram0, "FreyaRam0");
 DEFINE_STRING(s_save_ini_entry, "%s=%ld|%s%s\n");
 DEFINE_STRING(s_save_ini_id_entry, "ID=%ld\n");
+DEFINE_STRING(s_save_ini_path_entry, "Path=%s\n");
 DEFINE_STRING(s_save_ini_freya_ram0_entry, "FreyaRam0=%s\n");
 
 DEFINE_STRING(s_my_board_revision, "rev. %d%c");
