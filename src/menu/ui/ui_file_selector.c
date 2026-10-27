@@ -332,6 +332,9 @@ rescan_directory:
                     goto rescan_directory;
                 } else {
                     int16_t result = launch_router_file(strbuf, ext, 0);
+                    if (result && result != LAUNCH_ROUTER_OK_SRAM_UNCHANGED) {
+                        ui_dialog_error_check(result, NULL, 0);
+                    }
                     reinit_ui = true;
                     reinit_dirs = result != LAUNCH_ROUTER_OK_SRAM_UNCHANGED;
                     goto rescan_directory;
