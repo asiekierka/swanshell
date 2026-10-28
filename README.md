@@ -34,8 +34,6 @@ To force a font rebuild:
 
 Translations are maintained using [Weblate](https://weblate.asie.pl/projects/49bitcat/swanshell/).
 
-The process has not been well-tested yet. Feel free to open an issue for any further inquiries.
-
 ## License
 
 - `docs/`: CC BY-SA 4.0
