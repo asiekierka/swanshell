@@ -3,7 +3,7 @@ title: 'Changelog'
 weight: 100
 ---
 
-## swanshell DEV
+## swanshell 1.2.8 (28th October 2026)
 
 - Added: Support for remembering and starting in the last launched directory.
 - Changed: General performance improvements.

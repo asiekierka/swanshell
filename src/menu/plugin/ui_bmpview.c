@@ -30,7 +30,7 @@
 #include "main.h"
 #include "util/bmp.h"
 
-int ui_bmpview(const char *path) {
+int bmp_load(const char *path) {
     FIL fp;
     uint16_t br;
     uint8_t result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
@@ -45,6 +45,11 @@ int ui_bmpview(const char *path) {
 
     result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), &br);
     f_close(&fp);
+    return result;
+}
+
+int ui_bmpview(const char *path) {
+    int result = bmp_load(path);
     if (result != FR_OK) {
         return result;
     }
