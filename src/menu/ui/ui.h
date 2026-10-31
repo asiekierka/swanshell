@@ -36,6 +36,7 @@ extern bitmap_t ui_bitmap;
 void ui_init(void);
 void ui_hide(void);
 void ui_show(void);
+void ui_layout_clear_pattern(void);
 void ui_layout_clear(uint16_t pal);
 void ui_layout_bars_pattern(void);
 void ui_layout_bars(void);

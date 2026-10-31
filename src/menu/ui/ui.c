@@ -307,6 +307,14 @@ void ui_show(void) {
     ui_show_inner();
 }
 
+void ui_layout_clear_pattern(void) {
+#ifdef CONFIG_UI_PRECOMPUTED_SCREEN_PATTERNS
+    memcpy(bitmap_screen2, ui_layout_clear_data, sizeof(ui_layout_clear_data));
+#else
+    INIT_SCREEN_PATTERN(bitmap_screen2, pal, 0);
+#endif
+}
+
 void ui_layout_clear(uint16_t pal) {
     icons_visible = 0;
     if (pal == 0 && !ui_has_wallpaper()) {
@@ -321,11 +329,7 @@ void ui_layout_clear(uint16_t pal) {
         memset(ui_bitmap.start, 0, (WS_DISPLAY_WIDTH_PIXELS / 8 * WS_DISPLAY_HEIGHT_PIXELS) * ui_bitmap.bpp);
     }
 
-#ifdef CONFIG_UI_PRECOMPUTED_SCREEN_PATTERNS
-    memcpy(bitmap_screen2, ui_layout_clear_data, sizeof(ui_layout_clear_data));
-#else
-    INIT_SCREEN_PATTERN(bitmap_screen2, pal, 0);
-#endif
+    ui_layout_clear_pattern();
 }
 
 void ui_layout_bars_pattern(void) {
