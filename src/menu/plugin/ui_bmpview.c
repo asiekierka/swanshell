@@ -79,6 +79,7 @@ int bmp_convert_palette_to_rgb4(uint16_t *dest, const void __far *src, int color
         palette++;
         *(dest++) = WS_RGB(r >> 4, g >> 4, b >> 4);
     }
+    return 0;
 }
 
 int bmp_convert_data(uint16_t width, uint16_t height, uint16_t pitch, uint16_t bpp, void *dest, const void __far *src, uint16_t flags) {
@@ -155,6 +156,18 @@ static void set_mono_shade_palette(uint8_t __far *palette, int color_count) {
     outportw(WS_LCD_SHADE_45_PORT, shades ^ 0xFFFF);
 }
 
+static void center_viewport(uint8_t width, uint8_t height) {
+    uint8_t xo = (WS_DISPLAY_WIDTH_PIXELS - width) >> 1;
+    uint8_t yo = ((WS_DISPLAY_HEIGHT_PIXELS - height) >> 1);
+
+    outportb(WS_SCR2_SCRL_X_PORT, -xo + inportb(WS_SCR2_SCRL_X_PORT));
+    outportb(WS_SCR2_SCRL_Y_PORT, -yo + inportb(WS_SCR2_SCRL_Y_PORT));
+    outportb(WS_SCR2_WIN_X1_PORT, xo);
+    outportb(WS_SCR2_WIN_Y1_PORT, yo);
+    outportb(WS_SCR2_WIN_X2_PORT, xo + width - 1);
+    outportb(WS_SCR2_WIN_Y2_PORT, yo + height - 1);
+}
+
 int ui_bmpview(const char *path) {
     int result = bmp_load(path);
     if (result != FR_OK) {
@@ -203,15 +216,7 @@ int ui_bmpview(const char *path) {
     result = bmp_convert_data(bmp->width, bmp->height, pitch, bmp->bpp, bmp_loader_dest, data, bmp_loader_flags);
     if (result) goto bmp_convert_error;
 
-    uint8_t xo = (WS_DISPLAY_WIDTH_PIXELS - bmp->width) >> 1;
-    uint8_t yo = ((WS_DISPLAY_HEIGHT_PIXELS - bmp->height) >> 1);
-
-    outportb(WS_SCR2_SCRL_X_PORT, -xo + inportb(WS_SCR2_SCRL_X_PORT));
-    outportb(WS_SCR2_SCRL_Y_PORT, -yo + inportb(WS_SCR2_SCRL_Y_PORT));
-    outportb(WS_SCR2_WIN_X1_PORT, xo);
-    outportb(WS_SCR2_WIN_Y1_PORT, yo);
-    outportb(WS_SCR2_WIN_X2_PORT, xo + bmp->width - 1);
-    outportb(WS_SCR2_WIN_Y2_PORT, yo + bmp->height - 1);
+    center_viewport(bmp->width, bmp->height);
     outportw(WS_DISPLAY_CTRL_PORT, (16 << 8) | WS_DISPLAY_CTRL_SCR2_ENABLE | WS_DISPLAY_CTRL_SCR2_WIN_INSIDE);
     input_wait_any_key();
 
