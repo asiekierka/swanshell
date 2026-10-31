@@ -64,8 +64,6 @@ typedef struct {
 #define BITMAP_COLOR_2BPP(value) BITMAP_COLOR(value, 3, BITMAP_COLOR_MODE_STORE)
 #define BITMAP_COLOR_4BPP(value) BITMAP_COLOR(value, 15, BITMAP_COLOR_MODE_STORE)
 
-uint32_t bitmap_c2p_4bpp_pixel(uint32_t pixel);
-
 void bitmap_set_screen_rotation(bool vertical);
 bool bitmap_set_screen_force_horizontal(bool forced);
 

@@ -55,7 +55,7 @@ uint16_t ui_icon_update(void);
 void ui_screen_modify_tiles(void ws_iram *dest, uint16_t mask, uint16_t value, uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
 static inline uint8_t ui_rgb_to_shade(uint16_t rgb) {
-    return (math_color_to_greyscale(rgb) >> 1) ^ 7;
+    return (math_rgb4_to_greyscale(rgb) >> 1) ^ 7;
 }
 
 extern uint16_t bitmap_screen2[];

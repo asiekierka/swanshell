@@ -30,6 +30,7 @@
 #include "util/input.h"
 #include "main.h"
 #include "util/bmp.h"
+#include "util/math.h"
 
 int bmp_load(const char *path) {
     FIL fp;
@@ -69,12 +70,12 @@ int bmp_calculate_color_count(const bmp_header_t __far *bmp, const void __far *d
 #define BMP_LOADER_FLAG_4BPP 0x0001
 #define BMP_LOADER_FLAG_PACKED 0x0002
 
-int bmp_convert_palette_to_rgb4(uint16_t *dest, const void __far *src, int color_count) {
+int bmp_convert_palette_to_rgb4(uint16_t *dest, const void __far *src, int color_count, uint16_t flags) {
     const uint8_t __far *palette = src;
     for (int i = 0; i < color_count; i++) {
-        uint8_t b = *(palette++);
-        uint8_t g = *(palette++);
-        uint8_t r = *(palette++);
+        uint16_t b = *(palette++);
+        uint16_t g = *(palette++);
+        uint16_t r = *(palette++);
         palette++;
         *(dest++) = WS_RGB(r >> 4, g >> 4, b >> 4);
     }
@@ -109,12 +110,21 @@ int bmp_convert_data(uint16_t width, uint16_t height, uint16_t pitch, uint16_t b
             }
         }
     } else if (bpp == 1) {
-        if (flags & BMP_LOADER_FLAG_4BPP) return ERR_FILE_FORMAT_INVALID;
-        for (uint8_t y = 0; y < height; y++, src8 += pitch) {
-            uint8_t __far *line_src = (uint8_t __far*) src8;
-            uint16_t *line_dst = (uint16_t*) (((uintptr_t) dest) + ((height - 1 - y) * 2));
-            for (uint8_t x = 0; x < width; x += 8, line_src++, line_dst += WS_DISPLAY_HEIGHT_TILES * 8) {
-                *line_dst = *line_src;
+        if (flags & BMP_LOADER_FLAG_4BPP) {
+            for (uint8_t y = 0; y < height; y++, src8 += pitch) {
+                uint8_t __far *line_src = (uint8_t __far*) src8;
+                uint32_t *line_dst = (uint32_t*) (((uintptr_t) dest) + ((height - 1 - y) * 4));
+                for (uint8_t x = 0; x < width; x += 8, line_src++, line_dst += WS_DISPLAY_HEIGHT_TILES * 8) {
+                    *line_dst = *line_src;
+                }
+            }
+        } else {
+            for (uint8_t y = 0; y < height; y++, src8 += pitch) {
+                uint8_t __far *line_src = (uint8_t __far*) src8;
+                uint16_t *line_dst = (uint16_t*) (((uintptr_t) dest) + ((height - 1 - y) * 2));
+                for (uint8_t x = 0; x < width; x += 8, line_src++, line_dst += WS_DISPLAY_HEIGHT_TILES * 8) {
+                    *line_dst = *line_src;
+                }
             }
         }
     } else {
@@ -129,6 +139,20 @@ int bmp_convert_data(uint16_t width, uint16_t height, uint16_t pitch, uint16_t b
         }
     }
     return 0;
+}
+
+static void set_mono_shade_palette(uint8_t __far *palette, int color_count) {
+    outportw(WS_SCR_PAL_0_PORT, 0x7654);
+    uint16_t shades = 0;
+    for (int i = 0; i < color_count; i++) {
+        uint8_t b = *(palette++);
+        uint8_t g = *(palette++);
+        uint8_t r = *(palette++);
+        palette++;
+        shades |= (math_rgb8_to_greyscale(r, g, b) >> 4) << (i * 4);
+    }
+    outportb(WS_LCD_SHADE_01_PORT, 0xFF);
+    outportw(WS_LCD_SHADE_45_PORT, shades ^ 0xFFFF);
 }
 
 int ui_bmpview(const char *path) {
@@ -170,20 +194,10 @@ int ui_bmpview(const char *path) {
     uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
     if (ws_system_is_color_active()) {
         ws_system_set_mode(bmp->bpp >= 4 ? WS_MODE_COLOR_4BPP_PACKED : WS_MODE_COLOR);
-        bmp_convert_palette_to_rgb4(WS_DISPLAY_COLOR_MEM(0), palette, color_count);
+        bmp_convert_palette_to_rgb4(WS_DISPLAY_COLOR_MEM(0), palette, color_count, bmp_loader_flags);
         WS_DISPLAY_COLOR_MEM(1)[0] = WS_DISPLAY_COLOR_MEM(0)[0];
     } else {
-        outportw(WS_SCR_PAL_0_PORT, 0x7654);
-        uint16_t shades = 0;
-        for (int i = 0; i < color_count; i++) {
-            uint16_t b = *(palette++);
-            uint16_t g = *(palette++);
-            uint16_t r = *(palette++);
-            palette++;
-            shades |= ((77 * r + 150 * g + 29 * b) >> 12) << (i * 4);
-        }
-        outportb(WS_LCD_SHADE_01_PORT, 0xFF);
-        outportw(WS_LCD_SHADE_45_PORT, shades ^ 0xFFFF);
+        set_mono_shade_palette(palette, color_count);
     }
 
     result = bmp_convert_data(bmp->width, bmp->height, pitch, bmp->bpp, bmp_loader_dest, data, bmp_loader_flags);

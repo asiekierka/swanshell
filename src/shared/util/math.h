@@ -25,7 +25,8 @@
 #define MAX(a,b) (((a)<(b))?(b):(a))
 
 uint32_t math_next_power_of_two(uint32_t value);
-uint16_t math_color_to_greyscale(uint16_t rgb12);
+uint16_t math_rgb4_to_greyscale(uint16_t rgb12);
+uint16_t math_rgb8_to_greyscale(uint8_t r, uint8_t g, uint8_t b);
 uint16_t math_popcount16(uint16_t value);
 
 #endif /* MATH_H_ */
