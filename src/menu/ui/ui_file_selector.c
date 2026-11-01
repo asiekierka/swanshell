@@ -204,7 +204,7 @@ static void ui_file_selector_draw(struct ui_selector_config *config, uint16_t of
                 wsx_utf8_decode_next(&s);
 
             while (inportb(WS_DISPLAY_LINE_PORT) != (y + bitmapfont_get_font_height() - 1));
-            bitmap_rect_fill(&ui_bitmap, x_offset & ~7, y, screen_width - (x_offset & ~7), bitmapfont_get_font_height(), BITMAP_COLOR_2BPP(ui_has_wallpaper() ? 0 : 2));
+            bitmap_rect_fill(&ui_bitmap, x_offset & ~7, y, screen_width - (x_offset & ~7), bitmapfont_get_font_height(), BITMAP_COLOR_2BPP(2));
         }
     }
 
