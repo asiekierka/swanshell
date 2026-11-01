@@ -48,8 +48,14 @@ ws_display_tile_4bpp_t bitmap_tiles_c2[512];
 bitmap_t ui_bitmap;
 static uint8_t icons_visible;
 
+// bit0-1: 0 - not checked, 2 - checked, not found; 1 - checked, found
+// bit 2: 1 = translucent bars, 0 = solid bars
+static uint8_t wallpaper_status = 0;
+
+#define UI_BAR_COLOR ((wallpaper_status & 4) ? 0 : 2)
+
 void ui_draw_titlebar(const char __far* text) {
-    bitmap_rect_fill(&ui_bitmap, 0, 0, screen_width, 8, BITMAP_COLOR_2BPP(2));
+    bitmap_rect_fill(&ui_bitmap, 0, 0, screen_width, 8, BITMAP_COLOR_2BPP(UI_BAR_COLOR));
     if (text != NULL) {
         bitmapfont_set_active_font(font8_bitmap);
         bitmapfont_draw_string(&ui_bitmap, 2, 0, text, screen_width - 4);
@@ -136,8 +142,8 @@ void ui_hide_icons(void) {
 void ui_draw_statusbar_lr(const char __far* text, const char __far* right_text) {
     icons_visible = right_text == NULL ? (screen_width >> 3) : 0;
     uint16_t icon_end = ui_icon_update();
-    bitmap_rect_fill(&ui_bitmap, 0, screen_height-8, icon_end, 8, BITMAP_COLOR_2BPP(2));
-    if (icon_end < screen_width) {
+    bitmap_rect_fill(&ui_bitmap, 0, screen_height-8, icon_end, 8, BITMAP_COLOR_2BPP(UI_BAR_COLOR));
+    if (icon_end < screen_width && UI_BAR_COLOR) {
         bitmap_rect_fill(&ui_bitmap, icon_end, screen_height-8, screen_width-icon_end, 8, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
     }
     bitmapfont_set_active_font(font8_bitmap);
@@ -219,11 +225,8 @@ void ui_hide(void) {
     outportw(WS_DISPLAY_CTRL_PORT, 0);
 }
 
-// 0 - not checked, 2 - checked, not found; 1 - checked, found
-static uint8_t wallpaper_status = 0;
-
 bool ui_has_wallpaper(void) {
-    return wallpaper_status == 1;
+    return (wallpaper_status & 3) == 1;
 }
 
 __attribute__((always_inline))
