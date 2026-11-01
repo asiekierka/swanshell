@@ -33,6 +33,7 @@
 #include "launch/launch.h"
 #include "settings.h"
 #include "ui/bitmap.h"
+#include "ui/theme.h"
 #include "ui/ui.h"
 #include "ui/ui_dialog.h"
 #include "ui/ui_file_selector.h"
@@ -155,7 +156,7 @@ void main(void) {
 	}
 
 	{
-		int16_t result = settings_load();
+	    int16_t result = settings_load();
 		if (result == FR_NO_FILE || result == FR_NO_PATH) {
 			ui_popup_dialog_config_t cfg = {0};
 			cfg.title = lang_keys_en[LK_DIALOG_SETTINGS_CREATING_NEW];
@@ -171,6 +172,8 @@ void main(void) {
 			ui_dialog_error_check(result, lang_keys[LK_ERROR_TITLE_SETTINGS_LOAD], 0);
 		}
 	}
+
+	theme_init();
 
 	ui_dialog_error_check(launch_backup_save_data(), lang_keys[LK_ERROR_TITLE_SAVE_STORE], 0);
 

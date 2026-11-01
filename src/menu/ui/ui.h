@@ -43,13 +43,8 @@ void ui_layout_bars(void);
 void ui_draw_titlebar(const char __far* text);
 void ui_draw_statusbar(const char __far* text);
 void ui_draw_statusbar_lr(const char __far* text, const char __far* right_text);
-#ifdef CONFIG_ENABLE_WALLPAPER
 bool ui_has_wallpaper(void);
 void ui_unload_wallpaper(void);
-#else
-static inline bool ui_has_wallpaper(void) { return false; }
-static inline void ui_unload_wallpaper(void) { }
-#endif
 void ui_hide_icons(void);
 uint16_t ui_icon_update(void);
 void ui_screen_modify_tiles(void ws_iram *dest, uint16_t mask, uint16_t value, uint16_t x, uint16_t y, uint16_t width, uint16_t height);

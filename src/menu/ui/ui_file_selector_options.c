@@ -25,6 +25,7 @@
 #include "launch/launch.h"
 #include "settings.h"
 #include "strings.h"
+#include "ui/theme.h"
 #include "ui/ui.h"
 #include "ui_about.h"
 #include "ui_dialog.h"
@@ -131,6 +132,36 @@ static enum tristate ui_file_selector_tools(ui_popup_list_config_t *lst, const c
     }
 }
 
+static enum tristate ui_file_selector_file_wallpaper(ui_popup_list_config_t *lst, const char __far *filename) {
+    while (true) {
+        memset(lst, 0, sizeof(ui_popup_list_config_t));
+        lst->option[0] = lang_keys[LK_WALLPAPER_SHARED];
+        lst->option[1] = lang_keys[LK_WALLPAPER_HORIZONTAL];
+        lst->option[2] = lang_keys[LK_WALLPAPER_VERTICAL];
+
+        uint16_t feature = 0;
+        int result = ui_popup_list(lst);
+        switch (result) {
+        case UI_POPUP_ACTION_START:
+            return TRISTATE_FALSE;
+        default:
+            ui_popup_list_clear(lst);
+            return TRISTATE_NONE;
+        case 0: feature = THEME_FEATURE_WALLPAPER_SHARED; break;
+        case 1: feature = THEME_FEATURE_WALLPAPER_HORIZONTAL; break;
+        case 2: feature = THEME_FEATURE_WALLPAPER_VERTICAL; break;
+        }
+
+        if (feature) {
+            int16_t result = theme_add_wallpaper(feature, filename);
+            ui_dialog_error_check(result, lang_keys[LK_SUBMENU_OPTION_FILE_SET_AS_WALLPAPER], 0);
+            ui_unload_wallpaper();
+            ui_show();
+        }
+        return TRISTATE_TRUE;
+    }
+}
+
 static enum tristate ui_file_selector_file(ui_popup_list_config_t *lst, const char __far *filename) {
     while (true) {
         uint8_t options[4];
@@ -139,6 +170,9 @@ static enum tristate ui_file_selector_file(ui_popup_list_config_t *lst, const ch
         if (fileops_is_rom(filename)) {
             options[i] = 1;
             lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_FILE_ERASE_SAVE];
+        } else if (fileops_has_extension(filename, s_file_ext_bmp)) {
+            options[i] = 2;
+            lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_FILE_SET_AS_WALLPAPER];
         }
         options[i] = 0;
         lst->option[i++] = lang_keys[LK_SUBMENU_OPTION_FILE_DELETE];
@@ -163,6 +197,12 @@ static enum tristate ui_file_selector_file(ui_popup_list_config_t *lst, const ch
             ui_dialog_error_check(result, lang_keys[LK_SUBMENU_OPTION_FILE_ERASE_SAVE], 0);
             return TRISTATE_TRUE;
         }
+        case 2: {
+            enum tristate result = ui_file_selector_file_wallpaper(lst, filename);
+            if (result != TRISTATE_NONE)
+                return result;
+            break;
+        }
         }
     }
 }
@@ -178,7 +218,7 @@ bool ui_file_selector_options(const char __far *filename, uint8_t attrib) {
         }
         lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_TOOLS];
         lst.option[i++] = lang_keys[LK_SUBMENU_OPTION_SETTINGS];
-        
+
         int option = ui_popup_list(&lst);
         if (i == 2 && option >= 0) option++;
 

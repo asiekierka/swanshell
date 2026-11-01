@@ -402,6 +402,18 @@ msgstr "Usuń"
 msgid "SUBMENU_OPTION_FILE_ERASE_SAVE"
 msgstr "Wyczyść dane zapisu"
 
+msgid "SUBMENU_OPTION_FILE_SET_AS_WALLPAPER"
+msgstr "Ustaw jako tapeta"
+
+msgid "WALLPAPER_HORIZONTAL"
+msgstr "Poziomy"
+
+msgid "WALLPAPER_VERTICAL"
+msgstr "Pionowy"
+
+msgid "WALLPAPER_SHARED"
+msgstr "Oba"
+
 msgid "DIALOG_FILE_DELETE_CONFIRM"
 msgstr "Czy na pewno chcesz usunąć ten plik?"
 

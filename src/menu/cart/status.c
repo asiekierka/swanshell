@@ -20,6 +20,7 @@
 #include "errors.h"
 #include "status.h"
 #include "ui/bitmap.h"
+#include "ui/theme.h"
 #include "ui/ui.h"
 #include <nile/flash.h>
 #include <nile/flash_layout.h>
@@ -142,6 +143,9 @@ bool cart_status_apply_orientation_change(void) {
     uint8_t old_bitmap_rotation = bitmap_rotation;
     bitmap_set_screen_rotation((cart_status.orientation_state & 1) != 0);
     if (old_bitmap_rotation != bitmap_rotation) {
+        if (!theme_has_feature(THEME_FEATURE_WALLPAPER_SHARED)) {
+            ui_unload_wallpaper();
+        }
         ui_layout_clear(0);
         return true;
     } else {

@@ -19,11 +19,13 @@
 #include <stdio.h>
 #include <ws.h>
 #include <ws/display.h>
+#include <ws/memory.h>
 #include <wsx/planar_convert.h>
 #include "bitmap.h"
 #include "cart/status.h"
 #include "strings.h"
 #include "ui.h"
+#include "ui/theme.h"
 #include "util/bmp.h"
 #include "util/file.h"
 #include "fs.h"
@@ -220,75 +222,17 @@ void ui_hide(void) {
     outportw(WS_DISPLAY_CTRL_PORT, 0);
 }
 
-#ifdef CONFIG_ENABLE_WALLPAPER
 // 0 - not checked, 2 - checked, not found; 1 - checked, found
 static uint8_t wallpaper_status = 0;
 
 bool ui_has_wallpaper(void) {
     return wallpaper_status == 1;
 }
-#endif
 
 __attribute__((always_inline))
 static inline void ui_show_inner(void) {
     uint8_t ctrl = inportb(WS_DISPLAY_CTRL_PORT) & ~0x3;
-#ifdef CONFIG_ENABLE_WALLPAPER
     outportb(WS_DISPLAY_CTRL_PORT, ctrl | WS_DISPLAY_CTRL_SCR2_ENABLE | (wallpaper_status & 1));
-#else
-    outportb(WS_DISPLAY_CTRL_PORT, ctrl | WS_DISPLAY_CTRL_SCR2_ENABLE);
-#endif
-}
-
-#ifdef CONFIG_ENABLE_WALLPAPER
-static inline void load_wallpaper(void) {
-    FIL fp;
-    unsigned int br;
-
-    wallpaper_status = 2;
-    if (ws_system_get_mode() != WS_MODE_COLOR_4BPP) return;
-
-    int16_t result = f_open_far(&fp, s_path_wallpaper_bmp, FA_READ | FA_OPEN_EXISTING);
-    if (result != FR_OK || f_size(&fp) > 65535) return;
-
-    INIT_SCREEN_PATTERN(bitmap_screen1, WS_SCREEN_ATTR_PALETTE(3), WS_SCREEN_ATTR_BANK(1));
-    // memset(WS_TILE_4BPP_MEM(512), 0, 28 * 18 * 32);
-
-    wallpaper_status = 1;
-    ui_show_inner();
-    wallpaper_status = 2;
-
-    ws_bank_with_flash(WS_CART_BANK_FLASH_ENABLE, {
-        result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), &br);
-        f_close(&fp);
-        if (result != FR_OK) return;
-
-        bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
-        if (bmp->magic != BMP_MAGIC || bmp->header_size < BMP_MIN_HEADER_SIZE ||
-            bmp->width != screen_width || bmp->height != screen_height ||
-            bmp->compression != 0 || bmp->bpp != 4) return;
-
-        uint8_t __far *palette = MK_FP(0x1000, 14 + bmp->header_size);
-        for (int i = 0; i < 16; i++) {
-            uint8_t b = *(palette++);
-            uint8_t g = *(palette++);
-            uint8_t r = *(palette++);
-            palette++;
-            WS_DISPLAY_COLOR_MEM(3)[i] = WS_RGB(r >> 4, g >> 4, b >> 4);
-        }
-        WS_DISPLAY_COLOR_MEM(0)[0] = WS_DISPLAY_COLOR_MEM(3)[0];
-
-        uint8_t __far *data = MK_FP(0x1000, bmp->data_start);
-        uint16_t pitch = (((bmp->width * bmp->bpp) + 31) / 32) << 2;
-        for (uint8_t y = 0; y < bmp->height; y++, data += pitch) {
-            uint32_t __far *line_src = (uint32_t __far*) data;
-            uint32_t *line_dst = (uint32_t*) (0x8000 + (((uint16_t)bmp->height - 1 - y) * 4));
-            for (uint8_t x = 0; x < bmp->width; x += 8, line_src++, line_dst += WS_DISPLAY_HEIGHT_TILES * 8) {
-                *line_dst = wsx_planar_convert_4bpp_packed_row(*line_src);
-            }
-        }
-    });
-
-    wallpaper_status = 1;
 }
 
 void ui_unload_wallpaper(void) {
@@ -296,14 +240,26 @@ void ui_unload_wallpaper(void) {
     WS_DISPLAY_COLOR_MEM(0)[0] = (settings.accent_color_high & SETTING_THEME_DARK_MODE) ? 0x000 : 0xFFF;
     ui_show_inner();
 }
-#endif
+
+static inline void ui_load_wallpaper(uint16_t feature) {
+    INIT_SCREEN_PATTERN(bitmap_screen1, WS_SCREEN_ATTR_PALETTE(3), WS_SCREEN_ATTR_BANK(1));
+    ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_get_bank(), {
+        const uint8_t __far *data = theme_get_pointer(feature);
+        if (data != NULL) {
+            memcpy(WS_DISPLAY_COLOR_MEM(3), data, 32);
+            memcpy(WS_TILE_4BPP_MEM(512), data + 32, 16128);
+        }
+    });
+}
 
 void ui_show(void) {
-#ifdef CONFIG_ENABLE_WALLPAPER
-    if (!wallpaper_status && fs_initialized()) {
-        load_wallpaper();
+    if (!wallpaper_status && theme_initialized()) {
+        wallpaper_status = 2;
+        if (ws_system_get_mode() == WS_MODE_COLOR_4BPP) {
+            ui_load_wallpaper(bitmap_rotation ? THEME_FEATURE_WALLPAPER_HORIZONTAL : THEME_FEATURE_WALLPAPER_VERTICAL);
+            wallpaper_status = 1;
+        }
     }
-#endif
     ui_show_inner();
 }
 

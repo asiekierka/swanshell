@@ -371,6 +371,18 @@ msgstr "Delete"
 msgid "SUBMENU_OPTION_FILE_ERASE_SAVE"
 msgstr "Erase save data"
 
+msgid "SUBMENU_OPTION_FILE_SET_AS_WALLPAPER"
+msgstr "Set as wallpaper"
+
+msgid "WALLPAPER_HORIZONTAL"
+msgstr "Horizontal"
+
+msgid "WALLPAPER_VERTICAL"
+msgstr "Vertical"
+
+msgid "WALLPAPER_SHARED"
+msgstr "Both"
+
 msgid "DIALOG_FILE_DELETE_CONFIRM"
 msgstr "Are you sure you want to delete this file?"
 
