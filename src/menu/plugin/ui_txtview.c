@@ -283,7 +283,7 @@ int ui_txtview(const char *path) {
                     if (bitmap_rotation) {
                         for (int i = 0; i < (screen_width >> 3); i++) {
                             bitmap_vscroll_row(&ui_bitmap, i, 8 + font_height, 8, 128 - font_height);
-                            bitmap_rect_fill(&ui_bitmap, i << 3, 8 + 128 - font_height, 8, font_height, BITMAP_COLOR_2BPP(2));
+                            bitmap_rect_fill(&ui_bitmap, i << 3, 8 + 128 - font_height, 8, font_height, BITMAP_COLOR_2BPP(ui_has_wallpaper() ? 0 : 2));
                         }
                     } else {
                         // TODO: add fast path for vertical mode
