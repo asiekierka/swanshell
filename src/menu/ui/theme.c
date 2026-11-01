@@ -53,7 +53,7 @@ int theme_add_wallpaper(uint16_t feature, const char __far *path) {
         }
 
         if (!bmp_is_header_valid(bmp) || bmp->width != WS_DISPLAY_WIDTH_PIXELS
-            || bmp->height != WS_DISPLAY_HEIGHT_PIXELS || bmp->compression != 0) {
+            || bmp->height > WS_DISPLAY_HEIGHT_PIXELS || bmp->compression != 0) {
             return ERR_FILE_FORMAT_INVALID;
         }
 
@@ -75,6 +75,7 @@ int theme_add_wallpaper(uint16_t feature, const char __far *path) {
             return result;
         }
 
+        uint16_t height = bmp->height;
         ws_bank_with_ram(theme_bank, {
             theme_header_t __far* header = THEME_MEM_HEADER;
             uint8_t __far *dest = MK_FP(0x1000, 512);
@@ -94,7 +95,19 @@ int theme_add_wallpaper(uint16_t feature, const char __far *path) {
             }
 
             memcpy(dest, palette, 32);
-            memcpy(dest + 32, (uint16_t*) 0x8000, 16128);
+            if (height == WS_DISPLAY_HEIGHT_PIXELS) {
+                memcpy(dest + 32, (uint16_t*) 0x8000, 16128);
+            } else {
+                memset(dest + 32, 0, 16128);
+
+                uint16_t copy_offset = ((WS_DISPLAY_HEIGHT_PIXELS - height) >> 1) * 4;
+                uint16_t copy_height = height * 4;
+                uint8_t *ptr = (uint8_t*) 0x8000;
+
+                for (int i = 0; i < WS_SCREEN_WIDTH_TILES; i++, ptr += (WS_DISPLAY_HEIGHT_PIXELS * 4)) {
+                    memcpy(dest + 32 + (WS_DISPLAY_HEIGHT_PIXELS * 4 * i) + copy_offset, ptr, copy_height);
+                }
+            }
         });
     });
 
