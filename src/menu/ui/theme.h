@@ -30,12 +30,19 @@
 #define THEME_MEM_HEADER ((theme_header_t __far*) MK_FP(0x1000, 0x0000))
 
 typedef struct {
+    uint16_t background_color;
+    uint16_t foreground_color;
+} theme_bar_t;
+
+typedef struct {
     uint16_t magic;
     uint16_t version;
     uint16_t features;
     uint16_t accent_color;
+    uint16_t background_color;
+    uint16_t foreground_color;
 
-    uint8_t pad[512 - 8];
+    uint8_t pad[512 - 12];
 } theme_header_t;
 
 _Static_assert(sizeof(theme_header_t) == 512, "Invalid theme header size");

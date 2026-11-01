@@ -171,12 +171,13 @@ void ui_draw_statusbar(const char __far* text) {
     }
 
 void ui_init_palettes(void) {
-    if (ws_system_is_color_active()) {
+    bool color = ws_system_is_color_active();
+    if (color) {
         if (ui_has_wallpaper()) {
             ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(0) + 3, gfx_icons_palcolor + 6, gfx_icons_palcolor_size - 6);
         } else {
             // palette 0 - icon palette
-            WS_DISPLAY_COLOR_MEM(0)[0] = (settings.accent_color_high & SETTING_THEME_DARK_MODE) ? 0x000 : 0xFFF;
+            WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
             ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(0) + 2, gfx_icons_palcolor + 4, gfx_icons_palcolor_size - 4);
             WS_DISPLAY_COLOR_MEM(0)[1] = 0x000;
         }
@@ -207,6 +208,35 @@ void ui_init_palettes(void) {
         outportw(WS_SCR_PAL_1_PORT, 0x0725);
         // palette 2 - titlebar palette
         outportw(WS_SCR_PAL_2_PORT, 0x0370);
+    }
+
+    if (theme_initialized()) {
+        ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_get_bank(), {
+            theme_header_t __far *header = THEME_MEM_HEADER;
+            bool dark = false; // TODO
+            int accent_shade = ui_rgb_to_shade(header->accent_color);
+            bool dark_titlebar_text = accent_shade <= (dark ? 5 : 1);
+            if (color) {
+                WS_DISPLAY_COLOR_MEM(2)[2] = header->accent_color;
+                WS_DISPLAY_COLOR_MEM(2)[3] = dark_titlebar_text ? 0x000 : 0xFFF;
+
+                if (!ui_has_wallpaper())
+                    WS_DISPLAY_COLOR_MEM(0)[0] = header->background_color;
+                WS_DISPLAY_COLOR_MEM(0)[2] = header->background_color;
+                WS_DISPLAY_COLOR_MEM(0)[3] = header->foreground_color;
+                WS_DISPLAY_COLOR_MEM(1)[3] = header->background_color;
+                WS_DISPLAY_COLOR_MEM(1)[2] = header->foreground_color;
+            } else {
+                outportb(WS_SCR_PAL_2_PORT + 1, accent_shade | (dark_titlebar_text ? 0x70 : 0x00));
+
+                int bg_shade = ui_rgb_to_shade(header->background_color);
+                int fg_shade = ui_rgb_to_shade(header->foreground_color);
+
+                outportb(WS_SCR_PAL_0_PORT + 1, (bg_shade << 4) | fg_shade);
+                outportb(WS_SCR_PAL_1_PORT + 1, (fg_shade << 4) | bg_shade);
+                outportb(WS_SCR_PAL_2_PORT, (bg_shade << 4) | fg_shade);
+            }
+        });
     }
 }
 

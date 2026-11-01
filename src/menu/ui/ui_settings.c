@@ -28,6 +28,7 @@
 #include "settings.h"
 #include "strings.h"
 #include "ui.h"
+#include "ui/theme.h"
 #include "ui/ui_color_picker.h"
 #include "ui/ui_dialog.h"
 #include "ui_selector.h"
@@ -151,6 +152,9 @@ void ui_settings(const setting_category_t __far* root_category) {
     bool reinit_ui = true;
     char info_str[25];
 
+    ws_bank_t old_ram_bank = ws_bank_ram_get();
+    uint8_t old_ram_flash = inportb(WS_CART_BANK_FLASH_PORT);
+
     uint16_t offset_category_stack[4];
     uint8_t offset_category_stack_pos = 0;
 
@@ -271,5 +275,9 @@ reload_menu:
         }
     }
 
-    ui_dialog_error_check(settings_save(), NULL, 0);
+    if (!ui_dialog_error_check(settings_save(), NULL, 0)) {
+        ui_dialog_error_check(theme_save(), NULL, 0);
+    }
+    ws_bank_ram_set(old_ram_bank);
+    outportb(WS_CART_BANK_FLASH_PORT, old_ram_flash);
 }

@@ -199,11 +199,17 @@ msgstr "Accent color"
 msgid "SETTINGS_THEME_ACCENT_COLOR_HELP"
 msgstr "Color used as the user interface accent, in particular on the top and bottom bars."
 
-msgid "SETTINGS_THEME_DARK_MODE"
-msgstr "Dark mode"
+msgid "SETTINGS_THEME_BACKGROUND_COLOR"
+msgstr "Background color"
 
-msgid "SETTINGS_THEME_DARK_MODE_HELP"
-msgstr "Use a dark background for the main area of the user interface."
+msgid "SETTINGS_THEME_FOREGROUND_COLOR"
+msgstr "Foreground color"
+
+msgid "SETTINGS_THEME_RESET_COLORS"
+msgstr "Reset colors"
+
+msgid "SETTINGS_THEME_RESET_COLORS_HELP"
+msgstr "Reset the primary background/foreground color."
 
 msgid "SETTINGS_THEME_DARK"
 msgstr "Dark"

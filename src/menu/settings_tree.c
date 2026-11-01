@@ -47,8 +47,6 @@ DEFINE_STRING_LOCAL(s_program_fx_bios_key, "ProgFxCmptBios");
 DEFINE_STRING_LOCAL(s_cart_mcu_spi_speed_key, "CartMcuSpiSpeed");
 DEFINE_STRING_LOCAL(s_display_orientation_key, "DispOrient");
 DEFINE_STRING_LOCAL(s_language, "Language");
-DEFINE_STRING_LOCAL(s_theme_accent_color_key, "ThemeAccentColor");
-DEFINE_STRING_LOCAL(s_theme_dark_mode_key, "ThemeDarkMode");
 DEFINE_STRING_LOCAL(s_text_reader_font_key, "TextReaderFont");
 DEFINE_STRING_LOCAL(s_joy_repeat_first, "JoyRepeatFirst");
 DEFINE_STRING_LOCAL(s_joy_repeat_next, "JoyRepeatNext");
@@ -171,8 +169,8 @@ static const setting_t __far setting_scroll_long_names = {
     0,
     NULL,
     .flag = {
-        &settings.accent_color_high,
-        SETTING_THEME_SCROLL_LONG_NAMES_SHIFT,
+        &settings.file_flags,
+        SETTING_FILE_SCROLL_LONG_NAMES_SHIFT,
         LK_NO,
         LK_YES
     }
@@ -437,55 +435,68 @@ static const setting_t __far setting_system = {
     .category = { &settings_system }
 };
 
-static void settings_theme_accent_color_on_change(const struct setting *set) {
-    bool dark = settings.accent_color_high & SETTING_THEME_DARK_MODE;
-    int shade = ui_rgb_to_shade(settings.accent_color);
-    bool dark_titlebar_text = shade <= (dark ? 5 : 1);
-    if (ws_system_is_color_active()) {
-        WS_DISPLAY_COLOR_MEM(2)[2] = settings.accent_color;
-        WS_DISPLAY_COLOR_MEM(2)[3] = dark_titlebar_text ? 0x000 : 0xFFF;
-    }
-    outportb(WS_SCR_PAL_2_PORT + 1, shade | (dark_titlebar_text ? 0x70 : 0x00));
+static void settings_theme_color_on_change(const struct setting *set) {
+    ui_init_palettes();
 }
 
-static void settings_theme_dark_mode_on_change(const struct setting *set) {
-    bool dark = settings.accent_color_high & SETTING_THEME_DARK_MODE;
-    if (ws_system_is_color_active()) {
-        if (!ui_has_wallpaper())
-            WS_DISPLAY_COLOR_MEM(0)[0] = dark ? 0x000 : 0xFFF;
-        WS_DISPLAY_COLOR_MEM(0)[2] = dark ? 0x000 : 0xFFF;
-        WS_DISPLAY_COLOR_MEM(0)[3] = dark ? 0xFFF : 0x000;
-        WS_DISPLAY_COLOR_MEM(1)[3] = dark ? 0x000 : 0xFFF;
-        WS_DISPLAY_COLOR_MEM(1)[2] = dark ? 0xFFF : 0x000;
+static void setting_theme_reset_colors_action(const struct setting *set) {
+    ui_popup_list_config_t lst;
+    memset(&lst, 0, sizeof(ui_popup_list_config_t));
+    lst.option[0] = lang_keys[LK_SETTINGS_THEME_LIGHT];
+    lst.option[1] = lang_keys[LK_SETTINGS_THEME_DARK];
+
+    int result = ui_popup_list(&lst);
+    switch (result) {
+    case 0: {
+        THEME_MEM_HEADER->background_color = 0xFFF;
+        THEME_MEM_HEADER->foreground_color = 0x000;
+    } break;
+    case 1: {
+        THEME_MEM_HEADER->background_color = 0x000;
+        THEME_MEM_HEADER->foreground_color = 0xFFF;
+    } break;
     }
-    outportb(WS_SCR_PAL_0_PORT + 1, dark ? 0x07 : 0x70);
-    outportb(WS_SCR_PAL_1_PORT + 1, dark ? 0x70 : 0x07);
-    outportb(WS_SCR_PAL_2_PORT, dark ? 0x07 : 0x70);
-    settings_theme_accent_color_on_change(set);
+
+    ui_init_palettes();
 }
 
-static const setting_t __far setting_theme_dark_mode = {
-    s_theme_dark_mode_key,
-    LK_SETTINGS_THEME_DARK_MODE,
-    LK_SETTINGS_THEME_DARK_MODE_HELP,
-    SETTING_TYPE_FLAG,
+static const setting_t __far setting_theme_reset_colors = {
+    NULL,
+    LK_SETTINGS_THEME_RESET_COLORS,
+    LK_SETTINGS_THEME_RESET_COLORS_HELP,
+    SETTING_TYPE_ACTION,
     0,
-    settings_theme_dark_mode_on_change,
-    .flag = {
-        &settings.accent_color_high,
-        SETTING_THEME_DARK_MODE_SHIFT,
-        LK_SETTINGS_THEME_LIGHT, LK_SETTINGS_THEME_DARK
-    }
+    setting_theme_reset_colors_action
+};
+
+static const setting_t __far setting_theme_background_color = {
+    NULL,
+    LK_SETTINGS_THEME_BACKGROUND_COLOR,
+    0,
+    SETTING_TYPE_COLOR,
+    0,
+    settings_theme_color_on_change,
+    .color = { &(THEME_MEM_HEADER->background_color) }
+};
+
+static const setting_t __far setting_theme_foreground_color = {
+    NULL,
+    LK_SETTINGS_THEME_FOREGROUND_COLOR,
+    0,
+    SETTING_TYPE_COLOR,
+    0,
+    settings_theme_color_on_change,
+    .color = { &(THEME_MEM_HEADER->foreground_color) }
 };
 
 static const setting_t __far setting_theme_accent_color = {
-    s_theme_accent_color_key,
+    NULL,
     LK_SETTINGS_THEME_ACCENT_COLOR,
     LK_SETTINGS_THEME_ACCENT_COLOR_HELP,
     SETTING_TYPE_COLOR,
     0,
-    settings_theme_accent_color_on_change,
-    .color = { &settings.accent_color }
+    settings_theme_color_on_change,
+    .color = { &(THEME_MEM_HEADER->accent_color) }
 };
 
 static const setting_t __far setting_txtview_font_size = {
@@ -539,14 +550,21 @@ static const setting_category_t __far settings_theme = {
     LK_SETTINGS_THEME_KEY,
     0,
     &settings_interface,
-    4,
+    6,
     {
-        &setting_theme_dark_mode,
+        &setting_theme_disable_wallpaper,
+        &setting_theme_reset_colors,
+        &setting_theme_background_color,
+        &setting_theme_foreground_color,
         &setting_theme_accent_color,
-        &setting_txtview_font_size,
-        &setting_theme_disable_wallpaper
+        &setting_txtview_font_size
     }
 };
+
+static void settings_theme_open(const struct setting *set) {
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_ENABLE);
+    ws_bank_ram_set(theme_get_bank());
+}
 
 static const setting_t __far setting_theme = {
     NULL,
@@ -554,7 +572,7 @@ static const setting_t __far setting_theme = {
     0,
     SETTING_TYPE_CATEGORY,
     0,
-    NULL,
+    settings_theme_open,
     .category = { &settings_theme }
 };
 

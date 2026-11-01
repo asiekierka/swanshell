@@ -172,14 +172,8 @@ void theme_reset(void) {
         header->version = THEME_VERSION;
         header->features = 0;
         header->accent_color = SETTING_THEME_ACCENT_COLOR_DEFAULT;
-    });
-}
-
-void theme_to_iram(void) {
-    ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_bank, {
-        theme_header_t __far* header = THEME_MEM_HEADER;
-        // TODO
-        // settings.accent_color = header->accent_color;
+        header->background_color = 0xFFF;
+        header->foreground_color = 0x000;
     });
 }
 
@@ -201,7 +195,6 @@ int theme_init(void) {
             theme_reset();
         }
     });
-    theme_to_iram();
     return 0;
 }
 

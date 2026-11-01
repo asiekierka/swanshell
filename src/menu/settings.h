@@ -55,6 +55,9 @@
 #define SETTING_FILE_OPEN_LAST_DIRECTORY_SHIFT 5
 #define SETTING_FILE_OPEN_LAST_DIRECTORY       (1 << SETTING_FILE_OPEN_LAST_DIRECTORY_SHIFT)
 
+#define SETTING_FILE_SCROLL_LONG_NAMES_SHIFT 6
+#define SETTING_FILE_SCROLL_LONG_NAMES       (1 << SETTING_FILE_SCROLL_LONG_NAMES_SHIFT)
+
 #define SETTING_FILE_SORT_FILESYSTEM 0
 #define SETTING_FILE_SORT_NAME_ASC   1
 #define SETTING_FILE_SORT_NAME_DESC  2
@@ -65,12 +68,6 @@
 
 #define SETTING_FILE_VIEW_LARGE 0
 #define SETTING_FILE_VIEW_SMALL 1
-
-#define SETTING_THEME_DARK_MODE_SHIFT 4
-#define SETTING_THEME_DARK_MODE       (1 << SETTING_THEME_DARK_MODE_SHIFT)
-
-#define SETTING_THEME_SCROLL_LONG_NAMES_SHIFT 5
-#define SETTING_THEME_SCROLL_LONG_NAMES       (1 << SETTING_THEME_SCROLL_LONG_NAMES_SHIFT)
 
 #define SETTING_FLAG_COLOR_ONLY 0x01
 #define SETTING_FLAG_CHOICE_LIST 0x80
@@ -124,7 +121,7 @@ typedef struct setting {
             void (*name)(uint16_t, char *, int);
         } choice;
         struct {
-            uint16_t *value;
+            uint16_t __far* value;
         } color;
     };
 } setting_t;
@@ -151,13 +148,6 @@ typedef struct __attribute__((packed)) {
     uint8_t joy_repeat_first_ticks;
     uint8_t joy_repeat_next_ticks;
     uint8_t display_orientation;
-    union {
-        struct {
-            uint8_t accent_color_low;
-            uint8_t accent_color_high;
-        };
-        uint16_t accent_color;
-    };
 } settings_t;
 
 extern settings_t settings;

@@ -21,6 +21,6 @@
 #include <ws.h>
 #include "ui.h"
 
-void ui_color_picker(uint16_t *rgb);
+void ui_color_picker(uint16_t __far* rgb);
 
 #endif /* UI_COLOR_PICKER_H_ */

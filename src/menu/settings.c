@@ -23,12 +23,12 @@
 #include "settings.h"
 #include "lang_gen.h"
 #include "strings.h"
+#include "util/file.h"
 #include "util/ini.h"
 
 void settings_reset(void) {
     memset(&settings, 0, sizeof(settings));
     lang_keys = lang_keys_en;
-    settings.accent_color = SETTING_THEME_ACCENT_COLOR_DEFAULT;
     settings.mcu_spi_speed = SETTING_MCU_SPI_SPEED_24MHZ;
     settings.joy_repeat_first_ticks = 18;
     settings.joy_repeat_next_ticks = 5;
@@ -135,10 +135,8 @@ static int16_t settings_save_category(FIL *fp, const setting_category_t __far *c
 int16_t settings_save(void) {
     FIL fp;
     int16_t result;
-    char tmp_buf[24];
 
-    strcpy(tmp_buf, s_path_config_ini);
-    result = f_open(&fp, tmp_buf, FA_CREATE_ALWAYS | FA_WRITE);
+    result = f_open_far(&fp, s_path_config_ini, FA_CREATE_ALWAYS | FA_WRITE);
     if (result != FR_OK)
         return result;
 

@@ -128,7 +128,7 @@ static void draw_colorbar(uint8_t y, uint8_t start_palette, uint16_t rgb, uint8_
         BITMAP_COLOR_4BPP(6), true);
 }
 
-void ui_color_picker(uint16_t *rgb) {
+void ui_color_picker(uint16_t __far* rgb) {
     uint16_t new_rgb = *rgb;
     bool mono = !ws_system_is_color_active();
 
@@ -289,6 +289,6 @@ void ui_color_picker(uint16_t *rgb) {
     }
 
     if (!mono)
-        memset(WS_DISPLAY_COLOR_MEM(8) + 1, (settings.accent_color_high & SETTING_THEME_DARK_MODE) ? 0x00 : 0xFF, 254);
+        ws_memset16(WS_DISPLAY_COLOR_MEM(8) + 1, WS_DISPLAY_COLOR_MEM(0)[0], 254);
     bitmap_rect_fill(&ui_bitmap, COLORBAR_X - 8, 12, COLORBAR_WIDTH + 16, screen_height - 24, BITMAP_COLOR_4BPP(2));
 }

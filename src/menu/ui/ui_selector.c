@@ -98,7 +98,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
 
     while (true) {
         if (prev_offset != config->offset) {
-            if (settings.file_flags & SETTING_THEME_SCROLL_LONG_NAMES) {
+            if (settings.file_flags & SETTING_FILE_SCROLL_LONG_NAMES) {
                 if (scroll_ticks > SCROLL_TICKS_MIN) {
                     ui_selector_set_active_font(config);
                     int y_offset = (prev_offset % row_count) * row_height + SELECTOR_Y_OFFSET;
@@ -165,7 +165,7 @@ uint16_t ui_selector(ui_selector_config_t *config) {
         if (idle_until_vblank() || cart_status_apply_orientation_change())
             return UI_SELECTOR_RELOAD_REQUESTED;
 
-        if (settings.file_flags & SETTING_THEME_SCROLL_LONG_NAMES) {
+        if (settings.file_flags & SETTING_FILE_SCROLL_LONG_NAMES) {
             scroll_ticks++;
             if (scroll_ticks > SCROLL_TICKS_MIN && !(scroll_ticks & SCROLL_TICKS_PACE_MASK)) {
                 ui_selector_set_active_font(config);

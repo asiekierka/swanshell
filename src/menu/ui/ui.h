@@ -33,6 +33,7 @@
 
 extern bitmap_t ui_bitmap;
 
+void ui_init_palettes(void);
 void ui_init(void);
 void ui_hide(void);
 void ui_show(void);
