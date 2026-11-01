@@ -20,6 +20,7 @@
 #include <ws.h>
 #include <ws/display.h>
 #include <ws/memory.h>
+#include <ws/system.h>
 #include <wsx/planar_convert.h>
 #include "bitmap.h"
 #include "cart/status.h"
@@ -169,23 +170,16 @@ void ui_draw_statusbar(const char __far* text) {
         } \
     }
 
-void ui_init(void) {
-    ui_hide();
-    icons_visible = 0;
-
-    // initialize palettes
-#ifdef CONFIG_DEBUG_FORCE_MONO
-    if (0) {
-#else
-    if (ws_system_is_color_model()) {
-#endif
-        ws_system_set_mode(WS_MODE_COLOR_4BPP);
-        ui_bitmap = BITMAP(WS_TILE_4BPP_MEM(0), WS_DISPLAY_WIDTH_TILES, WS_DISPLAY_HEIGHT_TILES, 4);
-
-        // palette 0 - icon palette
-        WS_DISPLAY_COLOR_MEM(0)[0] = 0xFFF;
-        ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(0) + 2, gfx_icons_palcolor + 4, gfx_icons_palcolor_size - 4);
-        WS_DISPLAY_COLOR_MEM(0)[1] = 0x000;
+void ui_init_palettes(void) {
+    if (ws_system_is_color_active()) {
+        if (ui_has_wallpaper()) {
+            ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(0) + 3, gfx_icons_palcolor + 6, gfx_icons_palcolor_size - 6);
+        } else {
+            // palette 0 - icon palette
+            WS_DISPLAY_COLOR_MEM(0)[0] = (settings.accent_color_high & SETTING_THEME_DARK_MODE) ? 0x000 : 0xFFF;
+            ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(0) + 2, gfx_icons_palcolor + 4, gfx_icons_palcolor_size - 4);
+            WS_DISPLAY_COLOR_MEM(0)[1] = 0x000;
+        }
 
         // palette 1 - icon palette (selected)
         ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(1) + 2, gfx_icons_palcolor + 4, gfx_icons_palcolor_size - 4);
@@ -199,8 +193,6 @@ void ui_init(void) {
         WS_DISPLAY_COLOR_MEM(2)[2] = SETTING_THEME_ACCENT_COLOR_DEFAULT;
         WS_DISPLAY_COLOR_MEM(2)[3] = 0xFFF;
     } else {
-        ui_bitmap = BITMAP(WS_TILE_MEM(0), WS_DISPLAY_WIDTH_TILES, WS_DISPLAY_HEIGHT_TILES, 2);
-
         // TODO: Add gamma configuration option.
         //
         // STN (color correction):
@@ -216,6 +208,24 @@ void ui_init(void) {
         // palette 2 - titlebar palette
         outportw(WS_SCR_PAL_2_PORT, 0x0370);
     }
+}
+
+void ui_init(void) {
+    ui_hide();
+    icons_visible = 0;
+
+    // initialize palettes
+#ifdef CONFIG_DEBUG_FORCE_MONO
+    if (0) {
+#else
+    if (ws_system_is_color_model()) {
+#endif
+        ws_system_set_mode(WS_MODE_COLOR_4BPP);
+        ui_bitmap = BITMAP(WS_TILE_4BPP_MEM(0), WS_DISPLAY_WIDTH_TILES, WS_DISPLAY_HEIGHT_TILES, 4);
+    } else {
+        ui_bitmap = BITMAP(WS_TILE_MEM(0), WS_DISPLAY_WIDTH_TILES, WS_DISPLAY_HEIGHT_TILES, 2);
+    }
+    ui_init_palettes();
 
     outportb(WS_SCR_BASE_PORT, WS_SCR_BASE_ADDR1(0x3800) | WS_SCR_BASE_ADDR2(bitmap_screen2));
     outportw(WS_SCR2_SCRL_X_PORT, ((14*8) << 8) + (4*8));
@@ -231,13 +241,13 @@ bool ui_has_wallpaper(void) {
 
 __attribute__((always_inline))
 static inline void ui_show_inner(void) {
+    ui_init_palettes();
     uint8_t ctrl = inportb(WS_DISPLAY_CTRL_PORT) & ~0x3;
     outportb(WS_DISPLAY_CTRL_PORT, ctrl | WS_DISPLAY_CTRL_SCR2_ENABLE | (wallpaper_status & 1));
 }
 
 void ui_unload_wallpaper(void) {
     wallpaper_status = 0;
-    WS_DISPLAY_COLOR_MEM(0)[0] = (settings.accent_color_high & SETTING_THEME_DARK_MODE) ? 0x000 : 0xFFF;
     ui_show_inner();
 }
 
@@ -247,6 +257,9 @@ static inline bool ui_load_wallpaper(uint16_t feature) {
         const uint8_t __far *data = theme_get_pointer(feature);
         if (data != NULL) {
             memcpy(WS_DISPLAY_COLOR_MEM(3), data, 32);
+            WS_DISPLAY_COLOR_MEM(0)[0] = WS_DISPLAY_COLOR_MEM(3)[0];
+            WS_DISPLAY_COLOR_MEM(0)[2] = WS_DISPLAY_COLOR_MEM(3)[0];
+
             memcpy(WS_TILE_4BPP_MEM(512), data + 32, 16128);
             return true;
         }
