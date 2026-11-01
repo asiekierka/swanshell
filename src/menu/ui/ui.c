@@ -26,9 +26,6 @@
 #include "strings.h"
 #include "ui.h"
 #include "ui/theme.h"
-#include "util/bmp.h"
-#include "util/file.h"
-#include "fs.h"
 #include "settings.h"
 #include "../../../build/menu/assets/menu/bar_icons.h"
 #include "../../../build/menu/assets/menu/icons.h"
@@ -241,23 +238,26 @@ void ui_unload_wallpaper(void) {
     ui_show_inner();
 }
 
-static inline void ui_load_wallpaper(uint16_t feature) {
+static inline bool ui_load_wallpaper(uint16_t feature) {
     INIT_SCREEN_PATTERN(bitmap_screen1, WS_SCREEN_ATTR_PALETTE(3), WS_SCREEN_ATTR_BANK(1));
     ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_get_bank(), {
         const uint8_t __far *data = theme_get_pointer(feature);
         if (data != NULL) {
             memcpy(WS_DISPLAY_COLOR_MEM(3), data, 32);
             memcpy(WS_TILE_4BPP_MEM(512), data + 32, 16128);
+            return true;
         }
     });
+    return false;
 }
 
 void ui_show(void) {
     if (!wallpaper_status && theme_initialized()) {
         wallpaper_status = 2;
         if (ws_system_get_mode() == WS_MODE_COLOR_4BPP) {
-            ui_load_wallpaper(bitmap_rotation ? THEME_FEATURE_WALLPAPER_HORIZONTAL : THEME_FEATURE_WALLPAPER_VERTICAL);
-            wallpaper_status = 1;
+            if (ui_load_wallpaper(bitmap_rotation ? THEME_FEATURE_WALLPAPER_HORIZONTAL : THEME_FEATURE_WALLPAPER_VERTICAL)) {
+                wallpaper_status = 1;
+            }
         }
     }
     ui_show_inner();

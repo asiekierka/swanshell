@@ -116,9 +116,13 @@ void theme_remove_wallpaper(uint16_t feature) {
             }
         }
     });
+
+    theme_save();
 }
 
 void __far *theme_get_pointer(uint16_t feature) {
+    if (!theme_initialized()) return NULL;
+
     ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_bank, {
         theme_header_t __far* header = THEME_MEM_HEADER;
         uint16_t size = 512;

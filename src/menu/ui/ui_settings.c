@@ -243,6 +243,8 @@ reload_menu:
                 bitmap_set_screen_force_horizontal(false);
                 reinit_ui = true;
                 reload_required = true;
+            } else if (s->type == SETTING_TYPE_ACTION) {
+                ui_selector_clear_selection(&config.config);
             }
 
             if (s->on_change) {

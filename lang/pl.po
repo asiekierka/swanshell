@@ -372,6 +372,10 @@ msgstr "Lokalizacja startowa"
 msgid "SETTINGS_FILE_OPEN_DIRECTORY_HELP"
 msgstr "Wybierz katalog otwarty w momencie uruchomienia przeglądarki plików."
 
+
+msgid "SETTINGS_THEME_DISABLE_WALLPAPER"
+msgstr "Wyłącz tapetę"
+
 msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
 msgstr "Czcionka czytnika tekstu"
 

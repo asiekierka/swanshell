@@ -123,6 +123,9 @@ msgid "SETTINGS_FILE_OPEN_DIRECTORY_HELP"
 msgstr "Choose the path opened on file browser start."
 
 
+msgid "SETTINGS_THEME_DISABLE_WALLPAPER"
+msgstr "Disable wallpaper"
+
 msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
 msgstr "Text reader font"
 

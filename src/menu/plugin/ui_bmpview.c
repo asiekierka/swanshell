@@ -29,7 +29,6 @@
 #include "ui/ui.h"
 #include "util/file.h"
 #include "util/input.h"
-#include "main.h"
 #include "util/bmp.h"
 #include "util/math.h"
 

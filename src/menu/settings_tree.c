@@ -27,10 +27,12 @@
 #include "lang.h"
 #include "strings.h"
 #include "ui/bitmap.h"
+#include "ui/theme.h"
 #include "ui/ui.h"
 #include "ui/ui_about.h"
 #include "ui/ui_dialog.h"
 #include "ui/ui_popup_dialog.h"
+#include "ui/ui_popup_list.h"
 #include "ui/ui_rtc_clock.h"
 
 DEFINE_STRING_LOCAL(s_file_show_hidden_key, "FileShowHidden");
@@ -501,15 +503,48 @@ static const setting_t __far setting_txtview_font_size = {
     }
 };
 
+static void setting_theme_diable_wallpaper_action(const struct setting *set) {
+    ui_popup_list_config_t lst;
+    memset(&lst, 0, sizeof(ui_popup_list_config_t));
+    lst.option[0] = lang_keys[LK_WALLPAPER_SHARED];
+    lst.option[1] = lang_keys[LK_WALLPAPER_HORIZONTAL];
+    lst.option[2] = lang_keys[LK_WALLPAPER_VERTICAL];
+
+    uint16_t feature = 0;
+    int result = ui_popup_list(&lst);
+    switch (result) {
+    case 0: feature = THEME_FEATURE_WALLPAPER_SHARED; break;
+    case 1: feature = THEME_FEATURE_WALLPAPER_HORIZONTAL; break;
+    case 2: feature = THEME_FEATURE_WALLPAPER_VERTICAL; break;
+    }
+
+    if (feature) {
+        theme_remove_wallpaper(feature);
+        ui_unload_wallpaper();
+        ui_show();
+    }
+}
+
+static const setting_t __far setting_theme_disable_wallpaper = {
+    NULL,
+    LK_SETTINGS_THEME_DISABLE_WALLPAPER,
+    NULL,
+    SETTING_TYPE_ACTION,
+    0,
+    setting_theme_diable_wallpaper_action
+};
+
+
 static const setting_category_t __far settings_theme = {
     LK_SETTINGS_THEME_KEY,
     0,
     &settings_interface,
-    3,
+    4,
     {
         &setting_theme_dark_mode,
         &setting_theme_accent_color,
-        &setting_txtview_font_size
+        &setting_txtview_font_size,
+        &setting_theme_disable_wallpaper
     }
 };
 
