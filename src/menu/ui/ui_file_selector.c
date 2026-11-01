@@ -242,6 +242,7 @@ rescan_directory:
     config.key_mask = WS_KEY_A | WS_KEY_B | WS_KEY_START;
     config.style = settings.file_view;
 
+    outportb(WS_CART_BANK_FLASH_PORT, WS_CART_BANK_FLASH_DISABLE);
     if (reinit_ui) {
         ui_layout_bars();
     }
