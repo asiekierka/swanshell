@@ -51,7 +51,7 @@ static uint8_t icons_visible;
 
 // bit0-1: 0 - not checked, 2 - checked, not found; 1 - checked, found
 // bit 2: 1 = translucent bars, 0 = solid bars
-static uint8_t wallpaper_status = 0;
+static uint8_t wallpaper_status;
 
 #define UI_BAR_COLOR ((wallpaper_status & 4) ? 0 : 2)
 
@@ -213,6 +213,7 @@ void ui_init_palettes(void) {
 void ui_init(void) {
     ui_hide();
     icons_visible = 0;
+    wallpaper_status = 0;
 
     // initialize palettes
 #ifdef CONFIG_DEBUG_FORCE_MONO
