@@ -63,6 +63,10 @@ bool f_anymatch(filinfo_predicate_t predicate, const char __far* local_path) {
 }
 
 bool f_exists_far(const char __far* path) {
+    if (!FP_SEG(path)) {
+        return f_stat((const char*) FP_OFF(path), NULL) == FR_OK;
+    }
+
     char local_path[FF_LFN_BUF + 1];
     local_path[FF_LFN_BUF] = 0;
     strncpy(local_path, path, FF_LFN_BUF);
@@ -71,6 +75,10 @@ bool f_exists_far(const char __far* path) {
 }
 
 FRESULT f_open_far(FIL* fp, const char __far* path, uint8_t mode) {
+    if (!FP_SEG(path)) {
+        return f_open(fp, (const char*) FP_OFF(path), mode);
+    }
+
     char local_path[FF_LFN_BUF + 1];
     local_path[FF_LFN_BUF] = 0;
     strncpy(local_path, path, FF_LFN_BUF);
