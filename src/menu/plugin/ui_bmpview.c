@@ -27,28 +27,11 @@
 #include "errors.h"
 #include "settings.h"
 #include "ui/ui.h"
+#include "util/file.h"
 #include "util/input.h"
 #include "main.h"
 #include "util/bmp.h"
 #include "util/math.h"
-
-int bmp_load(const char *path) {
-    FIL fp;
-    uint16_t br;
-    uint8_t result = f_open(&fp, path, FA_OPEN_EXISTING | FA_READ);
-    if (result != FR_OK) {
-        return result;
-    }
-
-    if (f_size(&fp) > 65535) {
-        f_close(&fp);
-        return ERR_FILE_TOO_LARGE;
-    }
-
-    result = f_read(&fp, MK_FP(0x1000, 0x0000), f_size(&fp), &br);
-    f_close(&fp);
-    return result;
-}
 
 int bmp_calculate_color_count(const bmp_header_t __far *bmp, const void __far *data) {
     int color_count = bmp->color_count;
@@ -169,12 +152,12 @@ static void center_viewport(uint8_t width, uint8_t height) {
 }
 
 int ui_bmpview(const char *path) {
-    int result = bmp_load(path);
+    bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
+    int result = f_read_unbanked(bmp, path, 65535, NULL);
     if (result != FR_OK) {
         return result;
     }
 
-    bmp_header_t __far* bmp = MK_FP(0x1000, 0x0000);
     if (bmp->magic != BMP_MAGIC || bmp->header_size < BMP_MIN_HEADER_SIZE ||
         bmp->width <= 0 || bmp->width > WS_DISPLAY_WIDTH_PIXELS || bmp->height <= 0 || bmp->height > WS_DISPLAY_HEIGHT_PIXELS ||
         bmp->compression != 0) {

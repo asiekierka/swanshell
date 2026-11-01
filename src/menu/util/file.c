@@ -85,6 +85,24 @@ FRESULT f_unlink_far(const char __far* path) {
     return f_unlink(local_path);
 }
 
+int f_read_unbanked(void __far *dest, const char __far *path, uint16_t max_size, uint16_t *length) {
+    FIL fp;
+    uint16_t br;
+    uint8_t result = f_open_far(&fp, path, FA_OPEN_EXISTING | FA_READ);
+    if (result != FR_OK) {
+        return result;
+    }
+
+    if (f_size(&fp) > max_size) {
+        f_close(&fp);
+        return ERR_FILE_TOO_LARGE;
+    }
+
+    result = f_read(&fp, dest, f_size(&fp), (uint16_t*) (length ? length : &br));
+    f_close(&fp);
+    return result;
+}
+
 int16_t f_read_sram_banked(FIL* fp, uint16_t bank, uint32_t btr, fbanked_progress_callback_t cb, void *userdata) {
     uint16_t prev_bank = inportw(WS_CART_EXTBANK_RAM_PORT);
 
