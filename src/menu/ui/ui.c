@@ -59,20 +59,20 @@ static void ui_fill_bar(uint16_t y, uint8_t style) {
     }
     switch (style) {
     case THEME_BAR_STYLE_SOLID: {
-        bitmap_rect_fill(&ui_bitmap, 0, y, screen_width, 8, BITMAP_COLOR_4BPP(2));
+        bitmap_rect_fill(&ui_bitmap, 0, y, screen_width, 8, BITMAP_COLOR(2, 0xE, BITMAP_COLOR_MODE_STORE));
     } break;
     case THEME_BAR_STYLE_TRANSPARENT: {
-        bitmap_rect_fill(&ui_bitmap, 0, y, screen_width, 8, BITMAP_COLOR_4BPP(0));
+        bitmap_rect_fill(&ui_bitmap, 0, y, screen_width, 8, BITMAP_COLOR(0, 0xE, BITMAP_COLOR_MODE_STORE));
     } break;
     case THEME_BAR_STYLE_GRADIENT_LR: {
         int width = (screen_width + 6) / 7;
         for (int i = 0; i < 7; i++) {
-            bitmap_rect_fill(&ui_bitmap, width * i, y, width, 8, BITMAP_COLOR_4BPP(i * 2 + 2));
+            bitmap_rect_fill(&ui_bitmap, width * i, y, width, 8, BITMAP_COLOR(i * 2 + 2, 0xE, BITMAP_COLOR_MODE_STORE));
         }
     } break;
     case THEME_BAR_STYLE_GRADIENT_UD: {
         for (int i = 0; i < 4; i++) {
-            bitmap_rect_fill(&ui_bitmap, 0, y + i * 2, screen_width, 2, BITMAP_COLOR_4BPP(i * 4 + 2));
+            bitmap_rect_fill(&ui_bitmap, 0, y + i * 2, screen_width, 2, BITMAP_COLOR(i * 4 + 2, 0xE, BITMAP_COLOR_MODE_STORE));
         }
     } break;
     }

@@ -36,7 +36,13 @@
 #define THEME_BAR_STYLE_SHIFT 12
 
 typedef struct {
-    uint16_t background_col_a;
+    union {
+        uint16_t background_col_a;
+        struct {
+            uint8_t background_col_a_low;
+            uint8_t background_col_a_high;
+        };
+    };
     uint16_t background_col_b;
     uint16_t foreground_color;
 } theme_bar_t;
@@ -69,6 +75,9 @@ int theme_add_wallpaper(uint16_t feature, const char __far *path);
  * @param feature HORIZONTAL/VERTICAL for one, SHARED for both
  */
 void theme_remove_wallpaper(uint16_t feature);
+
+void theme_reset_bar(theme_bar_t __far *bar);
+void theme_reset(void);
 
 uint8_t theme_get_bank(void);
 static inline bool theme_initialized(void) { return theme_get_bank() != 0xFF; }

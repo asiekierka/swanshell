@@ -306,11 +306,20 @@ msgstr "Pionowa"
 msgid "SETTINGS_THEME_KEY"
 msgstr "Motyw"
 
-msgid "SETTINGS_THEME_ACCENT_COLOR"
-msgstr "Kolor akcentu"
+msgid "SETTINGS_THEME_STYLE"
+msgstr "Styl"
 
-msgid "SETTINGS_THEME_ACCENT_COLOR_HELP"
-msgstr "Kolor używany jako akcent interfejsu, m.in. na górnym i dolnym pasku."
+msgid "SETTINGS_THEME_BAR_STYLE_SOLID"
+msgstr "Stały kolor"
+
+msgid "SETTINGS_THEME_BAR_STYLE_TRANSPARENT"
+msgstr "Przezroczysty"
+
+msgid "SETTINGS_THEME_BAR_STYLE_GRADIENT_LR"
+msgstr "Gradient (poziomo)"
+
+msgid "SETTINGS_THEME_BAR_STYLE_GRADIENT_UD"
+msgstr "Gradient (pionowo)"
 
 msgid "SETTINGS_THEME_DARK_MODE"
 msgstr "Tryb nocny"
@@ -375,6 +384,9 @@ msgstr "Wybierz katalog otwarty w momencie uruchomienia przeglądarki plików."
 
 msgid "SETTINGS_THEME_DISABLE_WALLPAPER"
 msgstr "Wyłącz tapetę"
+
+msgid "SETTINGS_THEME_DISABLE_WALLPAPER_HELP"
+msgstr "Aby ustawić tapetę, użyj menu Plik na kompatybilnym pliku .bmp."
 
 msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
 msgstr "Czcionka czytnika tekstu"

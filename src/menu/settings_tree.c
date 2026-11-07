@@ -119,6 +119,7 @@ static const setting_t __far setting_file_sort_order = {
     .choice = {
         &settings.file_sort,
         0, 6,
+        0, 0xFF,
         NULL,
         settings_file_sort_order_name
     }
@@ -156,6 +157,7 @@ static const setting_t __far setting_file_view = {
     .choice = {
         &settings.file_view,
         0, 1,
+        0, 0xFF,
         NULL,
         settings_file_view_name
     }
@@ -229,6 +231,7 @@ static const setting_t __far setting_display_orientation = {
     .choice = {
         &settings.display_orientation,
         0, 2,
+        0, 0xFF,
         NULL,
         settings_display_orientation_name
     }
@@ -278,6 +281,7 @@ const setting_t __far setting_language = {
     .choice = {
         &settings.language,
         0, LANGUAGE_COUNT - 1,
+        0, 0xFF,
         NULL,
         settings_language_name
     }
@@ -341,6 +345,7 @@ static const setting_t __far setting_cart_mcu_spi_speed = {
     .choice = {
         &settings.mcu_spi_speed,
         0, SETTING_MCU_SPI_SPEED_COUNT - 1,
+        0, 0xFF,
         NULL,
         settings_spi_speed_name
     }
@@ -539,25 +544,203 @@ static void setting_theme_diable_wallpaper_action(const struct setting *set) {
 static const setting_t __far setting_theme_disable_wallpaper = {
     NULL,
     LK_SETTINGS_THEME_DISABLE_WALLPAPER,
-    NULL,
+    LK_SETTINGS_THEME_DISABLE_WALLPAPER_HELP,
     SETTING_TYPE_ACTION,
     0,
     setting_theme_diable_wallpaper_action
 };
 
+static const uint16_t __wf_rom settings_theme_bar_style_name_table[] = {
+    LK_SETTINGS_THEME_BAR_STYLE_SOLID,
+    LK_SETTINGS_THEME_BAR_STYLE_TRANSPARENT,
+    LK_SETTINGS_THEME_BAR_STYLE_GRADIENT_LR,
+    LK_SETTINGS_THEME_BAR_STYLE_GRADIENT_UD
+};
+
+static void settings_theme_bar_style_name(uint16_t value, char *buf, int buf_len) {
+    strncpy(buf, lang_keys[settings_theme_bar_style_name_table[value & 3]], buf_len);
+}
+
+/* static const setting_t __far setting_theme_tbar_style = {
+    NULL,
+    LK_SETTINGS_THEME_STYLE,
+    0,
+    SETTING_TYPE_CHOICE_BYTE,
+    0,
+    NULL,
+    .choice = {
+        &(THEME_MEM_HEADER->tbar.background_col_a_high),
+        0, 3,
+        4, 0xF,
+        NULL,
+        settings_theme_bar_style_name
+    }
+    }; */
+
+static const setting_t __far setting_theme_tbar_background_color_a = {
+    NULL,
+    LK_SETTINGS_THEME_BACKGROUND_COLOR,
+    0,
+    SETTING_TYPE_COLOR,
+    0,
+    settings_theme_color_on_change,
+    .color = { &(THEME_MEM_HEADER->tbar.background_col_a) }
+};
+
+static const setting_t __far setting_theme_tbar_background_color_b = {
+    NULL,
+    LK_SETTINGS_THEME_BACKGROUND_COLOR_2,
+    LK_SETTINGS_THEME_BACKGROUND_COLOR_2_HELP,
+    SETTING_TYPE_COLOR,
+    0,
+    settings_theme_color_on_change,
+    .color = { &(THEME_MEM_HEADER->tbar.background_col_b) }
+};
+
+static const setting_t __far setting_theme_tbar_foreground_color = {
+    NULL,
+    LK_SETTINGS_THEME_FOREGROUND_COLOR,
+    0,
+    SETTING_TYPE_COLOR,
+    0,
+    settings_theme_color_on_change,
+    .color = { &(THEME_MEM_HEADER->tbar.foreground_color) }
+};
+
+static void setting_theme_tbar_reset_colors_action(const struct setting *set) {
+    theme_reset_bar(&THEME_MEM_HEADER->tbar);
+    ui_init_palettes();
+}
+
+static const setting_t __far setting_theme_tbar_reset_colors = {
+    NULL,
+    LK_SETTINGS_THEME_RESET_COLORS,
+    0,
+    SETTING_TYPE_ACTION,
+    0,
+    setting_theme_tbar_reset_colors_action
+};
+
+static const setting_category_t __far settings_theme_tbar = {
+    LK_SETTINGS_THEME_KEY,
+    0,
+    &settings_interface,
+    4,
+    {
+        // &setting_theme_tbar_style,
+        &setting_theme_tbar_background_color_a,
+        &setting_theme_tbar_background_color_b,
+        &setting_theme_tbar_foreground_color,
+        &setting_theme_tbar_reset_colors
+    }
+};
+
+static const setting_t __far setting_theme_tbar = {
+    NULL,
+    LK_SETTINGS_THEME_TBAR_KEY,
+    0,
+    SETTING_TYPE_CATEGORY,
+    0,
+    NULL,
+    .category = { &settings_theme_tbar }
+};
+
+/* static const setting_t __far setting_theme_bbar_style = {
+    NULL,
+    LK_SETTINGS_THEME_STYLE,
+    0,
+    SETTING_TYPE_CHOICE_BYTE,
+    0,
+    NULL,
+    .choice = {
+        &(THEME_MEM_HEADER->tbar.background_col_a_high),
+        0, 3,
+        4, 0xF,
+        NULL,
+        settings_theme_bar_style_name
+    }
+    }; */
+
+static const setting_t __far setting_theme_bbar_background_color_a = {
+    NULL,
+    LK_SETTINGS_THEME_BACKGROUND_COLOR,
+    0,
+    SETTING_TYPE_COLOR,
+    0,
+    settings_theme_color_on_change,
+    .color = { &(THEME_MEM_HEADER->bbar.background_col_a) }
+};
+
+static const setting_t __far setting_theme_bbar_background_color_b = {
+    NULL,
+    LK_SETTINGS_THEME_BACKGROUND_COLOR_2,
+    LK_SETTINGS_THEME_BACKGROUND_COLOR_2_HELP,
+    SETTING_TYPE_COLOR,
+    0,
+    settings_theme_color_on_change,
+    .color = { &(THEME_MEM_HEADER->bbar.background_col_b) }
+};
+
+static const setting_t __far setting_theme_bbar_foreground_color = {
+    NULL,
+    LK_SETTINGS_THEME_FOREGROUND_COLOR,
+    0,
+    SETTING_TYPE_COLOR,
+    0,
+    settings_theme_color_on_change,
+    .color = { &(THEME_MEM_HEADER->bbar.foreground_color) }
+};
+
+static void setting_theme_bbar_reset_colors_action(const struct setting *set) {
+    theme_reset_bar(&THEME_MEM_HEADER->bbar);
+    ui_init_palettes();
+}
+
+static const setting_t __far setting_theme_bbar_reset_colors = {
+    NULL,
+    LK_SETTINGS_THEME_RESET_COLORS,
+    0,
+    SETTING_TYPE_ACTION,
+    0,
+    setting_theme_bbar_reset_colors_action
+};
+
+static const setting_category_t __far settings_theme_bbar = {
+    LK_SETTINGS_THEME_KEY,
+    0,
+    &settings_interface,
+    4,
+    {
+        // &setting_theme_bbar_style,
+        &setting_theme_bbar_background_color_a,
+        &setting_theme_bbar_background_color_b,
+        &setting_theme_bbar_foreground_color,
+        &setting_theme_bbar_reset_colors
+    }
+};
+
+static const setting_t __far setting_theme_bbar = {
+    NULL,
+    LK_SETTINGS_THEME_BBAR_KEY,
+    0,
+    SETTING_TYPE_CATEGORY,
+    0,
+    NULL,
+    .category = { &settings_theme_bbar }
+};
 
 static const setting_category_t __far settings_theme = {
     LK_SETTINGS_THEME_KEY,
     0,
     &settings_interface,
-    5,
+    6,
     {
         &setting_theme_disable_wallpaper,
         &setting_theme_reset_colors,
         &setting_theme_background_color,
         &setting_theme_foreground_color,
-        // &setting_theme_accent_color,
-        &setting_txtview_font_size
+        &setting_theme_tbar,
+        &setting_theme_bbar
     }
 };
 
@@ -594,6 +777,7 @@ static const setting_t __far setting_repeat_delay = {
     .choice = {
         &settings.joy_repeat_first_ticks,
         9, 37,
+        0, 0xFF,
         NULL,
         settings_ticks_name
     }
@@ -609,6 +793,7 @@ static const setting_t __far setting_repeat_next_delay = {
     .choice = {
         &settings.joy_repeat_next_ticks,
         5, 36,
+        0, 0xFF,
         NULL,
         settings_ticks_name
     }
@@ -688,11 +873,12 @@ static const setting_category_t __far settings_interface = {
     LK_SETTINGS_INTERFACE_KEY,
     0,
     &settings_root,
-    3,
+    4,
     {
         &setting_display_orientation,
         &setting_theme,
-        &setting_file
+        &setting_file,
+        &setting_txtview_font_size
     }
 };
 

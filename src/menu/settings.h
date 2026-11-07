@@ -108,15 +108,17 @@ typedef struct setting {
             const struct setting_category __far *value;
         } category;
         struct {
-            uint8_t *value;
+            uint8_t* value;
             uint8_t bit;
             uint16_t name_false;
             uint16_t name_true;
         } flag;
         struct {
-            void *value;
+            void* value;
             uint16_t min;
             uint16_t max;
+            uint8_t shift;
+            uint8_t mask;
             bool (*allowed)(uint16_t);
             void (*name)(uint16_t, char *, int);
         } choice;

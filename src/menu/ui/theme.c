@@ -164,6 +164,12 @@ uint16_t theme_calculate_filesize(void) {
     });
 }
 
+void theme_reset_bar(theme_bar_t __far *bar) {
+    bar->background_col_a = SETTING_THEME_ACCENT_COLOR_DEFAULT;
+    bar->background_col_b = SETTING_THEME_ACCENT_COLOR_DEFAULT;
+    bar->foreground_color = 0xFFF;
+}
+
 void theme_reset(void) {
     ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_bank, {
         theme_header_t __far* header = THEME_MEM_HEADER;
@@ -173,12 +179,8 @@ void theme_reset(void) {
         header->features = 0;
         header->background_color = 0xFFF;
         header->foreground_color = 0x000;
-        header->tbar.background_col_a = SETTING_THEME_ACCENT_COLOR_DEFAULT;
-        header->tbar.background_col_b = SETTING_THEME_ACCENT_COLOR_DEFAULT;
-        header->tbar.foreground_color = 0xFFF;
-        header->bbar.background_col_a = SETTING_THEME_ACCENT_COLOR_DEFAULT;
-        header->bbar.background_col_b = SETTING_THEME_ACCENT_COLOR_DEFAULT;
-        header->bbar.foreground_color = 0xFFF;
+        theme_reset_bar(&header->tbar);
+        theme_reset_bar(&header->bbar);
     });
 }
 

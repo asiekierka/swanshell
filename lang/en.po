@@ -52,6 +52,12 @@ msgstr "Cartridge"
 msgid "SETTINGS_THEME_KEY"
 msgstr "Theme"
 
+msgid "SETTINGS_THEME_TBAR_KEY"
+msgstr "Title bar"
+
+msgid "SETTINGS_THEME_BBAR_KEY"
+msgstr "Status bar"
+
 msgid "SETTINGS_CONTROLS_KEY"
 msgstr "Controls"
 
@@ -126,6 +132,9 @@ msgstr "Choose the path opened on file browser start."
 msgid "SETTINGS_THEME_DISABLE_WALLPAPER"
 msgstr "Disable wallpaper"
 
+msgid "SETTINGS_THEME_DISABLE_WALLPAPER_HELP"
+msgstr "To set a wallpaper, use the File menu on a compatible .bmp file."
+
 msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
 msgstr "Text reader font"
 
@@ -193,14 +202,29 @@ msgstr "Repeat rate"
 msgid "SETTINGS_CONTROLS_REPEAT_RATE_HELP"
 msgstr "The rate of subsequent button press repeats."
 
-msgid "SETTINGS_THEME_ACCENT_COLOR"
-msgstr "Accent color"
+msgid "SETTINGS_THEME_STYLE"
+msgstr "Style"
 
-msgid "SETTINGS_THEME_ACCENT_COLOR_HELP"
-msgstr "Color used as the user interface accent, in particular on the top and bottom bars."
+msgid "SETTINGS_THEME_BAR_STYLE_SOLID"
+msgstr "Solid color"
+
+msgid "SETTINGS_THEME_BAR_STYLE_TRANSPARENT"
+msgstr "Transparent"
+
+msgid "SETTINGS_THEME_BAR_STYLE_GRADIENT_LR"
+msgstr "Gradient (Horizontal)"
+
+msgid "SETTINGS_THEME_BAR_STYLE_GRADIENT_UD"
+msgstr "Gradient (Veritcal)"
 
 msgid "SETTINGS_THEME_BACKGROUND_COLOR"
 msgstr "Background color"
+
+msgid "SETTINGS_THEME_BACKGROUND_COLOR_2"
+msgstr "Background color 2"
+
+msgid "SETTINGS_THEME_BACKGROUND_COLOR_2_HELP"
+msgstr "Secondary background color, used in gradients."
 
 msgid "SETTINGS_THEME_FOREGROUND_COLOR"
 msgstr "Foreground color"
