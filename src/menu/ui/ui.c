@@ -33,6 +33,7 @@
 #include "../../../build/menu/assets/menu/screen_patterns.h"
 #include "lang.h"
 #include "config.h"
+#include "util/color.h"
 
 __attribute__((section(".iramx_1b88")))
 uint16_t bitmap_screen2[32 * 18 - 4];
@@ -50,13 +51,35 @@ bitmap_t ui_bitmap;
 static uint8_t icons_visible;
 
 // bit0-1: 0 - not checked, 2 - checked, not found; 1 - checked, found
-// bit 2: 1 = translucent bars, 0 = solid bars
 static uint8_t wallpaper_status;
 
-#define UI_BAR_COLOR ((wallpaper_status & 4) ? 0 : 2)
+static void ui_fill_bar(uint16_t y, uint8_t style) {
+    if (!ws_system_is_color_active()) {
+        style = THEME_BAR_STYLE_SOLID;
+    }
+    switch (style) {
+    case THEME_BAR_STYLE_SOLID: {
+        bitmap_rect_fill(&ui_bitmap, 0, y, screen_width, 8, BITMAP_COLOR_4BPP(2));
+    } break;
+    case THEME_BAR_STYLE_TRANSPARENT: {
+        bitmap_rect_fill(&ui_bitmap, 0, y, screen_width, 8, BITMAP_COLOR_4BPP(0));
+    } break;
+    case THEME_BAR_STYLE_GRADIENT_LR: {
+        int width = (screen_width + 6) / 7;
+        for (int i = 0; i < 7; i++) {
+            bitmap_rect_fill(&ui_bitmap, width * i, y, width, 8, BITMAP_COLOR_4BPP(i * 2 + 2));
+        }
+    } break;
+    case THEME_BAR_STYLE_GRADIENT_UD: {
+        for (int i = 0; i < 4; i++) {
+            bitmap_rect_fill(&ui_bitmap, 0, y + i * 2, screen_width, 2, BITMAP_COLOR_4BPP(i * 4 + 2));
+        }
+    } break;
+    }
+}
 
 void ui_draw_titlebar(const char __far* text) {
-    bitmap_rect_fill(&ui_bitmap, 0, 0, screen_width, 8, BITMAP_COLOR_2BPP(UI_BAR_COLOR));
+    bitmap_rect_fill(&ui_bitmap, 0, 0, screen_width, 8, BITMAP_COLOR(0, 1, BITMAP_COLOR_MODE_STORE));
     if (text != NULL) {
         bitmapfont_set_active_font(font8_bitmap);
         bitmapfont_draw_string(&ui_bitmap, 2, 0, text, screen_width - 4);
@@ -143,10 +166,7 @@ void ui_hide_icons(void) {
 void ui_draw_statusbar_lr(const char __far* text, const char __far* right_text) {
     icons_visible = right_text == NULL ? (screen_width >> 3) : 0;
     uint16_t icon_end = ui_icon_update();
-    bitmap_rect_fill(&ui_bitmap, 0, screen_height-8, icon_end, 8, BITMAP_COLOR_2BPP(UI_BAR_COLOR));
-    if (icon_end < screen_width && UI_BAR_COLOR) {
-        bitmap_rect_fill(&ui_bitmap, icon_end, screen_height-8, screen_width-icon_end, 8, BITMAP_COLOR(2, 2, BITMAP_COLOR_MODE_STORE));
-    }
+    bitmap_rect_fill(&ui_bitmap, 0, screen_height-8, icon_end, 8, BITMAP_COLOR(0, 1, BITMAP_COLOR_MODE_STORE));
     bitmapfont_set_active_font(font8_bitmap);
     if (text != NULL) {
         bitmapfont_draw_string(&ui_bitmap, 2, screen_height-8, text, icon_end - 4);
@@ -191,8 +211,13 @@ void ui_init_palettes(void) {
         // palette 2 - titlebar palette
         WS_DISPLAY_COLOR_MEM(2)[0] = 0xFFF;
         WS_DISPLAY_COLOR_MEM(2)[1] = 0x000;
-        WS_DISPLAY_COLOR_MEM(2)[2] = SETTING_THEME_ACCENT_COLOR_DEFAULT;
-        WS_DISPLAY_COLOR_MEM(2)[3] = 0xFFF;
+        for (int i = 0; i < 7; i++) {
+            WS_DISPLAY_COLOR_MEM(2)[i * 2 + 2] = SETTING_THEME_ACCENT_COLOR_DEFAULT;
+            WS_DISPLAY_COLOR_MEM(2)[i * 2 + 3] = 0xFFF;
+        }
+
+        // palette 3 - statusbar palette
+        memcpy(WS_DISPLAY_COLOR_MEM(3), WS_DISPLAY_COLOR_MEM(2), 32);
     } else {
         // TODO: Add gamma configuration option.
         //
@@ -208,17 +233,25 @@ void ui_init_palettes(void) {
         outportw(WS_SCR_PAL_1_PORT, 0x0725);
         // palette 2 - titlebar palette
         outportw(WS_SCR_PAL_2_PORT, 0x0370);
+        // palette 3 - statusbar palette
+        outportw(WS_SCR_PAL_3_PORT, 0x0370);
     }
 
     if (theme_initialized()) {
         ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_get_bank(), {
             theme_header_t __far *header = THEME_MEM_HEADER;
-            bool dark = false; // TODO
-            int accent_shade = ui_rgb_to_shade(header->accent_color);
-            bool dark_titlebar_text = accent_shade <= (dark ? 5 : 1);
             if (color) {
-                WS_DISPLAY_COLOR_MEM(2)[2] = header->accent_color;
-                WS_DISPLAY_COLOR_MEM(2)[3] = dark_titlebar_text ? 0x000 : 0xFFF;
+                for (int i = 0; i < 7; i++) {
+                    int ratio = 255 * i / (7 - 1);
+                    WS_DISPLAY_COLOR_MEM(UI_PAL_TBAR)[i * 2 + 2] = color_rgb4_mix(header->tbar.background_col_a, header->tbar.background_col_b, ratio);
+                    WS_DISPLAY_COLOR_MEM(UI_PAL_TBAR)[i * 2 + 3] = header->tbar.foreground_color;
+                }
+
+                for (int i = 0; i < 7; i++) {
+                    int ratio = 255 * i / (7 - 1);
+                    WS_DISPLAY_COLOR_MEM(UI_PAL_BBAR)[i * 2 + 2] = color_rgb4_mix(header->bbar.background_col_a, header->bbar.background_col_b, ratio);
+                    WS_DISPLAY_COLOR_MEM(UI_PAL_BBAR)[i * 2 + 3] = header->bbar.foreground_color;
+                }
 
                 if (!ui_has_wallpaper())
                     WS_DISPLAY_COLOR_MEM(0)[0] = header->background_color;
@@ -227,7 +260,8 @@ void ui_init_palettes(void) {
                 WS_DISPLAY_COLOR_MEM(1)[3] = header->background_color;
                 WS_DISPLAY_COLOR_MEM(1)[2] = header->foreground_color;
             } else {
-                outportb(WS_SCR_PAL_2_PORT + 1, accent_shade | (dark_titlebar_text ? 0x70 : 0x00));
+                outportb(WS_SCR_PAL_2_PORT + 1, ui_rgb_to_shade(header->tbar.background_col_a) | (ui_rgb_to_shade(header->tbar.foreground_color) << 4));
+                outportb(WS_SCR_PAL_3_PORT + 1, ui_rgb_to_shade(header->bbar.background_col_a) | (ui_rgb_to_shade(header->bbar.foreground_color) << 4));
 
                 int bg_shade = ui_rgb_to_shade(header->background_color);
                 int fg_shade = ui_rgb_to_shade(header->foreground_color);
@@ -235,6 +269,7 @@ void ui_init_palettes(void) {
                 outportb(WS_SCR_PAL_0_PORT + 1, (bg_shade << 4) | fg_shade);
                 outportb(WS_SCR_PAL_1_PORT + 1, (fg_shade << 4) | bg_shade);
                 outportb(WS_SCR_PAL_2_PORT, (bg_shade << 4) | fg_shade);
+                outportb(WS_SCR_PAL_3_PORT, (bg_shade << 4) | fg_shade);
             }
         });
     }
@@ -283,13 +318,13 @@ void ui_unload_wallpaper(void) {
 }
 
 static inline bool ui_load_wallpaper(uint16_t feature) {
-    INIT_SCREEN_PATTERN(bitmap_screen1, WS_SCREEN_ATTR_PALETTE(3), WS_SCREEN_ATTR_BANK(1));
+    INIT_SCREEN_PATTERN(bitmap_screen1, WS_SCREEN_ATTR_PALETTE(UI_PAL_WALLPAPER), WS_SCREEN_ATTR_BANK(1));
     ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_get_bank(), {
         const uint8_t __far *data = theme_get_pointer(feature);
         if (data != NULL) {
-            memcpy(WS_DISPLAY_COLOR_MEM(3), data, 32);
-            WS_DISPLAY_COLOR_MEM(0)[0] = WS_DISPLAY_COLOR_MEM(3)[0];
-            WS_DISPLAY_COLOR_MEM(0)[2] = WS_DISPLAY_COLOR_MEM(3)[0];
+            memcpy(WS_DISPLAY_COLOR_MEM(UI_PAL_WALLPAPER), data, 32);
+            WS_DISPLAY_COLOR_MEM(0)[0] = WS_DISPLAY_COLOR_MEM(UI_PAL_WALLPAPER)[0];
+            WS_DISPLAY_COLOR_MEM(0)[2] = WS_DISPLAY_COLOR_MEM(UI_PAL_WALLPAPER)[0];
 
             memcpy(WS_TILE_4BPP_MEM(512), data + 32, 16128);
             return true;
@@ -336,11 +371,8 @@ void ui_layout_clear(uint16_t pal) {
 }
 
 void ui_layout_bars_pattern(void) {
-#ifdef CONFIG_UI_PRECOMPUTED_SCREEN_PATTERNS
     memcpy(bitmap_screen2, !bitmap_rotation ? ui_layout_bars_v_data : ui_layout_bars_h_data, sizeof(ui_layout_clear_data));
-#else
-    INIT_SCREEN_PATTERN(bitmap_screen2, (!bitmap_rotation ? (ix == 0 || ix == 27) : (iy == 0 || iy == 17)) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
-#endif
+    // INIT_SCREEN_PATTERN(bitmap_screen2, (!bitmap_rotation ? (ix == 0 || ix == 27) : (iy == 0 || iy == 17)) ? WS_SCREEN_ATTR_PALETTE(2) : 0, 0);
 }
 
 void ui_layout_bars(void) {
@@ -350,6 +382,10 @@ void ui_layout_bars(void) {
         bitmap_rect_clear(&ui_bitmap, 0, 8, screen_width, screen_height - 16);
     }
     ui_layout_bars_pattern();
+    ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_get_bank(), {
+        ui_fill_bar(0, theme_initialized() ? (THEME_MEM_HEADER->tbar.background_col_a >> THEME_BAR_STYLE_SHIFT) : 0);
+        ui_fill_bar(screen_height - 8, theme_initialized() ? (THEME_MEM_HEADER->bbar.background_col_a >> THEME_BAR_STYLE_SHIFT) : 0);
+    });
 }
 
 void ui_screen_modify_tiles(void ws_iram *dest, uint16_t mask, uint16_t value, uint16_t x, uint16_t y, uint16_t width, uint16_t height) {

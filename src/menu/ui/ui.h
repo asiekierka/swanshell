@@ -32,6 +32,10 @@
 #define UI_POPUP_ACTION_BACK -1
 #define UI_POPUP_ACTION_START -2
 
+#define UI_PAL_TBAR 2
+#define UI_PAL_BBAR 3
+#define UI_PAL_WALLPAPER 4
+
 extern bitmap_t ui_bitmap;
 
 void ui_init_palettes(void);

@@ -171,9 +171,14 @@ void theme_reset(void) {
         header->magic = THEME_MAGIC;
         header->version = THEME_VERSION;
         header->features = 0;
-        header->accent_color = SETTING_THEME_ACCENT_COLOR_DEFAULT;
         header->background_color = 0xFFF;
         header->foreground_color = 0x000;
+        header->tbar.background_col_a = SETTING_THEME_ACCENT_COLOR_DEFAULT;
+        header->tbar.background_col_b = SETTING_THEME_ACCENT_COLOR_DEFAULT;
+        header->tbar.foreground_color = 0xFFF;
+        header->bbar.background_col_a = SETTING_THEME_ACCENT_COLOR_DEFAULT;
+        header->bbar.background_col_b = SETTING_THEME_ACCENT_COLOR_DEFAULT;
+        header->bbar.foreground_color = 0xFFF;
     });
 }
 

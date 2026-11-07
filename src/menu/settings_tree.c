@@ -489,7 +489,7 @@ static const setting_t __far setting_theme_foreground_color = {
     .color = { &(THEME_MEM_HEADER->foreground_color) }
 };
 
-static const setting_t __far setting_theme_accent_color = {
+/* static const setting_t __far setting_theme_accent_color = {
     NULL,
     LK_SETTINGS_THEME_ACCENT_COLOR,
     LK_SETTINGS_THEME_ACCENT_COLOR_HELP,
@@ -497,7 +497,7 @@ static const setting_t __far setting_theme_accent_color = {
     0,
     settings_theme_color_on_change,
     .color = { &(THEME_MEM_HEADER->accent_color) }
-};
+    }; */
 
 static const setting_t __far setting_txtview_font_size = {
     s_text_reader_font_key,
@@ -550,13 +550,13 @@ static const setting_category_t __far settings_theme = {
     LK_SETTINGS_THEME_KEY,
     0,
     &settings_interface,
-    6,
+    5,
     {
         &setting_theme_disable_wallpaper,
         &setting_theme_reset_colors,
         &setting_theme_background_color,
         &setting_theme_foreground_color,
-        &setting_theme_accent_color,
+        // &setting_theme_accent_color,
         &setting_txtview_font_size
     }
 };

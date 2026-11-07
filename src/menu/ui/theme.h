@@ -29,8 +29,15 @@
 
 #define THEME_MEM_HEADER ((theme_header_t __far*) MK_FP(0x1000, 0x0000))
 
+#define THEME_BAR_STYLE_SOLID 0x0
+#define THEME_BAR_STYLE_TRANSPARENT 0x1
+#define THEME_BAR_STYLE_GRADIENT_LR 0x2
+#define THEME_BAR_STYLE_GRADIENT_UD 0x3
+#define THEME_BAR_STYLE_SHIFT 12
+
 typedef struct {
-    uint16_t background_color;
+    uint16_t background_col_a;
+    uint16_t background_col_b;
     uint16_t foreground_color;
 } theme_bar_t;
 
@@ -38,11 +45,11 @@ typedef struct {
     uint16_t magic;
     uint16_t version;
     uint16_t features;
-    uint16_t accent_color;
     uint16_t background_color;
     uint16_t foreground_color;
+    theme_bar_t tbar, bbar;
 
-    uint8_t pad[512 - 12];
+    uint8_t pad[512 - 22];
 } theme_header_t;
 
 _Static_assert(sizeof(theme_header_t) == 512, "Invalid theme header size");
