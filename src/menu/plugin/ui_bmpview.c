@@ -40,7 +40,7 @@ static void set_mono_shade_palette(uint8_t __far *palette, int color_count) {
         uint8_t g = *(palette++);
         uint8_t r = *(palette++);
         palette++;
-        shades |= (math_rgb8_to_greyscale(r, g, b) >> 4) << (i * 4);
+        shades |= (color_rgb8_to_greyscale(r, g, b) >> 4) << (i * 4);
     }
     outportb(WS_LCD_SHADE_01_PORT, 0xFF);
     outportw(WS_LCD_SHADE_45_PORT, shades ^ 0xFFFF);

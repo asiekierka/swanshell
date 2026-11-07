@@ -28,14 +28,6 @@ uint32_t math_next_power_of_two(uint32_t v) {
     return v;
 }
 
-uint16_t math_rgb4_to_greyscale(uint16_t rgb12) {
-    return (((rgb12 >> 8) & 0xF) * 77 + ((rgb12 >> 4) & 0xF) * 150 + (rgb12 & 0xF) * 29) >> 8;
-}
-
-uint16_t math_rgb8_to_greyscale(uint8_t r, uint8_t g, uint8_t b) {
-    return (77 * r + 150 * g + 29 * b) >> 8;
-}
-
 uint16_t math_popcount16(uint16_t v) {
     uint16_t result = 0;
     while (v) {
