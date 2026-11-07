@@ -57,7 +57,13 @@ static void ui_settings_draw(struct ui_selector_config *config, uint16_t offset,
     } else if (s->type == SETTING_TYPE_FLAG) {
         strcpy(buf, lang_keys[(*s->flag.value & (1 << s->flag.bit)) ? s->flag.name_true : s->flag.name_false]);
     } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
-        s->choice.name(*((uint8_t*) s->choice.value), buf, sizeof(buf));
+        uint8_t value;
+        if (s->flags & SETTING_FLAG_FAR_POINTER) {
+            value = *((uint8_t __far*) s->choice.fvalue);
+        } else {
+            value = *((uint8_t*) s->choice.value);
+        }
+        s->choice.name((value >> s->choice.shift) & s->choice.mask, buf, sizeof(buf));
     } else if (s->type == SETTING_TYPE_COLOR) {
         snprintf(buf, sizeof(buf), s_color, *s->color.value & 0xFFF);
     }
@@ -218,11 +224,17 @@ reload_menu:
             } else if (s->type == SETTING_TYPE_FLAG) {
                 *s->flag.value ^= (1 << s->flag.bit);
             } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
+                uint8_t __far* value_ptr;
+                if (s->flags & SETTING_FLAG_FAR_POINTER) {
+                    value_ptr = ((uint8_t __far*) s->choice.fvalue);
+                } else {
+                    value_ptr = ((uint8_t*) s->choice.value);
+                }
+                uint8_t value = (*value_ptr >> s->choice.shift) & s->choice.mask;
                 if (s->flags & SETTING_FLAG_CHOICE_LIST) {
-                    *((uint8_t*) s->choice.value) = ui_settings_selector(s, *((uint8_t*) s->choice.value));
+                    value = ui_settings_selector(s, value);
                     reload_required = true;
                 } else {
-                    uint8_t value = *((uint8_t*) s->choice.value);
                     for (int i = 0; i < s->choice.max; i++) {
                         value++;
                         if (value > s->choice.max)
@@ -232,8 +244,10 @@ reload_menu:
                             break;
                         }
                     }
-                    *((uint8_t*) s->choice.value) = value;
                 }
+
+                uint8_t vmask = s->choice.mask << s->choice.shift;
+                *value_ptr = (*value_ptr & ~vmask) | ((value << s->choice.shift) & vmask);
 
                 if (s->choice.value == &settings.display_orientation) {
                     input_wait_clear();

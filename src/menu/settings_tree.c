@@ -55,6 +55,7 @@ settings_t settings;
 
 static const setting_category_t __far settings_system;
 static const setting_category_t __far settings_interface;
+static const setting_category_t __far settings_theme;
 
 static const setting_t __far setting_file_show_hidden = {
     s_file_show_hidden_key,
@@ -117,7 +118,7 @@ static const setting_t __far setting_file_sort_order = {
     0,
     NULL,
     .choice = {
-        &settings.file_sort,
+        { .value = &settings.file_sort },
         0, 6,
         0, 0xFF,
         NULL,
@@ -155,7 +156,7 @@ static const setting_t __far setting_file_view = {
     0,
     NULL,
     .choice = {
-        &settings.file_view,
+        { .value = &settings.file_view },
         0, 1,
         0, 0xFF,
         NULL,
@@ -229,7 +230,7 @@ static const setting_t __far setting_display_orientation = {
     SETTING_FLAG_CHOICE_LIST,
     settings_display_orientation_on_change,
     .choice = {
-        &settings.display_orientation,
+        { .value = &settings.display_orientation },
         0, 2,
         0, 0xFF,
         NULL,
@@ -279,7 +280,7 @@ const setting_t __far setting_language = {
     SETTING_FLAG_CHOICE_LIST,
     settings_language_on_change,
     .choice = {
-        &settings.language,
+        { .value = &settings.language },
         0, LANGUAGE_COUNT - 1,
         0, 0xFF,
         NULL,
@@ -343,7 +344,7 @@ static const setting_t __far setting_cart_mcu_spi_speed = {
     SETTING_TYPE_CHOICE_BYTE,
     0,
     .choice = {
-        &settings.mcu_spi_speed,
+        { .value = &settings.mcu_spi_speed },
         0, SETTING_MCU_SPI_SPEED_COUNT - 1,
         0, 0xFF,
         NULL,
@@ -439,6 +440,11 @@ static const setting_t __far setting_system = {
     NULL,
     .category = { &settings_system }
 };
+
+static void settings_theme_bar_on_change(const struct setting *set) {
+    ui_layout_bars();
+    ui_init_palettes();
+}
 
 static void settings_theme_color_on_change(const struct setting *set) {
     ui_init_palettes();
@@ -561,21 +567,21 @@ static void settings_theme_bar_style_name(uint16_t value, char *buf, int buf_len
     strncpy(buf, lang_keys[settings_theme_bar_style_name_table[value & 3]], buf_len);
 }
 
-/* static const setting_t __far setting_theme_tbar_style = {
+static const setting_t __far setting_theme_tbar_style = {
     NULL,
     LK_SETTINGS_THEME_STYLE,
     0,
     SETTING_TYPE_CHOICE_BYTE,
-    0,
-    NULL,
+    SETTING_FLAG_FAR_POINTER | SETTING_FLAG_CHOICE_LIST,
+    settings_theme_bar_on_change,
     .choice = {
-        &(THEME_MEM_HEADER->tbar.background_col_a_high),
+        { .fvalue = &(THEME_MEM_HEADER->tbar.background_col_a_high) },
         0, 3,
         4, 0xF,
         NULL,
         settings_theme_bar_style_name
     }
-    }; */
+};
 
 static const setting_t __far setting_theme_tbar_background_color_a = {
     NULL,
@@ -622,12 +628,12 @@ static const setting_t __far setting_theme_tbar_reset_colors = {
 };
 
 static const setting_category_t __far settings_theme_tbar = {
-    LK_SETTINGS_THEME_KEY,
+    LK_SETTINGS_THEME_TBAR_KEY,
     0,
-    &settings_interface,
-    4,
+    &settings_theme,
+    5,
     {
-        // &setting_theme_tbar_style,
+        &setting_theme_tbar_style,
         &setting_theme_tbar_background_color_a,
         &setting_theme_tbar_background_color_b,
         &setting_theme_tbar_foreground_color,
@@ -645,21 +651,21 @@ static const setting_t __far setting_theme_tbar = {
     .category = { &settings_theme_tbar }
 };
 
-/* static const setting_t __far setting_theme_bbar_style = {
+static const setting_t __far setting_theme_bbar_style = {
     NULL,
     LK_SETTINGS_THEME_STYLE,
     0,
     SETTING_TYPE_CHOICE_BYTE,
-    0,
-    NULL,
+    SETTING_FLAG_FAR_POINTER | SETTING_FLAG_CHOICE_LIST,
+    settings_theme_bar_on_change,
     .choice = {
-        &(THEME_MEM_HEADER->tbar.background_col_a_high),
+        { .fvalue = &(THEME_MEM_HEADER->bbar.background_col_a_high) },
         0, 3,
         4, 0xF,
         NULL,
         settings_theme_bar_style_name
     }
-    }; */
+};
 
 static const setting_t __far setting_theme_bbar_background_color_a = {
     NULL,
@@ -706,12 +712,12 @@ static const setting_t __far setting_theme_bbar_reset_colors = {
 };
 
 static const setting_category_t __far settings_theme_bbar = {
-    LK_SETTINGS_THEME_KEY,
+    LK_SETTINGS_THEME_BBAR_KEY,
     0,
-    &settings_interface,
-    4,
+    &settings_theme,
+    5,
     {
-        // &setting_theme_bbar_style,
+        &setting_theme_bbar_style,
         &setting_theme_bbar_background_color_a,
         &setting_theme_bbar_background_color_b,
         &setting_theme_bbar_foreground_color,
@@ -775,7 +781,7 @@ static const setting_t __far setting_repeat_delay = {
     SETTING_FLAG_CHOICE_LIST,
     NULL,
     .choice = {
-        &settings.joy_repeat_first_ticks,
+        { .value = &settings.joy_repeat_first_ticks },
         9, 37,
         0, 0xFF,
         NULL,
@@ -791,7 +797,7 @@ static const setting_t __far setting_repeat_next_delay = {
     SETTING_FLAG_CHOICE_LIST,
     NULL,
     .choice = {
-        &settings.joy_repeat_next_ticks,
+        { .value = &settings.joy_repeat_next_ticks },
         5, 36,
         0, 0xFF,
         NULL,

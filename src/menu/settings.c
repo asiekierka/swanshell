@@ -56,7 +56,12 @@ static int16_t settings_load_category(FIL *fp, const setting_category_t __far *c
         } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
             uint16_t v = atoi(value);
             if (v <= s->choice.max && (!s->choice.allowed || s->choice.allowed(v))) {
-                uint8_t *value = ((uint8_t*) s->choice.value);
+                uint8_t __far* value;
+                if (s->flags & SETTING_FLAG_FAR_POINTER) {
+                    value = ((uint8_t __far*) s->choice.fvalue);
+                } else {
+                    value = ((uint8_t*) s->choice.value);
+                }
                 uint8_t vmask = s->choice.mask << s->choice.shift;
                 *value = (*value & ~vmask) | ((v << s->choice.shift) & vmask);
             }
@@ -122,7 +127,12 @@ static int16_t settings_save_category(FIL *fp, const setting_category_t __far *c
             int v = (*s->flag.value & (1 << s->flag.bit)) ? 1 : 0;
             result = f_printf(fp, s_ini_entry_flag, s->key, v) < 0 ? FR_INT_ERR : FR_OK;
         } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
-            uint8_t value = *((uint8_t*) s->choice.value);
+            uint8_t value;
+            if (s->flags & SETTING_FLAG_FAR_POINTER) {
+                value = *((uint8_t __far*) s->choice.fvalue);
+            } else {
+                value = *((uint8_t*) s->choice.value);
+            }
             value = (value >> s->choice.shift) & s->choice.mask;
             result = f_printf(fp, s_ini_entry_flag, s->key, value) < 0 ? FR_INT_ERR : FR_OK;
         } else if (s->type == SETTING_TYPE_COLOR) {

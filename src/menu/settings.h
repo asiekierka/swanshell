@@ -70,6 +70,7 @@
 #define SETTING_FILE_VIEW_SMALL 1
 
 #define SETTING_FLAG_COLOR_ONLY 0x01
+#define SETTING_FLAG_FAR_POINTER 0x40
 #define SETTING_FLAG_CHOICE_LIST 0x80
 #define SETTING_FLAG_ACTION_NO_ARROW 0x80
 
@@ -114,7 +115,10 @@ typedef struct setting {
             uint16_t name_true;
         } flag;
         struct {
-            void* value;
+            union {
+                void* value;
+                void __far* fvalue;
+            };
             uint16_t min;
             uint16_t max;
             uint8_t shift;

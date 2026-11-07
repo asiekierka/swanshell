@@ -215,7 +215,7 @@ msgid "SETTINGS_THEME_BAR_STYLE_GRADIENT_LR"
 msgstr "Gradient (Horizontal)"
 
 msgid "SETTINGS_THEME_BAR_STYLE_GRADIENT_UD"
-msgstr "Gradient (Veritcal)"
+msgstr "Gradient (Vertical)"
 
 msgid "SETTINGS_THEME_BACKGROUND_COLOR"
 msgstr "Background color"
