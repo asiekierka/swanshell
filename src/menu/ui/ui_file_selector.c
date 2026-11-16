@@ -44,7 +44,7 @@
 #define COMPARE(a, b) (((a) == (b)) ? 0 : (((a) < (b)) ? -1 : 1))
 
 static int compare_filenames(const file_selector_entry_t __far* a, const file_selector_entry_t __far* b, void *userdata) {
-    uint8_t mode = (uint8_t) userdata;
+    uint16_t mode = (uint16_t) userdata;
     bool a_dir = a->fno.fattrib & AM_DIR;
     bool b_dir = b->fno.fattrib & AM_DIR;
     if (a_dir && !b_dir) {
