@@ -60,7 +60,11 @@ typedef struct {
 
 _Static_assert(sizeof(theme_header_t) == 512, "Invalid theme header size");
 
+/**
+ * Check if the theme's current configuration contians the specified feature.
+ */
 bool theme_has_feature(uint16_t feature);
+
 /**
  * Add the specified .bmp file as a wallpaper.
  *
@@ -76,13 +80,37 @@ int theme_add_wallpaper(uint16_t feature, const char __far *path);
  */
 void theme_remove_wallpaper(uint16_t feature);
 
+/**
+ * Reset the theme colors of the specified bar.
+ */
 void theme_reset_bar(theme_bar_t __far *bar);
+/**
+ * Reset the full theme configuration.
+ */
 void theme_reset(void);
 
+/**
+ * Get the bank in which theme data is stored.
+ */
 uint8_t theme_get_bank(void);
+/**
+ * Check if the theme data has been initialized.
+ */
 static inline bool theme_initialized(void) { return theme_get_bank() != 0xFF; }
+/**
+ * Initialize the theme data by loading it from the TF storage card.
+ * Filesystem should be initialized first.
+ */
 int theme_init(void);
-void __far *theme_get_pointer(uint16_t feature);
+/**
+ * Get the far memory pointer to a given theme feature, such as a wallpaper.
+ *
+ * @param segment WS_SRAM_SEGMENT, WS_ROM0_SEGMENT, WS_ROM1_SEGMENT
+ */
+void __far *theme_get_pointer(uint16_t feature, uint16_t segment);
+/**
+ * Save theme data to TF storage card.
+ */
 int theme_save(void);
 
 #endif /* THEME_H_ */

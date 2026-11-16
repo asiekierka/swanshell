@@ -96,17 +96,90 @@ typedef struct __attribute__((packed)) {
 
 #define BITMAPFONT_HEADER_MAGIC 0x6653
 
-#define BITMAPFONT_BOX_CENTERED 0x0001
-
 void bitmapfont_update_active_font(void);
 void bitmapfont_set_active_font(uint16_t font);
+
+/**
+ * Get the height of the currently active font, in pixels.
+ */
 uint16_t bitmapfont_get_font_height(void);
+
+/**
+ * Get the width of a character code.
+ *
+ * @param ch Unicode character code.
+ */
 uint16_t bitmapfont_get_char_width(uint32_t ch);
+
+/**
+ * Draw a character on a bitmap.
+ *
+ * @param bitmap Bitmap instance.
+ * @param xofs Starting X position.
+ * @param yofs Starting Y position.
+ * @param ch Unicode character code.
+ */
 uint16_t bitmapfont_draw_char(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, uint32_t ch);
+
+/**
+ * Get the width of a drawn UTF-8 string.
+ *
+ * @param str String to draw.
+ * @param max_width Maximum width to draw, in pixels - characters going past that width will be trimmed.
+ * @return The total width of the glyphs that would be drawn.
+ */
 uint16_t bitmapfont_get_string_width(const char __far* str, uint16_t max_width);
+
+/**
+ * Draw an UTF-8 string on a bitmap.
+ *
+ * @param bitmap Bitmap instance.
+ * @param xofs Starting X position.
+ * @param yofs Starting Y position.
+ * @param str String to draw.
+ * @param max_width Maximum width to draw, in pixels - characters going past that width will be trimmed.
+ * @return The total width of the glyphs drawn.
+ */
 uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t max_width);
-uint16_t bitmapfont_draw_string16(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* str, uint16_t max_width);
+
+/**
+ * Draw an UTF-16 string on a bitmap.
+ *
+ * @param bitmap Bitmap instance.
+ * @param xofs Starting X position.
+ * @param yofs Starting Y position.
+ * @param str String to draw.
+ * @param max_width Maximum width to draw, in pixels - characters going past that width will be trimmed.
+ * @return The total width of the glyphs drawn.
+ */
+uint16_t bitmapfont_draw_string_utf16(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* str, uint16_t max_width);
+
+/**
+ * Calculate the width and height of a box required to hold a string.
+ *
+ * @param str UTF-8 string to draw.
+ * @param width Pointer to box width; should be initially set to the maximum width allowed.
+ * @param height Pointer to box height.
+ * @param linegap Additional vertical gap between lines, in pixels.
+ */
 void bitmapfont_get_string_box(const char __far* str, uint16_t *width, uint16_t *height, int linegap);
+
+/**
+ * Center the text in the string box.
+ */
+#define BITMAPFONT_BOX_CENTERED 0x0001
+
+/**
+ * Calculate the width and height of a box required to hold a string.
+ *
+ * @param bitmap Bitmap instance.
+ * @param xofs Starting X position.
+ * @param yofs Starting Y position.
+ * @param str UTF-8 string to draw.
+ * @param width Box width.
+ * @param linegap Additional vertical gap between lines, in pixels.
+ * @param flags BITMAPFONT_BOX_CENTERED.
+ */
 uint16_t bitmapfont_draw_string_box(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const char __far* str, uint16_t width, int linegap, uint16_t flags);
 
 #endif /* BITMAP_H_ */

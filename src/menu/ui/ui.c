@@ -18,9 +18,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <ws.h>
-#include <ws/display.h>
-#include <ws/memory.h>
-#include <ws/system.h>
 #include <wsx/planar_convert.h>
 #include "bitmap.h"
 #include "cart/status.h"
@@ -319,14 +316,14 @@ void ui_unload_wallpaper(void) {
 
 static inline bool ui_load_wallpaper(uint16_t feature) {
     INIT_SCREEN_PATTERN(bitmap_screen1, WS_SCREEN_ATTR_PALETTE(UI_PAL_WALLPAPER), WS_SCREEN_ATTR_BANK(1));
-    ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_get_bank(), {
-        const uint8_t __far *data = theme_get_pointer(feature);
+    ws_bank_with_rom0(theme_get_bank(), {
+        const uint8_t __far *data = theme_get_pointer(feature, WS_ROM0_SEGMENT);
         if (data != NULL) {
-            memcpy(WS_DISPLAY_COLOR_MEM(UI_PAL_WALLPAPER), data, 32);
+            ws_gdma_copyp(WS_DISPLAY_COLOR_MEM(UI_PAL_WALLPAPER), data, 32);
             WS_DISPLAY_COLOR_MEM(0)[0] = WS_DISPLAY_COLOR_MEM(UI_PAL_WALLPAPER)[0];
             WS_DISPLAY_COLOR_MEM(0)[2] = WS_DISPLAY_COLOR_MEM(UI_PAL_WALLPAPER)[0];
 
-            memcpy(WS_TILE_4BPP_MEM(512), data + 32, 16128);
+            ws_gdma_copyp(WS_TILE_4BPP_MEM(512), data + 32, 16128);
             return true;
         }
     });

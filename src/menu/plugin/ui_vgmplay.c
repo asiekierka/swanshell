@@ -90,7 +90,7 @@ static void print_gd3_metadata(uint16_t vgm_bank) {
                 text16[MIN(len, MAX_GD3_TEXT_LEN)] = 0;
 
                 bitmapfont_set_active_font(i == 0 ? font16_bitmap : font8_bitmap);
-                bitmapfont_draw_string16(&ui_bitmap, x, y, text16, 248);
+                bitmapfont_draw_string_utf16(&ui_bitmap, x, y, text16, 248);
                 y += i == 0 ? 16 : 12;
             }
 

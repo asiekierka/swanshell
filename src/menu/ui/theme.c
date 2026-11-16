@@ -91,7 +91,7 @@ int theme_add_wallpaper(uint16_t feature, const char __far *path) {
                     memcpy(MK_FP(0x1000, 512 + 16384), MK_FP(0x1000, 512), 16384);
                 }
                 header->features |= feature;
-                dest = theme_get_pointer(feature);
+                dest = theme_get_pointer(feature, WS_SRAM_SEGMENT);
             }
 
             memcpy(dest, palette, 32);
@@ -133,21 +133,21 @@ void theme_remove_wallpaper(uint16_t feature) {
     theme_save();
 }
 
-void __far *theme_get_pointer(uint16_t feature) {
+void __far *theme_get_pointer(uint16_t feature, uint16_t segment) {
     if (!theme_initialized()) return NULL;
 
     ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_bank, {
-        theme_header_t __far* header = THEME_MEM_HEADER;
+        theme_header_t __far* header = ((theme_header_t __far*) MK_FP(segment, 0));
         uint16_t size = 512;
         if (header->features & THEME_FEATURE_WALLPAPER_HORIZONTAL) {
-            if (feature == THEME_FEATURE_WALLPAPER_HORIZONTAL) return MK_FP(0x1000, size);
+            if (feature == THEME_FEATURE_WALLPAPER_HORIZONTAL) return MK_FP(segment, size);
             // catch VERTICAL + SHARED
             if ((header->features & 6) != 6) {
                 size += 16384;
             }
         }
         if (header->features & THEME_FEATURE_WALLPAPER_VERTICAL) {
-            if (feature == THEME_FEATURE_WALLPAPER_VERTICAL) return MK_FP(0x1000, size);
+            if (feature == THEME_FEATURE_WALLPAPER_VERTICAL) return MK_FP(segment, size);
             size += 16384;
         }
         return NULL;

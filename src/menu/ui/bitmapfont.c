@@ -210,7 +210,7 @@ uint16_t bitmapfont_draw_string(const bitmap_t *bitmap, uint16_t xofs, uint16_t 
     return width - CONFIG_FONT_CHAR_GAP;
 }
 
-uint16_t bitmapfont_draw_string16(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* str, uint16_t max_width) {
+uint16_t bitmapfont_draw_string_utf16(const bitmap_t *bitmap, uint16_t xofs, uint16_t yofs, const uint16_t __far* str, uint16_t max_width) {
     // FIXME: UTF-16 support
     uint16_t width = 0;
 
