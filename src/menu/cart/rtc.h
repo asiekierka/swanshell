@@ -24,8 +24,19 @@
 #define RTC_DATETIME_SIZE 7
 #define RTC_DATETIME_STRING_LEN 19
 
+/**
+ * Convert an RTC date/time structure to a string buffer of at least size RTC_DATETIME_STRING_LEN.
+ */
 void rtc_datetime_to_string(char *text, const ws_cart_rtc_datetime_t *dt);
+/**
+ * Convert an date/time string to an RTC date/time structure.
+ *
+ * @param rtc_status RTC status - used for distinguishing 12/24 hour mode.
+ */
 bool rtc_string_to_datetime(const char *text, ws_cart_rtc_datetime_t *dt, uint8_t rtc_status);
+/**
+ * Calculate the correct day-of-week from a given RTC date/time structure's day/month/year.
+ */
 void rtc_correct_day_of_week(ws_cart_rtc_datetime_t *dt);
 void rtc_adjust_component(ws_cart_rtc_datetime_t *dt, uint8_t rtc_status, int sel_value, int delta);
 

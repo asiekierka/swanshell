@@ -24,7 +24,15 @@
 #include <stdint.h>
 #include <wonderful.h>
 
+/**
+ * Open the FAT file starting at the specified cluster.
+ */
 void cluster_open(uint32_t cluster);
+/**
+ * Read len bytes from the opened FAT file to the buffer buf.
+ *
+ * @return FatFs-compatible error code.
+ */
 uint8_t cluster_read(void __far* buf, uint16_t len);
 
 #endif /* _CLUSTER_READ_H_ */

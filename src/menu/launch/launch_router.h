@@ -29,6 +29,17 @@
 // Output codes
 #define LAUNCH_ROUTER_OK_SRAM_UNCHANGED 0x7FFF
 
+/**
+ * Route a file open request to the correct tool.
+ *
+ * This function may modify SRAM contents - make sure to re-initialize them after running
+ * based on the return value.
+ *
+ * @param path File path.
+ * @param ext File extension.
+ * @param flags LAUNCH_ROUTER_USE_SERIAL_OUT
+ * @return Error code, or 0 on success with potential SRAM tampering, or LAUNCH_ROUTER_OK_SRAM_UNCHANGED on success without SRAM tampering.
+ */
 int16_t launch_router_file(char *path, const char *ext, uint16_t flags);
 
 #endif /* LAUNCH_ROUTER_H_ */

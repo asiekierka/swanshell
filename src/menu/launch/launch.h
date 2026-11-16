@@ -50,23 +50,67 @@ typedef struct {
     uint8_t rom_type;
 } launch_rom_metadata_t;
 
+/**
+ * Check if the cartridge metadata requires battery backup for save data.
+ */
 bool launch_is_battery_required(launch_rom_metadata_t *meta);
+/**
+ * Fetch cartridge metadata for a cartridge image stored in PSRAM.
+ *
+ * @return Error code, or 0 on success.
+ */
 int16_t launch_get_rom_metadata_psram(launch_rom_metadata_t *meta);
+/**
+ * Fetch cartridge metadata for a cartridge image stored in a file.
+ *
+ * @return Error code, or 0 on success.
+ */
 int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta);
+/**
+ * Backup save data (cartridge -> TF storage card).
+ *
+ * @return Error code, or 0 on success.
+ */
 int16_t launch_backup_save_data(void);
+/**
+ * Restore save data (TF storage card -> cartridge).
+ *
+ * @param path Path to cartridge image file.
+ * @param meta Cartridge metadata.
+ * @return Error code, or 0 on success.
+ */
 int16_t launch_restore_save_data(char *path, const launch_rom_metadata_t *meta);
 bool launch_ui_handle_battery_missing_error(launch_rom_metadata_t *meta);
 bool launch_ui_handle_mcu_comm_error(launch_rom_metadata_t *meta);
 int16_t launch_set_bootstub_file_entry(const char *path, bootstub_file_entry_t *entry);
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta);
 
+/**
+ * Launch a .BFB (BootFriend) file at the specified path.
+ *
+ * @return Error code. DOes not return on success.
+ */
 int16_t launch_bfb(const char *path);
+/**
+ * Launch a .BFB (BootFriend) file contained in PSRAM.
+ *
+ * @return Error code. DOes not return on success.
+ */
 int16_t launch_bfb_in_psram(void);
-
+/**
+ * Launch a DOS .COM file at the specified path.
+ *
+ * @return Error code. DOes not return on success.
+ */
 int16_t launch_com(const char *path);
 
 int16_t launch_plugin_via_ipc(const char __far *plugin_path, const char *filename);
 
+/**
+ * Launch the program in PSRAM, with some auto-detection.
+ *
+ * @return Error code. DOes not return on success.
+ */
 int16_t launch_in_psram(uint32_t size);
 
 #endif /* LAUNCH_H_ */

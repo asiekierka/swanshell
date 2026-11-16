@@ -30,6 +30,11 @@
 #define SAVE_ID_FOR_ALL    0x203
 #define SAVE_ID_NONE       ((uint32_t) 0xFFFFFFFF)
 
+/**
+ * Reboot the onboard cartridge MCU.
+ *
+ * @param flash If true, flashes MCU.BIN if present. Useful for fast firmware testing.
+ */
 int16_t mcu_reset(bool flash);
 
 static inline bool mcu_is_native_mode(void) {

@@ -21,6 +21,9 @@
 #include <nile.h>
 #include <stdint.h>
 
+/**
+ * Synchronize cartridge-sourced IRQ status.
+ */
 void cart_irq_update(void);
 
 #endif /* CART_IRQ_H_ */

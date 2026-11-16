@@ -40,16 +40,41 @@ extern bitmap_t ui_bitmap;
 
 void ui_init_palettes(void);
 void ui_init(void);
+/**
+ * Hide the interface (turns off the screen).
+ */
 void ui_hide(void);
+/**
+ * Show the interface (turns on the screen and re-initializes palettes).
+ */
 void ui_show(void);
 void ui_layout_clear_pattern(void);
 void ui_layout_clear(uint16_t pal);
 void ui_layout_bars_pattern(void);
 void ui_layout_bars(void);
+/**
+ * Replace the content of the title bar with the specified text.
+ */
 void ui_draw_titlebar(const char __far* text);
+/**
+ * Replace the content of the status bar with the specified text.
+ * The right side is populated by icons.
+ */
 void ui_draw_statusbar(const char __far* text);
+/**
+ * Replace the content of the status bar with the specified text.
+ * The right side is populated by right_text - icons are hidden..
+ */
 void ui_draw_statusbar_lr(const char __far* text, const char __far* right_text);
+/**
+ * Return true if a wallpaper is currently active.
+ */
 bool ui_has_wallpaper(void);
+/**
+ * Unload the wallpaper, if currently active.
+ *
+ * The wallpaper will be reloaded on the next call to ui_show().
+ */
 void ui_unload_wallpaper(void);
 void ui_hide_icons(void);
 uint16_t ui_icon_update(void);

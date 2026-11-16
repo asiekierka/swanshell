@@ -28,10 +28,25 @@
 #define TOKENIZER_EOL 0x7F
 
 /**
+ * Start tokenizing a shell line string. Edits the buffer in-place.
+ *
  * Needs at least two free bytes after the end of the buffer.
+ *
+ * @param Shell line buffer.
+ * @return Pointer to first token in the shell line.
  */
 char *shell_token_start(char *line);
+/**
+ * Fetch the next token of a shell line string already processed
+ * with shell_token_start - takes the return value of shell_token_start
+ * or shell_token_enxt as an argument.
+ *
+ * @return Pointer to next token in the shell line.
+ */
 char *shell_token_next(char *line);
+/**
+ * Turn a token string to lowercase in-place.
+ */
 void shell_token_lower(char *token);
 
 #endif /* SHELL_TOKENIZER_H_ */

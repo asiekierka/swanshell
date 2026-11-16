@@ -41,8 +41,17 @@ extern uint16_t input_pressed, input_held, input_released;
 void vblank_input_update(void);
 void input_reset(void);
 void input_update(void);
+/**
+ * Wait until no key is pressed anymore.
+ */
 void input_wait_clear(void);
+/**
+ * Wait until the specified key, or key combination. is pressed.
+ */
 void input_wait_key(uint16_t key);
+/**
+ * Wait until any key is pressed.
+ */
 void input_wait_any_key(void);
 
 #endif /* _INPUT_H_ */

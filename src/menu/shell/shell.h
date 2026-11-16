@@ -22,10 +22,25 @@
 #include <stdint.h>
 #include <wonderful.h>
 
+/**
+ * Initialize the USB shell.
+ */
 void shell_init(void);
+/**
+ * Run one tick of the USB shell handler.
+ */
 bool shell_tick(void);
+/**
+ * Write a string to the USB serial port.
+ */
 void nile_mcu_native_cdc_write_string(const char __far* s);
+/**
+ * Write an error code's string representation to the USB serial port.
+ */
 void shell_print_error(int16_t result);
+/**
+ * Print a newline (\r\n) on the USB shell.
+ */
 void shell_print_newline(void);
 
 enum {

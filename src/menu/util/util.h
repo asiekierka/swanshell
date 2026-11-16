@@ -38,10 +38,12 @@ extern const uint8_t __far util_hex_chars[16];
 }
 
 /**
- * @return uint16_t The approximate number of free RAM bytes.
+ * Return the approximate number of free RAM bytes.
  */
 uint16_t mem_query_free(void);
-
+/**
+ * Set the VTOTAL value (number of lines in a display frame, minus one).
+ */
 void lcd_set_vtotal(uint8_t vtotal);
 
 #endif /* UTIL_H_ */

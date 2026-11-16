@@ -18,4 +18,9 @@
 #include <wonderful.h>
 #include <ws.h>
 
+/**
+ * Apply the WW-compatible BIOS soft reset patch.
+ *
+ * @param last_bank The number of the last bank of the loaded cartridge image to patch.
+ */
 void patch_apply_freya_soft_reset(uint16_t last_bank);
