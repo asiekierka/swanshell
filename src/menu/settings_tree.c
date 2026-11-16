@@ -118,7 +118,7 @@ static const setting_t __far setting_file_sort_order = {
     0,
     NULL,
     .choice = {
-        { .value = &settings.file_sort },
+        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->file_sort),
         0, 6,
         0, 0xFF,
         NULL,
@@ -156,7 +156,7 @@ static const setting_t __far setting_file_view = {
     0,
     NULL,
     .choice = {
-        { .value = &settings.file_view },
+        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->file_view),
         0, 1,
         0, 0xFF,
         NULL,
@@ -230,7 +230,7 @@ static const setting_t __far setting_display_orientation = {
     SETTING_FLAG_CHOICE_LIST,
     settings_display_orientation_on_change,
     .choice = {
-        { .value = &settings.display_orientation },
+        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->display_orientation),
         0, 2,
         0, 0xFF,
         NULL,
@@ -280,7 +280,7 @@ const setting_t __far setting_language = {
     SETTING_FLAG_CHOICE_LIST,
     settings_language_on_change,
     .choice = {
-        { .value = &settings.language },
+        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->language),
         0, LANGUAGE_COUNT - 1,
         0, 0xFF,
         NULL,
@@ -344,7 +344,7 @@ static const setting_t __far setting_cart_mcu_spi_speed = {
     SETTING_TYPE_CHOICE_BYTE,
     0,
     .choice = {
-        { .value = &settings.mcu_spi_speed },
+        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->mcu_spi_speed),
         0, SETTING_MCU_SPI_SPEED_COUNT - 1,
         0, 0xFF,
         NULL,
@@ -572,10 +572,10 @@ static const setting_t __far setting_theme_tbar_style = {
     LK_SETTINGS_THEME_STYLE,
     0,
     SETTING_TYPE_CHOICE_BYTE,
-    SETTING_FLAG_FAR_POINTER | SETTING_FLAG_CHOICE_LIST,
+    SETTING_FLAG_CHOICE_LIST,
     settings_theme_bar_on_change,
     .choice = {
-        { .fvalue = &(THEME_MEM_HEADER->tbar.background_col_a_high) },
+        &(THEME_MEM_HEADER->tbar.background_col_a_high),
         0, 3,
         4, 0xF,
         NULL,
@@ -656,10 +656,10 @@ static const setting_t __far setting_theme_bbar_style = {
     LK_SETTINGS_THEME_STYLE,
     0,
     SETTING_TYPE_CHOICE_BYTE,
-    SETTING_FLAG_FAR_POINTER | SETTING_FLAG_CHOICE_LIST,
+    SETTING_FLAG_CHOICE_LIST,
     settings_theme_bar_on_change,
     .choice = {
-        { .fvalue = &(THEME_MEM_HEADER->bbar.background_col_a_high) },
+        &(THEME_MEM_HEADER->bbar.background_col_a_high),
         0, 3,
         4, 0xF,
         NULL,
@@ -781,7 +781,7 @@ static const setting_t __far setting_repeat_delay = {
     SETTING_FLAG_CHOICE_LIST,
     NULL,
     .choice = {
-        { .value = &settings.joy_repeat_first_ticks },
+        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->joy_repeat_first_ticks),
         9, 37,
         0, 0xFF,
         NULL,
@@ -797,7 +797,7 @@ static const setting_t __far setting_repeat_next_delay = {
     SETTING_FLAG_CHOICE_LIST,
     NULL,
     .choice = {
-        { .value = &settings.joy_repeat_next_ticks },
+        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->joy_repeat_next_ticks),
         5, 36,
         0, 0xFF,
         NULL,

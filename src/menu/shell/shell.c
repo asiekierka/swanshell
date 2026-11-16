@@ -81,6 +81,7 @@ DEFINE_STRING_LOCAL(s_awaiting_xmodem_transfer, "Awaiting XMODEM transfer");
 DEFINE_STRING_LOCAL(s_rtc_communication_error, "RTC communication error");
 DEFINE_STRING_LOCAL(s_invalid_date_format, "Invalid date format");
 DEFINE_STRING_LOCAL(s_saving_file, "Saving file");
+
 DEFINE_STRING_LOCAL(s_help_output,
 "Commands:\n"
 "about            \tAbout swanshell\n"
