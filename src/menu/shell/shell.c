@@ -37,6 +37,8 @@
 #include "tokenizer.h"
 #include "xmodem.h"
 
+#define NOINLINE __attribute__((noinline))
+
 uint8_t shell_task_mem[1216];
 #define shell_task ((task_t*) shell_task_mem)
 
@@ -138,7 +140,7 @@ static void shell_new_prompt(void) {
     nile_mcu_native_cdc_write_string(shell_flags & SHELL_FLAG_INTERACTIVE ? s_new_prompt : s_new_line);
 }
 
-static void shell_about(void) {
+NOINLINE static void shell_about(void) {
     nile_mcu_native_cdc_write_string(lang_keys_en[LK_NAME]);
     nile_mcu_native_cdc_write_string_const(s_version_suffix);
     nile_mcu_native_cdc_write_string_const(s_new_line);
@@ -150,11 +152,11 @@ static void shell_about(void) {
     nile_mcu_native_cdc_write_string(lang_keys_en[LK_NAME_COPYRIGHT_INFO]);
 }
 
-static void shell_help(void) {
+NOINLINE static void shell_help(void) {
     nile_mcu_native_cdc_write_string(s_help_output);
 }
 
-static void shell_reboot(void) {
+NOINLINE static void shell_reboot(void) {
     ia16_disable_irq();
     nilefs_eject();
     nile_soft_reset();
@@ -169,8 +171,7 @@ void shell_print_newline(void) {
     nile_mcu_native_cdc_write_string_const(s_new_line);
 }
 
-__attribute__((noinline))
-static int16_t shell_launch_file(char *path) {
+NOINLINE static int16_t shell_launch_file(char *path) {
     const char *ext = (const char*) strrchr(path, '.');
     if (ext == NULL) return ERR_FILE_NOT_EXECUTABLE;
     int16_t code = launch_router_file(path, ext, 0);
@@ -178,8 +179,7 @@ static int16_t shell_launch_file(char *path) {
     return code == LAUNCH_ROUTER_OK_SRAM_UNCHANGED ? 0 : code;
 }
 
-__attribute__((noinline))
-static void shell_launch(void) {
+NOINLINE static void shell_launch(void) {
     int16_t result = FR_OK;
     uint32_t size = 0;
     if (shell_flags & SHELL_FLAG_INTERACTIVE) {
@@ -196,12 +196,12 @@ static void shell_launch(void) {
     }
 }
 
-static void shell_file_callback(void *userdata, uint32_t step, uint32_t max) {
+NOINLINE static void shell_file_callback(void *userdata, uint32_t step, uint32_t max) {
     nile_mcu_native_cdc_write_string_const(s_dot_local);
     nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
 }
 
-static void shell_upload(const char *path) {
+NOINLINE static void shell_upload(const char *path) {
     if (shell_flags & SHELL_FLAG_INTERACTIVE) {
         nile_mcu_native_cdc_write_string_const(s_awaiting_xmodem_transfer);
     }
@@ -226,7 +226,7 @@ static void shell_upload(const char *path) {
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
-static bool shell_download_callback(uint8_t *buffer, void *userdata) {
+NOINLINE static bool shell_download_callback(uint8_t *buffer, void *userdata) {
     FIL *fp = (FIL*) userdata;
     unsigned int br = 0;
     nile_spi_set_control(NILE_SPI_CLOCK_FAST | NILE_SPI_DEV_NONE);
@@ -241,7 +241,7 @@ static bool shell_download_callback(uint8_t *buffer, void *userdata) {
     }
 }
 
-static void shell_download(const char *path) {
+NOINLINE static void shell_download(const char *path) {
     FIL fp;
     int16_t result = f_open(&fp, path, FA_READ | FA_OPEN_EXISTING);
     if (result == FR_OK) {
@@ -257,7 +257,7 @@ static void shell_download(const char *path) {
     }
 }
 
-static void shell_cd(const char *path) {
+NOINLINE static void shell_cd(const char *path) {
     char buf[2];
     if (path == NULL) {
         buf[0] = '/';
@@ -271,7 +271,7 @@ static void shell_cd(const char *path) {
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
-static void shell_mkdir(const char *path) {
+NOINLINE static void shell_mkdir(const char *path) {
     int16_t result = f_mkdir(path);
     if (result != FR_OK) {
         shell_print_error(result);
@@ -279,7 +279,7 @@ static void shell_mkdir(const char *path) {
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
-static void shell_rmdir(const char *path) {
+NOINLINE static void shell_rmdir(const char *path) {
     int16_t result = f_rmdir(path);
     if (result != FR_OK) {
         shell_print_error(result);
@@ -287,8 +287,7 @@ static void shell_rmdir(const char *path) {
     shell_task_yield(SHELL_RET_REFRESH_UI);
 }
 
-__attribute__((noinline))
-static void shell_pwd(void) {
+NOINLINE static void shell_pwd(void) {
     char cwd[513];
     int16_t result = f_getcwd(cwd, sizeof(cwd) - 1);
     if (result != FR_OK) {
@@ -298,8 +297,7 @@ static void shell_pwd(void) {
     nile_mcu_native_cdc_write_string(cwd);
 }
 
-__attribute__((noinline))
-static void shell_cat(const char *path) {
+NOINLINE static void shell_cat(const char *path) {
     FIL fp;
     char buf[129];
     buf[sizeof(buf) - 1] = 0;
@@ -318,7 +316,8 @@ static void shell_cat(const char *path) {
         shell_print_error(result);
     }
 }
-static void shell_ls(char *arg) {
+
+NOINLINE static void shell_ls(char *arg) {
     DIR dp;
     FILINFO fno;
     char *path = NULL;
@@ -391,7 +390,7 @@ static void shell_ls(char *arg) {
     }
 }
 
-static void shell_rm(const char *path) {
+NOINLINE static void shell_rm(const char *path) {
     int16_t result = f_unlink(path);
     if (result != FR_OK) {
         shell_print_error(result);
@@ -405,7 +404,7 @@ static inline bool shell_usb_active(void) {
     return cart_status_mcu_info_valid() && (cart_status.mcu_info.status & NILE_MCU_NATIVE_INFO_USB_DETECT);
 }
 
-static bool shell_date_set(const char *text) {
+NOINLINE static bool shell_date_set(const char *text) {
     uint8_t status;
     ws_cart_rtc_datetime_t dt;
 
@@ -435,7 +434,7 @@ static bool shell_date_set(const char *text) {
     return true;
 }
 
-static void shell_date_get(void) {
+NOINLINE static void shell_date_get(void) {
     char text[RTC_DATETIME_STRING_LEN+1];
     ws_cart_rtc_datetime_t dt;
 
@@ -447,7 +446,7 @@ static void shell_date_get(void) {
     }
 }
 
-static void shell_run_command(void) {
+NOINLINE static void shell_run_command(void) {
     if (shell_line_pos == 0) {
         shell_flags |= SHELL_FLAG_INTERACTIVE;
         return;
@@ -541,27 +540,33 @@ static void shell_run_command(void) {
     }
 }
 
-int shell_func(task_t *task) {
+static void shell_yield(void) {
     while (true) {
         shell_task_yield(SHELL_RET_IDLE);
         if (!shell_usb_active()) {
             shell_reset();
             while (shell_usb_active())
                 shell_task_yield(SHELL_RET_IDLE);
-            continue;
+        } else {
+            return;
         }
+    }
+}
+
+NOINLINE static bool shell_collect_command(void) {
+    while (true) {
+        shell_yield();
 
         mcu_native_start();
         int bytes_read = nile_mcu_native_cdc_read_sync(shell_line + shell_line_pos, 1);
         if (bytes_read > 0) {
             char c = shell_line[shell_line_pos];
             if (c == 13) {
-                shell_run_command();
-                shell_new_prompt();
+                return true;
             } else if (c == 3) {
                 // CTRL+C
                 shell_flags |= SHELL_FLAG_INTERACTIVE;
-                shell_new_prompt();
+                return false;
             } else if (c == 27) {
                 // TOOD: ANSI escape codes
             } else if (c == 8 || c == 127) {
@@ -581,12 +586,20 @@ int shell_func(task_t *task) {
                 if (shell_line_pos == SHELL_LINE_LENGTH) {
                     // line too long
                     nile_mcu_native_cdc_write_string_const(s_line_too_long);
-                    shell_new_prompt();
+                    return false;
                 } else {
                     shell_line_pos++;
                 }
             }
         }
+    }
+}
+
+int shell_func(task_t *task) {
+    while (true) {
+        if (shell_collect_command())
+            shell_run_command();
+        shell_new_prompt();
     }
 }
 
