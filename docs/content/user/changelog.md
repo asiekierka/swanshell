@@ -3,6 +3,16 @@ title: 'Changelog'
 weight: 100
 ---
 
+## swanshell DEV (?)
+
+- Added: Theming support.
+  - The "Theme" menu in Settings has been expanded to allow configuring the
+    background, foreground, and each of the top/bottom bar's colors separately.
+  - In addition, 16-color .BMP files can now be "Set as wallpaper".
+  - The result is stored as a separate file, `/NILESWAN/THEME.DAT`.
+- Changed: Updated Uxn core implementation.
+- Fixed: Minor reliability improvements.
+
 ## swanshell 1.2.8 (28th October 2026)
 
 - Added: Support for remembering and starting in the last launched directory.
