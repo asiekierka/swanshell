@@ -839,10 +839,6 @@ __attribute__((noreturn))
 extern void launch_jump_to_bootstub(uint16_t size, uint16_t flags);
 
 int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
-    extern const void __bank_bootstub;
-    extern const void __bank_gfx_bootstub_tiles;
-    extern const void __bank_gfx_bootstub_tiles_rot;
-
     if (bootstub_data->prog.size > 16*1024*1024L) {
         return ERR_FILE_TOO_LARGE;
     }
@@ -916,25 +912,25 @@ int16_t launch_rom_via_bootstub(const launch_rom_metadata_t *meta) {
     if (ws_system_is_color_model()) {
         ws_system_set_mode(WS_MODE_COLOR);
         if (is_vertical) {
-            outportw(WS_CART_EXTBANK_ROM0_PORT, (uint16_t) &__bank_gfx_bootstub_tiles_rot);
+            outportb(WS_CART_EXTBANK_ROM0_PORT, ws_bank_indexof(gfx_bootstub_tiles_rot));
             ws_gdma_copy((void*) 0x3200, gfx_bootstub_tiles_rot, gfx_bootstub_tiles_rot_size);
         } else {
-            outportw(WS_CART_EXTBANK_ROM0_PORT, (uint16_t) &__bank_gfx_bootstub_tiles);
+            outportb(WS_CART_EXTBANK_ROM0_PORT, ws_bank_indexof(gfx_bootstub_tiles));
             ws_gdma_copy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
         }
         color = 1;
     } else {
         if (is_vertical) {
-            outportw(WS_CART_EXTBANK_ROM0_PORT, (uint16_t) &__bank_gfx_bootstub_tiles_rot);
+            outportb(WS_CART_EXTBANK_ROM0_PORT, ws_bank_indexof(gfx_bootstub_tiles_rot));
             memcpy((void*) 0x3200, gfx_bootstub_tiles_rot, gfx_bootstub_tiles_rot_size);
         } else {
-            outportw(WS_CART_EXTBANK_ROM0_PORT, (uint16_t) &__bank_gfx_bootstub_tiles);
+            outportb(WS_CART_EXTBANK_ROM0_PORT, ws_bank_indexof(gfx_bootstub_tiles));
             memcpy((void*) 0x3200, gfx_bootstub_tiles, gfx_bootstub_tiles_size);
         }
     }
 
     // Jump to bootstub
-    outportw(WS_CART_EXTBANK_ROM0_PORT, (uint16_t) &__bank_bootstub);
+    outportb(WS_CART_EXTBANK_ROM0_PORT, ws_bank_indexof(bootstub));
     launch_jump_to_bootstub(bootstub_size, color);
 }
 
