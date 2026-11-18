@@ -151,6 +151,7 @@ reload_menu:
 void ui_settings(const setting_category_t __far* root_category) {
     ui_settings_config_t config = {{0}, root_category};
     bool reinit_ui = true;
+    bool settings_may_changed = false;
     char info_str[25];
 
     ws_bank_t old_ram_bank = ws_bank_ram_get();
@@ -216,43 +217,47 @@ reload_menu:
                 offset_category_stack[offset_category_stack_pos++] = config.config.offset;
                 config.config.offset = 0;
                 reload_required = true;
-            } else if (s->type == SETTING_TYPE_FLAG) {
-                *s->flag.value ^= (1 << s->flag.bit);
-            } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
-                uint8_t __far* value_ptr = s->choice.value;
-                uint8_t value = (*value_ptr >> s->choice.shift) & s->choice.mask;
-                if (s->flags & SETTING_FLAG_CHOICE_LIST) {
-                    value = ui_settings_selector(s, value);
-                    reload_required = true;
-                } else {
-                    for (int i = 0; i < s->choice.max; i++) {
-                        value++;
-                        if (value > s->choice.max)
-                            value = s->choice.min;
+            } else {
+                settings_may_changed = true;
 
-                        if (!s->choice.allowed || s->choice.allowed(value)) {
-                            break;
+                if (s->type == SETTING_TYPE_FLAG) {
+                    *s->flag.value ^= (1 << s->flag.bit);
+                } else if (s->type == SETTING_TYPE_CHOICE_BYTE) {
+                    uint8_t __far* value_ptr = s->choice.value;
+                    uint8_t value = (*value_ptr >> s->choice.shift) & s->choice.mask;
+                    if (s->flags & SETTING_FLAG_CHOICE_LIST) {
+                        value = ui_settings_selector(s, value);
+                        reload_required = true;
+                    } else {
+                        for (int i = 0; i < s->choice.max; i++) {
+                            value++;
+                            if (value > s->choice.max)
+                                value = s->choice.min;
+
+                            if (!s->choice.allowed || s->choice.allowed(value)) {
+                                break;
+                            }
                         }
                     }
-                }
 
-                uint8_t vmask = s->choice.mask << s->choice.shift;
-                *value_ptr = (*value_ptr & ~vmask) | ((value << s->choice.shift) & vmask);
+                    uint8_t vmask = s->choice.mask << s->choice.shift;
+                    *value_ptr = (*value_ptr & ~vmask) | ((value << s->choice.shift) & vmask);
 
-                if (s->choice.value == &settings.display_orientation) {
-                    input_wait_clear();
-                    reload_required = true;
+                    if (s->choice.value == &settings.display_orientation) {
+                        input_wait_clear();
+                        reload_required = true;
+                        reinit_ui = true;
+                    }
+                } else if (s->type == SETTING_TYPE_COLOR) {
+                    bitmap_set_screen_force_horizontal(!ws_system_is_color_active());
+                    ui_draw_titlebar(lang_keys[s->name]);
+                    ui_color_picker(s->color.value);
+                    bitmap_set_screen_force_horizontal(false);
                     reinit_ui = true;
+                    reload_required = true;
+                } else if (s->type == SETTING_TYPE_ACTION) {
+                    ui_selector_clear_selection(&config.config);
                 }
-            } else if (s->type == SETTING_TYPE_COLOR) {
-                bitmap_set_screen_force_horizontal(!ws_system_is_color_active());
-                ui_draw_titlebar(lang_keys[s->name]);
-                ui_color_picker(s->color.value);
-                bitmap_set_screen_force_horizontal(false);
-                reinit_ui = true;
-                reload_required = true;
-            } else if (s->type == SETTING_TYPE_ACTION) {
-                ui_selector_clear_selection(&config.config);
             }
 
             if (s->on_change) {
@@ -279,8 +284,10 @@ reload_menu:
         }
     }
 
-    if (!ui_dialog_error_check(settings_save(), NULL, 0)) {
-        ui_dialog_error_check(theme_save(), NULL, 0);
+    if (settings_may_changed) {
+        if (!ui_dialog_error_check(settings_save(), NULL, 0)) {
+            ui_dialog_error_check(theme_save(), NULL, 0);
+        }
     }
     ws_bank_ram_set(old_ram_bank);
     outportb(WS_CART_BANK_FLASH_PORT, old_ram_flash);
