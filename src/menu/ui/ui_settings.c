@@ -244,6 +244,7 @@ reload_menu:
                     *value_ptr = (*value_ptr & ~vmask) | ((value << s->choice.shift) & vmask);
 
                     if (s->choice.value == &settings.display_orientation) {
+                        ui_unload_wallpaper();
                         input_wait_clear();
                         reload_required = true;
                         reinit_ui = true;
