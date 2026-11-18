@@ -38,13 +38,13 @@
 
 /* Macros for handling the QSort stack */
 #ifdef __IA16_CALLCVT_NO_ASSUME_SS_DATA
-#define PREPARE_STACK uint16_t __far* stack[STACKSIZE]; uint16_t __far* __seg_ss* stackptr = stack
+#define PREPARE_STACK uint16_t stack[STACKSIZE * 2]; uint16_t __seg_ss* stackptr = stack
 #else
-#define PREPARE_STACK uint16_t __far* stack[STACKSIZE]; uint16_t __far* * stackptr = stack
+#define PREPARE_STACK uint16_t stack[STACKSIZE * 2]; uint16_t * stackptr = stack
 #endif
-#define PUSH( base, limit ) stackptr[0] = base; stackptr[1] = limit; stackptr += 2
-#define POP( base, limit ) stackptr -= 2; base = stackptr[0]; limit = stackptr[1]
-/* TODO: Stack usage is log2( nmemb ) (minus what T shaves off the worst case).
+#define PUSH( base, limit ) stackptr[0] = FP_OFF(base); stackptr[1] = FP_OFF(limit); stackptr += 2
+#define POP( base, limit ) stackptr -= 2; base = MK_FP(FP_SEG(base), stackptr[0]); limit = MK_FP(FP_SEG(limit), stackptr[1]);
+/* TODO: Stack usage is log2( nmemb ) * 2 (minus what T shaves off the worst case).
          Worst-case nmemb is platform dependent.
 */
 #define STACKSIZE 12
@@ -53,7 +53,6 @@ static int qsort_compare(int (*compar)(const file_selector_entry_t __far*, const
     int result;
     if (ui_file_selector_fno_direct_same_bank(i, j)) {
         result = compar(ui_file_selector_open_fno_direct(i), ui_file_selector_open_fno_direct_nobank(j), userdata);
-        outportw(WS_CART_EXTBANK_RAM_PORT, FILE_SELECTOR_INDEX_BANK);
     } else {
         file_selector_entry_t fno_i;
         memcpy(&fno_i, ui_file_selector_open_fno_direct(i), sizeof(file_selector_entry_t));
