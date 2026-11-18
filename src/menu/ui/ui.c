@@ -238,12 +238,14 @@ void ui_init_palettes(void) {
         ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_get_bank(), {
             theme_header_t __far *header = THEME_MEM_HEADER;
             if (color) {
+                WS_DISPLAY_COLOR_MEM(UI_PAL_TBAR)[1] = header->tbar.foreground_color;
                 for (int i = 0; i < 7; i++) {
                     int ratio = 255 * i / (7 - 1);
                     WS_DISPLAY_COLOR_MEM(UI_PAL_TBAR)[i * 2 + 2] = color_rgb4_mix(header->tbar.background_col_a, header->tbar.background_col_b, ratio);
                     WS_DISPLAY_COLOR_MEM(UI_PAL_TBAR)[i * 2 + 3] = header->tbar.foreground_color;
                 }
 
+                WS_DISPLAY_COLOR_MEM(UI_PAL_BBAR)[1] = header->bbar.foreground_color;
                 for (int i = 0; i < 7; i++) {
                     int ratio = 255 * i / (7 - 1);
                     WS_DISPLAY_COLOR_MEM(UI_PAL_BBAR)[i * 2 + 2] = color_rgb4_mix(header->bbar.background_col_a, header->bbar.background_col_b, ratio);
