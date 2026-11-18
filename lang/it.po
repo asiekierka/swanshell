@@ -1,2 +1,515 @@
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr "X-Generator: Weblate 2026.11.2\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nPO-Revision-Date: 2026-11-18 23:51+0000\nLast-Translator: Mario Virgili <mariovirgili75@gmail.com>\nLanguage-Team: Italian <https://weblate.asie.pl/projects/49bitcat/swanshell/it/>\nLanguage: it\nPlural-Forms: nplurals=2; plural=n != 1;\n"
+
+msgid "UI_FILE_SELECTOR_PAGE_FORMAT"
+msgstr "Pagina %d/%d"
+
+msgid "UI_FILE_SELECTOR_EMPTY"
+msgstr "Vuoto"
+
+msgid "UI_STATUS_LOADING"
+msgstr "Caricando.."
+
+msgid "YES"
+msgstr "Si"
+
+msgid "NO"
+msgstr "No"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "CANCEL"
+msgstr "Annulla"
+
+msgid "SETTINGS_INFO"
+msgstr "%s: Aiuto"
+
+msgid "SETTINGS_KEY"
+msgstr "Impostazioni"
+
+msgid "SETTINGS_INTERFACE_KEY"
+msgstr "Interfaccia"
+
+msgid "SETTINGS_SYSTEM_KEY"
+msgstr "Sistema"
+
+msgid "SETTINGS_ADVANCED_KEY"
+msgstr "Avanzate"
+
+msgid "SETTINGS_LANGUAGE_KEY"
+msgstr "Lingua"
+
+msgid "SETTINGS_FILE_KEY"
+msgstr "Gestore File"
+
+msgid "SETTINGS_PROG_KEY"
+msgstr "Avvio Programmi"
+
+msgid "SETTINGS_CART_KEY"
+msgstr "Cartuccia"
+
+msgid "SETTINGS_THEME_KEY"
+msgstr "Tema"
+
+msgid "SETTINGS_THEME_TBAR_KEY"
+msgstr "Barra del titolo"
+
+msgid "SETTINGS_THEME_BBAR_KEY"
+msgstr "Barra dello stato"
+
+msgid "SETTINGS_CONTROLS_KEY"
+msgstr "Controlli"
+
+msgid "SETTINGS_FILE_SORT_KEY"
+msgstr "Ordinamento file"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_KEY"
+msgstr "Mostra files nascosti"
+
+msgid "SETTINGS_FILE_SHOW_HIDDEN_HELP"
+msgstr "Mostra o nascondi files con l'attributo \"nascosto\"."
+
+msgid "SETTINGS_FILE_SHOW_SAVES_KEY"
+msgstr "Mostra files di salvataggio"
+
+msgid "SETTINGS_FILE_SHOW_SAVES_HELP"
+msgstr "Mostra o nascondi files usati per salvataggio (.ram, .flash, .eeprom, .rtc)."
+
+msgid "SETTINGS_FILE_SORT_FILESYSTEM"
+msgstr "File system"
+
+msgid "SETTINGS_FILE_SORT_NAME_ASC"
+msgstr "Nome ↑"
+
+msgid "SETTINGS_FILE_SORT_NAME_DESC"
+msgstr "Nome ↓"
+
+msgid "SETTINGS_FILE_SORT_DATE_ASC"
+msgstr "Data ↑"
+
+msgid "SETTINGS_FILE_SORT_DATE_DESC"
+msgstr "Data ↓"
+
+msgid "SETTINGS_FILE_SORT_SIZE_ASC"
+msgstr "Dim. ↑"
+
+msgid "SETTINGS_FILE_SORT_SIZE_DESC"
+msgstr "Dim. ↓"
+
+msgid "SETTINGS_FILE_SORT_HELP"
+msgstr "Seleziona l'ordine in cui i files dovrebbero essere visualizzati nel browser dei file."
+
+msgid "SETTINGS_FILE_VIEW_KEY"
+msgstr "Vista"
+
+msgid "SETTINGS_FILE_VIEW_LARGE"
+msgstr "Lista grande"
+
+msgid "SETTINGS_FILE_VIEW_SMALL"
+msgstr "Lista piccola"
+
+msgid "SETTINGS_FILE_VIEW_HELP"
+msgstr "Seleziona la modalità di visualizzazione dei file nell'esplora file."
+
+msgid "SETTINGS_FILE_HIDE_ICONS_KEY"
+msgstr "Nascondi icone"
+
+msgid "SETTINGS_FILE_OPEN_ROOT_DIRECTORY"
+msgstr "Cartella principale"
+
+msgid "SETTINGS_FILE_OPEN_LAST_DIRECTORY"
+msgstr "Ultima cartella"
+
+msgid "SETTINGS_FILE_OPEN_DIRECTORY_KEY"
+msgstr "Percorso iniziale"
+
+msgid "SETTINGS_FILE_OPEN_DIRECTORY_HELP"
+msgstr "Scegli il percorso da aprire all'avvio nell'esplora file."
+
+msgid "SETTINGS_THEME_DISABLE_WALLPAPER"
+msgstr "Disattiva sfondo"
+
+msgid "SETTINGS_THEME_DISABLE_WALLPAPER_HELP"
+msgstr "Per scegliere uno sfondo, usa il menu File su un file .bmp compatibile."
+
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_KEY"
+msgstr "Font del lettore di testo"
+
+msgid "SETTINGS_TEXT_READER_FONT_SIZE_HELP"
+msgstr "Seleziona il font da usare durante la lettura dei files di testo."
+
+msgid "SETTINGS_FONT_SIZE_LARGE"
+msgstr "Grande"
+
+msgid "SETTINGS_FONT_SIZE_SMALL"
+msgstr "Piccolo"
+
+msgid "SETTINGS_SCROLL_LONG_NAMES_KEY"
+msgstr "Scorri i nomi dei files lunghi"
+
+msgid "SETTINGS_SCROLL_LONG_NAMES_HELP"
+msgstr "Abilita automaticamente lo scorrimento dei nomi lunghi, come i nomi dei files, nella visualizzazione della lista."
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK"
+msgstr "Forza SRAM veloce"
+
+msgid "SETTINGS_PROG_SRAM_OVERCLOCK_HELP"
+msgstr "Abilita SRAM veloce e velocità di I/O sui modelli a Colori prima di lanciare il gioco.\n\nQuesto può aiutare a ridurre i rallentamenti in certi giochi, ma può anche impattare su compatibilità o invalidare gli speedruns."
+
+msgid "SETTINGS_PROG_FX_BIOS"
+msgstr "Variante BIOS per caricatore .fx"
+
+msgid "SETTINGS_PROG_FX_BIOS_HELP"
+msgstr "La variante BIOS usata dai programmi .fx.\n\nPer le comunicazioni su seriale, Nativo usa la porta USB, Compatibile usa la porta EXT della console."
+
+msgid "SETTINGS_PROG_VERIFY_SAVES"
+msgstr "Verifica i dati salvati"
+
+msgid "SETTINGS_PROG_VERIFY_SAVES_HELP"
+msgstr "Verifica i dati di salvataggio quando vengono copiati dalla cartuccia alla schedina di salvataggio. Permette di riconoscere se la schedina è danneggiata."
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED"
+msgstr "Velocità di comunicazione MCU"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_HELP"
+msgstr "Imposta la frequenza usata per comunicare con l'MCU della cartuccia. Attualmente è usata per i trasferimenti di file via USB.\n- Bassa: 384 KHz\n- Media: 6 MHz (384 KHz su WS/PCv2)\n- Alta: 24 MHz"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_384KHZ"
+msgstr "Bassa"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_6MHZ"
+msgstr "Media*"
+
+msgid "SETTINGS_CART_MCU_SPI_SPEED_24MHZ"
+msgstr "Alta"
+
+msgid "SETTINGS_CART_SET_RTC_TIME"
+msgstr "Data e ora RTC"
+
+msgid "SETTINGS_CONTROLS_REPEAT_DELAY"
+msgstr "Ritardo ripetizione"
+
+msgid "SETTINGS_CONTROLS_REPEAT_DELAY_HELP"
+msgstr "Il ritardo tra la pressione di un pulsante e la sua prima ripetizione."
+
+msgid "SETTINGS_CONTROLS_REPEAT_RATE"
+msgstr "Frequenza ripetizione"
+
+msgid "SETTINGS_CONTROLS_REPEAT_RATE_HELP"
+msgstr "La velocità delle ripetizioni successive alla pressione di un pulsante."
+
+msgid "SETTINGS_THEME_STYLE"
+msgstr "Stile"
+
+msgid "SETTINGS_THEME_BAR_STYLE_SOLID"
+msgstr "Tinta unita"
+
+msgid "SETTINGS_THEME_BAR_STYLE_TRANSPARENT"
+msgstr "Trasparente"
+
+msgid "SETTINGS_THEME_BAR_STYLE_GRADIENT_LR"
+msgstr "Sfumatura (Orizzontale)"
+
+msgid "SETTINGS_THEME_BAR_STYLE_GRADIENT_UD"
+msgstr "Sfumatura (Verticale)"
+
+msgid "SETTINGS_THEME_BACKGROUND_COLOR"
+msgstr "Colore di sfondo"
+
+msgid "SETTINGS_THEME_BACKGROUND_COLOR_2"
+msgstr "Colore di sfondo 2"
+
+msgid "SETTINGS_THEME_BACKGROUND_COLOR_2_HELP"
+msgstr "Colore di sfondo secondario, usato nelle sfumature."
+
+msgid "SETTINGS_THEME_FOREGROUND_COLOR"
+msgstr "Colore primo piano"
+
+msgid "SETTINGS_THEME_RESET_COLORS"
+msgstr "Resetta i colori"
+
+msgid "SETTINGS_THEME_RESET_COLORS_HELP"
+msgstr "Resetta il colore primario dello sfondo/primo piano."
+
+msgid "SETTINGS_THEME_DARK"
+msgstr "Scuro"
+
+msgid "SETTINGS_THEME_LIGHT"
+msgstr "Chiaro"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION"
+msgstr "Orientamento schermo"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_AUTO"
+msgstr "Automatico"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_HORIZONTAL"
+msgstr "Orizzontale"
+
+msgid "SETTINGS_DISPLAY_ORIENTATION_VERTICAL"
+msgstr "Verticale"
+
+msgid "DIALOG_UPDATING_MCU"
+msgstr "Aggiornando MCU"
+
+msgid "DIALOG_PREPARE_SAVE"
+msgstr "Creazione dati di salvataggio"
+
+msgid "DIALOG_PREPARE_FLASH"
+msgstr "Creazione immagine flash"
+
+msgid "DIALOG_PREPARE_ROM"
+msgstr "Creazione immagine ROM"
+
+msgid "DIALOG_STORE_SAVE"
+msgstr "Salvataggio dati"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_SRAM"
+msgstr "File .ram troppo grande"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_EEPROM"
+msgstr "File .eeprom troppo grande"
+
+msgid "DIALOG_SAVE_OVERDUMP_TITLE_FLASH"
+msgstr "File .flash troppo grande"
+
+msgid "DIALOG_SAVE_OVERDUMP_DESCRIPTION"
+msgstr "Ciò può indicare un overdump. Il file potrebbe dover essere modificato manualmente per funzionare correttamente. Vuoi continuare?"
+
+msgid "ERROR_FR_DISK_ERR"
+msgstr "Errore di archiviazione"
+
+msgid "ERROR_FR_INT_ERR"
+msgstr "Errore interno FatFs"
+
+msgid "ERROR_FR_NOT_READY"
+msgstr "Archiviazione non pronta"
+
+msgid "ERROR_FR_NO_FILE"
+msgstr "File non trovato"
+
+msgid "ERROR_FR_NO_PATH"
+msgstr "Percorso non trovato"
+
+msgid "ERROR_FR_DENIED"
+msgstr "Accesso negato"
+
+msgid "ERROR_SAVE_CORRUPT"
+msgstr "Dati di salvataggio corrotti"
+
+msgid "ERROR_SAVE_PSRAM_CORRUPT"
+msgstr "Stato della PSRAM corrotto"
+
+msgid "ERROR_SAVE_NOR_FLASH_CORRUPT"
+msgstr "Salvataggio dati Flash corrotti"
+
+msgid "ERROR_MCU_COMM_FAILED"
+msgstr "Errore di comunicazione MCU"
+
+msgid "ERROR_FLASH_COMM_FAILED"
+msgstr "Errore di comunicazione della Flash della cartuccia"
+
+msgid "ERROR_UNSUPPORTED_FIRMWARE_VERSION"
+msgstr "Versione firmware non supportata"
+
+msgid "ERROR_INVALID_FIRMWARE_INSTALLATION"
+msgstr "Installazione firmware non valida"
+
+msgid "ERROR_UNSUPPORTED_CARTRIDGE_REVISION"
+msgstr "Versione della cartuccia non supportata"
+
+msgid "ERROR_FILE_TOO_LARGE"
+msgstr "File troppo grande"
+
+msgid "ERROR_FILE_FORMAT_INVALID"
+msgstr "Formato del file non valido"
+
+msgid "ERROR_FILE_NOT_EXECUTABLE"
+msgstr "File non eseguibile"
+
+msgid "ERROR_DATA_TRANSFER_TIMEOUT"
+msgstr "Trasferimento dati fuori tempo massimo"
+
+msgid "ERROR_DATA_TRANSFER_CANCEL"
+msgstr "Trasferimento dati cancellato"
+
+msgid "ERROR_DATA_CORRUPT"
+msgstr "Dati corrotti"
+
+msgid "ERROR_OUT_OF_MEMORY"
+msgstr "Memoria terminata"
+
+msgid "ERROR_SAVE_VERIFY_FAILED"
+msgstr "Errore nella verifica dei dati di salvataggio"
+
+msgid "ERROR_TITLE_FS_INIT"
+msgstr "Impossibile montare la schedina!"
+
+msgid "ERROR_TITLE_MCU_INIT"
+msgstr "Impossibile inizializzare la MCU!"
+
+msgid "ERROR_TITLE_SETTINGS_LOAD"
+msgstr "Impossibile caricare le impostazioni!"
+
+msgid "ERROR_TITLE_FONTS_LOAD"
+msgstr "Impossibile caricare i fonts!"
+
+msgid "ERROR_TITLE_SAVE_STORE"
+msgstr "Impossibile salvare i dati!"
+
+msgid "SUBMENU_OPTION_SETTINGS"
+msgstr "Impostazioni"
+
+msgid "SUBMENU_OPTION_TOOLS"
+msgstr "Strumenti"
+
+msgid "SUBMENU_OPTION_TOOLS_LAUNCH_VIA_XMODEM"
+msgstr "Lancia via XMODEM"
+
+msgid "SUBMENU_OPTION_TEST_BFB"
+msgstr "Test"
+
+msgid "SETTINGS_SYS_INFO"
+msgstr "Informazioni sul sistema"
+
+msgid "SETTINGS_SYS_INFO_MY_CARTRIDGE"
+msgstr "La mia cartuccia"
+
+msgid "SETTINGS_FACTORY_RESET"
+msgstr "Reset di fabbrica"
+
+msgid "SETTINGS_FACTORY_RESET_WARNING"
+msgstr "Questa opzione cancellerà tutte le impostazioni! Vuoi continuare?"
+
+msgid "SUBMENU_OPTION_WITCH"
+msgstr "Witch..."
+
+msgid "SUBMENU_OPTION_WITCH_ADD_GLOBAL_LIBRARY"
+msgstr "Aggiungi come libreria globale"
+
+msgid "SUBMENU_OPTION_WITCH_EXTRACT_BIOS_OS"
+msgstr "Estrai BIOS/SO"
+
+msgid "SUBMENU_OPTION_FILE"
+msgstr "File..."
+
+msgid "SUBMENU_OPTION_FILE_DELETE"
+msgstr "Elimina"
+
+msgid "SUBMENU_OPTION_FILE_ERASE_SAVE"
+msgstr "Cancella dati di salvataggio"
+
+msgid "SUBMENU_OPTION_FILE_SET_AS_WALLPAPER"
+msgstr "Imposta come sfondo"
+
+msgid "WALLPAPER_HORIZONTAL"
+msgstr "Orizzontale"
+
+msgid "WALLPAPER_VERTICAL"
+msgstr "Verticale"
+
+msgid "WALLPAPER_SHARED"
+msgstr "Entrambi"
+
+msgid "DIALOG_FILE_DELETE_CONFIRM"
+msgstr "Sei sicuro di voler eliminare questo file?"
+
+msgid "DIALOG_FILE_ERASE_SAVE_CONFIRM"
+msgstr "Sei sicuro di voler eliminare i dati di salvataggio per questo file?"
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_SCANNING"
+msgstr "Ricerca del BIOS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_BIOS_EXTRACTING"
+msgstr "Estrazione del BIOS..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_SCANNING"
+msgstr "Ricerca del Sistema Operativo..."
+
+msgid "WITCH_EXTRACT_PROGRESS_OS_EXTRACTING"
+msgstr "Estrazione del Sistema Operativo..."
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_BIOS"
+msgstr "Sostituisci BIOS"
+
+msgid "SUBMENU_OPTION_WITCH_REPLACE_OS"
+msgstr "Sostituisci Sistema Operativo"
+
+msgid "SUBMENU_OPTION_WITCH_CREATE_IMAGE"
+msgstr "Crea immagine"
+
+msgid "INPUT_TARGET_FILENAME"
+msgstr "Inserisci il nome di destinazione"
+
+msgid "SELECT_FILE"
+msgstr "Seleziona file"
+
+msgid "PROGRESS_COPYING_DATA"
+msgstr "Copiando i dati..."
+
+msgid "SUBMENU_OPTION_CONTROLLER_MODE"
+msgstr "Modalità Gamepad"
+
+msgid "DIALOG_INITIALIZING_RTC"
+msgstr "Inizializzando RTC..."
+
+msgid "ERROR_WITCH_NO_BIOS_FOUND"
+msgstr "Nessun file BIOS trovato!"
+
+msgid "ERROR_WITCH_NO_OS_FOUND"
+msgstr "Nessun file SO trovato!"
+
+msgid "DIALOG_FILE_ALREADY_EXISTS"
+msgstr "Il file esiste già."
+
+msgid "DIALOG_OVERWRITE_CONFIRM"
+msgstr "Sei sicuro di voler sovrascrivere questo file?"
+
+msgid "ATHENABIOS_SUFFIX_COMPATIBLE"
+msgstr "Compatibile"
+
+msgid "ATHENABIOS_SUFFIX_NATIVE"
+msgstr "Nativo"
+
+msgid "CONTROLLER_MODE_ACTIVE"
+msgstr "Modalità gamepad attiva."
+
+msgid "CONTROLLER_MODE_PRESS_TO_EXIT"
+msgstr "Premi %s per uscire."
+
+msgid "ABOUT_RAM_BYTES_FREE"
+msgstr "%d IRAM bytes liberi"
+
+msgid "PROMPT_TF_CARD_REMOVED_TITLE"
+msgstr "Rimossa schedina di memoria!"
+
+msgid "PROMPT_TF_CARD_REMOVED"
+msgstr "Inserisci una schedina di memoria. La cartuccia verrà automaticamente ricaricata."
+
+msgid "PROMPT_NO_BATTERY_TITLE"
+msgstr "Batteria della cartuccia mancante o scarica!"
+
+msgid "PROMPT_NO_BATTERY"
+msgstr "I dati di salvataggio non verranno mantenuti. Vuoi continuare?"
+
+msgid "PROMPT_FUNCTIONALITY_UNAVAILABLE"
+msgstr "Qualche funzionalità non sarà disponibile. Vuoi continuare?"
+
+msgid "OSK_OK"
+msgstr "OK"
+
+msgid "OSK_ALPHA"
+msgstr "Aa"
+
+msgid "COLOR_RED"
+msgstr "Rosso"
+
+msgid "COLOR_GREEN"
+msgstr "Verde"
+
+msgid "COLOR_BLUE"
+msgstr "Blu"
+
+msgid "COLOR_PREVIEW"
+msgstr "Anteprima"
