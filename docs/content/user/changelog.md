@@ -12,6 +12,7 @@ weight: 100
   - The result is stored as a separate file, `/NILESWAN/THEME.DAT`.
 - Changed: Updated Uxn core implementation.
 - Fixed: Minor reliability improvements.
+- Fixed: "Scroll long names" option not being stored properly in `CONFIG.INI`.
 
 ## swanshell 1.2.8 (28th October 2026)
 

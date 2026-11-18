@@ -48,6 +48,7 @@ DEFINE_STRING_LOCAL(s_cart_mcu_spi_speed_key, "CartMcuSpiSpeed");
 DEFINE_STRING_LOCAL(s_display_orientation_key, "DispOrient");
 DEFINE_STRING_LOCAL(s_language, "Language");
 DEFINE_STRING_LOCAL(s_text_reader_font_key, "TextReaderFont");
+DEFINE_STRING_LOCAL(s_scroll_long_names_key, "FileScrollLong");
 DEFINE_STRING_LOCAL(s_joy_repeat_first, "JoyRepeatFirst");
 DEFINE_STRING_LOCAL(s_joy_repeat_next, "JoyRepeatNext");
 
@@ -118,7 +119,7 @@ static const setting_t __far setting_file_sort_order = {
     0,
     NULL,
     .choice = {
-        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->file_sort),
+        &(ws_ptr_far_static_cast(&settings)->file_sort),
         0, 6,
         0, 0xFF,
         NULL,
@@ -156,7 +157,7 @@ static const setting_t __far setting_file_view = {
     0,
     NULL,
     .choice = {
-        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->file_view),
+        &(ws_ptr_far_static_cast(&settings)->file_view),
         0, 1,
         0, 0xFF,
         NULL,
@@ -165,7 +166,7 @@ static const setting_t __far setting_file_view = {
 };
 
 static const setting_t __far setting_scroll_long_names = {
-    s_text_reader_font_key,
+    s_scroll_long_names_key,
     LK_SETTINGS_SCROLL_LONG_NAMES_KEY,
     LK_SETTINGS_SCROLL_LONG_NAMES_HELP,
     SETTING_TYPE_FLAG,
@@ -230,7 +231,7 @@ static const setting_t __far setting_display_orientation = {
     SETTING_FLAG_CHOICE_LIST,
     settings_display_orientation_on_change,
     .choice = {
-        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->display_orientation),
+        &(ws_ptr_far_static_cast(&settings)->display_orientation),
         0, 2,
         0, 0xFF,
         NULL,
@@ -280,7 +281,7 @@ const setting_t __far setting_language = {
     SETTING_FLAG_CHOICE_LIST,
     settings_language_on_change,
     .choice = {
-        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->language),
+        &(ws_ptr_far_static_cast(&settings)->language),
         0, LANGUAGE_COUNT - 1,
         0, 0xFF,
         NULL,
@@ -344,7 +345,7 @@ static const setting_t __far setting_cart_mcu_spi_speed = {
     SETTING_TYPE_CHOICE_BYTE,
     0,
     .choice = {
-        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->mcu_spi_speed),
+        &(ws_ptr_far_static_cast(&settings)->mcu_spi_speed),
         0, SETTING_MCU_SPI_SPEED_COUNT - 1,
         0, 0xFF,
         NULL,
@@ -781,7 +782,7 @@ static const setting_t __far setting_repeat_delay = {
     SETTING_FLAG_CHOICE_LIST,
     NULL,
     .choice = {
-        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->joy_repeat_first_ticks),
+        &(ws_ptr_far_static_cast(&settings)->joy_repeat_first_ticks),
         9, 37,
         0, 0xFF,
         NULL,
@@ -797,7 +798,7 @@ static const setting_t __far setting_repeat_next_delay = {
     SETTING_FLAG_CHOICE_LIST,
     NULL,
     .choice = {
-        &(((settings_t __far*)__builtin_ia16_static_far_cast(&settings))->joy_repeat_next_ticks),
+        &(ws_ptr_far_static_cast(&settings)->joy_repeat_next_ticks),
         5, 36,
         0, 0xFF,
         NULL,
