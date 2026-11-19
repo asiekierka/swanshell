@@ -20,7 +20,7 @@
 #include <ws/display.h>
 #include <ws/system.h>
 #include <wsx/utf8.h>
-#include "bitmap.h"
+#include "bitmap_internal.h"
 #include "config.h"
 #include "util/math.h"
 
@@ -52,19 +52,17 @@ bool bitmap_set_screen_force_horizontal(bool forced) {
     return !(bitmap_rotation & 1);
 }
 
-#define BITMAP_AT(bitmap, x, y) (((uint8_t*) (bitmap)->start) + ((y) * (bitmap)->y_pitch) + (((x) >> (bitmap)->x_shift) * (bitmap)->x_pitch))
-
-static const uint16_t __far count_width_mask[17] = {
+const uint16_t __far count_width_mask[17] = {
     0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF,
     0x1FF, 0x3FF, 0x7FF, 0xFFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF
 };
 
 // This is not __far to optimize glyph drawing. -9 bytes RAM
-static const uint8_t count_width_mask8[9] = {
+const uint8_t count_width_mask8[9] = {
     0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF
 };
 
-static const uint16_t __far color_mask[4] = {
+const uint16_t __far color_mask[4] = {
     0x0000,
     0x00FF,
     0xFF00,
@@ -74,17 +72,6 @@ static const uint16_t __far color_mask[4] = {
 void bitmap_clear(const bitmap_t *bitmap) {
     memset(bitmap->start, 0, bitmap->x_pitch * bitmap->width);
 }
-
-#define BITMAP_DO_ROTATE_XYWH(x,y,width,height) \
-    if (!bitmap_rotation) { \
-        uint16_t tmp = y; \
-        y = x; \
-        x = (bitmap->width << 3) - height - tmp; \
-        \
-        tmp = width; \
-        width = height; \
-        height = tmp; \
-    }
 
 extern void __bitmap_bitop_row_c(uint16_t _and, uint16_t _xor, uint16_t _rows, uint16_t _mask, bitmap_t *bitmap, void *dest);
 extern void __bitmap_bitop_fill_c(uint16_t value, void *dest, uint16_t _rows);

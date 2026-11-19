@@ -239,7 +239,7 @@ static const setting_t __far setting_display_orientation = {
     }
 };
 
-#define LANGUAGE_COUNT 7
+#define LANGUAGE_COUNT 8
 
 static const uint16_t __wf_rom settings_language_name_table[] = {
     LK_LANG_EN,
@@ -248,7 +248,8 @@ static const uint16_t __wf_rom settings_language_name_table[] = {
     LK_LANG_FR,
     LK_LANG_ES,
     LK_LANG_ZH_HANS,
-    LK_LANG_JA
+    LK_LANG_JA,
+    LK_LANG_IT
 };
 
 static const void __far* __far settings_language_table[] = {
@@ -258,7 +259,8 @@ static const void __far* __far settings_language_table[] = {
     lang_keys_fr,
     lang_keys_es,
     lang_keys_zh_Hans,
-    lang_keys_ja
+    lang_keys_ja,
+    lang_keys_it
 };
 
 void settings_language_update(void) {

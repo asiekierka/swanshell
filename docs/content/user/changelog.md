@@ -10,6 +10,7 @@ weight: 100
     background, foreground, and each of the top/bottom bar's colors separately.
   - In addition, 16-color .BMP files can now be "Set as wallpaper".
   - The result is stored as a separate file, `/NILESWAN/THEME.DAT`.
+- Added: Italian translation. (mariovirgili)
 - Changed: Updated Uxn core implementation.
 - Fixed: Minor reliability improvements.
 - Fixed: "Scroll long names" option not being stored properly in `CONFIG.INI`.
