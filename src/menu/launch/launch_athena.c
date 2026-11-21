@@ -32,6 +32,7 @@
 #include "ui/ui_popup_dialog.h"
 #include "util/file.h"
 #include "util/math.h"
+#include "ww/ww.h"
 
 #define DIR_SEGMENT 0x4000
 #define OS_SEGMENT 0xE000
@@ -301,7 +302,7 @@ int16_t launch_athena_romfile_begin(void) {
     return FR_OK;
 }
 
-int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, uint32_t *id) {
+int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, uint32_t *id, uint32_t mtime) {
     uint16_t file_count;
     uint16_t file_count_first;
     int16_t result;
@@ -375,7 +376,7 @@ int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, 
             entry->len = f_size(&fp);
             entry->count = (entry->len + 127) >> 7;
             entry->mode = type == ATHENA_ROMFILE_TYPE_RAM0 ? 6 : (type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? 5 : 4);
-            entry->mtime = 0; // TODO
+            entry->mtime = mtime;
             entry->il = 0; // TODO
             entry->resource = -1;
         }
@@ -532,6 +533,7 @@ static int16_t launch_athena_boot_curdir_as_rom_wip_inner(const char __far *name
             if (!fi.fname[0]) break;
             if (fi.fattrib & AM_DIR) continue;
 
+            uint32_t mtime = ww_fat_to_freya_time(fi.fdate, fi.ftime);
             athena_romfile_type_t f_type = type;
             if (i == 0) {
                 if (!strcmp(name, fi.fname)) {
@@ -543,10 +545,10 @@ static int16_t launch_athena_boot_curdir_as_rom_wip_inner(const char __far *name
                 if (len >= 4 && !strcasecmp(fi.fname + len - 3, s_file_ext_il)) {
                     buffer[fbin_len] = '/';
                     strcpy(buffer + fbin_len + 1, fi.fname);
-                    result = launch_athena_romfile_add(buffer, f_type, f_type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? id : NULL);
+                    result = launch_athena_romfile_add(buffer, f_type, f_type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? id : NULL, mtime);
                 }
             } else {
-                result = launch_athena_romfile_add(fi.fname, f_type, f_type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? id : NULL);
+                result = launch_athena_romfile_add(fi.fname, f_type, f_type == ATHENA_ROMFILE_TYPE_ROM0_BOOT ? id : NULL, mtime);
             }
             if (result != FR_OK) {
                 f_closedir(&dp);

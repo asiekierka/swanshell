@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with swanshell. If not, see <https://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef WW_WW_H_
 #define WW_WW_H_
 
@@ -26,5 +26,17 @@ int16_t ww_ui_extract_from_rom(const char __far* filename);
 int16_t ww_ui_replace_component(const char __far* filename, bool is_os);
 int16_t ww_ui_create_image(void);
 int16_t ww_ui_move_to_fbin(const char __far *filename);
+
+static inline uint32_t ww_fat_to_freya_time(uint16_t fdate, uint16_t ftime) {
+    return ((((uint32_t) fdate) << 16) + (20 << 9)) | ftime;
+}
+
+static inline uint16_t ww_freya_to_fat_date(uint32_t mtime) {
+    return (mtime >> 16) - (20 << 9);
+}
+
+static inline uint16_t ww_freya_to_fat_time(uint32_t mtime) {
+    return (uint16_t) mtime;
+}
 
 #endif /* WW_WW_H_ */

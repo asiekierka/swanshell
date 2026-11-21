@@ -56,9 +56,12 @@ typedef enum {
  * @brief Add file to ROM layout.
  *
  * @param path File path.
+ * @param type File target (rom0, rom0 bootable, ram0).
+ * @param id Pointer to write generated 32-bit save discriminator ID to.
+ * @param mtime Freya filesystem timestamp for file.
  * @return int16_t Error code, if any.
  */
-int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, uint32_t *id);
+int16_t launch_athena_romfile_add(const char *path, athena_romfile_type_t type, uint32_t *id, uint32_t mtime);
 
 int16_t launch_athena_boot_curdir_as_rom_wip(const char __far *name);
 
