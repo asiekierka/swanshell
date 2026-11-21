@@ -21,6 +21,7 @@
 #include <ws/memory.h>
 #include "file.h"
 #include "errors.h"
+#include "strings.h"
 
 #define INIT_SECTOR_BUFFER \
     uint8_t stack_buffer[CONFIG_MEMLAYOUT_STACK_BUFFER_SIZE]; \
@@ -34,7 +35,7 @@
         buffer_size = sizeof(stack_buffer); \
     }
 
-bool f_anymatch(filinfo_predicate_t predicate, const char __far* local_path) {
+bool f_matchdir(filinfo_predicate_t predicate, const char __far* local_path) {
     DIR dir;
     FILINFO fno;
 
@@ -239,4 +240,26 @@ int16_t f_write_sram_banked(FIL* fp, uint16_t bank, uint32_t btw, fbanked_progre
 
     outportw(WS_CART_EXTBANK_RAM_PORT, prev_bank);
     return FR_OK;
+}
+
+int16_t f_move_to_directory(const char __far *directory, const char __far *filename) {
+    char src_fn[FF_LFN_BUF+1];
+    char dst_fn[FF_LFN_BUF+1];
+
+    strcpy(dst_fn, directory);
+    int result = f_mkdir(dst_fn);
+    if (result != FR_OK && result != FR_EXIST)
+        return result;
+
+    const char __far *basename = strrchr(filename, '/');
+    if (basename == NULL) {
+        basename = filename;
+        strcat(dst_fn, s_path_sep);
+    }
+
+    strncpy(src_fn, filename, sizeof(src_fn) - 1);
+    src_fn[sizeof(src_fn) - 1] = 0;
+
+    strcat(dst_fn, basename);
+    return f_rename(src_fn, dst_fn);
 }

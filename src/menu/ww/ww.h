@@ -21,11 +21,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <wonderful.h>
+#include "strings.h"
+#include "util/file.h"
 
 int16_t ww_ui_extract_from_rom(const char __far* filename);
 int16_t ww_ui_replace_component(const char __far* filename, bool is_os);
 int16_t ww_ui_create_image(void);
-int16_t ww_ui_move_to_fbin(const char __far *filename);
+
+static inline int16_t ww_ui_move_to_fbin(const char __far *filename) {
+    return f_move_to_directory(s_path_fbin, filename);
+}
 
 static inline uint32_t ww_fat_to_freya_time(uint16_t fdate, uint16_t ftime) {
     return ((((uint32_t) fdate) << 16) + (20 << 9)) | ftime;

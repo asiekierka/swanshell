@@ -290,7 +290,7 @@ int main(void) {
 		// keep it awake during execution.
 		nile_flash_wake();
 	}
-	outportw(IO_NILE_SEG_MASK, (0x7 << 9) | (total_banks - 1) | (bootstub_data->prog_sram_mask << 12));
+	outportw(IO_NILE_SEG_MASK, NILE_SEG_MASK_LOCK | (total_banks - 1) | (bootstub_data->prog_sram_mask << NILE_SEG_MASK_RAM_SHIFT));
 	outportb(IO_NILE_EMU_CNT, bootstub_data->prog_emu_cnt);
 	// POW_CNT disables cart registers, so must be last
 	outportb(IO_NILE_POW_CNT, (inportb(IO_NILE_POW_CNT) & NILE_POW_MCU_RESET) | bootstub_data->prog_pow_cnt);
