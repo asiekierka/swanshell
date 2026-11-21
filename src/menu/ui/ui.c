@@ -254,10 +254,12 @@ void ui_init_palettes(void) {
 
                 if (!ui_has_wallpaper())
                     WS_DISPLAY_COLOR_MEM(0)[0] = header->background_color;
+                WS_DISPLAY_COLOR_MEM(0)[1] = header->foreground_color;
                 WS_DISPLAY_COLOR_MEM(0)[2] = header->background_color;
                 WS_DISPLAY_COLOR_MEM(0)[3] = header->foreground_color;
                 WS_DISPLAY_COLOR_MEM(1)[3] = header->background_color;
                 WS_DISPLAY_COLOR_MEM(1)[2] = header->foreground_color;
+                WS_DISPLAY_COLOR_MEM(1)[1] = header->background_color;
             } else {
                 outportb(WS_SCR_PAL_2_PORT + 1, ui_rgb_to_shade(header->tbar.background_col_a) | (ui_rgb_to_shade(header->tbar.foreground_color) << 4));
                 outportb(WS_SCR_PAL_3_PORT + 1, ui_rgb_to_shade(header->bbar.background_col_a) | (ui_rgb_to_shade(header->bbar.foreground_color) << 4));
