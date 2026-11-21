@@ -21,8 +21,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * Patch a Freya ROM to soft-reset back to flashcart on reboot attempt.
+ */
 #define BOOTSTUB_PROG_PATCH_FREYA_SOFT_RESET 0x01
+/**
+ * The program to load reserves the entire IPC memory space for arguments.
+ */
 #define BOOTSTUB_PROG_PATCH_IPC_RESERVED     0x02
+/**
+ * The program is stored at the beginning of PSRAM, not in a FAT cluster.
+ */
 #define BOOTSTUB_CLUSTER_AT_PSRAM 0xFFFFFFF8
 
 #define ROM_TYPE_UNKNOWN 0x00
@@ -47,12 +56,12 @@ typedef struct {
     bootstub_file_entry_t prog;
     void __far* start_pointer; ///< Start pointer
     uint16_t rom_banks; ///< Requested ROM banks
-    uint8_t prog_sram_mask;
-    uint8_t prog_pow_cnt;
-    uint8_t prog_emu_cnt;
-    uint8_t prog_flags; ///< IO_SYSTEM_CTRL1 flags
-    uint8_t prog_flags2; ///< IO_SYSTEM_CTRL2 flags
-    uint8_t prog_patches;
+    uint8_t prog_sram_mask; ///< SRAM bank mask requested by program
+    uint8_t prog_pow_cnt; ///< Cartridge POW_CNT flags
+    uint8_t prog_emu_cnt; ///< Cartridge EMU_CNT flags
+    uint8_t prog_flags; ///< WS_SYSTEM_CTRL_COLOR flags
+    uint8_t prog_flags2; ///< WS_SYSTEM_CTRL_COLOR_PORT flags
+    uint8_t prog_patches; ///< BOOTSTUB_PROG_PATCHes requested by program
     uint8_t prog_rom_type;
 } bootstub_data_t;
 

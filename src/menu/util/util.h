@@ -24,6 +24,9 @@
 #include <ws.h>
 #include "shell/shell.h"
 
+/**
+ * Uppercase hexadecimal characters.
+ */
 extern const uint8_t __far util_hex_chars[16];
 
 #define HBL_PROFILE_START { ws_timer_hblank_start_once(65535); }
