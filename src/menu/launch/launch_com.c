@@ -67,7 +67,7 @@ int16_t launch_com(const char *path) {
     psp->argv[0] = 13;
     psp->argv[1] = 0;
 
-    outportb(0x60, 0x80);
+    ws_system_set_mode(WS_MODE_COLOR);
 
     ia16_int_set_handler(0x22, (ia16_int_handler_t) MK_FP(0xFFFF, 0x0000));
     ia16_int_set_handler(0x23, (ia16_int_handler_t) MK_FP(0xFFFF, 0x0000));

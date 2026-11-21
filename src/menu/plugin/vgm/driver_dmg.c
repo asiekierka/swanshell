@@ -40,7 +40,7 @@ static const uint8_t __far ch3_volume[] = {
 static const uint8_t __far duty_waveforms[] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
-    
+
     0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
     0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,
 
@@ -54,7 +54,7 @@ static const uint8_t __far duty_waveforms[] = {
 static inline void dmg_sync_period(vgm_state_t *state, uint8_t idx) {
     uint8_t shift = 2;
     uint16_t divider = (1536000L * (2048 - (state->dmg.period[idx] & 0x7FF))) / (state->clock >> shift);
-    outportw(0x80 + (idx << 1), -divider);
+    outportw(WS_SOUND_FREQ_CH1_PORT + (idx << 1), -divider);
 }
 
 static void dmg_sync_volume(vgm_state_t *state, uint8_t idx) {
@@ -64,7 +64,7 @@ static void dmg_sync_volume(vgm_state_t *state, uint8_t idx) {
     mvol_left *= (state->dmg.pan >> (4 + idx)) & 1;
     uint8_t ch_vol = state->dmg.c_volume[idx];
 
-    outportb(0x88 + idx, ((ch_vol * mvol_right + 6) >> 3) | (((ch_vol * mvol_left + 6) >> 3) << 4));
+    outportb(WS_SOUND_VOL_CH1_PORT + idx, ((ch_vol * mvol_right + 6) >> 3) | (((ch_vol * mvol_left + 6) >> 3) << 4));
 }
 
 __attribute__((always_inline))
@@ -143,7 +143,7 @@ static void __far dmg_line_int_handler(void) {
         int16_t new_period = (vstate->dmg.sweep1 & 8) ? (period - period_change) : (period + period_change);
         if (vstate->dmg.sweep1 & 0x70) {
             if (new_period >= 0x800) {
-                ch_active = ~0x01;
+                ch_active &= ~0x01;
             }
             vstate->dmg.c_sweep++;
             if (vstate->dmg.c_sweep == ((vstate->dmg.sweep1 >> 4) & 0x7)) {
@@ -304,7 +304,7 @@ uint16_t vgm_cmd_driver_dmg(vgm_state_t *state, uint8_t cmd) {
                     outportb(WS_SOUND_NOISE_CTRL_PORT, WS_SOUND_NOISE_CTRL_ENABLE | (data & 0x8 ? WS_SOUND_NOISE_CTRL_LENGTH_254 : WS_SOUND_NOISE_CTRL_LENGTH_32767));
                     uint32_t clock = (ch4_clock_divider[data & 7] << (data >> 4));
                     uint16_t divider = 1500 * clock / (state->clock >> 15);
-                    outportw(0x86, -divider);
+                    outportw(WS_SOUND_FREQ_CH4_PORT, -divider);
                     break;
                 case 0x13:
                     state->dmg.go4 = data;

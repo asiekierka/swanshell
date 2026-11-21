@@ -58,14 +58,14 @@ static inline void update_noise_freq(vgm_state_t *state) {
     case 3: tone = state->sn76489.tone[2]; break;
     }
     uint16_t divider;
-    
+
     if (state->sn76489.flags & 0x08) {
         divider = (3072000L * tone) / (state->clock >> 8);
     } else {
         divider = (3072000L * tone) / (state->clock >> 5);
     }
-    outportw(0x80 + SN_TO_WS_CHANNEL(3) * 2, -divider);
-    outportb(WS_SOUND_CH_CTRL_PORT, state->sn76489.noise & 0x4 ? 0x8F : 0x0F);                    
+    outportw(WS_SOUND_FREQ_CH1_PORT + SN_TO_WS_CHANNEL(3) * 2, -divider);
+    outportb(WS_SOUND_CH_CTRL_PORT, state->sn76489.noise & 0x4 ? 0x8F : 0x0F);
 }
 
 uint16_t vgm_cmd_driver_sn76489(vgm_state_t *state, uint8_t cmd) {
@@ -120,7 +120,7 @@ uint16_t vgm_cmd_driver_sn76489(vgm_state_t *state, uint8_t cmd) {
                     } else {
                         divider = (3072000L * tone) / (state->clock >> 1);
                     }
-                    outportw(0x80 + SN_TO_WS_CHANNEL(channel) * 2, -divider);
+                    outportw(WS_SOUND_FREQ_CH1_PORT + SN_TO_WS_CHANNEL(channel) * 2, -divider);
                     if (tone > 1) {
                         for (int i = 0; i < 16; i++) {
                             wavetable_data[i] = (i & 4) ? 0xFF : 0x00;

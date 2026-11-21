@@ -74,7 +74,7 @@ int16_t launch_bfb(const char *path) {
 
     f_close(&fp);
 
-    outportb(0x60, 0x80);
+    ws_system_set_mode(WS_MODE_COLOR);
     asm volatile("push %0\npush %1\nlret" :: "g" (segment), "g" (offset));
     return 0;
 }

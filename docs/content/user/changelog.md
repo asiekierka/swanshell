@@ -14,6 +14,7 @@ weight: 100
 - Changed: Updated Uxn core implementation.
 - Fixed: Minor reliability improvements.
 - Fixed: "Scroll long names" option not being stored properly in `CONFIG.INI`.
+- Fixed: Sweep handling bug in GB .VGM player.
 
 ## swanshell 1.2.8 (28th October 2026)
 
