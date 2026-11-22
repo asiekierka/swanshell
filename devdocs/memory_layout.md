@@ -15,6 +15,11 @@
 | 0xC000 | 0xFDFF | WSC-only C data/BSS (sector buffers/caches) |
 | 0xFE00 | 0xFFFF | WSC palettes |
 
+## Cartridge PSRAM
+
+* `asset_heap` is used to allocate banks of PSRAM from the top downwards
+  for large, always required data (fonts, theme/wallpaper information).
+
 ## Cartridge SRAM
 
 * File selector
@@ -23,15 +28,7 @@
 
 ## Cartridge IPC RAM
 
-- 0x1FC..0x1FF stores the save ID for emulated NOR flash.
-
-# Graphics layout
-
-## Menu palette layout
-
-- Palette 0: icon palette
-- Palette 1: icon palette (selected)
-- Palette 2: title bar palette
-- Palette 3: status bar palette
-- Palette 4: wallpaper (WSC only)
-- Palette 8..15: general use
+- Allocated with regards to [the memory map](https://www.49bitcat.com/docs/nileswan/developer/memory_map/#ipc-buffer)
+- User data area (0x0E0..0x1FF):
+  - For plugins (like uxnws), stores the path of the file to be loaded.
+  - 0x1FC..0x1FF stores the save ID for emulated NOR flash.
