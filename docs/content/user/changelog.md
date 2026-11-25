@@ -8,9 +8,11 @@ weight: 100
 - Added: Theming support.
   - The "Theme" menu in Settings has been expanded to allow configuring the
     background, foreground, and each of the top/bottom bar's colors separately.
-  - In addition, 16-color .BMP files can now be "Set as wallpaper".
+  - In addition, 16-color .BMP files can now be "Set as wallpaper" - separately
+    for horizontal and vertical orientations.
   - The result is stored as a separate file, `/NILESWAN/THEME.DAT`.
 - Added: Italian translation. (mariovirgili)
+- Changed: Updated translations: German (Generic), Japanese (bigmoonur).
 - Changed: Updated Uxn core implementation.
 - Fixed: Minor reliability improvements.
 - Fixed: "Scroll long names" option not being stored properly in `CONFIG.INI`.
