@@ -57,9 +57,9 @@ int16_t ui_popup_list(ui_popup_list_config_t *config) {
     config->height = list_height;
 
     bitmap_rect_fill(&ui_bitmap, list_x, list_y, list_width, list_height,
-        BITMAP_COLOR_2BPP(2));
+        BITMAP_COLOR_2BPP(MAINPAL_COLOR_BG_OPAQUE));
     bitmap_rect_draw(&ui_bitmap, list_x + 1, list_y + 1, list_width - 2, list_height - 2,
-        BITMAP_COLOR_2BPP(3), false);
+        BITMAP_COLOR_2BPP(MAINPAL_COLOR_FG), false);
 
     for (int i = 0; i < option_count; i++) {
         bitmapfont_draw_string(&ui_bitmap,

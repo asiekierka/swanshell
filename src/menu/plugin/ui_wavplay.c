@@ -170,7 +170,7 @@ int ui_wavplay(const char *path) {
         bitmap_rect_fill(&ui_bitmap,
             UI_WAV_DURATION_TEXT0_X, UI_WAV_DURATION_TEXT_Y,
             UI_WAV_DURATION_BAR_X - UI_WAV_DURATION_TEXT0_X, 8,
-            BITMAP_COLOR_2BPP(MAINPAL_COLOR_WHITE));
+            BITMAP_COLOR_2BPP(MAINPAL_COLOR_BG_OPAQUE));
 
         bitmapfont_set_active_font(font8_bitmap);
         seconds_buffer[0] = '/';
@@ -197,11 +197,11 @@ int ui_wavplay(const char *path) {
         bitmap_rect_fill(&ui_bitmap,
             UI_WAV_DURATION_BAR_X, UI_WAV_DURATION_BAR_Y,
             UI_WAV_DURATION_BAR_WIDTH, UI_WAV_DURATION_BAR_HEIGHT,
-            BITMAP_COLOR_4BPP(MAINPAL_COLOR_WHITE));
+            BITMAP_COLOR_4BPP(MAINPAL_COLOR_BG_OPAQUE));
         bitmap_rect_draw(&ui_bitmap,
             UI_WAV_DURATION_BAR_X, UI_WAV_DURATION_BAR_Y,
             UI_WAV_DURATION_BAR_WIDTH, UI_WAV_DURATION_BAR_HEIGHT,
-            BITMAP_COLOR_2BPP(MAINPAL_COLOR_BLACK), false);
+            BITMAP_COLOR_2BPP(MAINPAL_COLOR_FG), false);
     }
 
     outportb(WS_SOUND_CH_CTRL_PORT, 0);
@@ -318,7 +318,7 @@ int ui_wavplay(const char *path) {
                 bitmap_rect_fill(&ui_bitmap,
                     UI_WAV_DURATION_TEXT0_X, UI_WAV_DURATION_TEXT_Y,
                     UI_WAV_DURATION_TEXT1_X - UI_WAV_DURATION_TEXT0_X, 8,
-                    BITMAP_COLOR_2BPP(MAINPAL_COLOR_WHITE));
+                    BITMAP_COLOR_2BPP(MAINPAL_COLOR_BG_OPAQUE));
 
                 uint16_t seconds_to_draw = seconds_current >= 5940 ? 5940 : seconds_current;
                 seconds_to_buffer(seconds_to_draw, seconds_buffer);
@@ -331,7 +331,7 @@ int ui_wavplay(const char *path) {
                     bitmap_rect_fill(&ui_bitmap,
                         UI_WAV_DURATION_BAR_X + 1, UI_WAV_DURATION_BAR_Y + 1,
                         UI_WAV_DURATION_BAR_WIDTH - 2, UI_WAV_DURATION_BAR_HEIGHT - 2,
-                        BITMAP_COLOR_4BPP(MAINPAL_COLOR_WHITE));
+                        BITMAP_COLOR_4BPP(MAINPAL_COLOR_BG_OPAQUE));
                     redraw_seek_position = false;
                 }
                 if (bar_width) {

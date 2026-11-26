@@ -226,9 +226,9 @@ void ui_init_palettes(void) {
         // WS_DISPLAY_SHADE_LUT(0, 2, 4, 6, 9, 11, 13, 15)
         ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT(0, 3, 5, 7, 9, 11, 13, 15));
         // palette 0 - icon palette
-        outportw(WS_SCR_PAL_0_PORT, 0x7052);
+        outportw(WS_SCR_PAL_0_PORT, 0x5270);
         // palette 1 - icon palette (selected)
-        outportw(WS_SCR_PAL_1_PORT, 0x0725);
+        outportw(WS_SCR_PAL_1_PORT, 0x2507);
         // palette 2 - titlebar palette
         outportw(WS_SCR_PAL_2_PORT, 0x0370);
         // palette 3 - statusbar palette
@@ -268,10 +268,10 @@ void ui_init_palettes(void) {
                 int bg_shade = ui_rgb_to_shade(header->background_color);
                 int fg_shade = ui_rgb_to_shade(header->foreground_color);
 
-                outportb(WS_SCR_PAL_0_PORT + 1, (bg_shade << 4) | fg_shade);
-                outportb(WS_SCR_PAL_1_PORT + 1, (fg_shade << 4) | bg_shade);
-                outportb(WS_SCR_PAL_2_PORT, (bg_shade << 4) | fg_shade);
-                outportb(WS_SCR_PAL_3_PORT, (bg_shade << 4) | fg_shade);
+                outportb(WS_SCR_PAL_0_PORT, (fg_shade << 4) | bg_shade);
+                outportb(WS_SCR_PAL_1_PORT, (bg_shade << 4) | fg_shade);
+                outportb(WS_SCR_PAL_2_PORT, (fg_shade << 4) | bg_shade);
+                outportb(WS_SCR_PAL_3_PORT, (fg_shade << 4) | bg_shade);
             }
         });
     }
@@ -319,7 +319,9 @@ static inline void ui_show_inner(void) {
 
 void ui_unload_wallpaper(void) {
     wallpaper_status = 0;
-    ws_screen_fill_tiles(ui_screen_bg, 0x1FF, 0, 0, 28, 18);
+    if (ws_system_get_mode() == WS_MODE_COLOR_4BPP) {
+        ws_screen_fill_tiles(ui_screen_bg, 0x1FF, 0, 0, 28, 18);
+    }
     ui_show_inner();
 }
 
@@ -345,16 +347,16 @@ static inline bool ui_load_wallpaper(uint16_t feature) {
 }
 
 void ui_show(void) {
-    if (!wallpaper_status && theme_initialized()) {
-        wallpaper_status = 2;
-        if (ws_system_get_mode() == WS_MODE_COLOR_4BPP) {
+    if (ws_system_get_mode() == WS_MODE_COLOR_4BPP) {
+        if (!wallpaper_status && theme_initialized()) {
+            wallpaper_status = 2;
             if (ui_load_wallpaper(bitmap_rotation ? THEME_FEATURE_WALLPAPER_HORIZONTAL : THEME_FEATURE_WALLPAPER_VERTICAL)) {
                 wallpaper_status = 1;
             }
         }
-    }
-    if (wallpaper_status != 1) {
-        ws_screen_fill_tiles(ui_screen_bg, 0x1FF, 0, 0, 28, 18);
+        if (wallpaper_status != 1) {
+            ws_screen_fill_tiles(ui_screen_bg, 0x1FF, 0, 0, 28, 18);
+        }
     }
     ui_show_inner();
 }
@@ -380,11 +382,7 @@ void ui_layout_bars_pattern(void) {
 }
 
 void ui_layout_bars(void) {
-    if (!ui_has_wallpaper()) {
-        bitmap_rect_fill(&ui_bitmap, 0, 8, screen_width, screen_height - 16, BITMAP_COLOR_4BPP(2));
-    } else {
-        bitmap_rect_clear(&ui_bitmap, 0, 8, screen_width, screen_height - 16);
-    }
+    bitmap_rect_clear(&ui_bitmap, 0, 8, screen_width, screen_height - 16);
     ui_layout_bars_pattern();
     ws_bank_with_flash_ram(WS_CART_BANK_FLASH_ENABLE, theme_get_bank(), {
         ui_fill_bar(0, theme_initialized() ? (THEME_MEM_HEADER->tbar.background_col_a >> THEME_BAR_STYLE_SHIFT) : 0);

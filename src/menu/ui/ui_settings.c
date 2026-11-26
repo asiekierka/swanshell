@@ -194,7 +194,7 @@ reload_menu:
         if (keys_pressed & WS_KEY_Y1) {
             if (s->help) {
                 ui_layout_bars();
-                bitmap_rect_fill(&ui_bitmap, 0, 8, screen_width, screen_height - 16, BITMAP_COLOR_4BPP(2));
+                bitmap_rect_clear(&ui_bitmap, 0, 8, screen_width, screen_height - 16);
 
                 ui_draw_titlebar(lang_keys[s->name]);
                 ui_draw_statusbar(NULL);

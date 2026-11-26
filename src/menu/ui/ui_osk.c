@@ -211,7 +211,7 @@ static void redraw_osk_buffer_text(ui_osk_state_t *state, bool clear) {
     CALC_OSK_DIMENSIONS;
 
     if (clear)
-        bitmap_rect_fill(&ui_bitmap, 0, osk_by, screen_width, glyph_height, BITMAP_COLOR_2BPP(2));
+        bitmap_rect_fill(&ui_bitmap, 0, osk_by, screen_width, glyph_height, BITMAP_COLOR_2BPP(0));
 
     bitmapfont_draw_string(&ui_bitmap, 4, osk_by, state->buffer, screen_width - 8);
 }

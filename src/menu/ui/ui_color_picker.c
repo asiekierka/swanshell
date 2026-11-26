@@ -71,7 +71,7 @@ static void draw_colorbar_mono(uint8_t y, uint8_t start_palette, uint16_t rgb, u
 
     // Draw rectangles
     bitmap_rect_fill(&ui_bitmap, COLORBAR_X, full_redraw ? y : y + COLORBAR_SEL_Y,
-        COLORBAR_WIDTH, full_redraw ? COLORBAR_ENTRY_HEIGHT : COLORBAR_SEL_HEIGHT, BITMAP_COLOR_2BPP(2));
+        COLORBAR_WIDTH, full_redraw ? COLORBAR_ENTRY_HEIGHT : COLORBAR_SEL_HEIGHT, BITMAP_COLOR_2BPP(0));
     // TODO: vertical mode support
     for (int i = full_redraw ? 0 : 4; i < (full_redraw ? 16 : 12); i += 4) {
         bitmap_draw_glyph(&ui_bitmap, COLORBAR_X, y + i, COLORBAR_WIDTH, 4, 0, colorbar_mono_gradient);
@@ -290,5 +290,5 @@ void ui_color_picker(uint16_t __far* rgb) {
 
     if (!mono)
         ws_memset16(WS_DISPLAY_COLOR_MEM(8) + 1, WS_DISPLAY_COLOR_MEM(0)[0], 254);
-    bitmap_rect_fill(&ui_bitmap, COLORBAR_X - 8, 12, COLORBAR_WIDTH + 16, screen_height - 24, BITMAP_COLOR_4BPP(2));
+    bitmap_rect_fill(&ui_bitmap, COLORBAR_X - 8, 12, COLORBAR_WIDTH + 16, screen_height - 24, BITMAP_COLOR_4BPP(MAINPAL_COLOR_BG_OPAQUE));
 }

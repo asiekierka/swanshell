@@ -16,7 +16,7 @@ local function gen_palette_color(values)
 end
 
 -- icon palette should use colors 2 and 3 for bg and text
-local palette_mono = gen_palette_mono({2, 5, 0, 7})
+local palette_mono = gen_palette_mono({0, 7, 2, 5})
 local palette_color = gen_palette_color({
 	0xF0F, 0x616, 0xFFF, 0x000,
 	0xC43, 0xF91, 0xFF3, 0x9F4,

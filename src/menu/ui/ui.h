@@ -93,8 +93,9 @@ static inline uint8_t ui_rgb_to_shade(uint16_t rgb) {
  */
 extern uint16_t ui_screen_fg[];
 
-#define MAINPAL_COLOR_WHITE 2
-#define MAINPAL_COLOR_BLACK 3
+#define MAINPAL_COLOR_BG_TRANSPARENT 0
+#define MAINPAL_COLOR_FG 1
+#define MAINPAL_COLOR_BG_OPAQUE (ws_system_is_color_active() ? 2 : 0)
 #define MAINPAL_COLOR_RED 4
 #define MAINPAL_COLOR_ORANGE 5
 #define MAINPAL_COLOR_YELLOW 6

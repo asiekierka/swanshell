@@ -56,7 +56,7 @@ void ui_popup_dialog_clear_progress(ui_popup_dialog_config_t *config) {
         config->progress_step = 0;
         uint16_t p_width = config->width - 16;
         bitmap_rect_fill(&ui_bitmap, config->x + 8, config->progress_y, p_width, 1,
-            BITMAP_COLOR_4BPP(2));
+            BITMAP_COLOR_4BPP(MAINPAL_COLOR_BG_OPAQUE));
     }
 }
 
@@ -90,7 +90,7 @@ static inline void ui_popup_dialog_draw_buttons(ui_popup_dialog_config_t *config
     for (int i = 0; i < UI_POPUP_DIALOG_MAX_BUTTON_COUNT; i++) {
         if (!config->buttons[i]) break;
         bitmap_rect_fill(&ui_bitmap, xofs + button_x[i] + 1, config->buttons_y + 1,
-            button_w[i] - 2, button_height - 2, BITMAP_COLOR_2BPP(2));
+            button_w[i] - 2, button_height - 2, BITMAP_COLOR_2BPP(MAINPAL_COLOR_BG_OPAQUE));
         bitmapfont_draw_string(&ui_bitmap, xofs + button_x[i] + BUTTON_X_BORDER, config->buttons_y + BUTTON_Y_BORDER + BUTTON_Y_TEXT_OFFSET,
             lang_keys[config->buttons[i]], screen_width);
         if (selected == i) {
@@ -173,9 +173,9 @@ void ui_popup_dialog_draw(ui_popup_dialog_config_t *config) {
     inner_height = 0;
 
     bitmap_rect_fill(&ui_bitmap, config->x, config->y, config->width, config->height,
-        BITMAP_COLOR_4BPP(2));
+        BITMAP_COLOR_4BPP(MAINPAL_COLOR_BG_OPAQUE));
     bitmap_rect_draw(&ui_bitmap, config->x, config->y, config->width, config->height,
-        BITMAP_COLOR_2BPP(MAINPAL_COLOR_BLACK), false);
+        BITMAP_COLOR_2BPP(MAINPAL_COLOR_FG), false);
 
     if (config->title) {
         bitmapfont_set_active_font(font16_bitmap);
@@ -214,7 +214,7 @@ void ui_popup_dialog_draw_update(ui_popup_dialog_config_t *config) {
         uint16_t p_width = config->width - 16;
         uint16_t p = config->progress_step * (uint32_t)p_width / config->progress_max;
         bitmap_rect_fill(&ui_bitmap, config->x + 8, config->progress_y, p, 1,
-            BITMAP_COLOR_2BPP(MAINPAL_COLOR_BLACK));
+            BITMAP_COLOR_2BPP(MAINPAL_COLOR_FG));
     }
 }
 
