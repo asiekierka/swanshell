@@ -319,6 +319,7 @@ static inline void ui_show_inner(void) {
 
 void ui_unload_wallpaper(void) {
     wallpaper_status = 0;
+    ws_screen_fill_tiles(ui_screen_bg, 0x1FF, 0, 0, 28, 18);
     ui_show_inner();
 }
 

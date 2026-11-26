@@ -96,13 +96,13 @@ int theme_add_wallpaper(uint16_t feature, const char __far *path) {
 
             memcpy(dest, palette, 32);
             if (height == WS_DISPLAY_HEIGHT_PIXELS) {
-                memcpy(dest + 32, (uint16_t*) 0x8000, 16128);
+                memcpy(dest + 32, bmp_loader_dest, 16128);
             } else {
                 memset(dest + 32, 0, 16128);
 
                 uint16_t copy_offset = ((WS_DISPLAY_HEIGHT_PIXELS - height) >> 1) * 4;
                 uint16_t copy_height = height * 4;
-                uint8_t *ptr = (uint8_t*) 0x8000;
+                uint8_t *ptr = bmp_loader_dest;
 
                 for (int i = 0; i < WS_SCREEN_WIDTH_TILES; i++, ptr += (WS_DISPLAY_HEIGHT_PIXELS * 4)) {
                     memcpy(dest + 32 + (WS_DISPLAY_HEIGHT_PIXELS * 4 * i) + copy_offset, ptr, copy_height);
