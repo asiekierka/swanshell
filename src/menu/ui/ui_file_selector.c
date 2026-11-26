@@ -249,10 +249,9 @@ rescan_directory:
     ui_draw_titlebar(NULL);
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
     ui_show();
-    if (!reinit_ui && ui_has_wallpaper()) {
-        ui_layout_bars();
-    }
     if (reinit_ui || reinit_dirs) {
+        ui_selector_clear_selection(&config);
+
         char *path = strbuf + 3;
         f_getcwd(path, sizeof(strbuf) - 4);
 
