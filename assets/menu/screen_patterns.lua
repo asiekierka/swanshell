@@ -19,3 +19,4 @@ end
 emit_screen_pattern("ui_layout_clear_data", function(x, y) return 0 end, 0)
 emit_screen_pattern("ui_layout_bars_h_data", function(x, y) if y == 0 then return (2 << 9) elseif y == 17 then return (3 << 9) else return 0 end end, 0)
 emit_screen_pattern("ui_layout_bars_v_data", function(x, y) if x == 0 then return (3 << 9) elseif x == 27 then return (2 << 9) else return 0 end end, 0)
+emit_screen_pattern("ui_layout_wallpaper_data", function(x, y) return 0 end, (1 << 13) + (4 << 9))

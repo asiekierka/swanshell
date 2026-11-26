@@ -74,7 +74,7 @@ static int16_t get_button_width(ui_osk_state_t *state) {
 static void clear_osk_xy(ui_osk_state_t *state) {
     CALC_OSK_DIMENSIONS;
 
-    ui_screen_modify_tiles(bitmap_screen2,
+    ui_screen_modify_tiles(ui_screen_fg,
         ~WS_SCREEN_ATTR_PALETTE(0xF),
         WS_SCREEN_ATTR_PALETTE(0),
         (osk_x + state->x * glyph_width) >> 3,
@@ -132,7 +132,7 @@ static void set_osk_xy(ui_osk_state_t *state, int8_t x, int8_t y, bool after_mov
     state->x = x;
     state->y = y;
 
-    ui_screen_modify_tiles(bitmap_screen2,
+    ui_screen_modify_tiles(ui_screen_fg,
         ~WS_SCREEN_ATTR_PALETTE(0xF),
         WS_SCREEN_ATTR_PALETTE(1),
         (osk_x + state->x * glyph_width) >> 3,

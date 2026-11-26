@@ -47,7 +47,7 @@ void ui_popup_dialog_reset(ui_popup_dialog_config_t *config) {
 void ui_popup_dialog_clear(ui_popup_dialog_config_t *config) {
     if (config->width && config->height) {
         bitmap_rect_fill(&ui_bitmap, config->x, config->y, config->width, config->height,
-            BITMAP_COLOR_4BPP(ui_has_wallpaper() ? 0 : 2));
+            BITMAP_COLOR_4BPP(0));
     }
 }
 

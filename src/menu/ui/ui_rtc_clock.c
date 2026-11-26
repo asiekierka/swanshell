@@ -76,12 +76,12 @@ static void draw_rtc_timer(ws_cart_rtc_datetime_t *dt, int selected_value, bool 
     if (selected_value >= 10) selected_x++;
 
     // adjust selection
-    ui_screen_modify_tiles(bitmap_screen2,
+    ui_screen_modify_tiles(ui_screen_fg,
         ~WS_SCREEN_ATTR_PALETTE(0xF),
         WS_SCREEN_ATTR_PALETTE(0),
         RTC_TIMER_TEXT_X >> 3, RTC_TIMER_TEXT_Y >> 3,
         RTC_TIMER_WIDTH >> 3, RTC_TIMER_GLYPH_HEIGHT >> 3);
-    ui_screen_modify_tiles(bitmap_screen2,
+    ui_screen_modify_tiles(ui_screen_fg,
         ~WS_SCREEN_ATTR_PALETTE(0xF),
         WS_SCREEN_ATTR_PALETTE(1),
         (RTC_TIMER_TEXT_X + (RTC_TIMER_GLYPH_WIDTH * selected_x)) >> 3, RTC_TIMER_TEXT_Y >> 3,

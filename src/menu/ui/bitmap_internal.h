@@ -33,6 +33,17 @@
         height = tmp; \
     }
 
+#define BITMAP_DO_ROTATE_XYWH_TILES(x,y,width,height) \
+    if (!bitmap_rotation) { \
+        uint16_t tmp = y; \
+        y = x; \
+        x = bitmap->width - height - tmp; \
+        \
+        tmp = width; \
+        width = height; \
+        height = tmp; \
+    }
+
 extern const uint16_t __far count_width_mask[17];
 extern const uint8_t count_width_mask8[9];
 extern const uint16_t __far color_mask[4];

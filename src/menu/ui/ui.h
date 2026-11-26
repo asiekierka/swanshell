@@ -84,7 +84,14 @@ static inline uint8_t ui_rgb_to_shade(uint16_t rgb) {
     return (color_rgb4_to_greyscale(rgb) >> 1) ^ 7;
 }
 
-extern uint16_t bitmap_screen2[];
+/**
+ * Background screen tilemap (Color mode only)
+ */
+#define ui_screen_bg ((uint16_t ws_iram*) 0x3800)
+/**
+ * Foreground screen tilemap
+ */
+extern uint16_t ui_screen_fg[];
 
 #define MAINPAL_COLOR_WHITE 2
 #define MAINPAL_COLOR_BLACK 3
@@ -113,5 +120,11 @@ typedef enum {
     UI_BAR_ICON_MCU_ERROR,
     UI_BAR_ICON_USB_DETECT
 } bar_icon_index_t;
+
+// ui_effect.c
+void ui_effect_select_tiles(uint16_t x, uint16_t y, uint16_t width, uint16_t height, bool selected);
+static inline void ui_effect_select_clear(void) {
+    ui_effect_select_tiles(0, 1, screen_width >> 3, (screen_height >> 3) - 2, false);
+}
 
 #endif /* UI_H_ */

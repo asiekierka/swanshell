@@ -16,8 +16,9 @@
 
 ### Main drawing area palette
 
-- Color 2, 3: background, foreground
-  - If the wallpaper is to be visible (WSC), colors 0, 1 are used instead
+- Color 0: background (mono)
+  - On WSC, screen 1 is used as background/wallpaper instead
+- Color 1: foreground
 - Colors 4-15: additional icon palette
 
 ### Bar palette
