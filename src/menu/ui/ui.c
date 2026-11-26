@@ -349,10 +349,11 @@ void ui_show(void) {
         if (ws_system_get_mode() == WS_MODE_COLOR_4BPP) {
             if (ui_load_wallpaper(bitmap_rotation ? THEME_FEATURE_WALLPAPER_HORIZONTAL : THEME_FEATURE_WALLPAPER_VERTICAL)) {
                 wallpaper_status = 1;
-            } else {
-                ws_screen_fill_tiles(ui_screen_bg, 0x1FF, 0, 0, 28, 18);
             }
         }
+    }
+    if (wallpaper_status != 1) {
+        ws_screen_fill_tiles(ui_screen_bg, 0x1FF, 0, 0, 28, 18);
     }
     ui_show_inner();
 }
