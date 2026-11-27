@@ -154,7 +154,9 @@ int ui_txtview(const char *path) {
     ui_draw_statusbar(lang_keys[LK_UI_STATUS_LOADING]);
 
     uint32_t size = f_size(&fp);
-    if ((size >> 16) > asset_heap_get_free_first_banks()) {
+    uint16_t num_banks = (size + 65535) >> 16;
+    int16_t free_banks = asset_heap_get_free_first_banks() - num_banks;
+    if (free_banks < 0) {
         return ERR_FILE_TOO_LARGE;
     }
 
@@ -166,12 +168,14 @@ int ui_txtview(const char *path) {
     if (result != FR_OK) return result;
 
     txt_encoding_t encoding = detect_encoding(size);
-    uint16_t tbl_bank = (size + 65535) >> 16;
     if (encoding == TXT_ENCODING_SJIS) {
+        if (free_banks <= 0) {
+            return ERR_FILE_TOO_LARGE;
+        }
         strcpy(buf, s_path_tbl_shiftjis);
         result = f_open(&fp, buf, FA_READ);
         if (result != FR_OK) return result;
-        result = f_read_rom_banked(&fp, tbl_bank, f_size(&fp), NULL, NULL);
+        result = f_read_rom_banked(&fp, num_banks, f_size(&fp), NULL, NULL);
         f_close(&fp);
         if (result != FR_OK) return result;
     }
@@ -205,7 +209,7 @@ int ui_txtview(const char *path) {
             const char __far *ptr = MK_FP(0x2000 | ((file_pos >> 4) & 0xFFF), file_pos & 0xF);
             uint32_t ch;
             if (encoding == TXT_ENCODING_SJIS) {
-                ch = sjis_decode_next(&ptr, tbl_bank);
+                ch = sjis_decode_next(&ptr, num_banks);
             } else {
                 ch = wsx_utf8_decode_next(&ptr);
             }
