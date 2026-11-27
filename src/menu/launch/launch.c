@@ -208,6 +208,10 @@ int16_t launch_get_rom_metadata(const char *path, launch_rom_metadata_t *meta) {
     meta->eeprom_size = eeprom_sizes[meta->footer.save_type >> 4];
     meta->flash_size = 0;
 
+    if (meta->rom_banks > CONFIG_MAX_ROM_BANKS || size > (CONFIG_MAX_ROM_BANKS * 65536L)) {
+        return ERR_FILE_TOO_LARGE;
+    }
+
     meta->rom_type = ROM_TYPE_UNKNOWN;
     if (meta->footer.publisher_id == 0x00
         && meta->footer.game_id == 0x00

@@ -21,6 +21,7 @@
 #include <nile.h>
 #include <nilefs.h>
 #include "bootstub.h"
+#include "config.h"
 #include "errors.h"
 #include "launch.h"
 
@@ -50,6 +51,8 @@ int16_t launch_plugin_via_ipc(const char __far *plugin_path, const char *filenam
     launch_rom_metadata_t meta;
     result = launch_get_rom_metadata(filepath, &meta);
     if (result == FR_OK) {
+        meta.rom_banks = CONFIG_MAX_ROM_BANKS;
+
         result = launch_set_bootstub_file_entry(filepath, &bootstub_data->prog);
         if (result == FR_OK) {
             bootstub_data->prog_patches |= BOOTSTUB_PROG_PATCH_IPC_RESERVED;

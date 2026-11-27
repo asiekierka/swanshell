@@ -16,8 +16,9 @@
  */
 
 #include "asset_heap.h"
+#include "config.h"
 
-static uint8_t asset_heap_min_bank = 0xF2;
+static uint8_t asset_heap_min_bank = (CONFIG_MAX_ROM_BANKS - 0x10 + 0x02);
 
 uint8_t asset_heap_alloc_banks(uint8_t bank_count) {
     asset_heap_min_bank -= bank_count;

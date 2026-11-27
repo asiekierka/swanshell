@@ -25,10 +25,3 @@
 * File selector
   * Banks 1 .. 6 inclusive store file entries
     * Bank 6 0xF410 .. 0xFFF7 stores file selector indexes
-
-## Cartridge IPC RAM
-
-- Allocated with regards to [the memory map](https://www.49bitcat.com/docs/nileswan/developer/memory_map/#ipc-buffer)
-- User data area (0x0E0..0x1FF):
-  - For plugins (like uxnws), stores the path of the file to be loaded.
-  - 0x1FC..0x1FF stores the save ID for emulated NOR flash.
